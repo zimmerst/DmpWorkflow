@@ -5,9 +5,9 @@ Created on Mar 1, 2016
 '''
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.views import MethodView
-from core.models import Post, Comment
+from core.schema import Job, JobInstance
 
-posts = Blueprint('posts', __name__, template_folder='templates')
+jobs = Blueprint('jobs', __name__, template_folder='templates')
 
 
 class ListView(MethodView):
@@ -25,5 +25,5 @@ class DetailView(MethodView):
 
 
 # Register the urls
-posts.add_url_rule('/', view_func=ListView.as_view('list'))
-posts.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
+jobs.add_url_rule('/', view_func=ListView.as_view('list'))
+jobs.add_url_rule('/<taskName>/', view_func=DetailView.as_view('detail'))

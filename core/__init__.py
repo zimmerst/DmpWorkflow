@@ -13,12 +13,12 @@ app.config['PREFIX_PASSWORD']=cfg.get("database","password")
 app.config['PREFIX_HOST']=cfg.get("database","host")
 db = PyMongo(app)
 
-#def register_blueprints(app):
-#    # Prevents circular imports
-#    from tumblelog.views import posts
-#    app.register_blueprint(posts)
+def register_blueprints(app):
+    # Prevents circular imports
+    from core.views import jobs
+    app.register_blueprint(jobs)
 
-#register_blueprints(app)
+register_blueprints(app)
 
 if __name__ == '__main__':
     app.run()

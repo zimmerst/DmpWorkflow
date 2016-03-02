@@ -9,14 +9,15 @@ import datetime, random
 from flask import url_for
 
 from marrow.mongo.core.document import Document
-from marrow.mongo.field.registry import DateTime, String, Long
+from marrow.mongo.field.registry import String, Long
 
 
 class Job(Document):
     release = String(required=False)
     taskName = String(required=True)
     particle = String(required=True)
-    type = String(default=None, choices=("None", "Generator", "Digitization", "Reconstruction"))
+    type = String(default=None, choices=("None", "Generator", 
+                                         "Digitization", "Reconstruction"))
     @property
     def created_at(self):
         return self._id.generation_time
