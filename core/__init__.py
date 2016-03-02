@@ -24,12 +24,12 @@ app.config['MONGODB_HOST']=cfg.get("database","host")
 db = MongoEngine(app)
 
 
-def register_blueprints(app):
-    # Prevents circular imports
-    from core.views import jobs
-    app.register_blueprint(jobs)
+#def register_blueprints(app):
+#    # Prevents circular imports
+#    from core.views import jobs
+#    app.register_blueprint(jobs)
 
-register_blueprints(app)
+#register_blueprints(app)
 
 if __name__ == '__main__':
     app.run()

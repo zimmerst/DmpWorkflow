@@ -8,6 +8,8 @@ import datetime, random
 from flask import url_for
 from core import db
 
+VERY_LARGE_NUMBER = 100000000000
+
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     release = db.StringField(verbose_name="release", required=False)
@@ -26,7 +28,7 @@ class Job(db.Document):
     }
 
 class JobInstance(Job):
-    randomSeed = db.LongField(default=0,required=True)
+    randomSeed = db.LongField(default=random.randint(0,VERY_LARGE_NUMBER),required=True)
     def get_absolute_url(self):
         return url_for('job', kwargs={"taskName": self.taskName})
     def __unicode__(self):

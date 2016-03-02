@@ -13,7 +13,7 @@ from core import app, cfg
 
 seed = cfg.get("global","randomSeed")
 seed = int(seed) if not seed=='true' else int(time.mktime(datetime.now().timetuple()))
-random.seed(seed)
+#random.seed(seed)
 
 manager = Manager(app)
 # Turn on debugger by default and reloader
@@ -27,5 +27,5 @@ manager.add_command(
                     )
 
 if __name__ == "__main__":
-    print("initializing random seed %i"%seed)
+    #print("initializing random seed %i"%seed)
     manager.run()
