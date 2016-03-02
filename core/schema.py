@@ -1,6 +1,6 @@
 '''
 Created on Mar 2, 2016
-
+@deprecated: depends on 3rd party marrow.mongo package... try dropping
 @author: zimmer
 special thanks to GothAlice in the #mongodb freenode channel
 '''
@@ -9,8 +9,8 @@ import datetime, random
 from flask import url_for
 
 from marrow.mongo.core.document import Document
-from marrow.mongo.field.registry import String, Long
-
+from marrow.mongo.field.base import String
+from marrow.mongo.field.number import Long
 
 class Job(Document):
     release = String(required=False)
