@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% for job in jobs %}
+      <h2><a href="{{ url_for('jobs.detail', taskName=job.taskName) }}">{{ job.taskName }}</a></h2>
+      <p>{{ job.taskName|truncate(100) }}</p>
+      <p>
+        {{ job.created_at.strftime('%H:%M %Y-%m-%d') }} |
+        {% with total=job.instances|length %}
+            {{ total }} instance {%- if total > 1 %}s{%- endif -%}
+        {% endwith %}
+      </p>
+    {% endfor %}
+{% endblock %}

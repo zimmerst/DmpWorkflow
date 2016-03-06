@@ -5,7 +5,7 @@ from flask import Flask
 from flask.ext.mongoengine import MongoEngine
 
 cfg = ConfigParser.SafeConfigParser()
-cfg.read(os.getenv("WorkflowConfig","config/default.cfg"))
+cfg.read(os.getenv("WorkflowConfig","config/dampe.cfg"))
 
 app = Flask(__name__)
 
@@ -21,15 +21,15 @@ app.config['MONGODB_DB']=cfg.get("database","name")
 app.config['MONGODB_USERNAME']=cfg.get("database","user")
 app.config['MONGODB_PASSWORD']=cfg.get("database","password")
 app.config['MONGODB_HOST']=cfg.get("database","host")
+app.config["SECRET_KEY"] = "KeepThisS3cr3t"
 db = MongoEngine(app)
 
+def register_blueprints(app):
+    # Prevents circular imports
+    from core.views import jobs
+    app.register_blueprint(jobs)
 
-#def register_blueprints(app):
-#    # Prevents circular imports
-#    from core.views import jobs
-#    app.register_blueprint(jobs)
-
-#register_blueprints(app)
+register_blueprints(app)
 
 if __name__ == '__main__':
     app.run()
