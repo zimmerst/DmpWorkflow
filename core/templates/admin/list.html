@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+  <table  class="table table-bordered table-striped">
+    <thead>
+      <th>Title</th>
+      <th>Created</th>
+      <th>Actions</th>
+    </thead>
+    <tbody>
+    {% for job in jobs %}
+      <tr>
+        <th><a href="{{ url_for('admin.edit', slug=job.slug) }}">{{ job.title }}</a></th>
+        <td>{{ job.created_at.strftime('%Y-%m-%d') }}</td>
+        <td><a href="{{ url_for("admin.edit", slug=job.slug) }}" class="btn primary">Edit</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

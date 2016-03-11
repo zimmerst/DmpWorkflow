@@ -1,38 +1,29 @@
-'''
-Created on Mar 2, 2016
-
-@author: zimmer
-'''
-
-import datetime, random
+import datetime
 from flask import url_for
 from core import db
-from bson.objectid import ObjectId
 
-VERY_LARGE_NUMBER = 100000000000
 
 class JobInstance(db.EmbeddedDocument):
-    _id = db.ObjectIdField( required=True, default=lambda: ObjectId() )
-    randomSeed = db.LongField(default=random.randint(0,VERY_LARGE_NUMBER),required=True)
-    def get_absolute_url(self):
-        return url_for('job', kwargs={"taskName": self.taskName})
-    def __unicode__(self):
-        return "%s:%s"%(self.taskName,str(self._id))
+    created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
+    body = db.StringField(verbose_name="JobInstance", required=True)
+    author = db.StringField(verbose_name="Name", max_length=255, required=True)
 
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
-    taskName = db.StringField(verbose_name="taskName", required=True)
-    type = db.StringField(verbose_name="type",default="None",required=True,
-                        choices=["Generation","Digitization","Reconstruction","None"])    
-    particle = db.StringField(verbose_name="particle", required=True)
-    instances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
+    title = db.StringField(max_length=255, required=True)
+    slug = db.StringField(max_length=255, required=True)
+    body = db.StringField(required=True)
+    jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
+
     def get_absolute_url(self):
-        return url_for('job', kwargs={"taskName": self.taskName})
+        return url_for('job', kwargs={"slug": self.slug})
+
     def __unicode__(self):
-        return self.taskName
+        return self.title
+
     meta = {
         'allow_inheritance': True,
-        'indexes': ['-created_at', 'taskName'],
+        'indexes': ['-created_at', 'slug'],
         'ordering': ['-created_at']
     }
 

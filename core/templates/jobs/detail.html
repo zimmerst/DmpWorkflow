@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% import "_forms.html" as forms %}
+
+{% block page_header %}
+  <div class="page-header">
+    <h1>{{ job.title }}</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <p>{{ job.body }}<p>
+  <p>{{ job.created_at.strftime('%H:%M %Y-%m-%d') }}</p>
+  <hr>
+  <h2>Job Instances</h2>
+  {% if job.jobInstances %}
+    {% for jobInstance in job.jobInstances %}
+       <p>{{ jobInstance.body }}</p>
+       <p><strong>{{ jobInstance.author }}</strong> <small>on {{ jobInstance.created_at.strftime('%H:%M %Y-%m-%d') }}</small></p>
+      {{ jobInstance.text }}
+    {% endfor %}
+  {% endif %}
+  <hr>
+  <h2>Add a jobInstance</h2>
+  <form action="." method="post">
+   {{ forms.render(form) }}
+   <div class="actions">
+    <input type="submit" class="btn primary" value="jobInstance">
+   </div>
+  </form>
+
+{% endblock %}
+
