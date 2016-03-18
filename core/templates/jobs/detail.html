@@ -15,8 +15,7 @@
   {% if job.jobInstances %}
     {% for jobInstance in job.jobInstances %}
        <p>{{ jobInstance.body }}</p>
-       <p><strong>{{ jobInstance.author }}</strong> <small>on {{ jobInstance.created_at.strftime('%H:%M %Y-%m-%d') }}</small></p>
-      {{ jobInstance.text }}
+       <p><strong>{{ jobInstance.batchId }} {{jobInstance.status}} </strong> <small>on {{ jobInstance.created_at.strftime('%H:%M %Y-%m-%d') }}</small> </p>
     {% endfor %}
   {% endif %}
   <hr>
