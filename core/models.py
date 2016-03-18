@@ -2,7 +2,12 @@ import datetime
 from flask import url_for
 from core import db
 
-MAJOR_STATII = ('New','Running','Failed','Terminated','Done','Submitted')
+MAJOR_STATII = (('N','New'),
+                ('R','Running'),
+                ('F','Failed'),
+                ('T','Terminated')
+                ('D','Done')
+                ('S','Submitted'))
 
 class JobInstance(db.EmbeddedDocument):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
