@@ -5,9 +5,7 @@
       <h2><a href="{{ url_for('jobs.detail', slug=job.slug) }}">{{ job.title }}</a></h2>
       <p>{{ job.body|truncate(100) }}</p>
       <p>
-		{% for key, value in job.aggregateStatii().iteritems %}
-		    <li>{{ key value }}</li> 
-		{% endfor %}
+        {{ job.created_at.strftime('%H:%M %Y-%m-%d') }} |
         {% with total=job.jobInstances|length %}
             {{ total }} jobInstance {%- if total > 1 %}s{%- endif -%}
         {% endwith %}
