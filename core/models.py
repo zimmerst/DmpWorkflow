@@ -11,6 +11,7 @@ MAJOR_STATII = ('New','Running','Failed','Terminated','Done','Submitted')
                 #('S','Submitted'))
 
 class JobInstance(db.EmbeddedDocument):
+    
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=True)
     author = db.StringField(verbose_name="Name", max_length=255, required=True)
@@ -23,7 +24,16 @@ class Job(db.Document):
     slug = db.StringField(max_length=255, required=True)
     body = db.StringField(required=True)
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
-
+    
+    def aggregateStatii(self):
+        ''' will return an aggregated summary of all instances in all statuses '''
+        counting_dict = dict(zip(MAJOR_STATII,[0 for m in MAJOR_STATII]))
+        for jI in self.jobInstances:
+            if jI.status is not in MAJOR_STATII:
+                raise Exception("Instance found in status not known to system")
+            counting_dict[jI.status]+=1
+        return counting_dict
+            
     def get_absolute_url(self):
         return url_for('job', kwargs={"slug": self.slug})
 
