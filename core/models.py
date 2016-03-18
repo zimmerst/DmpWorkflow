@@ -5,8 +5,8 @@ from core import db
 MAJOR_STATII = (('N','New'),
                 ('R','Running'),
                 ('F','Failed'),
-                ('T','Terminated')
-                ('D','Done')
+                ('T','Terminated'),
+                ('D','Done'),
                 ('S','Submitted'))
 
 class JobInstance(db.EmbeddedDocument):
