@@ -29,8 +29,7 @@ class Job(db.Document):
         ''' will return an aggregated summary of all instances in all statuses '''
         counting_dict = dict(zip(MAJOR_STATII,[0 for m in MAJOR_STATII]))
         for jI in self.jobInstances:
-            if jI.status is not in MAJOR_STATII:
-                raise Exception("Instance found in status not known to system")
+            if not jI.status in MAJOR_STATII: raise Exception("Instance found in status not known to system")
             counting_dict[jI.status]+=1
         return counting_dict
             
