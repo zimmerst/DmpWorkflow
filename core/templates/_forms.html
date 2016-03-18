@@ -9,8 +9,7 @@
     <div class="input">
       {% if field.name == "body" %}
         {{ field(rows=10, cols=40) }}
-      {% if field.name == "status" %}{ % pass }
-      {% else %}
+      {% elif field.name != "status" %}
         {{ field() }}
       {% endif %}
       {% if field.errors or field.help_text %}
