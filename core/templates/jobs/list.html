@@ -3,11 +3,12 @@
 {% block content %}
 <h2> Job Summary </h2>
 <table>
-<tr>
+<thead>
 	{% for key in ('Job','New','Running','Failed','Terminated','Done','Submitted')%}
 	<th>{{ key }}</th>
 	{% endfor %}
-</tr>
+
+</thead>
 	{% for job in jobs %}
 <tr>
 	<td><a href="{{ url_for('jobs.detail', slug=job.slug) }}">{{ job.title }}</a></td>
