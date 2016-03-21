@@ -31,8 +31,9 @@ class Job(db.Document):
         for jI in self.jobInstances:
             if not jI.status in MAJOR_STATII: raise Exception("Instance found in status not known to system")
             counting_dict[jI.status]+=1
-        return counting_dict
-            
+        return [("Job",self.slug)]+[(k,v) for k,v in counting_dict.iteritems()]
+        #return counting_dict
+                    
     def get_absolute_url(self):
         return url_for('job', kwargs={"slug": self.slug})
 

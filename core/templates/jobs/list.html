@@ -9,6 +9,10 @@
         {% with total=job.jobInstances|length %}
             {{ total }} jobInstance {%- if total > 1 %}s{%- endif -%}
         {% endwith %}
+		</br>
+		{% for key, value in job.aggregateStatii() %}
+		{{ key }}({{ value }}) </div>
+		{% endfor %}
       </p>
     {% endfor %}
 {% endblock %}
