@@ -1,18 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% for job in jobs %}
-      <h2><a href="{{ url_for('jobs.detail', slug=job.slug) }}">{{ job.title }}</a></h2>
-      <p>{{ job.body|truncate(100) }}</p>
-      <p>
-        {{ job.created_at.strftime('%H:%M %Y-%m-%d') }} |
-        {% with total=job.jobInstances|length %}
-            {{ total }} jobInstance {%- if total > 1 %}s{%- endif -%}
-        {% endwith %}
-		</br>
-		{% for key, value in job.aggregateStatii() %}
-		{{ key }}({{ value }}) </div>
-		{% endfor %}
-      </p>
-    {% endfor %}
+<h2> Job Summary </h2>
+<table>
+<tr>
+	{% for key in ('Job','New','Running','Failed','Terminated','Done','Submitted')%}
+	<th>{{ key }}</th>
+	{% endfor %}
+</tr>
+	{% for job in jobs %}
+<tr>
+	<td><a href="{{ url_for('jobs.detail', slug=job.slug) }}">{{ job.title }}</a></td>
+	{% for key, value in job.aggregateStatii() %}
+	<td>{{ value }}</td>
+	{% endfor %}
+</tr>	
+	{% endfor %}
+</table>
+
 {% endblock %}
