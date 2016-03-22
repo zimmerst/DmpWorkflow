@@ -29,6 +29,7 @@ class lsf(object):
                 this_line.remove(this_line[0])
                 while "" in this_line:
                     this_line.remove("")
-                print this_line
+                this_job = dict(zip(keys,,this_line))
+                print this_job
                 #jobs[this_line[0]]=dict(zip(keys,this_line[1:-1]))
         return jobs
