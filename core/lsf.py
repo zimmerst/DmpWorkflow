@@ -19,7 +19,7 @@ class lsf(object):
     
     def aggregateStatii(self,asDict=True,command=["bjobs -W"]):
         jobs = {}
-        keys = "USER,STAT,QUEUE,FROM_HOST,EXEC_HOST,JOB_NAME"
+        keys = "USER,STAT,QUEUE,FROM_HOST,EXEC_HOST,JOB_NAME,"
         keys+= "SUBMIT_TIME,PROJ_NAME,CPU_USED,MEM,SWAP,PIDS,START_TIME,FINISH_TIME,SLOTS"
         keys = keys.split(",")
         output = run(command)
