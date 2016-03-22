@@ -19,14 +19,14 @@ Installation Instructions:
 3.	activate virtualenv:
 	source DmpWorkflow/bin/activate
 	
-3a.	install missing flask packages
+4.	install missing flask packages
 	pip install flask
 	pip install flask-mongoengine
 	pip install flask-script
 	pip install mongoengine
 
-4.	modify config to have right server & DB address
+5.	modify config to have right server & DB address
 	(note that the framework may run on two different servers!)
 	
-5.	source setup.sh to initialize relevant environment variables
+6.	source setup.sh to initialize relevant environment variables
 
