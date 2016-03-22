@@ -20,6 +20,7 @@ Installation Instructions:
 	source DmpWorkflow/bin/activate
 	
 4.	install missing flask packages
+	
 	pip install flask
 	pip install flask-mongoengine
 	pip install flask-script
