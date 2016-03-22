@@ -27,6 +27,8 @@ class lsf(object):
                 this_line = line.split(" ")
                 jobID = this_line[0]
                 this_line.remove(this_line[0])
+                while "" in this_line:
+                    this_line.remove("")
                 print this_line
                 #jobs[this_line[0]]=dict(zip(keys,this_line[1:-1]))
         return jobs
