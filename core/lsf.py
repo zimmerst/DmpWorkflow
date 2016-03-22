@@ -25,5 +25,8 @@ class lsf(object):
         for i, line in enumerate(output.split("\n")):
             if i>0:
                 this_line = line.split(" ")
-                jobs[this_line[0]]=dict(zip(keys,this_line[1:-1]))
+                jobID = this_line[0]
+                this_line.remove(this_line[0])
+                print this_line
+                #jobs[this_line[0]]=dict(zip(keys,this_line[1:-1]))
         return jobs
