@@ -39,5 +39,5 @@ Installation Instructions:
 5.	modify config to have right server & DB address. See config/default.cfg for an example.
 	(note that the framework may run on two different servers!) 
 	
-6.	source DmpFramework/setup.sh to initialize relevant environment variables
+6.	source DmpWorkflow/setup.sh to initialize relevant environment variables
 
