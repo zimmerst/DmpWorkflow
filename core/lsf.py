@@ -4,24 +4,28 @@ Created on Mar 22, 2016
 @author: zimmer
 '''
 from core.shell import run
+import logging
 
 class lsf(object):
     '''
     classdocs
     '''
-
-
+    allJobs = {}
+    keys = "USER,STAT,QUEUE,FROM_HOST,EXEC_HOST,JOB_NAME,"
+    keys+= "SUBMIT_TIME,PROJ_NAME,CPU_USED,MEM,SWAP,PIDS,START_TIME,FINISH_TIME,SLOTS"
+    keys = keys.split(",")
+        
     def __init__(self, params):
         '''
         Constructor
         '''
-        pass
+        allJobs = self.update()
     
-    def aggregateStatii(self,asDict=True,command=["bjobs -W"]):
+    def update(self):
+        self.allJobs.update(self.aggregateStatii(asDict))
+    
+    def aggregateStatii(self,asDict=True,command=["bjobs -Wa"]):
         jobs = {}
-        keys = "USER,STAT,QUEUE,FROM_HOST,EXEC_HOST,JOB_NAME,"
-        keys+= "SUBMIT_TIME,PROJ_NAME,CPU_USED,MEM,SWAP,PIDS,START_TIME,FINISH_TIME,SLOTS"
-        keys = keys.split(",")
         output = run(command)
         if not asDict: return output
         else:
@@ -31,7 +35,13 @@ class lsf(object):
                     jobID = this_line[0]
                     this_line.remove(this_line[0])
                     while "" in this_line: this_line.remove("")
-                    this_job = dict(zip(keys,this_line))
+                    this_job = dict(zip(self.keys,this_line))
                     if len(this_job):
                         jobs[jobID]=this_job
             return jobs
+    def getJob(self,jobID,key="STAT",callable=str):
+        if not jobID in self.allJobs:
+            logging.error("could not find job %s"%jobID)
+        if not key in self.keys:
+            logging.error("could not extract key, allowed keys %s"%str(self.keys))
+        return callable(self.allJobs[jobID][key])   
