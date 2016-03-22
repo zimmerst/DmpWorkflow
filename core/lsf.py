@@ -23,14 +23,14 @@ class lsf(object):
         keys+= "SUBMIT_TIME,PROJ_NAME,CPU_USED,MEM,SWAP,PIDS,START_TIME,FINISH_TIME,SLOTS"
         keys = keys.split(",")
         output = run(command)
-        for i, line in enumerate(output.split("\n")):
-            if i>0:
-                this_line = line.split(" ")
-                jobID = this_line[0]
-                this_line.remove(this_line[0])
-                while "" in this_line:
-                    this_line.remove("")
-                this_job = dict(zip(keys,this_line))
-                print this_job
-                #jobs[this_line[0]]=dict(zip(keys,this_line[1:-1]))
-        return jobs
+        if not asDict: return output
+        else:
+            for i, line in enumerate(output.split("\n")):
+                if i>0:
+                    this_line = line.split(" ")
+                    jobID = this_line[0]
+                    this_line.remove(this_line[0])
+                    while "" in this_line: this_line.remove("")
+                    this_job = dict(zip(keys,this_line))
+                    jobs[this_line[0]]=this_job
+            return jobs
