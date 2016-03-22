@@ -5,8 +5,11 @@ Workflow framework for DAMPE remote computing &amp; accounting
 Prerequisites 
 -------------
 it's advisable to install virtualenv to handle the different python installations
+
+```python
 easy_install virtualenv OR
 pip install virtualenv
+```
 
 Installation Instructions:
 --------------------------
@@ -36,5 +39,5 @@ Installation Instructions:
 5.	modify config to have right server & DB address
 	(note that the framework may run on two different servers!)
 	
-6.	source setup.sh to initialize relevant environment variables
+6.	source DmpFramework/setup.sh to initialize relevant environment variables
 
