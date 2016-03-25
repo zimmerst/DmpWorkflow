@@ -14,7 +14,7 @@
   <h2>Job Instances</h2>
   {% if job.jobInstances %}
     {% for jobInstance in job.jobInstances %}
-       <p><strong>Batch ID: {{ jobInstance.batchId }} Status: {{jobInstance.status}} </strong> <small>created {{ jobInstance.created_at.strftime('%H:%M %Y-%m-%d') }}</small> </p>
+       <p>{{ jobInstance.uniqueId }} <strong>Batch ID: {{ jobInstance.batchId }} Status: {{jobInstance.status}} </strong> <small>created {{ jobInstance.created_at.strftime('%H:%M %Y-%m-%d') }}</small> </p>
     {% endfor %}
   {% endif %}
   <hr>

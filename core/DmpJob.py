@@ -21,3 +21,14 @@ class DmpJob(object):
         ''' extract jobInstanceParameters to fully define job '''
         pass
     
+    def submit(self):
+        ''' handles the submission part '''
+        pass
+    
+    def getStatus(self):
+        ''' interacts with the backend HPC stuff and returns the status of the job '''
+        pass
+    
+    def updateStatus(self,majorStatus,minorStatus):
+        ''' passes status '''
+        pass

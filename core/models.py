@@ -1,6 +1,7 @@
 import datetime
 from flask import url_for
 from core import db
+from utils.tools import random_string_generator
 
 MAJOR_STATII = ('New','Running','Failed','Terminated','Done','Submitted')
                 #(('N','New'),
@@ -14,14 +15,16 @@ class JobInstance(db.EmbeddedDocument):
     
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=True)
-    author = db.StringField(verbose_name="Name", max_length=255, required=True)
+    #    author = db.StringField(verbose_name="Name", max_length=255, required=True)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     batchId = db.LongField(verbose_name="batchId", required=False, default=0)
+    uniqueId = db.StringField(verbose_name="uniqueId", required = True, default = random_string_generator(16))
+    
     
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     title = db.StringField(max_length=255, required=True)
-    slug = db.StringField(max_length=255, required=True)
+    slug = db.StringField(verbose_name="slug", required = True)#, default = random_string_generator(16))
     release = db.StringField(max_length=255, required=False)
     body = db.StringField(required=True)
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
