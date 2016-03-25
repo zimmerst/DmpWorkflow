@@ -1,20 +1,22 @@
 {% extends "admin/base.html" %}
 
 {% block content %}
-  <table  class="table table-bordered table-striped">
-    <thead>
-      <th>Title</th>
-      <th>Created</th>
-      <th>Actions</th>
-    </thead>
-    <tbody>
-    {% for job in jobs %}
-      <tr>
-        <th><a href="{{ url_for('admin.edit', slug=job.slug) }}">{{ job.title }}</a></th>
-        <td>{{ job.created_at.strftime('%Y-%m-%d') }}</td>
-        <td><a href="{{ url_for("admin.edit", slug=job.slug) }}" class="btn primary">Edit</a></td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+<h2> Job Summary </h2>
+<table class="table table-bordered table-striped">
+	<thead>
+		{% for key in ('Job',"Type",'Release','Instances','Action')%}
+		<th>{{ key }}</th>
+		{% endfor %}
+	</thead>
+		{% for job in jobs %}
+		<tr>
+			<td><a href="{{ url_for('jobs.detail', slug=job.slug) }}">{{ job.title }}</a></td>
+			<td>{{ job.type }}</td>
+			<td>{{ job.release }}</td>
+			<td>{{job.jobInstances|length}} </td>
+	        <td><a href="{{ url_for("admin.edit", slug=job.slug) }}" class="btn primary">Edit</a> <a href="{{ url_for("admin.remove", slug=job.slug) }}" class="btn primary">Remove</a> </td>
+		</tr>	
+		{% endfor %}
+</table>
+
 {% endblock %}

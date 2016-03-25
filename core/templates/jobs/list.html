@@ -4,7 +4,7 @@
 <h2> Job Summary </h2>
 <table class="table">
 	<thead>
-		{% for key in ('Job',"Type",'Release','New','Submitted','Running','Done','Failed','Terminated')%}
+		{% for key in ('Job',"Type",'Release','New','Submitted','Running','Done','Failed','Terminated','Total')%}
 		<th>{{ key }}</th>
 		{% endfor %}
 	</thead>
@@ -16,6 +16,7 @@
 		{% for key, value in job.aggregateStatii() %}
 		<td>{{ value }}</td>
 		{% endfor %}
+		<td>{{job.jobInstances|length}}</td>
 	</tr>	
 	{% endfor %}
 </table>

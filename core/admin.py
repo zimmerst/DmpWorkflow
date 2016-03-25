@@ -22,6 +22,15 @@ class List(MethodView):
         jobs = self.cls.objects.all()
         return render_template('admin/list.html', jobs=jobs)
 
+class Remove(MethodView):
+    decorators = [requires_auth]
+
+    def get(self, slug=None):
+        if slug:
+            job = Job.objects.get_or_404(slug=slug);
+            job.delete();
+            
+        return redirect(url_for('admin.index'))
 
 class Detail(MethodView):
 
@@ -68,3 +77,4 @@ class Detail(MethodView):
 admin.add_url_rule('/admin/', view_func=List.as_view('index'))
 admin.add_url_rule('/admin/create/', defaults={'slug': None}, view_func=Detail.as_view('create'))
 admin.add_url_rule('/admin/<slug>/', view_func=Detail.as_view('edit'))
+admin.add_url_rule('/admin/remove/<slug>/', view_func=Remove.as_view('remove'))
