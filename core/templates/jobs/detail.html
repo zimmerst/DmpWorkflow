@@ -14,7 +14,7 @@
   <p>{{ job.body }}<p>
   </div>
   <hr>
-  <h2>Job Instances</h2>
+  <h2>Job Instances ({{job.jobInstances|length}} total)</h2>
   {% set columns = ["uniqueId","created at", "last sign of life", "batchId", "status", "minor_status"]%}
 <table class="table">
   <thead>
