@@ -3,28 +3,45 @@
 
 {% block page_header %}
   <div class="page-header">
-    <h1>{{ job.title }}</h1>
   </div>
 {% endblock %}
 
 {% block content %}
+  <h1>{{ job.title }}</h1> 
+  <strong> created at:</strong> {{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+  <strong> type:</strong> {{ job.type }} </br>
+  <div>
   <p>{{ job.body }}<p>
-  <p>{{ job.created_at.strftime('%H:%M %Y-%m-%d') }}</p>
+  </div>
   <hr>
   <h2>Job Instances</h2>
-  {% if job.jobInstances %}
+  {% set columns = ["uniqueId","created at", "last sign of life", "batchId", "status", "minor_status"]%}
+<table class="table">
+  <thead>
+	{% for col in columns %}  	
+	<th> {{ col }} </th>
+  	{% endfor %}
+  	{% if job.jobInstances %}  	
     {% for jobInstance in job.jobInstances %}
-       <p>{{ jobInstance.uniqueId }} <strong>Batch ID: {{ jobInstance.batchId }} Status: {{jobInstance.status}} </strong> <small>created {{ jobInstance.created_at.strftime('%H:%M %Y-%m-%d') }}</small> </p>
-    {% endfor %}
-  {% endif %}
-  <hr>
-  <h2>Add a jobInstance</h2>
-  <form action="." method="post">
-   {{ forms.render(form) }}
-   <div class="actions">
-    <input type="submit" class="btn primary" value="add new Job Instance">
-   </div>
-  </form>
-
+	<tr>
+		<td> {{ jobInstance.uniqueId }} </td>
+		<td> {{ jobInstance.created_at.strftime('%Y-%m-%d %H:%M:%S') }} </td>
+		<td> {{ jobInstance.last_update.strftime('%Y-%m-%d %H:%M:%S') }} </td>
+		<td> {{ jobInstance.batchId }} </td>
+		<td> {{ jobInstance.status }} </td>
+		<td> {{ jobInstance.minor_status }} </td>
+	</tr>
+	{% endfor %}
+    {% endif %}
+</table>
+<hr>
+{# construction site!!! #}
+{# <h2>Add a jobInstance</h2>													#}
+{#  <form action="." method="post"> 											#}
+{#   {{ forms.render(form) }} 													#}
+{#   <div class="actions"> 														#}
+{#    <input type="submit" class="btn primary" value="add new Job Instance"> 	#}
+{#   </div> 																	#}
+{#  </form> 																	#}
 {% endblock %}
 

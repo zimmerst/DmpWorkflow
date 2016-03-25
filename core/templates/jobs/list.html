@@ -4,14 +4,15 @@
 <h2> Job Summary </h2>
 <table class="table">
 	<thead>
-		{% for key in ('Job','Release','New','Running','Failed','Terminated','Done','Submitted')%}
+		{% for key in ('Job',"Type",'Release','New','Submitted','Running','Done','Failed','Terminated')%}
 		<th>{{ key }}</th>
 		{% endfor %}
 	</thead>
 		{% for job in jobs %}
 	<tr>
 		<td><a href="{{ url_for('jobs.detail', slug=job.slug) }}">{{ job.title }}</a></td>
-		<td> {{ job.release }}</td>
+		<td>{{ job.type }}</td>
+		<td>{{ job.release }}</td>
 		{% for key, value in job.aggregateStatii() %}
 		<td>{{ value }}</td>
 		{% endfor %}

@@ -5,9 +5,12 @@
   {{ field() }}
 {% else %}
   <div class="clearfix {% if field.errors %}error{% endif %}">
-	{% if field.name == "body" %} 								
-	    <strong> Override Values </strong> <tab class="input"> {{ field(rows=1, cols=80) }} </tab>
-    {% endif %}												
+	{% if field.name == "title" %}
+	<strong> Job Name </strong> <p class="input"> {{ field(rows=1,cols=255)}} </p>
+	{% elif field.name == "body" %} 								
+	    <strong> Metadata Content </strong> 
+	    <div class="input"> {{ field(rows=10, cols=60) }} </div>
+    {% endif %}								
   </div>												
 {% endif %}															
 {% endfor %}														

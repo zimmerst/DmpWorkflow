@@ -9,6 +9,7 @@ import core.models as models
 from core.DmpJob import DmpJob
 
 if __name__ == "__main__":
+    
     newJobInstances = []
     db.connect() # connect to DB
     for job in models.Job.objects:
@@ -20,5 +21,6 @@ if __name__ == "__main__":
                 dInstance.setInstanceParameters(j.body)
                 newJobInstances.append(dInstance)
     print 'found %i new job instances to deploy'%len(newJobInstances)
+    
     ## okay - can do bulk submission or something like that
     
