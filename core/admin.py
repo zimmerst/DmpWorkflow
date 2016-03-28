@@ -64,7 +64,7 @@ class Detail(MethodView):
     def post(self, slug):
         context = self.get_context(slug)
         form = context.get('form')
-
+        current_app.logger.info(form.slug.data)
         if form.validate():
             job = context.get('job')
             form.populate_obj(job)
@@ -79,4 +79,3 @@ admin.add_url_rule('/admin/', view_func=List.as_view('index'))
 admin.add_url_rule('/admin/create/', defaults={'slug': None}, view_func=Detail.as_view('create'))
 admin.add_url_rule('/admin/edit/<slug>/', view_func=Detail.as_view('edit'))
 admin.add_url_rule('/admin/remove/<slug>/', view_func=Remove.as_view('remove'))
-

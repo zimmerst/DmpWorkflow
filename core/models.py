@@ -1,10 +1,11 @@
 import datetime
 from flask import url_for
-from core import db
+from core import db, cfg
 from utils.tools import random_string_generator
 
-MAJOR_STATII = ('New','Running','Failed','Terminated','Done','Submitted')
-TYPES = ("Generation","Digitization","Reconstruction","User","Other")
+MAJOR_STATII = tuple(cfg.get("JobDB","task_major_statii").split(","))
+TYPES = tuple(cfg.get("JobDB","task_types").split(","))
+SITES = tuple(cfg.get("JobDB","batch_sites").split(","))
 
 class JobInstance(db.EmbeddedDocument):
     
@@ -16,6 +17,7 @@ class JobInstance(db.EmbeddedDocument):
     batchId = db.LongField(verbose_name="batchId", required=False, default=0)
     uniqueId = db.StringField(verbose_name="uniqueId", required = False, default = random_string_generator)
     last_update = db.DateTimeField(default=datetime.datetime.now, required=True)
+    hostname = db.StringField(verbose_name="hostname",required=False,default=None)
     
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
@@ -23,6 +25,7 @@ class Job(db.Document):
     slug = db.StringField(verbose_name="slug", required = True, default = random_string_generator)
     type = db.StringField(verbose_name="type", required=False, default="Other", choices=TYPES)
     release = db.StringField(max_length=255, required=False)
+    execution_site = db.StringField(max_length=255, required=False, default="CNAF", choices=SITES)
     body = db.StringField(required=True)
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
     
