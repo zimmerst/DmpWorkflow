@@ -6,9 +6,11 @@ Created on Mar 15, 2016
 from models import JobInstance
 
 class DmpJob(object):
-    def __init__(self,body):
-        self.body = body
-        
+    def __init__(self,job,**kwargs):
+        self.DBjob = job
+        self.jobId = str(job.id)
+        self.instanceId = None
+        self.__dict__.update(kwargs)
     def write_script(self,outfile):
         ''' based on meta-data should create job-executable '''
         pass

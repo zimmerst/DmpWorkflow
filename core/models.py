@@ -11,7 +11,6 @@ class JobInstance(db.EmbeddedDocument):
     
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
-    #    author = db.StringField(verbose_name="Name", max_length=255, required=True)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
     batchId = db.LongField(verbose_name="batchId", required=False, default=0)
