@@ -20,7 +20,7 @@ if __name__ == '__main__':
         job = Job(title="testJob-%i"%i,body=open("test/dummyJob.xml","r").read(), type=random.choice(TYPES),
                   release="DmpSoftware-%s"%random.choice(releases))
         for j in range(random.randrange(instances)):
-            jI = JobInstance(body=dummy_dict)
+            jI = JobInstance(body=str(dummy_dict))
             job.jobInstances.append(jI)
         counter+=len(job.jobInstances)
         job.save()

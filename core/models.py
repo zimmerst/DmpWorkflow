@@ -27,7 +27,6 @@ class JobInstance(db.EmbeddedDocument):
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     slug = db.StringField(verbose_name="slug", required = True, default = random_string_generator)
-
     title = db.StringField(max_length=255, required=True)
     body = db.StringField(required=True)
     type = db.StringField(verbose_name="type", required=False, default="Other", choices=TYPES)
