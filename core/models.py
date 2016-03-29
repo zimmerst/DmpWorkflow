@@ -1,4 +1,4 @@
-import datetime
+import datetime, time
 from flask import url_for
 from core import db, cfg
 from bson import ObjectId
@@ -21,6 +21,7 @@ class JobInstance(db.EmbeddedDocument):
  
     def set(self,key,value):
         self.__setattr__(key,value)
+        self.__setattr__("last_update",time.ctime())
 
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)

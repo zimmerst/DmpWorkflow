@@ -10,6 +10,7 @@ class LSF(BATCH):
     keys = "USER,STAT,QUEUE,FROM_HOST,EXEC_HOST,JOB_NAME,"
     keys+= "SUBMIT_TIME,PROJ_NAME,CPU_USED,MEM,SWAP,PIDS,START_TIME,FINISH_TIME,SLOTS"
     keys = keys.split(",")
+    status_map = {"RUN":"Running","PEND":"Submitted","EXIT":"Failed","DONE":"Completed"}
     
     def update(self):
         self.allJobs.update(self.aggregateStatii())

@@ -2,8 +2,8 @@
 Workflow framework for DAMPE remote computing &amp; accounting
 
 
-Prerequisites 
--------------
+Prerequisites: 
+--------------
 it's advisable to install virtualenv to handle the different python installations
 
 ```python
@@ -41,3 +41,6 @@ Installation Instructions:
 	
 6.	source DmpWorkflow/setup.sh to initialize relevant environment variables
 
+General Comments:
+-----------------
+to facilitate easier queries, jobs are being submitted with name JobID.JobInstanceID (so can query for that)

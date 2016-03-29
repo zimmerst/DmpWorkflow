@@ -12,6 +12,7 @@ class BATCH(object):
     '''
     allJobs = {}
     keys = []
+    status_map = {}
     
     def __init__(self):
         '''
