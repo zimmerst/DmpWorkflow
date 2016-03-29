@@ -3,7 +3,7 @@ Created on Mar 15, 2016
 
 @author: zimmer
 '''
-import copy
+import copy, sys
 from core import db
 import core.models as models
 from core.DmpJob import DmpJob
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     print 'deployed %i new job instances.'%len(newJobInstances)
     #for inst in newJobInstances:
     #    Db.update({'jobInstances.uniqueId': '%s'%inst.uniqueId}, {'jobInstances.batchId': random_with_N_digits(6)})
-        
+    sys.exit()
     ## okay - can do bulk submission or something like that
     print 'updating submitted jobs'
     for job in models.Job.objects:

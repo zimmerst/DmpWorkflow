@@ -4,11 +4,13 @@ Created on Mar 15, 2016
 @brief: base class for DAMPE Workflow (HPC/client side)
 '''
 from models import JobInstance
+from utils.flask_helpers import parseJobXmlToDict
 
 class DmpJob(object):
     def __init__(self,job,**kwargs):
         self.DBjob = job
         self.jobId = str(job.id)
+        self.xml_data = self.extract_xml_metadata(job.body)
         self.instanceId = None
         self.inputFiles = []
         self.outputFiles = []
@@ -23,7 +25,7 @@ class DmpJob(object):
 
     def extract_xml_metadata(self,xmldoc):
         ''' given the structured job definition, read out and set variables '''
-        pass
+        return parseJobXmlToDict(xmldoc)
     
     def setInstanceParameters(self,JobInstance):
         ''' extract jobInstanceParameters to fully define job '''
