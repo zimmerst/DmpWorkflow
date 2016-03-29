@@ -4,25 +4,31 @@ Created on Mar 15, 2016
 @brief: base class for DAMPE Workflow (HPC/client side)
 '''
 from models import JobInstance
-from utils.flask_helpers import parseJobXmlToDict
+from utils.flask_helpers import parseJobXmlToDict, update_status
+from utils.tools import mkdir, touch, rm
+from hpc.lsf import LSF, BatchJob
+
+# todo: make the whole thing batch-independent!
+batch = LSF()
+# todo2: add cfg parsing variables.
 
 class DmpJob(object):
     def __init__(self,job,**kwargs):
+        self.wd = os.path.getabspath(".")
         self.DBjob = job
         self.jobId = str(job.id)
         self.instanceId = None
+        self.batchId = None
         self.InputFiles = []
         self.OutputFiles = []
         self.MetaData = []
+        self.logfile = None
         self.executable = ""
         self.exec_wrapper = ""
+        self.script = None
         self.__dict__.update(kwargs)
         self.extract_xml_metadata(job.body)
-        
-    def write_script(self,outfile):
-        ''' based on meta-data should create job-executable '''
-        pass
-    
+            
     def getJobName(self):
         return "-".join([self.jobId,self.instanceId])
 
@@ -43,15 +49,34 @@ class DmpJob(object):
             if key in body and isinstance(body[key],list):
                 if len(body[key]):
                     self.__dict__[key]+=body[key]
-        
-    def submit(self):
-        ''' handles the submission part '''
+
+    def write_script(self,outfile):
+        ''' based on meta-data should create job-executable '''
         pass
     
-    def getStatus(self):
-        ''' interacts with the backend HPC stuff and returns the status of the job '''
-        pass
+    def createLogFile(self):
+        mkdir(os.path.join("%s/logs"%self.wd))
+        self.logfile = os.path.join("%s/logs"%self.wd,"%s.log"%self.getJobName())
+        if os.path.isfile(self.logfile):
+            rm(self.logfile)
+        # create the logfile before submitting.
+        touch(self.logfile)  
+    
+    def getExecCommand(self):
+        return " ".join([self.executable,os.path.abspath(self.script)])
     
     def updateStatus(self,majorStatus,minorStatus):
         ''' passes status '''
-        pass
+        update_status(self.joibId, self.instanceId, majorStatus, minor_status=minorStatus)
+                   
+    def getStatusBatch(self):
+        ''' interacts with the backend HPC stuff and returns the status of the job '''
+        ret = batch.status_map[batch.getJob(self.batchId,key="STAT")]
+        return ret
+
+    def submit(self,**kwargs):
+        ''' handles the submission part '''
+        self.createLogFile()
+        bj = BatchJob(name=self.getJobName(),command=self.getExecCommand(),logFile=self.logfile)
+        bj.submit(**kwargs)
+        self.batchId = bj.get("batchId")

@@ -6,6 +6,47 @@ Created on Mar 22, 2016
 from utils.shell import run
 import logging
 
+class BatchJob(object):
+    ''' generic batch job which can be expanded by classes inheriting from this class '''
+    name = None
+    logFile = None
+    queue = None
+    cputime = 0.
+    memory = 0. 
+    command = ""
+    extra = ""
+    requirements = []
+    status = None
+
+    def __init__(self,**kwargs):
+        self.__dict__.update(kwargs)
+
+    
+    def __execWithUpdate__(self,cmd,key,value=None):
+        ''' execute command cmd & update key with output from running '''
+        output, error = run([cmd])
+        if value is None:
+            self.update(key,output)
+        else:
+            self.update(key,value)
+
+    def submit(self,**kwargs):
+        ''' each class MUST implement its own submission command '''
+        pass
+
+    def kill(self):
+        ''' likewise, it should implement its own batch-specific removal command '''
+        pass
+    
+    def update(self,key,value):    
+        if key in self.__dict__:
+            self.__dict__[key]=value
+    
+    def get(self,key,callable=str):
+        if key in self.__dict__:
+            return callable(self.__dict__[key])
+        return None
+
 class BATCH(object):
     '''
     generic Batch class, all HPC-specific modules should inherit from it.
