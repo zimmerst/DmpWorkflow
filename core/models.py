@@ -19,6 +19,9 @@ class JobInstance(db.EmbeddedDocument):
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
  
+    def set(self,key,value):
+        self.__setattr__(key,value)
+
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     slug = db.StringField(verbose_name="slug", required = True, default = random_string_generator)
