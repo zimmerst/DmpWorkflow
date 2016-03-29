@@ -10,6 +10,8 @@ import random
 jobs = 10
 instances = 200
 
+dummy_dict = {"InputFiles":[],"OutputFiles":[],"MetaData":[]}
+
 if __name__ == '__main__':
     counter = 0
     releases = ['5-1-1','4-5-5','5-1-2','5-1-2']
@@ -18,7 +20,7 @@ if __name__ == '__main__':
         job = Job(title="testJob-%i"%i,body=open("test/dummyJob.xml","r").read(), type=random.choice(TYPES),
                   release="DmpSoftware-%s"%random.choice(releases))
         for j in range(random.randrange(instances)):
-            jI = JobInstance()
+            jI = JobInstance(body=dummy_dict)
             job.jobInstances.append(jI)
         counter+=len(job.jobInstances)
         job.save()

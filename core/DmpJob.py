@@ -10,12 +10,15 @@ class DmpJob(object):
     def __init__(self,job,**kwargs):
         self.DBjob = job
         self.jobId = str(job.id)
-        self.xml_data = self.extract_xml_metadata(job.body)
         self.instanceId = None
-        self.inputFiles = []
-        self.outputFiles = []
+        self.InputFiles = []
+        self.OutputFiles = []
+        self.MetaData = []
+        self.executable = ""
+        self.exec_wrapper = ""
         self.__dict__.update(kwargs)
-    
+        self.extract_xml_metadata(job.body)
+        
     def write_script(self,outfile):
         ''' based on meta-data should create job-executable '''
         pass
@@ -25,12 +28,22 @@ class DmpJob(object):
 
     def extract_xml_metadata(self,xmldoc):
         ''' given the structured job definition, read out and set variables '''
-        return parseJobXmlToDict(xmldoc)
-    
+        el = parseJobXmlToDict(xmldoc)
+        self.InputFiles = el['InputFiles']
+        self.OutputFiles = el['OutputFiles']
+        self.MetaData = el['MetaData']
+        self.exec_wrapper = el['script']
+        self.executable = el['executable']
+ 
     def setInstanceParameters(self,JobInstance):
         ''' extract jobInstanceParameters to fully define job '''
-        pass
-    
+        body = JobInstance.body
+        keys = ['InputFiles','OutputFiles','MetaData']
+        for key in keys:
+            if key in body and isinstance(body[key],list):
+                if len(body[key]):
+                    self.__dict__[key]+=body[key]
+        
     def submit(self):
         ''' handles the submission part '''
         pass

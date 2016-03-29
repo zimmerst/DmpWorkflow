@@ -34,7 +34,7 @@ if __name__ == "__main__":
                     dInstance = copy.deepcopy(dJob)
                     dInstance.instanceId = j._id
                     dInstance.jobId = job.id
-                    dInstance.setInstanceParameters(j.body)
+                    dInstance.setInstanceParameters(j)
                     j.status = random.choice(["Submitted","New","New","New"])
                     if j.status == "Submitted":
                         j.last_update = time.ctime()
