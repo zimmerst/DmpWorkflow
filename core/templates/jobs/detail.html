@@ -9,6 +9,7 @@
 {% block content %}
   <h1>{{ job.title }}</h1> 
   <strong> created at:</strong> {{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+  <strong> Id:</strong> {{ job.id }}
   <strong> type:</strong> {{ job.type }} 
   <strong> Release Tag:</strong> {{ job.release }} 
   </br>
@@ -17,7 +18,7 @@
   </div>
   <hr>
   <h2>Job Instances ({{job.jobInstances|length}} total)</h2>
-  {% set columns = ["batchId", "created at", "last sign of life", "status", "minor_status","uniqueId"]%}
+  {% set columns = ["batchId", "created at", "last sign of life", "status", "minor_status","id"]%}
 <table class="table">
   <thead>
 	{% for col in columns %}  	
@@ -31,7 +32,7 @@
 		<td> {{ jobInstance.last_update.strftime('%Y-%m-%d %H:%M:%S') }} </td>
 		<td> {{ jobInstance.status }} </td>
 		<td> {{ jobInstance.minor_status }} </td>
-		<td> {{ jobInstance.uniqueId }} </td>
+		<td> {{ jobInstance._id }} </td>
 	</tr>
 	{% endfor %}
     {% endif %}

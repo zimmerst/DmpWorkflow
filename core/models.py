@@ -1,32 +1,42 @@
 import datetime
 from flask import url_for
 from core import db, cfg
+from bson import ObjectId
 from utils.tools import random_string_generator
 
 MAJOR_STATII = tuple(cfg.get("JobDB","task_major_statii").split(","))
 TYPES = tuple(cfg.get("JobDB","task_types").split(","))
 SITES = tuple(cfg.get("JobDB","batch_sites").split(","))
 
-class JobInstance(db.EmbeddedDocument):
-    
+class JobInstance(db.EmbeddedDocument):    
+    _id = db.ObjectIdField( required=True, default=lambda: ObjectId() )
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
+
+    last_update = db.DateTimeField(default=datetime.datetime.now, required=True)
+    batchId = db.LongField(verbose_name="batchId", required=False, default=0)
+    hostname = db.StringField(verbose_name="hostname",required=False,default=None)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
-    batchId = db.LongField(verbose_name="batchId", required=False, default=0)
-    uniqueId = db.StringField(verbose_name="uniqueId", required = False, default = random_string_generator)
-    last_update = db.DateTimeField(default=datetime.datetime.now, required=True)
-    hostname = db.StringField(verbose_name="hostname",required=False,default=None)
-    
+ 
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
-    title = db.StringField(max_length=255, required=True)
     slug = db.StringField(verbose_name="slug", required = True, default = random_string_generator)
+
+    title = db.StringField(max_length=255, required=True)
+    body = db.StringField(required=True)
     type = db.StringField(verbose_name="type", required=False, default="Other", choices=TYPES)
     release = db.StringField(max_length=255, required=False)
+    
     execution_site = db.StringField(max_length=255, required=False, default="CNAF", choices=SITES)
-    body = db.StringField(required=True)
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
+    
+    def getInstance(self,_id):
+        for jI in self.jobInstances:
+            if str(jI._id) == _id:
+                return jI
+        print "could not find matching id"
+        return None
     
     def aggregateStatii(self):
         ''' will return an aggregated summary of all instances in all statuses '''
