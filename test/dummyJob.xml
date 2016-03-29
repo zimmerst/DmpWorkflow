@@ -1,0 +1,18 @@
+<Jobs>
+	<JobInstance>
+		<InputFiles>
+			<File source="" target="" file_type="" />
+		</InputFiles>
+		<OutputFiles>
+			<File source="" target="" file_type="" />
+		</OutputFiles>
+			<JobWrapper executable="/bin/bash"><![CDATA[
+#/bin/bash
+echo hostname
+]]>		
+			</JobWrapper>
+		<MetaData>
+			<Var name="" value="" var_type="string"/>
+		</MetaData>
+	</JobInstance>
+</Jobs>

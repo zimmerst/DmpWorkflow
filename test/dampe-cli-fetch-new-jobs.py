@@ -33,6 +33,7 @@ if __name__ == "__main__":
                 for j in newJobs:
                     dInstance = copy.deepcopy(dJob)
                     dInstance.instanceId = j._id
+                    dInstance.jobId = job.id
                     dInstance.setInstanceParameters(j.body)
                     j.status = random.choice(["Submitted","New","New","New"])
                     if j.status == "Submitted":
@@ -54,6 +55,7 @@ if __name__ == "__main__":
             for j in newJobs:
                 dInstance = copy.deepcopy(dJob)
                 dInstance.instanceId = j._id
+                dInstance.jobId = job.id
                 dInstance.setInstanceParameters(j.body)
                 j.batchId = random_with_N_digits(8)
                 j.last_update = time.ctime()

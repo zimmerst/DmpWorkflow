@@ -3,6 +3,8 @@ Created on Mar 15, 2016
 
 @author: zimmer
 '''
+import xml.dom.minidom as xdom
+from StringIO import StringIO
 from core import db
 from core.models import *
 
@@ -22,3 +24,26 @@ def update_status(JobId,InstanceId,major_status,**kwargs):
     #print 'calling my_job.save'
     my_job.save()
     return
+
+def parseJobXmlToDict(domInstance,parent="JobInstance"):
+    out = {}
+    elems = xdom.parse(StringIO(domInstance)).getElementsByTagName(parent)
+    if len(elems)>1:
+        print 'found multiple job instances in xml, will ignore everything but last.'
+    el = elems[-1]
+    nodes = [node for node in el.childNodes if isinstance(node,xdom.Element)]
+    for node in nodes:
+        name = str(node.localName)
+        if name == "JobWrapper":
+            out['executable']=node.getAttribute("executable")
+            out['script']=node.firstChild.data
+        else:
+            if name in ["InputFiles","OutputFiles"]:
+                my_key = "File"
+            else:
+                my_key = "Var"
+            section = []
+            for elem in node.getElementsByTagName(my_key):
+                section.append(dict(zip(elem.attributes.keys(),[v.value for v in elem.attributes.values()])))
+            out[str(name)]=section
+    return out

@@ -13,12 +13,56 @@
   <strong> type:</strong> {{ job.type }} 
   <strong> Release Tag:</strong> {{ job.release }} 
   </br>
+  {% set job_body = job.getBody() %}
+
+  {% set cat="MetaData" %}
+  {% set columns=["name","value"] %}
+  <h3>{{cat}}</h3>
+  <table class="table">
+	<thead>
+	 {% for col in columns %}
+	 <th> {{ col }} </th>
+	 {% endfor %}
+	 {% if job_body[cat] %}
+	 {% for _file in job_body[cat] %}
+	 <tr>
+	 	{% for col in columns %}
+	 	<td>{{ _file[col] }}</td>
+		{% endfor %}
+	 </tr>
+	 {% endfor %}
+	 {% endif %}	
+  </table>
+
+  {% set columns = ["source","target","file_type"] %} 
+  {% for cat in ["InputFiles","OutputFiles"] %}  
   <div>
-  <p>{{ job.body }}<p>
+    <h3>{{cat}}</h3>
+    <table class="table">
+   	<thead>
+	 {% for col in columns %}
+	 <th> {{ col }} </th>
+	 {% endfor %}
+	 {% if job_body[cat] %}
+	 {% for _file in job_body[cat] %}
+	 <tr>
+	 	{% for col in columns %}
+	 	<td>{{ _file[col] }}</td>
+		{% endfor %}
+	 </tr>
+	 {% endfor %}
+	 {% endif %}	
+   </table>
+   {% endfor %}
   </div>
+  
+  <h3> Job Wrapper </h3>
+  <p> <strong>Executable:</strong> {{job_body["executable"]}} </p></div>
+  <p> <strong>Application Script: </strong> </p>
+  <p> {{job_body["script"]}} </p>
   <hr>
   <h2>Job Instances ({{job.jobInstances|length}} total)</h2>
-  {% set columns = ["batchId", "created at", "last sign of life", "status", "minor_status","id"]%}
+  {% set columns = ["batchId", "created at", "last sign of life", "status", "minor_status","host","id"]%}
 <table class="table">
   <thead>
 	{% for col in columns %}  	
@@ -32,6 +76,7 @@
 		<td> {{ jobInstance.last_update.strftime('%Y-%m-%d %H:%M:%S') }} </td>
 		<td> {{ jobInstance.status }} </td>
 		<td> {{ jobInstance.minor_status }} </td>
+		<td> {{ jobInstance.hostname }} </td>
 		<td> {{ jobInstance._id }} </td>
 	</tr>
 	{% endfor %}

@@ -1,7 +1,7 @@
 '''
 Created on Mar 15, 2016
 @author: zimmer
-@brief: base class for DAMPE Workflow
+@brief: base class for DAMPE Workflow (HPC/client side)
 '''
 from models import JobInstance
 
@@ -10,10 +10,16 @@ class DmpJob(object):
         self.DBjob = job
         self.jobId = str(job.id)
         self.instanceId = None
+        self.inputFiles = []
+        self.outputFiles = []
         self.__dict__.update(kwargs)
+    
     def write_script(self,outfile):
         ''' based on meta-data should create job-executable '''
         pass
+    
+    def getJobName(self):
+        return "-".join([self.jobId,self.instanceId])
 
     def extract_xml_metadata(self,xmldoc):
         ''' given the structured job definition, read out and set variables '''

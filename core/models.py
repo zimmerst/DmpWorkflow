@@ -3,6 +3,7 @@ from flask import url_for
 from core import db, cfg
 from bson import ObjectId
 from utils.tools import random_string_generator
+from utils.flask_helpers import parseJobXmlToDict
 
 MAJOR_STATII = tuple(cfg.get("JobDB","task_major_statii").split(","))
 TYPES = tuple(cfg.get("JobDB","task_types").split(","))
@@ -14,7 +15,7 @@ class JobInstance(db.EmbeddedDocument):
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
 
     last_update = db.DateTimeField(default=datetime.datetime.now, required=True)
-    batchId = db.LongField(verbose_name="batchId", required=False, default=0)
+    batchId = db.LongField(verbose_name="batchId", required=False, default=None)
     hostname = db.StringField(verbose_name="hostname",required=False,default=None)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
@@ -34,6 +35,9 @@ class Job(db.Document):
     
     execution_site = db.StringField(max_length=255, required=False, default="CNAF", choices=SITES)
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
+    
+    def getBody(self):
+        return parseJobXmlToDict(self.body)
     
     def getInstance(self,_id):
         for jI in self.jobInstances:
