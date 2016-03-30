@@ -15,7 +15,8 @@ class BatchJob(hpc.batch.BatchJob):
             self.extra.update(kwargs)
             extra = "-%s %s".join([(k,v) for (k,v) in self.extra.iteritems()])
 
-        cmd = "bsub -q %s -eo %s -R \"%s\" %s %s"%(self.queue, self.logFile, "&&".join(self.requirements), 
+        cmd = "bsub -q %s -eo %s -R \"%s\" %s %s"%(self.queue, self.logFile, 
+                                                   "&&".join(self.requirements), 
                                                    self.extra, self.command)
         self.__execWithUpdate__(cmd, "batchId")
         
@@ -28,7 +29,8 @@ class LSF(hpc.batch.BATCH):
     keys = "USER,STAT,QUEUE,FROM_HOST,EXEC_HOST,JOB_NAME,"
     keys+= "SUBMIT_TIME,PROJ_NAME,CPU_USED,MEM,SWAP,PIDS,START_TIME,FINISH_TIME,SLOTS"
     keys = keys.split(",")
-    status_map = {"RUN":"Running","PEND":"Submitted","EXIT":"Failed","DONE":"Completed"}
+    status_map = {"RUN":"Running","PEND":"Submitted","SSUSP":"Suspended",
+                  "EXIT":"Failed","DONE":"Completed"}
     
     def update(self):
         self.allJobs.update(self.aggregateStatii())
