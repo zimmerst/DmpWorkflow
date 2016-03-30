@@ -26,7 +26,7 @@ if __name__ == "__main__":
             dJob = DmpJob(job)
             for j in newJobs:
                 dInstance = copy.deepcopy(dJob)
-                dInstance.setInstanceParameters(j.body)
+                dInstance.setInstanceParameters(j)
                 newJobInstances.append(dInstance)
     print 'found %i new job instances to deploy'%len(newJobInstances)
     ## okay - can do bulk submission or something like that
