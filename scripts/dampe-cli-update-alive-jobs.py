@@ -19,5 +19,5 @@ if __name__ == "__main__":
         my_job = Job.objects.filter(id=str(JobId))
         jInstance = my_job.getInstance(InstanceId)
         jInstance.set("hostname",job_dict["EXEC_HOST"])
-        jInstance.set("status",batchEngine.status_map[job_dict["STAT"]])
+        jInstance.setStatus(batchEngine.status_map[job_dict["STAT"]])
         
