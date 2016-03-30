@@ -20,4 +20,4 @@ if __name__ == "__main__":
         jInstance = my_job.getInstance(InstanceId)
         jInstance.set("hostname",job_dict["EXEC_HOST"])
         jInstance.setStatus(batchEngine.status_map[job_dict["STAT"]])
-        
+        my_job.save()
