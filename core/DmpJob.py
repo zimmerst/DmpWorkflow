@@ -3,18 +3,18 @@ Created on Mar 15, 2016
 @author: zimmer
 @brief: base class for DAMPE Workflow (HPC/client side)
 '''
+import os.path
 from models import JobInstance
 from utils.flask_helpers import parseJobXmlToDict, update_status
 from utils.tools import mkdir, touch, rm
 from hpc.lsf import LSF, BatchJob
 
-# todo: make the whole thing batch-independent!
-batch = LSF()
+
 # todo2: add cfg parsing variables.
 
 class DmpJob(object):
     def __init__(self,job,**kwargs):
-        self.wd = os.path.getabspath(".")
+        self.wd = os.path.abspath(".")
         self.DBjob = job
         self.jobId = str(job.id)
         self.instanceId = None
@@ -45,10 +45,11 @@ class DmpJob(object):
         ''' extract jobInstanceParameters to fully define job '''
         body = JobInstance.body
         keys = ['InputFiles','OutputFiles','MetaData']
-        for key in keys:
-            if key in body and isinstance(body[key],list):
-                if len(body[key]):
-                    self.__dict__[key]+=body[key]
+        if isinstance(body,dict):
+            for key in keys:
+                if key in body and isinstance(body[key],list):
+                    if len(body[key]):
+                        self.__dict__[key]+=body[key]
 
     def write_script(self,outfile):
         ''' based on meta-data should create job-executable '''
@@ -71,6 +72,8 @@ class DmpJob(object):
                    
     def getStatusBatch(self):
         ''' interacts with the backend HPC stuff and returns the status of the job '''
+        # todo: make the whole thing batch-independent!
+        batch = LSF()
         ret = batch.status_map[batch.getJob(self.batchId,key="STAT")]
         return ret
 

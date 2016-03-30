@@ -6,24 +6,46 @@ from utils.tools import random_string_generator
 from utils.flask_helpers import parseJobXmlToDict
 
 MAJOR_STATII = tuple(cfg.get("JobDB","task_major_statii").split(","))
+FINAL_STATII = tuple(cfg.get("JobDB","task_final_statii").split(","))
 TYPES = tuple(cfg.get("JobDB","task_types").split(","))
 SITES = tuple(cfg.get("JobDB","batch_sites").split(","))
+
 
 class JobInstance(db.EmbeddedDocument):    
     _id = db.ObjectIdField( required=True, default=lambda: ObjectId() )
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
-
     last_update = db.DateTimeField(default=datetime.datetime.now, required=True)
     batchId = db.LongField(verbose_name="batchId", required=False, default=None)
     hostname = db.StringField(verbose_name="hostname",required=False,default=None)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
- 
+    ## store status history....
+    #status_history_time = db.ListField([datetime.datetime.now])
+    #status_history_time = db.ListField(["New"])
+    
     def set(self,key,value):
         self.__setattr__(key,value)
         self.__setattr__("last_update",time.ctime())
-
+    
+    def setStatus(self,stat):
+        #print 'calling setStatus'
+        if not stat in MAJOR_STATII:
+            raise Exception("status not found in supported list of statii")
+        curr_status = self.status
+        curr_time = time.ctime()
+        if curr_status == stat:
+            #print 'no status change, do nothing.'
+            return
+        if curr_status in FINAL_STATII:
+            if not stat == 'New':
+                raise Exception("job found in final state, can only set to New")
+        # todo store status history
+        #sHist = StatusHistory(last_update=curr_time,status=stat)
+        #self.status_history.append(sHist)
+        self.set("status",stat)
+        return
+        
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     slug = db.StringField(verbose_name="slug", required = True, default = random_string_generator)
