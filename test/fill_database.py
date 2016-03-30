@@ -8,7 +8,7 @@ from core import db
 import random
 
 jobs = 10
-instances = 10000
+instances = 2000
 
 dummy_dict = {"InputFiles":[],"OutputFiles":[],"MetaData":[]}
 

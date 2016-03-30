@@ -7,6 +7,7 @@ import copy
 from core import db
 import core.models as models
 from core.DmpJob import DmpJob
+from utils.flask_helpers import parseJobXmlToDict
 
 import random
 

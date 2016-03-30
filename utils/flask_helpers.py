@@ -5,10 +5,11 @@ Created on Mar 15, 2016
 '''
 import xml.dom.minidom as xdom
 from StringIO import StringIO
-from core import db
-from core.models import *
+import time
 
 def update_status(JobId,InstanceId,major_status,**kwargs):
+    from core import db
+    from core.models import Job, MAJOR_STATII
     db.connect()
     my_job = Job.objects.filter(id=JobId)
     if not len(my_job):
