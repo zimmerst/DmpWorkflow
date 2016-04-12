@@ -7,6 +7,8 @@ import hpc.batch
 from utils.shell import run
 # LSF-specific stuff
 
+raise NotImplementedError("SGE class not supported")
+
 class BatchJob(hpc.batch.BatchJob):
     def submit(self,**kwargs):
         ''' each class MUST implement its own submission command '''
@@ -31,7 +33,6 @@ class SGE(hpc.batch.BATCH):
     keys = keys.split(",")
     status_map = {"RUN":"Running","PEND":"Submitted","SSUSP":"Suspended",
                   "EXIT":"Failed","DONE":"Completed"}
-    
     def update(self):
         self.allJobs.update(self.aggregateStatii())
     
