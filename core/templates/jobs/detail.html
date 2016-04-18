@@ -59,7 +59,7 @@
   <h3> Job Wrapper </h3>
   <p> <strong>Executable:</strong> {{job_body["executable"]}} </p></div>
   <p> <strong>Application Script: </strong> </p>
-  {% autoescape true %}
+  {% autoescape false %}
   <p> {{ job_body["script"] }} </p>
   {% endautoescape %}
   <hr>
