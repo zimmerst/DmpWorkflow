@@ -60,7 +60,7 @@
   <p> <strong>Executable:</strong> {{job_body["executable"]}} </p></div>
   <p> <strong>Application Script: </strong> </p>
   {% for line in job_body["script"].splitlines() %}
-   {{line}}<br>
+   <code>{{line}}</code><br>
   {% endfor %}
   <hr>
   <h2>Job Instances ({{job.jobInstances|length}} total)</h2>
