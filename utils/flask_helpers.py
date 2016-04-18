@@ -36,6 +36,7 @@ def parseJobXmlToDict(domInstance,parent="Job"):
     if not len(elems):
         raise Exception('found no Job element in xml.')
     el = elems[-1]
+    datt = dict(zip(el.attributes.keys(),[v.value for v in el.attributes.values()]))
     nodes = [node for node in el.childNodes if isinstance(node,xdom.Element)]
     for node in nodes:
         name = str(node.localName)
@@ -51,4 +52,5 @@ def parseJobXmlToDict(domInstance,parent="Job"):
             for elem in node.getElementsByTagName(my_key):
                 section.append(dict(zip(elem.attributes.keys(),[v.value for v in elem.attributes.values()])))
             out[str(name)]=section
+    out['atts']=datt
     return out

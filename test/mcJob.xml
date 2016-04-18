@@ -1,5 +1,5 @@
 <Jobs>
-	<Job release="5-1-2">
+	<Job release="5-1-2" type='Generation'>
 		<InputFiles>
 			<File source="/local/path/to/macro/file" target="G4macro.mac" file_type="root" />
 		</InputFiles>

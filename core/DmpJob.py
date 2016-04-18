@@ -22,6 +22,8 @@ class DmpJob(object):
         self.InputFiles = []
         self.OutputFiles = []
         self.MetaData = []
+        self.type = None
+        self.release = None
         self.logfile = None
         self.executable = ""
         self.exec_wrapper = ""
@@ -40,6 +42,7 @@ class DmpJob(object):
         self.MetaData = el['MetaData']
         self.exec_wrapper = el['script']
         self.executable = el['executable']
+        self.__dict__.update(el['atts'])
  
     def setInstanceParameters(self,JobInstance):
         ''' extract jobInstanceParameters to fully define job '''
@@ -52,10 +55,7 @@ class DmpJob(object):
                     if len(body[key]):
                         self.__dict__[key]+=body[key]
 
-    
-
-
-    def write_script(self,outfile):
+    def write_script(self,outfile,language='python'):
         ''' based on meta-data should create job-executable '''
         pass
     
@@ -87,3 +87,4 @@ class DmpJob(object):
         bj = BatchJob(name=self.getJobName(),command=self.getExecCommand(),logFile=self.logfile)
         bj.submit(**kwargs)
         self.batchId = bj.get("batchId")
+        return self.batchId
