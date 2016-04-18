@@ -2,7 +2,7 @@ import datetime, time
 from flask import url_for
 from core import db, cfg
 from bson import ObjectId
-from utils.tools import random_string_generator
+from utils.tools import random_string_generator, Ndigits
 from utils.flask_helpers import parseJobXmlToDict
 
 MAJOR_STATII = tuple(cfg.get("JobDB","task_major_statii").split(","))
@@ -47,9 +47,7 @@ class JobInstance(db.EmbeddedDocument):
         return
     
     def sixDigit(self,size=6):
-        _sixDigit = "%i"%self.instanceId
-        while len(_sixDigit)<size: _sixDigit = "0"+_sixDigit
-        return _sixDigit
+        return Ndigits(self.instanceId, size)
 
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
