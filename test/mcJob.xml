@@ -11,14 +11,14 @@
 import DMPSW
 import libDmpSimu as  DmpSim
 import os, sys
-nevents = int(sys.argv[2])
+nevents = os.getenv("NEVENTS_GENERATED")
 
 #-------------------------------------------------------------------
 # IOSvc options
 DMPSW.IOSvc.Set("OutData/FileName","dmpsimu.root")
 DMPSW.IOSvc.Set("OutData/Tag","Sim")
 
-DMPSW.Core.Set("LogLevel","INFO")    #@ Possible options are:  NONE, ERROR, WARNING, INFO, DEBUG
+DMPSW.Core.Set("LogLevel",os.getenv("LOG_LEVEL","INFO"))    #@ Possible options are:  NONE, ERROR, WARNING, INFO, DEBUG
 DMPSW.Core.Set("EventNumber","%i"%nevents)
 SimAlg   = DmpSim.DmpSimAlg()                     #@ Get instance of DAMPE simulation tool (interface to geant4)
 SimAlg.Set("StoreSteps","false")
@@ -43,7 +43,8 @@ DMPSW.Core.Finalize()
 ]]>		
 			</JobWrapper>
 		<MetaData>
-			<Var name="" value="" var_type="string"/>
+			<Var name="NEVENTS_GENERATED" value="10000" var_type="long"/>
+			<Var name="LOG_LEVEL" value="INFO" var_type="string"/>
 		</MetaData>
 	</Job>
 </Jobs>
