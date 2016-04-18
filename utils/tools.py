@@ -38,7 +38,7 @@ def touch(path):
     with open(path, 'a'):
         os.utime(path, None)
         
-def Ndigits(val,6):
+def Ndigits(val,size=6):
     ''' returns a N-digit integer with leading zeros '''
     _sixDigit = "%i"%val
     while len(_sixDigit)<size: _sixDigit = "0"+_sixDigit

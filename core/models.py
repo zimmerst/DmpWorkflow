@@ -47,7 +47,7 @@ class JobInstance(db.EmbeddedDocument):
         return
     
     def sixDigit(self,size=6):
-        return Ndigits(self.instanceId, size)
+        return Ndigits(self.instanceId, size=size)
 
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
