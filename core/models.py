@@ -11,7 +11,7 @@ TYPES = tuple(cfg.get("JobDB","task_types").split(","))
 SITES = tuple(cfg.get("JobDB","batch_sites").split(","))
 
 class JobInstance(db.EmbeddedDocument):
-    _id = db.ObjectIdField( required=True, default=lambda: ObjectId() )
+    # _id = db.ObjectIdField( required=True, default=lambda: ObjectId()) # drop this.
     instanceId = db.LongField(verbose_name="instanceId", required=False, default=None)
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
@@ -45,7 +45,12 @@ class JobInstance(db.EmbeddedDocument):
         #self.status_history.append(sHist)
         self.set("status",stat)
         return
-        
+    
+    def sixDigit(self,size=6):
+        _sixDigit = "%i"%self.instanceId
+        while len(_sixDigit)<size: _sixDigit = "0"+_sixDigit
+        return _sixDigit
+
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     slug = db.StringField(verbose_name="slug", required = True, default = random_string_generator)
