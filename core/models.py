@@ -68,7 +68,9 @@ class Job(db.Document):
             if '\n' in do: do = dd['script'].replace("\n","<br/>")
             while '\n' in do:
                 do = do.replace("\n","<br/>")
-
+            dd['script']=do
+        return dd
+    
     def getInstance(self,_id):
         for jI in self.jobInstances:
             if str(jI.instanceId) == _id:
