@@ -42,7 +42,7 @@ if __name__ == "__main__":
                         j.setStatus(tstatus)
                         newJobInstances.append(dInstance)
                         counter+=1
-            job.save()
+            job.update()
     print 'deployed %i new job instances.'%len(newJobInstances)
     #for inst in newJobInstances:
     #    Db.update({'jobInstances.uniqueId': '%s'%inst.uniqueId}, {'jobInstances.batchId': random_with_N_digits(6)})
@@ -67,5 +67,5 @@ if __name__ == "__main__":
                 elif tstatus == "Done": j.minor_status = "ExecutionCompleted"
                 else: j.minor_status = "FailedWithCode:%i"%random.choice([1,2,3,4,5,6])
                 j.setStatus(tstatus)
-        job.save()
+        job.update()
     

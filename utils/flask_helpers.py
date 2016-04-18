@@ -25,7 +25,7 @@ def update_status(JobId,InstanceId,major_status,**kwargs):
     # finally, update status
     jInstance.setStatus(major_status) 
     #print 'calling my_job.save'
-    my_job.save()
+    my_job.update()
     return
 
 def parseJobXmlToDict(domInstance,parent="Job"):

@@ -60,9 +60,15 @@ class Job(db.Document):
     execution_site = db.StringField(max_length=255, required=False, default="CNAF", choices=SITES)
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
     
-    def getBody(self):
-        return parseJobXmlToDict(self.body)
-    
+    def getBody(self,html=True):
+        dd = parseJobXmlToDict(self.body)
+        if not html: return dd
+        if 'script' in dd:
+            do = dd['script']
+            if '\n' in do: do = dd['script'].replace("\n","<br/>")
+            while '\n' in do:
+                do = do.replace("\n","<br/>")
+
     def getInstance(self,_id):
         for jI in self.jobInstances:
             if str(jI.instanceId) == _id:
@@ -95,6 +101,9 @@ class Job(db.Document):
     def save(self):
         req = Job.objects.filter(title=self.title)
         if req: raise Exception("a task with the specified name exists already.")
+        super(db.Document,self).save()
+
+    def update(self):
         super(db.Document,self).save()
 
     meta = {
