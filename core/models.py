@@ -60,16 +60,8 @@ class Job(db.Document):
     execution_site = db.StringField(max_length=255, required=False, default="CNAF", choices=SITES)
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
     
-    def getBody(self,html=True):
-        dd = parseJobXmlToDict(self.body)
-        if not html: return dd
-        if 'script' in dd:
-            do = dd['script']
-            if '\n' in do: do = dd['script'].replace("\n","<br/>")
-            while '\n' in do:
-                do = do.replace("\n","<br/>")
-            dd['script']=do
-        return dd
+    def getBody(self):
+        return parseJobXmlToDict(self.body)
     
     def getInstance(self,_id):
         for jI in self.jobInstances:
