@@ -31,8 +31,8 @@ if __name__ == '__main__':
     xmlFile         = sys.argv[2]
     db.connect()
     ## collision-check for dummies!
-    req = Job.objects.filter(title=taskName)
-    if req: raise Exception("a task with the specified name exists already.")
+    #req = Job.objects.filter(title=taskName)
+    #if req: raise Exception("a task with the specified name exists already.")
     
     job = Job(title=taskName, body=open(xmlFile,'r').read())
     dout = parseJobXmlToDict(job.body)

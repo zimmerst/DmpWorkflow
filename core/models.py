@@ -91,6 +91,11 @@ class Job(db.Document):
 
     def __unicode__(self):
         return self.title
+    
+    def save(self):
+        req = Job.objects.filter(title=self.title)
+        if req: raise Exception("a task with the specified name exists already.")
+        super(db.Document,self).save()
 
     meta = {
         'allow_inheritance': True,
