@@ -59,9 +59,11 @@
   <h3> Job Wrapper </h3>
   <p> <strong>Executable:</strong> {{job_body["executable"]}} </p></div>
   <p> <strong>Application Script: </strong> </p>
+  <code>
   {% for line in job_body["script"].splitlines() %}
-   <code>{{line}}</code><br>
+   {{line}}<br>
   {% endfor %}
+  </code>
   <hr>
   <h2>Job Instances ({{job.jobInstances|length}} total)</h2>
   {% set columns = ["id","batchId", "created at", "last sign of life", "status", "minor_status","host"]%}
