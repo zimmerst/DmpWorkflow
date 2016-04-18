@@ -28,11 +28,13 @@ def update_status(JobId,InstanceId,major_status,**kwargs):
     my_job.save()
     return
 
-def parseJobXmlToDict(domInstance,parent="JobInstance"):
+def parseJobXmlToDict(domInstance,parent="Job"):
     out = {}
     elems = xdom.parse(StringIO(domInstance)).getElementsByTagName(parent)
     if len(elems)>1:
         print 'found multiple job instances in xml, will ignore everything but last.'
+    if not len(elems):
+        raise Exception('found no Job element in xml.')
     el = elems[-1]
     nodes = [node for node in el.childNodes if isinstance(node,xdom.Element)]
     for node in nodes:

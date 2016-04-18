@@ -1,0 +1,49 @@
+<Jobs>
+	<Job release="5-1-2">
+		<InputFiles>
+			<File source="/local/path/to/macro/file" target="G4macro.mac" file_type="root" />
+		</InputFiles>
+		<OutputFiles>
+			<File source="dmpsimu.root" target="root://dampe-rdr/mc/$(DWF_JOBNAME)/generate/$(DWF_JOBNAME_LONG).$(DWF_SIXDIGIT).mc.root" file_type="root" />
+		</OutputFiles>
+			<JobWrapper executable="python"><![CDATA[
+#! /usr/bin/python
+import DMPSW
+import libDmpSimu as  DmpSim
+import os, sys
+nevents = int(sys.argv[2])
+
+#-------------------------------------------------------------------
+# IOSvc options
+DMPSW.IOSvc.Set("OutData/FileName","dmpsimu.root")
+DMPSW.IOSvc.Set("OutData/Tag","Sim")
+
+DMPSW.Core.Set("LogLevel","INFO")    #@ Possible options are:  NONE, ERROR, WARNING, INFO, DEBUG
+DMPSW.Core.Set("EventNumber","%i"%nevents)
+SimAlg   = DmpSim.DmpSimAlg()                     #@ Get instance of DAMPE simulation tool (interface to geant4)
+SimAlg.Set("StoreSteps","false")
+SimAlg.Set("MacFile", "G4macro.mac")
+#@ Geant4 random seed
+SimAlg.Set("RandomSeed", os.getenv("DWF_SIXDIGIT",0)) # <-- uncomment this to set up a random seed
+
+#@ Simulation configuration file
+#@   The config file used: Simulation/share/dmpSimu.cfg
+#@   This configuration file is installed to $DMPSWSYS/share/Configuration/dmpSimu.cfg
+#@   To use your custom configuration, replace the default config file $DMPSWSYS/share/Configuration/dmpSimu.cfg with the one of your choice
+#@
+DMPSW.AlgMgr.Append(SimAlg)
+SimuCfgPsr = DmpSim.SimuCfgParser()
+DMPSW.SvcMgr.Append(SimuCfgPsr)
+DMPSW.SvcMgr.Append(DMPSW.GeoMgr)
+
+DMPSW.Core.Initialize()
+#raise SystemExit
+DMPSW.Core.Run()
+DMPSW.Core.Finalize()
+]]>		
+			</JobWrapper>
+		<MetaData>
+			<Var name="" value="" var_type="string"/>
+		</MetaData>
+	</Job>
+</Jobs>

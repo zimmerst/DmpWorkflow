@@ -13,7 +13,7 @@ dummy_dict = {"InputFiles":[],"OutputFiles":[],"MetaData":[]}
 if __name__ == '__main__':
     from optparse import OptionParser
     parser = OptionParser()
-    usage = "Usage: %prog JobID InstanceID status [options]"
+    usage = "Usage: %prog taskName xmlFile [options]"
     description = "update job in DB"
     parser.set_usage(usage)
     parser.set_description(description)

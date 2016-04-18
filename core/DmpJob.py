@@ -52,6 +52,9 @@ class DmpJob(object):
                     if len(body[key]):
                         self.__dict__[key]+=body[key]
 
+    
+
+
     def write_script(self,outfile):
         ''' based on meta-data should create job-executable '''
         pass
