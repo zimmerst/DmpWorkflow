@@ -62,7 +62,7 @@
   <p> {{job_body["script"]}} </p>
   <hr>
   <h2>Job Instances ({{job.jobInstances|length}} total)</h2>
-  {% set columns = ["batchId", "created at", "last sign of life", "status", "minor_status","host","id"]%}
+  {% set columns = ["id","batchId", "created at", "last sign of life", "status", "minor_status","host"]%}
 <table class="table">
   <thead>
 	{% for col in columns %}  	
@@ -71,13 +71,14 @@
   	{% if job.jobInstances %}  	
     {% for jobInstance in job.jobInstances %}
 	<tr>
+		<td> {{ jobInstance.instanceId }} </td>
 		<td> {{ jobInstance.batchId }} </td>
 		<td> {{ jobInstance.created_at.strftime('%Y-%m-%d %H:%M:%S') }} </td>
 		<td> {{ jobInstance.last_update.strftime('%Y-%m-%d %H:%M:%S') }} </td>
 		<td> {{ jobInstance.status }} </td>
 		<td> {{ jobInstance.minor_status }} </td>
 		<td> {{ jobInstance.hostname }} </td>
-		<td> {{ jobInstance._id }} </td>
+{#		<td> {{ jobInstance._id }} </td> #}
 	</tr>
 	{% endfor %}
     {% endif %}
