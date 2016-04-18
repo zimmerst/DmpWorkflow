@@ -11,7 +11,7 @@ TYPES = tuple(cfg.get("JobDB","task_types").split(","))
 SITES = tuple(cfg.get("JobDB","batch_sites").split(","))
 
 class JobInstance(db.EmbeddedDocument):
-    # _id = db.ObjectIdField( required=True, default=lambda: ObjectId()) # drop this.
+    _id = db.ObjectIdField( required=True, default=lambda: ObjectId()) # drop this.
     instanceId = db.LongField(verbose_name="instanceId", required=False, default=None)
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
