@@ -12,6 +12,7 @@ SITES = tuple(cfg.get("JobDB","batch_sites").split(","))
 
 class JobInstance(db.EmbeddedDocument):
     _id = db.ObjectIdField( required=True, default=lambda: ObjectId() )
+    instanceId = db.LongField(verbose_name="instanceId", required=False, default=None)
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
     last_update = db.DateTimeField(default=datetime.datetime.now, required=True)
@@ -65,6 +66,13 @@ class Job(db.Document):
                 return jI
         print "could not find matching id"
         return None
+    
+    def addInstance(self,jInst):
+        if not isinstance(jInst, JobInstance):
+            raise Exception("Must be job instance to be added")
+        last_stream = len(self.jobInstances)
+        jInst.set("instanceId",last_stream+1)
+        self.jobInstances.append(jInst)
     
     def aggregateStatii(self):
         ''' will return an aggregated summary of all instances in all statuses '''

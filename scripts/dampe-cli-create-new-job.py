@@ -31,7 +31,7 @@ if __name__ == '__main__':
     if opts.Ninstances:
         for j in range(random.randrange(opts.Ninstances)):
             jI = JobInstance(body=str(dummy_dict))
-            job.jobInstances.append(jI)
+            job.addInstance(jI)
     job.save()
     print 'created job %s with %i new instances'%(taskName,opts.Ninstances)
     

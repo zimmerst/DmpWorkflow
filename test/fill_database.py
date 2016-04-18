@@ -21,7 +21,7 @@ if __name__ == '__main__':
                   release="DmpSoftware-%s"%random.choice(releases))
         for j in range(random.randrange(instances)):
             jI = JobInstance(body=str(dummy_dict))
-            job.jobInstances.append(jI)
+            job.addInstance(jI)
         counter+=len(job.jobInstances)
         job.save()
     print 'added %i new items'%counter

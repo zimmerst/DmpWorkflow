@@ -39,7 +39,7 @@ class DetailView(MethodView):
             form.populate_obj(jobInstance)
 
             job = context.get('job')
-            job.jobInstances.append(jobInstance)
+            job.addInstance(jobInstance)
             job.save()
 
             return redirect(url_for('jobs.detail', slug=slug))

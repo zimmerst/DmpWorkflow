@@ -37,3 +37,7 @@ def mkscratch():
 def touch(path):
     with open(path, 'a'):
         os.utime(path, None)
+        
+def sixdigits(val):
+    ''' returns a six-digit integer with leading zeros '''
+    pass

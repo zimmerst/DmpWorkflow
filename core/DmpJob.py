@@ -44,6 +44,7 @@ class DmpJob(object):
     def setInstanceParameters(self,JobInstance):
         ''' extract jobInstanceParameters to fully define job '''
         body = JobInstance.body
+        self.instanceId = JobInstance.instanceId # aka stream
         keys = ['InputFiles','OutputFiles','MetaData']
         if isinstance(body,dict):
             for key in keys:
