@@ -3,7 +3,7 @@ Created on Mar 15, 2016
 
 @author: zimmer
 '''
-import copy, sys
+import copy, sys, os
 from core import db
 import core.models as models
 from core.DmpJob import DmpJob
@@ -24,6 +24,7 @@ if __name__ == "__main__":
     newJobInstances = []
     db.connect() # connect to DB
     for job in models.Job.objects:
+        os.environ["DWF_JOBNAME"]=job.title
         if counter < maxCount:
             newJobs = [j for j in job.jobInstances if j.status == 'New']
             if len(newJobs):

@@ -9,8 +9,6 @@ from utils.flask_helpers import parseJobXmlToDict, update_status
 from utils.tools import mkdir, touch, rm, Ndigits, safe_copy, exceptionHandler
 from hpc.lsf import LSF, BatchJob
 
-sys.excepthook = exceptionHandler
-
 # todo2: add cfg parsing variables.
 class DmpJob(object):
     def __init__(self,job,**kwargs):
@@ -31,7 +29,14 @@ class DmpJob(object):
         self.script = None
         self.__dict__.update(kwargs)
         self.extract_xml_metadata(job.body)
-            
+        self.__updateEnv__()
+
+    def __updateEnv__(self):
+        for fi in self.InputFiles+self.OutputFiles+self.MetaData:
+            for key in ['value','source','target']:
+                if key in fi: fi[key]=os.path.expandvars(fi[key])
+        return 
+    
     def getJobName(self):
         return "-".join([self.jobId,self.instanceId])
 

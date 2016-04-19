@@ -2,7 +2,7 @@
 {% block content %}
 <h2> Job Summary </h2>
 {% set MAJOR_STATII = ['New','Running','Suspended','Failed','Terminated','Done','Submitted'] %}
-{% set keys = ['Name','Site','Type','Release Tag']+MAJOR_STATII+["Total"] %}
+{% set keys = ['Name','Site','Type','Release Tag','#events']+MAJOR_STATII+["Total"] %}
 <table class="table">
 	<thead>
 
@@ -15,6 +15,7 @@
 		<td><a href="{{ url_for('jobs.detail', slug=job.slug) }}">{{ job.title }}</a></td>
 		<td>{{ job.execution_site }}</td>
 		<td>{{ job.type }}</td>
+		<td>{{ job.getNevents() }}</td>
 		<td>{{ job.release }}</td>
 		{% for key, value in job.aggregateStatii() %}
 		<td>{{ value }}</td>
