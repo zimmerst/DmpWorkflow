@@ -5,13 +5,12 @@
 			<Var name="EMIN" value="10GeV" var_type="string"/>
 			<Var name="EMAX" value="100GeV" var_type="string"/>
 			<Var name="Primary" value="allElectron" var_type="string"/>
-			<Var name="NEVENTS_GENERATED" value="10000" var_type="long"/>
 			<Var name="LOG_LEVEL" value="INFO" var_type="string"/>
 			<Var name="dataset" value="${Primary}-${release}_${EMIN}_${EMAX}.noOrb"/>
-			<Var name="storage_path" value="root://dampe-rdr/mc/"/>
+			<Var name="storage_path" value="root://dampe-rdr/mc"/>
 		</MetaData>
 		<InputFiles>
-			<File source="/local/path/to/macro/file" target="G4macro.mac" file_type="root" />
+			<File source="${DMPSWSYS}/share/TestRelease/macros/allElectron.mac" target="G4macro.mac" file_type="root" />
 		</InputFiles>
 		<OutputFiles>
 			<File source="dmpsimu.root" target="${storage_path}/${DWF_JOBNAME}/${DWF_TYPE}/${dataset}.mc.${DWF_SIXDIGIT}.root" file_type="root" />
@@ -21,7 +20,7 @@
 import DMPSW
 import libDmpSimu as  DmpSim
 import os, sys
-nevents = os.getenv("NEVENTS_GENERATED")
+nevents = os.getenv("NEVENTS_GENERATED",10000)
 
 #-------------------------------------------------------------------
 # IOSvc options

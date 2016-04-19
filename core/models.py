@@ -17,6 +17,7 @@ class JobInstance(db.EmbeddedDocument):
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
     last_update = db.DateTimeField(default=datetime.datetime.now, required=True)
     batchId = db.LongField(verbose_name="batchId", required=False, default=None)
+    Nevents = db.LongField(verbose_name="Nevents", required=False, default=None)
     hostname = db.StringField(verbose_name="hostname",required=False,default=None)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
@@ -59,6 +60,10 @@ class Job(db.Document):
     
     execution_site = db.StringField(max_length=255, required=False, default="CNAF", choices=SITES)
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
+    
+    def getNevents(self):
+        #FIXME: need to implement fast query on events stored.
+        return 100000
     
     def getBody(self):
         os.environ["DWF_JOBNAME"]=self.title

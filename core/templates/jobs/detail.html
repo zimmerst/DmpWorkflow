@@ -8,10 +8,9 @@
 
 {% block content %}
   <h1>{{ job.title }}</h1> 
-  <strong> created at:</strong> {{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
-  <strong> Id:</strong> {{ job.id }}
   <strong> type:</strong> {{ job.type }} 
   <strong> Release Tag:</strong> {{ job.release }} 
+  <strong> Number of Events on File: </strong> {{ job.getNevents() }} 
   </br>
   {% set job_body = job.getBody() %}
 
@@ -87,6 +86,8 @@
     {% endif %}
 </table>
 <hr>
+<strong> created at:</strong> {{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+<strong> Id:</strong> {{ job.id }}
 {# construction site!!! #}
 {# <h2>Add a jobInstance</h2>													#}
 {#  <form action="." method="post"> 											#}
