@@ -1,4 +1,4 @@
-import datetime, time
+import datetime, time, os
 from flask import url_for
 from core import db, cfg
 from bson import ObjectId
@@ -61,6 +61,7 @@ class Job(db.Document):
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
     
     def getBody(self):
+        os.environ["DWF_JOBNAME"]=self.title
         return parseJobXmlToDict(self.body)
      
     def getInstance(self,_id):
