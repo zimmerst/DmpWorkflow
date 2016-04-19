@@ -10,7 +10,7 @@ from utils.tools import mkdir, safe_copy, rm, camelize, exceptionHandler
 from utils.shell import run
 import sys, os, logging, pprint, socket
 
-DEBUG_TEST = True
+DEBUG_TEST = False
 
 LOG_LEVEL = os.getenv("LOG_LEVEL","INFO")
 if not LOG_LEVEL=="DEBUG":
