@@ -19,6 +19,7 @@ if os.path.isfile(fii):
     fii = open(fii,'rb').read()
 log.info("reading json input")
 job = createFromJSON(fii)
+os.environ["DWF_SIXDIGIT"]=job.getSixDigits()
 batchId = os.getenv("LSF_JOBID","1234")
 job.updateStatus("Running","PreparingInputData",hostname=socket.gethostname(),batchId=batchId)
 # first, set all variables 
@@ -26,8 +27,8 @@ for var in job.MetaData: os.environ[var['name']]=os.path.expandvars(var['value']
 log.debug("current environment settings {}".format(os.environ))
 
 for fi in job.InputFiles:
-    src = fi['source']
-    tg  = fi['target']
+    src = os.path.expandvars(fi['source'])
+    tg  = os.path.expandvars(fi['target'])
     log.info("cp %s -> %s"%(src,tg))
     try:
         safe_copy(src, tg, attempts=4, sleep='4s')
@@ -54,8 +55,8 @@ log.info("successfully completed running application")
 # finally, compile output file.
 job.updateStatus("Running","PreparingOutputData")
 for fi in job.OutputFiles:
-    src = fi['source']
-    tg  = fi['target']
+    src = os.path.expandvars(fi['source'])
+    tg  = os.path.expandvars(fi['target'])
     log.info("cp %s -> %s"%(src,tg))
     try:
         safe_copy(src, tg, attempts=4, sleep='4s')
