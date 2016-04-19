@@ -29,7 +29,7 @@ class JobInstance(db.EmbeddedDocument):
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
     status_history = []
-    update_history = []
+    update_history = db.ListField(db.DateTimeField)
         
     def set(self,key,value):
         self.__setattr__(key,value)
