@@ -24,6 +24,7 @@ class JobInstance(db.EmbeddedDocument):
     last_update = db.DateTimeField(default=datetime.datetime.now, required=True)
     batchId = db.LongField(verbose_name="batchId", required=False, default=None)
     Nevents = db.LongField(verbose_name="Nevents", required=False, default=None)
+    site = db.StringField(verbose_name="site", required=False, default="CNAF")
     hostname = db.StringField(verbose_name="hostname",required=False,default=None)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
@@ -63,10 +64,17 @@ class Job(db.Document):
     body = db.StringField(required=True)
     type = db.StringField(verbose_name="type", required=False, default="Other", choices=TYPES)
     release = db.StringField(max_length=255, required=False)
-    
+    dependencies = db.ListField(db.ObjectIdField)
     execution_site = db.StringField(max_length=255, required=False, default="CNAF", choices=SITES)
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
     
+    def getSite(self):
+        my_site = self.execution_site
+        for jI in self.jobInstances:
+            if jI.site!=my_site:
+                my_site="Mixed"
+        return my_site
+
     def getNevents(self):
         log.warning("FIXME: need to implement fast query")
         return "NaN"

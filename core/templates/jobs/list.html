@@ -13,7 +13,7 @@
 		{% for job in jobs %}
 	<tr>
 		<td><a href="{{ url_for('jobs.detail', slug=job.slug) }}">{{ job.title }}</a></td>
-		<td>{{ job.execution_site }}</td>
+		<td>{{ job.getSite() }}</td>
 		<td>{{ job.type }}</td>
 		<td>{{ job.release }}</td>
 		<td>{{ job.getNevents() }}</td>
