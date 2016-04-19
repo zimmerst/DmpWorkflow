@@ -5,7 +5,7 @@ Created on Mar 15, 2016
 '''
 import xml.dom.minidom as xdom
 from StringIO import StringIO
-import time
+import time, os, re
 
 def update_status(JobId,InstanceId,major_status,**kwargs):
     from core import db
@@ -28,7 +28,7 @@ def update_status(JobId,InstanceId,major_status,**kwargs):
     my_job.update()
     return
 
-def parseJobXmlToDict(domInstance,parent="Job"):
+def parseJobXmlToDict(domInstance,parent="Job",setVars=True):
     out = {}
     elems = xdom.parse(StringIO(domInstance)).getElementsByTagName(parent)
     if len(elems)>1:
@@ -37,6 +37,8 @@ def parseJobXmlToDict(domInstance,parent="Job"):
         raise Exception('found no Job element in xml.')
     el = elems[-1]
     datt = dict(zip(el.attributes.keys(),[v.value for v in el.attributes.values()]))
+    if setVars: 
+        for k,v in datt.iteritems(): os.environ[k]=v
     nodes = [node for node in el.childNodes if isinstance(node,xdom.Element)]
     for node in nodes:
         name = str(node.localName)
@@ -52,5 +54,13 @@ def parseJobXmlToDict(domInstance,parent="Job"):
             for elem in node.getElementsByTagName(my_key):
                 section.append(dict(zip(elem.attributes.keys(),[v.value for v in elem.attributes.values()])))
             out[str(name)]=section
+    if setVars:
+        for var in out['MetaData']:
+            key = var['name']
+            value = var['value']
+            if "$" in value:
+                value = os.path.expandvars(value)
+            os.environ[key]=value
+            var['value']=value
     out['atts']=datt
     return out

@@ -1,10 +1,20 @@
 <Jobs>
-	<Job release="5-1-2" type='Generation'>
+	<Job release="5-1-5" type='Generation'>
+		<MetaData>
+			<Var name="NEVENTS_GENERATED" value="10000" var_type="long"/>
+			<Var name="EMIN" value="10GeV" var_type="string"/>
+			<Var name="EMAX" value="100GeV" var_type="string"/>
+			<Var name="Primary" value="allElectron" var_type="string"/>
+			<Var name="NEVENTS_GENERATED" value="10000" var_type="long"/>
+			<Var name="LOG_LEVEL" value="INFO" var_type="string"/>
+			<Var name="dataset" value="${Primary}-${release}_${EMIN}_${EMAX}.noOrb"/>
+			<Var name="storage_path" value="root://dampe-rdr/mc/"/>
+		</MetaData>
 		<InputFiles>
 			<File source="/local/path/to/macro/file" target="G4macro.mac" file_type="root" />
 		</InputFiles>
 		<OutputFiles>
-			<File source="dmpsimu.root" target="root://dampe-rdr/mc/$(DWF_JOBNAME)/generate/$(DWF_JOBNAME_LONG).$(DWF_SIXDIGIT).mc.root" file_type="root" />
+			<File source="dmpsimu.root" target="${storage_path}/${DWF_JOBNAME}/${DWF_TYPE}/${dataset}.mc.${DWF_SIXDIGIT}.root" file_type="root" />
 		</OutputFiles>
 			<JobWrapper executable="python"><![CDATA[
 #! /usr/bin/python
@@ -42,9 +52,5 @@ DMPSW.Core.Run()
 DMPSW.Core.Finalize()
 ]]>		
 			</JobWrapper>
-		<MetaData>
-			<Var name="NEVENTS_GENERATED" value="10000" var_type="long"/>
-			<Var name="LOG_LEVEL" value="INFO" var_type="string"/>
-		</MetaData>
 	</Job>
 </Jobs>

@@ -62,7 +62,7 @@ class Job(db.Document):
     
     def getBody(self):
         return parseJobXmlToDict(self.body)
-    
+     
     def getInstance(self,_id):
         for jI in self.jobInstances:
             if str(jI.instanceId) == _id:

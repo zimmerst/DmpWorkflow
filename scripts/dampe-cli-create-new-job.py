@@ -7,7 +7,7 @@ Created on Mar 30, 2016
 from core.models import Job, JobInstance, TYPES
 from utils.flask_helpers import parseJobXmlToDict
 from core import db
-import random, sys
+import random, sys, os
 
 _TYPES = list(TYPES)+["NONE"]
 
@@ -39,6 +39,7 @@ if __name__ == '__main__':
     if 'type' in dout['atts']: job.type = dout['atts']['type']
     if 'release' in dout['atts']: job.release = dout['atts']['release']
     if not opts.type == "NONE": job.type = opts.type
+    os.environ['DWF_JOBNAME']=taskName
     if opts.Ninstances:
         for j in range(opts.Ninstances):
             jI = JobInstance(body=str(dummy_dict))
