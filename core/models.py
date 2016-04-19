@@ -104,7 +104,7 @@ class Job(db.Document):
         last_stream = len(self.jobInstances)
         jInst.set("instanceId",last_stream+1)
         if not len(jInst.status_history):
-            sH = {"status":self.status,"update":self.last_update,"minor_status":self.minor_status}
+            sH = {"status":jInst.status,"update":jInst.last_update,"minor_status":jInst.minor_status}
             self.status_history.append(sH)
         self.jobInstances.append(jInst)
     
