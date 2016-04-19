@@ -29,8 +29,6 @@ class JobInstance(db.EmbeddedDocument):
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
     status_history = db.ListField()
-    #minor_history  = db.ListField()
-    update_history = db.ListField()
     
         
     def set(self,key,value):
@@ -49,9 +47,8 @@ class JobInstance(db.EmbeddedDocument):
             if not stat == 'New':
                 raise Exception("job found in final state, can only set to New")
         self.set("status",stat)
-        self.status_history.append(self.status)
-        #self.minor_history.append(self.minor_status)
-        self.update_history.append(self.last_update)
+        sH = {"status":self.status,"update":self.last_update,"minor_status":self.minor_status}
+        self.status_history.append(sH)
         return
     
     def sixDigit(self,size=6):
@@ -107,8 +104,8 @@ class Job(db.Document):
         last_stream = len(self.jobInstances)
         jInst.set("instanceId",last_stream+1)
         if not len(jInst.status_history):
-            jInst.status_history.append(jInst.status)
-            jInst.update_history.append(jInst.last_update)
+            sH = {"status":self.status,"update":self.last_update,"minor_status":self.minor_status}
+            self.status_history.append(sH)
         self.jobInstances.append(jInst)
     
     def aggregateStatii(self):
