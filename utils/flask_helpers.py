@@ -62,5 +62,9 @@ def parseJobXmlToDict(domInstance,parent="Job",setVars=True):
                 value = os.path.expandvars(value)
             os.environ[key]=value
             var['value']=value
+        # expand vars
     out['atts']=datt
+    for var in out['InputFiles']+out['OutputFiles']:
+        if '$' in src: var['source']=os.path.expandvars(var['source'])
+        if '$' in src: var['target']=os.path.expandvars(var['target'])
     return out
