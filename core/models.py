@@ -67,7 +67,12 @@ class Job(db.Document):
     dependencies = db.ListField(db.ObjectIdField)
     execution_site = db.StringField(max_length=255, required=False, default="CNAF", choices=SITES)
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
-    
+ 
+    def addDependency(self,job):
+        if not isinstance(job, Job):
+            raise Exception("Must be job to be added")
+        self.dependencies.append(job._id)
+        
     def getSite(self):
         my_site = self.execution_site
         for jI in self.jobInstances:
