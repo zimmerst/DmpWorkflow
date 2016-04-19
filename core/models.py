@@ -41,7 +41,7 @@ class JobInstance(db.EmbeddedDocument):
         curr_status = self.status
         curr_time = time.ctime()
         self.last_update = curr_time
-        if curr_status == stat:
+        if curr_status == stat and self.minor_status == self.status_history[-1]['minor_status']:
             return
         if curr_status in FINAL_STATII:
             if not stat == 'New':
