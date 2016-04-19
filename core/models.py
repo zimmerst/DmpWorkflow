@@ -1,4 +1,4 @@
-import datetime, time, os, sys
+import datetime, time, os, sys, logging
 from flask import url_for
 from core import db, cfg
 from bson import ObjectId
@@ -13,6 +13,8 @@ SITES = tuple(cfg.get("JobDB","batch_sites").split(","))
 dbg = cfg.getboolean("server","use_debugger")
 if dbg:
     sys.excepthook = exceptionHandler
+
+log = logging.getLogger()
 
 class JobInstance(db.EmbeddedDocument):
     _id = db.ObjectIdField( required=True, default=lambda: ObjectId()) # drop this in future.
@@ -66,7 +68,8 @@ class Job(db.Document):
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
     
     def getNevents(self):
-        return "FIXME: need to implement fast query"
+        log.warning("FIXME: need to implement fast query")
+        return "NaN"
     
     def getBody(self):
         os.environ["DWF_JOBNAME"]=self.title
