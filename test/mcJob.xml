@@ -35,6 +35,17 @@ SimAlg.Set("MacFile", "G4macro.mac")
 #@ Geant4 random seed
 SimAlg.Set("RandomSeed", os.getenv("DWF_SIXDIGIT",0)) # <-- uncomment this to set up a random seed
 
+EMIN = os.getenv("EMIN","1e2")
+EMAX = os.getenv("EMAX","1e4")
+
+# this is just a convenience converter to make sure that the energy in the header is converted.
+for k, v in {"GeV":1e3,"keV":1e-3,"TeV":1e6}.iteritems():
+	if k in str(EMIN): EMIN = "%1.3e"%(v*float(EMIN.replace(k,"")))
+	if k in str(EMAX): EMAX = "%1.3e"%(v*float(EMAX.replace(k,"")))
+
+SimAlg.Set("EnergyMin",EMIN)
+SimAlg.Set("EnergyMax",EMAX)
+
 #@ Simulation configuration file
 #@   The config file used: Simulation/share/dmpSimu.cfg
 #@   This configuration file is installed to $DMPSWSYS/share/Configuration/dmpSimu.cfg
