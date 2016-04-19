@@ -105,7 +105,7 @@ class Job(db.Document):
         jInst.set("instanceId",last_stream+1)
         if not len(jInst.status_history):
             sH = {"status":jInst.status,"update":jInst.last_update,"minor_status":jInst.minor_status}
-            self.status_history.append(sH)
+            jInst.status_history.append(sH)
         self.jobInstances.append(jInst)
     
     def aggregateStatii(self):
