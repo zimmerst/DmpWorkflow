@@ -11,8 +11,8 @@ TYPES = tuple(cfg.get("JobDB","task_types").split(","))
 SITES = tuple(cfg.get("JobDB","batch_sites").split(","))
 
 dbg = cfg.getboolean("server","use_debugger")
-if dbg:
-    sys.excepthook = exceptionHandler
+#if dbg:
+#    sys.excepthook = exceptionHandler
 
 log = logging.getLogger()
 
@@ -26,7 +26,7 @@ class JobInstance(db.EmbeddedDocument):
     Nevents = db.LongField(verbose_name="Nevents", required=False, default=None)
     site = db.StringField(verbose_name="site", required=False, default="CNAF")
     hostname = db.StringField(verbose_name="hostname",required=False,default=None)
-    status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
+    status = db.StringField(verbose_name="status", required=False, default="New")#, choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
     status_history = db.ListField(db.StringField)
     update_history = db.ListField(db.DateTimeField)

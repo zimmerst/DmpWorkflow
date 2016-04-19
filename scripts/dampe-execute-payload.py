@@ -38,8 +38,8 @@ for fi in job.InputFiles:
     try:
         safe_copy(src, tg, attempts=4, sleep='4s')
     except IOError, e:        
-        job.updateStatus("Failed",camelize(e))
-        sys.exit(4)
+        job.updateStatus("Running",camelize(e))
+        #sys.exit(4)
 log.info("successfully completed staging.")
 
 # next, run the executable
@@ -53,8 +53,8 @@ job.updateStatus("Running","ExecutingApplication")
 output, error, rc = run([CMD])
 if rc: 
     log.error("Payload returned exit code %i, see above for more details."%rc)
-    job.updateStatus("Failed","ApplicationExitCode%i"%rc)
-    sys.exit(5)
+    job.updateStatus("Running","ApplicationExitCode%i"%rc)
+    #sys.exit(5)
 log.info("successfully completed running application")
 
 # finally, compile output file.
@@ -66,8 +66,8 @@ for fi in job.OutputFiles:
     try:
         safe_copy(src, tg, attempts=4, sleep='4s')
     except IOError, e:        
-        job.updateStatus("Failed",camelize(e))
-        sys.exit(6)
+        job.updateStatus("Running",camelize(e))
+        #sys.exit(6)
 log.info("successfully completed staging.")
 log.info("job complete")
 job.updateStatus("Done","ApplicationComplete")
