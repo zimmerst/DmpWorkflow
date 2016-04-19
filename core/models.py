@@ -30,34 +30,25 @@ class JobInstance(db.EmbeddedDocument):
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
     status_history = db.ListField(db.StringField)
     update_history = db.ListField(db.DateTimeField)
-    
-    ## store status history....
-    #status_history_time = db.ListField([datetime.datetime.now])
-    #status_history_time = db.ListField(["New"])
-    
+        
     def set(self,key,value):
         self.__setattr__(key,value)
         self.__setattr__("last_update",time.ctime())
     
     def setStatus(self,stat):
-        #print 'calling setStatus'
         if not stat in MAJOR_STATII:
             raise Exception("status not found in supported list of statii")
         curr_status = self.status
         curr_time = time.ctime()
         self.last_update = curr_time
         if curr_status == stat:
-            #print 'no status change, do nothing.'
             return
         if curr_status in FINAL_STATII:
             if not stat == 'New':
                 raise Exception("job found in final state, can only set to New")
-        # todo store status history
-        #sHist = StatusHistory(last_update=curr_time,status=stat)
-        #self.status_history.append(sHist)
         self.set("status",stat)
-        #self.status_history.append(self.status)
-        #self.update_history.append(self.last_update)
+        self.status_history.append(self.status)
+        self.update_history.append(self.last_update)
         return
     
     def sixDigit(self,size=6):
@@ -112,9 +103,9 @@ class Job(db.Document):
             raise Exception("Must be job instance to be added")
         last_stream = len(self.jobInstances)
         jInst.set("instanceId",last_stream+1)
-        #if not len(jInst.status_history):
-        #    jInst.status_history.append(jInst.status)
-        #    jInst.update_history.append(jInst.last_update)
+        if not len(jInst.status_history):
+            jInst.status_history.append(jInst.status)
+            jInst.update_history.append(jInst.last_update)
         self.jobInstances.append(jInst)
     
     def aggregateStatii(self):
