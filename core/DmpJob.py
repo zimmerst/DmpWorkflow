@@ -14,6 +14,7 @@ class DmpJob(object):
     def __init__(self,job,**kwargs):
         self.wd = os.path.abspath(".")
         self.DBjob = job
+        self.title = None
         self.jobId = str(job.id)
         self.instanceId = None
         self.batchId = None
@@ -94,7 +95,7 @@ class DmpJob(object):
     
     def getSixDigits(self):
         return Ndigits(self.instanceId,6)
-        
+    
 def createFromJSON(jsonstr):
     dmpJob = jsonpickle.decode(jsonstr)
     return dmpJob
