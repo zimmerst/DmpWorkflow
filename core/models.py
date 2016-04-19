@@ -62,8 +62,7 @@ class Job(db.Document):
     jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
     
     def getNevents(self):
-        #FIXME: need to implement fast query on events stored.
-        return 100000
+        return "FIXME: need to implement fast query"
     
     def getBody(self):
         os.environ["DWF_JOBNAME"]=self.title
@@ -71,7 +70,7 @@ class Job(db.Document):
      
     def getInstance(self,_id):
         for jI in self.jobInstances:
-            if str(jI.instanceId) == _id:
+            if long(jI.instanceId) == long(_id):
                 return jI
         print "could not find matching id"
         return None

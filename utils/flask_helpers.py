@@ -18,6 +18,7 @@ def update_status(JobId,InstanceId,major_status,**kwargs):
     my_job = my_job[0]
     assert major_status in MAJOR_STATII
     jInstance = my_job.getInstance(InstanceId)
+    #print jInstance
     my_dict = {"last_update":time.ctime()}
     my_dict.update(kwargs)
     for key,value in my_dict.iteritems():
@@ -70,5 +71,5 @@ def parseJobXmlToDict(domInstance,parent="Job",setVars=True):
     for var in out['InputFiles']+out['OutputFiles']:
         if '$' in var['source']: var['source']=os.path.expandvars(var['source'])
         if '$' in var['target']: var['target']=os.path.expandvars(var['target'])
-        print var['source'],"->",var['target']
+        #print var['source'],"->",var['target']
     return out

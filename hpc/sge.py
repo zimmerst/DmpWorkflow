@@ -38,7 +38,7 @@ class SGE(hpc.batch.BATCH):
     
     def aggregateStatii(self,asDict=True,command=["bjobs -Wa"]):
         jobs = {}
-        output = run(command)
+        output, error, rc = run(command)
         if not asDict: return output
         else:
             for i, line in enumerate(output.split("\n")):

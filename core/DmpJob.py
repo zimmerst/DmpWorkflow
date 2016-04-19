@@ -3,15 +3,13 @@ Created on Mar 15, 2016
 @author: zimmer
 @brief: base class for DAMPE Workflow (HPC/client side)
 '''
-import os.path
+import os.path, jsonpickle
 from models import JobInstance
 from utils.flask_helpers import parseJobXmlToDict, update_status
-from utils.tools import mkdir, touch, rm
+from utils.tools import mkdir, touch, rm, Ndigits, safe_copy
 from hpc.lsf import LSF, BatchJob
 
-
 # todo2: add cfg parsing variables.
-
 class DmpJob(object):
     def __init__(self,job,**kwargs):
         self.wd = os.path.abspath(".")
@@ -55,9 +53,13 @@ class DmpJob(object):
                     if len(body[key]):
                         self.__dict__[key]+=body[key]
 
-    def write_script(self,outfile=None):
+    def write_script(self,outfile="script.py",debug=False):
         ''' based on meta-data should create job-executable '''
-        pass
+        safe_copy(os.path.expandvars("${DWF_ROOT}/scripts/dampe-execute-payload.py"),os.path.join(self.wd,outfile),debug=debug)
+        json_file = open(os.path.join(self.wd,"job.json"),"wb")
+        json_file.write(self.exportToJSON())
+        json_file.close()
+        return
     
     def createLogFile(self):
         mkdir(os.path.join("%s/logs"%self.wd))
@@ -67,13 +69,10 @@ class DmpJob(object):
         # create the logfile before submitting.
         touch(self.logfile)  
     
-    def getExecCommand(self):
-        return " ".join([self.executable,os.path.abspath(self.script)])
-    
-    def updateStatus(self,majorStatus,minorStatus):
+    def updateStatus(self,majorStatus,minorStatus,**kwargs):
         ''' passes status '''
-        update_status(self.joibId, self.instanceId, majorStatus, minor_status=minorStatus)
-                   
+        update_status(self.jobId, self.instanceId, majorStatus, minor_status=minorStatus,**kwargs)
+                
     def getStatusBatch(self):
         ''' interacts with the backend HPC stuff and returns the status of the job '''
         # todo: make the whole thing batch-independent!
@@ -88,3 +87,14 @@ class DmpJob(object):
         bj.submit(**kwargs)
         self.batchId = bj.get("batchId")
         return self.batchId
+    
+    def exportToJSON(self):
+        ''' return a pickler of itself as JSON format '''
+        return jsonpickle.encode(self)
+    
+    def getSixDigits(self):
+        return Ndigits(self.instanceId,6)
+        
+def createFromJSON(jsonstr):
+    dmpJob = jsonpickle.decode(jsonstr)
+    return dmpJob

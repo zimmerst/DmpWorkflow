@@ -35,6 +35,7 @@ if __name__ == "__main__":
                     dInstance.instanceId = j.instanceId
                     dInstance.jobId = job.id
                     dInstance.setInstanceParameters(j)
+                    dInstance.write_script()
                     tstatus = random.choice(["Submitted","New","New","New"])
                     if tstatus == "Submitted":
                         #print 'found status other than new'
@@ -48,6 +49,7 @@ if __name__ == "__main__":
     #    Db.update({'jobInstances.uniqueId': '%s'%inst.uniqueId}, {'jobInstances.batchId': random_with_N_digits(6)})
     #sys.exit()
     ## okay - can do bulk submission or something like that
+    sys.exit()
     print 'updating submitted jobs'
     for job in models.Job.objects:
         newJobs = [j for j in job.jobInstances if j.status == 'Submitted']
@@ -68,4 +70,3 @@ if __name__ == "__main__":
                 else: j.minor_status = "FailedWithCode:%i"%random.choice([1,2,3,4,5,6])
                 j.setStatus(tstatus)
         job.update()
-    

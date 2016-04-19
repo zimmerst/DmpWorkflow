@@ -34,6 +34,7 @@ Installation Instructions:
 	pip install flask-mongoengine
 	pip install flask-script
 	pip install mongoengine
+	pip install -U jsonpickle
 	```
 
 5.	modify config to have right server & DB address. See config/default.cfg for an example.
