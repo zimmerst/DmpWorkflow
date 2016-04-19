@@ -29,8 +29,12 @@ class JobInstance(db.EmbeddedDocument):
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
     status_history = db.ListField()
+    log = db.StringField(verbose_name="log", required=False, default="")
     
-        
+    def getLog(self):
+        lines = self.log.split("\n")
+        return lines
+    
     def set(self,key,value):
         self.__setattr__(key,value)
         self.__setattr__("last_update",time.ctime())
