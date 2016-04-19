@@ -29,7 +29,9 @@ class JobInstance(db.EmbeddedDocument):
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
     status_history = db.ListField()
+    minor_history  = db.ListField()
     update_history = db.ListField()
+    
         
     def set(self,key,value):
         self.__setattr__(key,value)
@@ -48,6 +50,7 @@ class JobInstance(db.EmbeddedDocument):
                 raise Exception("job found in final state, can only set to New")
         self.set("status",stat)
         self.status_history.append(self.status)
+        self.minor_history.append(self.minor_status)
         self.update_history.append(self.last_update)
         return
     
