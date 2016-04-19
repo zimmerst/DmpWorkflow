@@ -8,6 +8,10 @@ from core import db
 from utils.flask_helpers import update_status
 from hpc.lsf import LSF 
 
+#FIXME: add watchdog triggers
+def checkStatus(jobId):
+    return True
+
     
 if __name__ == "__main__":
     db.connect()
@@ -19,5 +23,8 @@ if __name__ == "__main__":
         my_job = Job.objects.filter(id=str(JobId))
         jInstance = my_job.getInstance(InstanceId)
         jInstance.set("hostname",job_dict["EXEC_HOST"])
-        jInstance.setStatus(batchEngine.status_map[job_dict["STAT"]])
+        oldStatus = jInstance.status
+        newStatus = batchEngine.status_map[job_dict['STAT']]
+        if newStatus!=oldStatus:
+            jInstance.setStatus(newStatus)
         my_job.update()
