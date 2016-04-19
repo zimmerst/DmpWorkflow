@@ -36,7 +36,7 @@ log.debug("current environment settings {}".format(os.environ))
 for fi in job.InputFiles:
     src = os.path.expandvars(fi['source'])
     tg  = os.path.expandvars(fi['target'])
-    log.info("cp %s ==> %s"%(src,tg))
+    log.info("cp %s >>> %s"%(src,tg))
     try:
         safe_copy(src, tg, attempts=4, sleep='4s')
     except IOError, e:
@@ -64,7 +64,7 @@ job.updateStatus("Running","PreparingOutputData")
 for fi in job.OutputFiles:
     src = os.path.expandvars(fi['source'])
     tg  = os.path.expandvars(fi['target'])
-    log.info("cp %s -> %s"%(src,tg))
+    log.info("cp %s >>> %s"%(src,tg))
     try:
         safe_copy(src, tg, attempts=4, sleep='4s')
     except IOError, e:        
