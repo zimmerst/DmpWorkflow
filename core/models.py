@@ -72,7 +72,13 @@ class Job(db.Document):
         if not isinstance(job, Job):
             raise Exception("Must be job to be added")
         self.dependencies.append(job._id)
-        
+    
+    def getDependency(self):
+        if not len(self.dependencies):
+            return "None"
+        else: 
+            return tuple(self.dependencies)
+    
     def getSite(self):
         my_site = self.execution_site
         for jI in self.jobInstances:
