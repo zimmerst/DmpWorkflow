@@ -54,7 +54,7 @@ def safe_copy(infile, outfile, sleep=10, attempts=10,debug=False):
         cmnd = "xrdcp %s %s"%(infile,outfile)
     else:
         cmnd = "cp %s %s"%(infile,outfile)
-    i = 0
+    i = 1
     if debug: print "Attempting to copy file..."
     while i < attempts: 
         status = sub.call(shlex.split(cmnd))

@@ -30,10 +30,10 @@ for fi in job.InputFiles:
     tg  = fi['target']
     log.info("cp %s -> %s"%(src,tg))
     try:
-        safe_copy(src, tg, attempts=10, sleep='4s')
+        safe_copy(src, tg, attempts=4, sleep='4s')
     except IOError, e:        
         job.updateStatus("Failed",camelize(e))
-        #sys.exit(4)
+        sys.exit(4)
 log.info("successfully completed staging.")
 
 # next, run the executable
@@ -48,7 +48,7 @@ output, error, rc = run([CMD])
 if rc: 
     log.error("Payload returned exit code %i, see above for more details."%rc)
     job.updateStatus("Failed","ApplicationExitCode%i"%rc)
-    #sys.exit(5)
+    sys.exit(5)
 log.info("successfully completed running application")
 
 # finally, compile output file.
@@ -58,10 +58,10 @@ for fi in job.OutputFiles:
     tg  = fi['target']
     log.info("cp %s -> %s"%(src,tg))
     try:
-        safe_copy(src, tg, attempts=10, sleep='4s')
+        safe_copy(src, tg, attempts=4, sleep='4s')
     except IOError, e:        
         job.updateStatus("Failed",camelize(e))
-        #sys.exit(6)
+        sys.exit(6)
 log.info("successfully completed staging.")
 log.info("job complete")
-updateStatus("Done","ApplicationComplete")
+job.updateStatus("Done","ApplicationComplete")
