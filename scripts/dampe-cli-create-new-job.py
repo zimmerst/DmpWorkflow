@@ -35,12 +35,11 @@ if __name__ == '__main__':
     #if req: raise Exception("a task with the specified name exists already.")
     
     job = Job(title=taskName, body=open(xmlFile,'r').read())
+    os.environ['DWF_JOBNAME']=job.title
     dout = parseJobXmlToDict(job.body)
     if 'type' in dout['atts']: job.type = dout['atts']['type']
     if 'release' in dout['atts']: job.release = dout['atts']['release']
     if not opts.type == "NONE": job.type = opts.type
-    os.environ['DWF_JOBNAME']=job.title
-    os.environ['DWF_TYPE']=job.type
     if opts.Ninstances:
         for j in range(opts.Ninstances):
             jI = JobInstance(body=str(dummy_dict))

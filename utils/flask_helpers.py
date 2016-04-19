@@ -64,7 +64,11 @@ def parseJobXmlToDict(domInstance,parent="Job",setVars=True):
             var['value']=value
         # expand vars
     out['atts']=datt
+    if 'type' in datt:
+        os.environ["DWF_TYPE"]=datt["type"]
+    
     for var in out['InputFiles']+out['OutputFiles']:
         if '$' in var['source']: var['source']=os.path.expandvars(var['source'])
         if '$' in var['target']: var['target']=os.path.expandvars(var['target'])
+        print var['source'],"->",var['target']
     return out
