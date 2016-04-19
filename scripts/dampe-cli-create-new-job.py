@@ -30,10 +30,6 @@ if __name__ == '__main__':
     taskName        = sys.argv[1]
     xmlFile         = sys.argv[2]
     db.connect()
-    ## collision-check for dummies!
-    #req = Job.objects.filter(title=taskName)
-    #if req: raise Exception("a task with the specified name exists already.")
-    
     job = Job(title=taskName, body=open(xmlFile,'r').read())
     os.environ['DWF_JOBNAME']=job.title
     dout = parseJobXmlToDict(job.body)
@@ -44,7 +40,7 @@ if __name__ == '__main__':
         for j in range(opts.Ninstances):
             jI = JobInstance(body=str(dummy_dict))
             job.addInstance(jI)
-    print len(job.jobInstances)
+    #print len(job.jobInstances)
     job.save()
     print 'created job %s with %i new instances'%(taskName,opts.Ninstances)
     

@@ -1,14 +1,18 @@
-import datetime, time, os
+import datetime, time, os, sys
 from flask import url_for
 from core import db, cfg
 from bson import ObjectId
-from utils.tools import random_string_generator, Ndigits
+from utils.tools import random_string_generator, Ndigits, exceptionHandler
 from utils.flask_helpers import parseJobXmlToDict
 
 MAJOR_STATII = tuple(cfg.get("JobDB","task_major_statii").split(","))
 FINAL_STATII = tuple(cfg.get("JobDB","task_final_statii").split(","))
 TYPES = tuple(cfg.get("JobDB","task_types").split(","))
 SITES = tuple(cfg.get("JobDB","batch_sites").split(","))
+
+dbg = cfg.getboolean("server","use_debugger")
+if dbg:
+    sys.excepthook = exceptionHandler
 
 class JobInstance(db.EmbeddedDocument):
     _id = db.ObjectIdField( required=True, default=lambda: ObjectId()) # drop this in future.

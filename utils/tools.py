@@ -5,6 +5,11 @@ Created on Mar 25, 2016
 '''
 import random, string, os, os.path, time, shutil, shlex, subprocess as sub
 
+def exceptionHandler(exception_type, exception, traceback):
+    # All your trace are belong to us!
+    # your format
+    print "%s: %s" % (exception_type.__name__, exception)
+    
 def random_string_generator(size=16, chars=string.ascii_letters + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
 

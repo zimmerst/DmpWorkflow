@@ -3,11 +3,13 @@ Created on Mar 15, 2016
 @author: zimmer
 @brief: base class for DAMPE Workflow (HPC/client side)
 '''
-import os.path, jsonpickle
+import os.path, jsonpickle, sys
 from models import JobInstance
 from utils.flask_helpers import parseJobXmlToDict, update_status
-from utils.tools import mkdir, touch, rm, Ndigits, safe_copy
+from utils.tools import mkdir, touch, rm, Ndigits, safe_copy, exceptionHandler
 from hpc.lsf import LSF, BatchJob
+
+sys.excepthook = exceptionHandler
 
 # todo2: add cfg parsing variables.
 class DmpJob(object):

@@ -6,10 +6,14 @@ Created on Apr 19, 2016
 '''
 
 from core.DmpJob import createFromJSON
-from utils.tools import mkdir, safe_copy, rm, camelize
+from utils.tools import mkdir, safe_copy, rm, camelize, exceptionHandler
 from utils.shell import run
 import sys, os, logging, pprint, socket
+
 LOG_LEVEL = os.getenv("LOG_LEVEL","INFO")
+if not LOG_LEVEL=="DEBUG":
+    sys.excepthook = exceptionHandler
+
 FORMAT = '%(asctime)s %(levelname)s:%(message)s'
 logging.basicConfig(format=FORMAT,level=LOG_LEVEL, datefmt='%m/%d/%Y %I:%M:%S %p')
 log = logging.getLogger()
