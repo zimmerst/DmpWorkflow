@@ -10,7 +10,7 @@ from utils.tools import mkdir, safe_copy, rm, camelize, exceptionHandler
 from utils.shell import run
 import sys, os, logging, pprint, socket
 
-DEBUG = False
+DEBUG_TEST = False
 
 LOG_LEVEL = os.getenv("LOG_LEVEL","INFO")
 if not LOG_LEVEL=="DEBUG":
@@ -40,8 +40,8 @@ for fi in job.InputFiles:
     try:
         safe_copy(src, tg, attempts=4, sleep='4s')
     except IOError, e:
-        job.updateStatus("Running" if DEBUG else "Failed",camelize(e))
-        if not DEBUG: sys.exit(4)
+        job.updateStatus("Running" if DEBUG_TEST else "Failed",camelize(e))
+        if not DEBUG_TEST: sys.exit(4)
 log.info("successfully completed staging.")
 
 # next, run the executable
@@ -55,8 +55,8 @@ job.updateStatus("Running","ExecutingApplication")
 output, error, rc = run([CMD])
 if rc: 
     log.error("Payload returned exit code %i, see above for more details."%rc)
-    job.updateStatus("Running" if DEBUG else "Failed","ApplicationExitCode%i"%rc)
-    if not DEBUG: sys.exit(5)
+    job.updateStatus("Running" if DEBUG_TEST else "Failed","ApplicationExitCode%i"%rc)
+    if not DEBUG_TEST: sys.exit(5)
 log.info("successfully completed running application")
 
 # finally, compile output file.
@@ -68,8 +68,8 @@ for fi in job.OutputFiles:
     try:
         safe_copy(src, tg, attempts=4, sleep='4s')
     except IOError, e:        
-        job.updateStatus("Running" if DEBUG else "Failed",camelize(e))
-        if not DEBUG: sys.exit(6)
+        job.updateStatus("Running" if DEBUG_TEST else "Failed",camelize(e))
+        if not DEBUG_TEST: sys.exit(6)
 log.info("successfully completed staging.")
 log.info("job complete")
 job.updateStatus("Done","ApplicationComplete")
