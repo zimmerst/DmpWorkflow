@@ -14,7 +14,7 @@ class ListView(MethodView):
 
 class DetailView(MethodView):
 
-    form = model_form(JobInstance, exclude=['created_at','status_history','update_history'])
+    form = model_form(JobInstance, exclude=['created_at','status_history','update_history','minor_history'])
 
     def get_context(self, slug):
         job = Job.objects.get_or_404(slug=slug)
