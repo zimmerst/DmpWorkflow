@@ -34,7 +34,7 @@ os.chdir(WorkflowRoot)
 # this one sources flask
 
 print "seting up flask"
-source_bash("setup.sh")
+source_bash("bin/activate")
 print "current path %s"%os.curdir
 
 os.chdir(pwd)
