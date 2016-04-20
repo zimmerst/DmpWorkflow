@@ -32,6 +32,7 @@ pwd = os.getenv("PWD",".")
 print "current path %s"%os.path.abspath(pwd)
 
 print "seting up flask"
-source_bash("${DWF_ROOT}/bin/activate")
+activate_this_file = "${DWF_ROOT}/bin/activate"
+execfile(activate_this_file, dict(__file__=activate_this_file))
 
 ## done with that.
