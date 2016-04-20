@@ -4,6 +4,7 @@ Flask-Script
 Flask-WTF
 mongoengine
 pymongo
-readline
 Werkzeug
 WTForms
+jsonpickle
+bson

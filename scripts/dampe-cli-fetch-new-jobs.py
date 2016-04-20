@@ -12,15 +12,16 @@ from utils.flask_helpers import parseJobXmlToDict
 
 import random
 
+
 def random_with_N_digits(n):
     range_start = 10**(n-1)
     range_end = (10**n)-1
     return random.randint(range_start, range_end)
 
-if __name__ == "__main__":
-    
+
+def main():
     newJobInstances = []
-    db.connect() # connect to DB
+    db.connect()  # connect to DB
     for job in models.Job.objects:
         newJobs = [j for j in job.jobInstances if j.status == 'New']
         if len(newJobs):
@@ -30,6 +31,7 @@ if __name__ == "__main__":
                 dInstance.setInstanceParameters(j)
                 newJobInstances.append(dInstance)
                 
-    print 'found %i new job instances to deploy'%len(newJobInstances)
-    ## okay - can do bulk submission or something like that
-    
+    print 'found %i new job instances to deploy' % len(newJobInstances)
+
+if __name__ == "__main__":
+    main()
