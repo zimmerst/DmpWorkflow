@@ -40,10 +40,10 @@ if __name__ == '__main__':
         if 'release' in dout['atts']: job.release = dout['atts']['release']
         nmin = 0 if opts.inst is None else opts.inst
         if ninst:
-            for j in range(nmin,ninst):
+            for j in range(nmin,ninst+nmin):
                 jI = JobInstance(body=str(dummy_dict))
                 if opts.inst:
-                    job.addInstance(jI,inst=opts.inst)
+                    job.addInstance(jI,inst=j)
                 else:
                     job.addInstance(jI)
         #print len(job.jobInstances)
