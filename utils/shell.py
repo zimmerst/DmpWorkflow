@@ -32,7 +32,7 @@ def source_bash(setup_script):
     for l in lines: 
         tl = l.split("=")
         if len(tl)==2:
-            if not tl[0].startswith("_"):
+            if not tl[0].startswith("_") or tl[0]=="BASH_FUNC_module":
                 keys.append(tl[0])
                 values.append(tl[1])
     os.environ.update(dict(zip(keys,values)))
