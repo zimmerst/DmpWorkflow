@@ -4,7 +4,7 @@ Created on Apr 19, 2016
 @author: zimmer
 @brief: payload script
 '''
-from scriptDefaults import cfg
+from utils.scriptDefaults import cfg
 from core.DmpJob import createFromJSON
 from utils.tools import mkdir, safe_copy, rm, camelize, exceptionHandler
 from utils.shell import run, source_bash

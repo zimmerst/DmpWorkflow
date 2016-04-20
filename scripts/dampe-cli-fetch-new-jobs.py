@@ -3,7 +3,7 @@ Created on Mar 15, 2016
 
 @author: zimmer
 '''
-from scriptDefaults import cfg
+from utils.scriptDefaults import cfg
 import copy
 from core import db
 import core.models as models
