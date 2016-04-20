@@ -1,0 +1,18 @@
+<Jobs>
+	<Job release="5-1-2" type='User'>
+		<MetaData>
+			<Var name="NEVENTS_GENERATED" value="0" var_type="long"/>
+			<Var name="USER_DIR" value="/home/DAMPE/zimmer/tests/tmp" var_type="str"/>
+		</MetaData>
+		<InputFiles/>
+		<OutputFiles>
+			<File source="test.dat" target="${USER_DIR}/my_test.dat" file_type="root" />
+		</OutputFiles>
+			<JobWrapper executable="bash"><![CDATA[
+#! /bin/bash
+echo "Hello World"
+echo "my name is $(hostname)" > test.dat
+]]>		
+			</JobWrapper>
+	</Job>
+</Jobs>

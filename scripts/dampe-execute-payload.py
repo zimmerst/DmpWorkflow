@@ -7,7 +7,7 @@ Created on Apr 19, 2016
 
 from core.DmpJob import createFromJSON
 from utils.tools import mkdir, safe_copy, rm, camelize, exceptionHandler
-from utils.shell import run
+from utils.shell import run, source_bash
 import sys, os, logging, pprint, socket
 
 DEBUG_TEST = False
@@ -29,6 +29,10 @@ os.environ["DWF_SIXDIGIT"]=job.getSixDigits()
 
 batchId = os.getenv("LSF_JOBID","1234")
 job.updateStatus("Running","PreparingInputData",hostname=socket.gethostname(),batchId=batchId)
+
+# source the relevant script
+source_bash(job.getSetupScript())
+
 # first, set all variables 
 for var in job.MetaData: os.environ[var['name']]=os.path.expandvars(var['value'])
 log.debug("current environment settings {}".format(os.environ))
@@ -43,7 +47,6 @@ for fi in job.InputFiles:
         job.updateStatus("Running" if DEBUG_TEST else "Failed",camelize(e))
         if not DEBUG_TEST: sys.exit(4)
 log.info("successfully completed staging.")
-
 # next, run the executable
 foo = open('payload','w')
 foo.write(job.exec_wrapper)

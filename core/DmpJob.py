@@ -74,10 +74,9 @@ class DmpJob(object):
         self.execCommand = cmd
         return
     
-    def setupSoftware(self,tag):
-        ''' given a tag, should setup the software accordingly '''
-        pass
-    
+    def getSetupScript(self):
+        return "${DAMPE_INSTALL}/releases/DmpSoftware-%s/bin/thisdmpsw.sh"%self.release
+        
     def createLogFile(self):
         mkdir(os.path.join("%s/logs"%self.wd))
         self.logfile = os.path.join("%s/logs"%self.wd,"%s.log"%self.getJobName())
