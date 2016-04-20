@@ -99,7 +99,7 @@ class Job(db.Document):
     def getBody(self):
         os.environ["DWF_JOBNAME"] = self.title
         return parseJobXmlToDict(self.body)
-     
+
     def getInstance(self,_id,silent=False):
         for jI in self.jobInstances:
             if long(jI.instanceId) == long(_id):
@@ -112,19 +112,19 @@ class Job(db.Document):
         if not isinstance(jInst, JobInstance):
             raise Exception("Must be job instance to be added")
         last_stream = len(self.jobInstances)
-        if not inst is None:
-            #FIXME: offsets one, but then goes back to the length counter.
-            last_stream = inst-1
-            if self.getInstance(last_stream+1,silent=True):
-                raise Exception("job with instance %i exists already"%inst)
-        jInst.set("instanceId",last_stream+1)
+        if inst is not None:
+            # FIXME: offsets one, but then goes back to the length counter.
+            last_stream = inst - 1
+            if self.getInstance(last_stream + 1, silent=True):
+                raise Exception("job with instance %i exists already" % inst)
+        jInst.set("instanceId", last_stream + 1)
         if not len(jInst.status_history):
             sH = {"status": jInst.status, "update": jInst.last_update, "minor_status": jInst.minor_status}
             jInst.status_history.append(sH)
         self.jobInstances.append(jInst)
 
     def aggregateStatii(self):
-        ''' will return an aggregated summary of all instances in all statuses '''
+        """ will return an aggregated summary of all instances in all statuses """
         counting_dict = dict(zip(MAJOR_STATII, [0 for m in MAJOR_STATII]))
         for jI in self.jobInstances:
             if not jI.status in MAJOR_STATII: raise Exception("Instance found in status not known to system")
