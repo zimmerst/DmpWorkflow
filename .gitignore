@@ -5,3 +5,4 @@ config/dampe.cfg
 .pydevproject
 dist
 .eggs
+.pyc
