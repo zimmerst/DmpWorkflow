@@ -94,11 +94,12 @@ class Job(db.Document):
         os.environ["DWF_JOBNAME"]=self.title
         return parseJobXmlToDict(self.body)
      
-    def getInstance(self,_id):
+    def getInstance(self,_id,silent=False):
         for jI in self.jobInstances:
             if long(jI.instanceId) == long(_id):
                 return jI
-        print "could not find matching id"
+        if not silent: 
+            print "could not find matching id"
         return None
     
     def addInstance(self,jInst,inst=None):
@@ -107,7 +108,7 @@ class Job(db.Document):
         last_stream = len(self.jobInstances)
         if not inst is None:
             last_stream = inst-1
-            if self.getInstance(last_stream+1):
+            if self.getInstance(last_stream+1,silent=True):
                 raise Exception("job with instance %i exists already"%inst)
         jInst.set("instanceId",last_stream+1)
         if not len(jInst.status_history):
