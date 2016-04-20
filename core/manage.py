@@ -1,9 +1,8 @@
 # Set the path
 import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils.scriptDefaults import cfg
 from flask.ext.script import Manager, Server, Shell
-from core import app, db
+from core import app, db, cfg
 import models
 
 def _make_context():
