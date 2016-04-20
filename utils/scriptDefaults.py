@@ -34,7 +34,7 @@ pwd = os.getenv("PWD",".")
 #print "current path %s"%os.path.abspath(pwd)
 
 dbg = cfg.getboolean("site","traceback")
-if dbg:
+if not dbg:
     sys.excepthook = exceptionHandler
 
 
