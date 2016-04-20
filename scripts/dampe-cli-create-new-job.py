@@ -4,6 +4,7 @@ Created on Mar 30, 2016
 @author: zimmer
 @brief: prototype script to create a new job from the jobXml
 '''
+from core.scriptDefaults import cfg
 from core.models import Job, JobInstance, TYPES
 from utils.flask_helpers import parseJobXmlToDict
 from core import db

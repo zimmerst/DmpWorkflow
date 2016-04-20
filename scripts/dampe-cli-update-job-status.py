@@ -3,6 +3,7 @@ Created on Mar 15, 2016
 
 @author: zimmer
 '''
+from core.scriptDefaults import cfg
 import copy, sys, time
 from utils.flask_helpers import update_status
 # each job has an immutable document identifier.

@@ -3,6 +3,7 @@ Created on Mar 15, 2016
 
 @author: zimmer
 '''
+from core.scriptDefaults import cfg
 import copy, sys, time
 from core import db
 from utils.flask_helpers import update_status

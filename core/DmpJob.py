@@ -75,7 +75,7 @@ class DmpJob(object):
         return
     
     def getSetupScript(self):
-        return "${DAMPE_INSTALL}/releases/DmpSoftware-%s/bin/thisdmpsw.sh"%self.release
+        return "${DAMPE_SW_DIR}/releases/DmpSoftware-%s/bin/thisdmpsw.sh"%self.release
         
     def createLogFile(self):
         mkdir(os.path.join("%s/logs"%self.wd))
