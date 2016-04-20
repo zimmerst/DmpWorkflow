@@ -22,12 +22,22 @@ cfg = ConfigParser.SafeConfigParser(defaults=myDefaults)
 cfg.read(os.getenv("WorkflowConfig","config/dampe.cfg"))
 os.environ["DAMPE_SW_DIR"]=cfg.get("site","DAMPE_SW_DIR")
 
-# next set up externals
+print "seting up externals"
 source_bash(cfg.get("site","ExternalsScript"))
 
+WorkflowRoot = os.getenv("DWF_ROOT",os.getenv("DAMPE_SW_DIR"))
+print "ROOT workflow: %s"%WorkflowRoot
+
 pwd = os.getenv("PWD",".")
-os.chdir(os.getenv("DWF_ROOT"))
+print "current path %s"%os.path.abspath(pwd)
+os.chdir(WorkflowRoot)
 # this one sources flask
+
+print "seting up flask"
 source_bash("setup.sh")
+print "current path %s"%os.curdir
+
+os.chdir(pwd)
+print "current path (after everything else) %s"%os.curdir
 
 ## done with that.
