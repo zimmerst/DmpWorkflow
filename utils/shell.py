@@ -5,7 +5,7 @@ Created on Mar 22, 2016
 '''
 import logging, subprocess, os
 
-def run(cmd_args,logging=True):
+def run(cmd_args,useLogging=True):
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
     logging.info("attempting to run: %s"%" ".join(cmd_args))
@@ -14,7 +14,7 @@ def run(cmd_args,logging=True):
     rc = proc.returncode
     if not err is None:
         for e in err.split("\n"): 
-            if logging: logging.error(e)
+            if useLogging: logging.error(e)
             else: print e
     return out, err, rc
 
