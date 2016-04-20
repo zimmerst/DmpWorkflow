@@ -5,8 +5,7 @@ Created on Mar 22, 2016
 '''
 import logging, subprocess, os
 
-def run(cmd_args):
-    err = None
+def run(cmd_args,logging=True):
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
     logging.info("attempting to run: %s"%" ".join(cmd_args))
@@ -14,13 +13,24 @@ def run(cmd_args):
     (out, err) = proc.communicate()
     rc = proc.returncode
     if not err is None:
-        for e in err.split("\n"): logging.error(e)
+        for e in err.split("\n"): 
+            if logging: logging.error(e)
+            else: print e
     return out, err, rc
 
 def source_bash(setup_script):
     foo = open("tmp.sh","w")
     foo.write("#/bin/bash\nsource $1\nenv|sort")
     foo.close()
-    old_env = os.environ
-    out, err, rc = run(["bash tmp.sh %s"%setup_script])
-    return (out, err, rc)
+    out, err, rc = run(["bash tmp.sh %s"%setup_script],logging=False)
+    if rc:
+        print 'source encountered error, returning that one'
+        return err
+    lines = [l for l in out.split("\n") if "=" in l]
+    keys, values = [],[]
+    for l in lines: 
+        tl = l.split("=")
+        if len(tl)==2:
+            keys.append(tl[0])
+            values.append(tl[1])
+    os.environ.update(dict(zip(keys,values)))
