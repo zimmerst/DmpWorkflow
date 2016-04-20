@@ -29,8 +29,9 @@ if __name__ == '__main__':
     taskName        = sys.argv[1]
     ninst         = int(sys.argv[2])
     db.connect()
-    job = Job.objects.filter(title=taskName)
-    if len(job):
+    jobs = Job.objects.filter(title=taskName)
+    if len(jobs):
+        job = jobs[-1]
         os.environ['DWF_JOBNAME']=job.title
         dout = parseJobXmlToDict(job.body)
         if 'type' in dout['atts']: job.type = dout['atts']['type']
