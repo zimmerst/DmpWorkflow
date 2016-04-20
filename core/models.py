@@ -105,7 +105,7 @@ class Job(db.Document):
     def addInstance(self,jInst,inst=None):
         if not isinstance(jInst, JobInstance):
             raise Exception("Must be job instance to be added")
-        last_stream = len(self.jobInstances)
+        last_stream = self.jobInstances[-1].instanceId
         if not inst is None:
             #FIXME: offsets one, but then goes back to the length counter.
             last_stream = inst-1
