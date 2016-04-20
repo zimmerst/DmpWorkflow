@@ -107,6 +107,7 @@ class Job(db.Document):
             raise Exception("Must be job instance to be added")
         last_stream = len(self.jobInstances)
         if not inst is None:
+            #FIXME: offsets one, but then goes back to the length counter.
             last_stream = inst-1
             if self.getInstance(last_stream+1,silent=True):
                 raise Exception("job with instance %i exists already"%inst)
