@@ -10,8 +10,7 @@ FINAL_STATII = tuple(cfg.get("JobDB","task_final_statii").split(","))
 TYPES = tuple(cfg.get("JobDB","task_types").split(","))
 SITES = tuple(cfg.get("JobDB","batch_sites").split(","))
 
-dbg = cfg.getboolean("server","use_debugger")
-if not dbg:
+if not cfg.getboolean("site","traceback"):
     sys.excepthook = exceptionHandler
 
 log = logging.getLogger()
