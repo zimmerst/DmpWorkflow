@@ -32,8 +32,9 @@ def source_bash(setup_script):
     for l in lines: 
         tl = l.split("=")
         if len(tl)==2:
-            keys.append(tl[0])
-            values.append(tl[1])
+            if not key.startswith("_"):
+                keys.append(tl[0])
+                values.append(tl[1])
     os.environ.update(dict(zip(keys,values)))
     os.remove("tmp.sh")
     return
