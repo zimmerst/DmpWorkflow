@@ -11,9 +11,9 @@ from utils.shell import source_bash
 myDefaults = {
               "DAMPE_SW_DIR":".",
               "ExternalsScript":"${DAMPE_SW_DIR}/setup/setup.sh",
-              "use_debugger":True,
-              "use_reloader":True,
-              "traceback":True,
+              "use_debugger":"true",
+              "use_reloader":"true",
+              "traceback":"true",
               "task_types":"Generation,Digitization,Reconstruction,User,Other".split(","),
               "task_major_statii":"New,Running,Failed,Terminated,Done,Submitted,Suspended".split(",")
               }
