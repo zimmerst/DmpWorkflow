@@ -13,6 +13,7 @@ from core.models import Job, JobInstance
 
 admin = Blueprint('admin', __name__, template_folder='templates')
 
+
 class List(MethodView):
     decorators = [requires_auth]
     cls = Job
@@ -21,18 +22,19 @@ class List(MethodView):
         jobs = self.cls.objects.all()
         return render_template('admin/list.html', jobs=jobs)
 
+
 class Remove(MethodView):
     decorators = [requires_auth]
 
     def get(self, slug=None):
         if slug:
-            job = Job.objects.get_or_404(slug=slug);
+            job = Job.objects.get_or_404(slug=slug)
             job.delete();
-            current_app.logger.info("removing job %s"%slug)
+            current_app.logger.info("removing job %s" % slug)
         return redirect(url_for('admin.index'))
 
-class Detail(MethodView):
 
+class Detail(MethodView):
     decorators = [requires_auth]
 
     def get_context(self, slug=None):

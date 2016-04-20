@@ -1,0 +1,10 @@
+Flask
+flask-mongoengine
+Flask-Script
+Flask-WTF
+mongoengine
+pymongo
+Werkzeug
+WTForms
+jsonpickle
+bson

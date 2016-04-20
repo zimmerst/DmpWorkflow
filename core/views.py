@@ -5,16 +5,15 @@ from core.models import Job, JobInstance
 
 jobs = Blueprint('jobs', __name__, template_folder='templates')
 
-class ListView(MethodView):
 
+class ListView(MethodView):
     def get(self):
         jobs = Job.objects.all()
         return render_template('jobs/list.html', jobs=jobs)
 
 
 class DetailView(MethodView):
-
-    form = model_form(JobInstance, exclude=['created_at','status_history'])
+    form = model_form(JobInstance, exclude=['created_at', 'status_history'])
 
     def get_context(self, slug):
         job = Job.objects.get_or_404(slug=slug)
@@ -45,6 +44,7 @@ class DetailView(MethodView):
             return redirect(url_for('jobs.detail', slug=slug))
 
         return render_template('jobs/detail.html', **context)
+
 
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
