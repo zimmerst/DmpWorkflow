@@ -22,7 +22,7 @@ def source_bash(setup_script):
     foo = open("tmp.sh","w")
     foo.write("#/bin/bash\nsource $1\nenv|sort")
     foo.close()
-    out, err, rc = run(["bash tmp.sh %s"%setup_script],useLogging=False)
+    out, err, rc = run(["bash tmp.sh %s"%os.path.expandvars(setup_script)],useLogging=False)
     if rc:
         print 'source encountered error, returning that one'
         return err
@@ -34,3 +34,5 @@ def source_bash(setup_script):
             keys.append(tl[0])
             values.append(tl[1])
     os.environ.update(dict(zip(keys,values)))
+    os.remove("tmp.sh")
+    return
