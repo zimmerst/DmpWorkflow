@@ -4,12 +4,13 @@ Created on Mar 30, 2016
 @author: zimmer
 @brief: prototype script to create a new job from the jobXml
 """
+import os
+import sys
 from argparse import ArgumentParser
 
+from core import db
 from core.models import Job, JobInstance, TYPES
 from utils.flask_helpers import parseJobXmlToDict
-from core import db
-import sys, os
 
 _TYPES = list(TYPES) + ["NONE"]
 
