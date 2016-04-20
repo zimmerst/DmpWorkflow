@@ -22,6 +22,8 @@ if __name__ == '__main__':
     description = "create new instances for job in DB"
     parser.set_usage(usage)
     parser.set_description(description)
+    parser.add_option("--instance", dest="inst",type=int, default = None,
+                      help='use this to offset an instance')
     (opts, arguments) = parser.parse_args()
     #if len(sys.argv)!=3:
     #    print parser.print_help()
