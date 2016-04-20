@@ -33,7 +33,7 @@ WorkflowRoot = os.getenv("DWF_ROOT",os.getenv("DAMPE_SW_DIR"))
 pwd = os.getenv("PWD",".")
 #print "current path %s"%os.path.abspath(pwd)
 
-dbg = cfg.get("site","traceback")
+dbg = cfg.getboolean("site","traceback")
 if dbg:
     sys.excepthook = exceptionHandler
 
