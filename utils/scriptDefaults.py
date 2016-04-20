@@ -5,13 +5,15 @@ Created on Apr 20, 2016
 @brief: prototype script that handles config parsing etc.
 
 '''
-import ConfigParser, os
+import ConfigParser, os, sys
+from utils.tools import exceptionHandler
 from utils.shell import source_bash
 myDefaults = {
               "DAMPE_SW_DIR":".",
               "ExternalsScript":"${DAMPE_SW_DIR}/setup/setup.sh",
               "use_debugger":True,
               "use_reloader":True,
+              "traceback":True,
               "task_types":"Generation,Digitization,Reconstruction,User,Other".split(","),
               "task_major_statii":"New,Running,Failed,Terminated,Done,Submitted,Suspended".split(",")
               }
@@ -30,6 +32,11 @@ WorkflowRoot = os.getenv("DWF_ROOT",os.getenv("DAMPE_SW_DIR"))
 
 pwd = os.getenv("PWD",".")
 #print "current path %s"%os.path.abspath(pwd)
+
+dbg = cfg.get("site","traceback")
+if dbg:
+    sys.excepthook = exceptionHandler
+
 
 #print "seting up flask"
 #activate_this_file = os.path.expandvars("${DWF_ROOT}/bin/activate")

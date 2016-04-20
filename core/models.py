@@ -11,8 +11,8 @@ TYPES = tuple(cfg.get("JobDB","task_types").split(","))
 SITES = tuple(cfg.get("JobDB","batch_sites").split(","))
 
 dbg = cfg.getboolean("server","use_debugger")
-#if dbg:
-#    sys.excepthook = exceptionHandler
+if not dbg:
+    sys.excepthook = exceptionHandler
 
 log = logging.getLogger()
 

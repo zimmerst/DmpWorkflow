@@ -13,9 +13,6 @@ import sys, os, logging, pprint, socket
 DEBUG_TEST = False
 
 LOG_LEVEL = os.getenv("LOG_LEVEL","INFO")
-if not LOG_LEVEL=="DEBUG":
-    sys.excepthook = exceptionHandler
-
 FORMAT = '%(asctime)s %(levelname)s:%(message)s'
 logging.basicConfig(format=FORMAT,level=LOG_LEVEL, datefmt='%m/%d/%Y %I:%M:%S %p')
 log = logging.getLogger()
