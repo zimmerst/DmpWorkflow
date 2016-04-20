@@ -24,6 +24,7 @@ class DmpJob(object):
         self.type = None
         self.release = None
         self.logfile = None
+        self.execCommand = None
         self.executable = ""
         self.exec_wrapper = ""
         self.script = None
@@ -61,13 +62,21 @@ class DmpJob(object):
                     if len(body[key]):
                         self.__dict__[key]+=body[key]
 
-    def write_script(self,outfile="script.py",debug=False):
+    def write_script(self,debug=False):
         ''' based on meta-data should create job-executable '''
-        safe_copy(os.path.expandvars("${DWF_ROOT}/scripts/dampe-execute-payload.py"),os.path.join(self.wd,outfile),debug=debug)
+        safe_copy(os.path.expandvars("${DWF_ROOT}/scripts/dampe-execute-payload.py"),os.path.join(self.wd,"script.py"),debug=debug)
         json_file = open(os.path.join(self.wd,"job.json"),"wb")
         json_file.write(self.exportToJSON())
         json_file.close()
+        scriptLOC = os.path.abspath(os.path.join(self.wd,"script.py"))
+        jsonLOC = os.path.abspath(os.path.join(self.wd,"job.json"))
+        cmd = "python %s %s"%(scriptLOC, jsonLOC)
+        self.execCommand = cmd
         return
+    
+    def setupSoftware(self,tag):
+        ''' given a tag, should setup the software accordingly '''
+        pass
     
     def createLogFile(self):
         mkdir(os.path.join("%s/logs"%self.wd))
@@ -91,7 +100,7 @@ class DmpJob(object):
     def submit(self,**kwargs):
         ''' handles the submission part '''
         self.createLogFile()
-        bj = BatchJob(name=self.getJobName(),command=self.getExecCommand(),logFile=self.logfile)
+        bj = BatchJob(name=self.getJobName(),command=self.execCommand,logFile=self.logfile)
         bj.submit(**kwargs)
         self.batchId = bj.get("batchId")
         return self.batchId

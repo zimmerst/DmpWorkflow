@@ -3,7 +3,7 @@ Created on Mar 22, 2016
 
 @author: zimmer
 '''
-import logging, subprocess
+import logging, subprocess, os
 
 def run(cmd_args):
     err = None
@@ -16,3 +16,10 @@ def run(cmd_args):
     if not err is None:
         for e in err.split("\n"): logging.error(e)
     return out, err, rc
+
+def source_bash(setup_script):
+    foo = open("tmp.sh","w")
+    foo.write("#/bin/bash\nsource $1\nenv|sorted")
+    old_env = os.environ
+    out, err, rc = run(["bash tmp.sh %s"%setup_script])
+    return (out, err, rc)
