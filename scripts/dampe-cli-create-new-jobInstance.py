@@ -41,7 +41,10 @@ if __name__ == '__main__':
         if ninst:
             for j in range(ninst):
                 jI = JobInstance(body=str(dummy_dict))
-                job.addInstance(jI)
+                if opts.inst and j == 0:
+                    job.addInstance(jI,inst=opts.inst)
+                else:
+                    job.addInstance(jI)
         #print len(job.jobInstances)
         job.update()
         print 'added %i new instances for job %s'%(ninst,taskName)
