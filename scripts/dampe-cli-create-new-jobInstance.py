@@ -36,7 +36,6 @@ if __name__ == '__main__':
         dout = parseJobXmlToDict(job.body)
         if 'type' in dout['atts']: job.type = dout['atts']['type']
         if 'release' in dout['atts']: job.release = dout['atts']['release']
-        if not opts.type == "NONE": job.type = opts.type
         if ninst:
             for j in range(ninst):
                 jI = JobInstance(body=str(dummy_dict))
