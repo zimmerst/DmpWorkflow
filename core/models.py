@@ -99,12 +99,13 @@ class Job(db.Document):
     def getBody(self):
         os.environ["DWF_JOBNAME"] = self.title
         return parseJobXmlToDict(self.body)
-
-    def getInstance(self, _id):
+     
+    def getInstance(self,_id,silent=False):
         for jI in self.jobInstances:
             if long(jI.instanceId) == long(_id):
                 return jI
-        print "could not find matching id"
+        if not silent:
+            print "could not find matching id"
         return None
 
     def addInstance(self, jInst, inst=None):
@@ -112,10 +113,11 @@ class Job(db.Document):
             raise Exception("Must be job instance to be added")
         last_stream = len(self.jobInstances)
         if not inst is None:
-            last_stream = inst - 1
-            if self.getInstance(last_stream + 1):
-                raise Exception("job with instance %i exists already" % inst)
-        jInst.set("instanceId", last_stream + 1)
+            #FIXME: offsets one, but then goes back to the length counter.
+            last_stream = inst-1
+            if self.getInstance(last_stream+1,silent=True):
+                raise Exception("job with instance %i exists already"%inst)
+        jInst.set("instanceId",last_stream+1)
         if not len(jInst.status_history):
             sH = {"status": jInst.status, "update": jInst.last_update, "minor_status": jInst.minor_status}
             jInst.status_history.append(sH)
