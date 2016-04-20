@@ -30,14 +30,8 @@ print "ROOT workflow: %s"%WorkflowRoot
 
 pwd = os.getenv("PWD",".")
 print "current path %s"%os.path.abspath(pwd)
-os.chdir(WorkflowRoot)
-# this one sources flask
 
 print "seting up flask"
-source_bash("bin/activate")
-print "current path %s"%os.curdir
-
-os.chdir(pwd)
-print "current path (after everything else) %s"%os.curdir
+source_bash("${DWF_ROOT}/bin/activate")
 
 ## done with that.
