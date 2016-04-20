@@ -19,7 +19,7 @@ def run(cmd_args):
 
 def source_bash(setup_script):
     foo = open("tmp.sh","w")
-    foo.write("#/bin/bash\nsource $1\nenv|sorted")
+    foo.write("#/bin/bash\nsource $1\nenv|sort")
     old_env = os.environ
     out, err, rc = run(["bash tmp.sh %s"%setup_script])
     return (out, err, rc)
