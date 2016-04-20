@@ -31,7 +31,7 @@ if __name__ == '__main__':
     db.connect()
     jobs = Job.objects.filter(title=taskName)
     if len(jobs):
-        job = jobs[-1]
+        job = jobs[0]
         os.environ['DWF_JOBNAME']=job.title
         dout = parseJobXmlToDict(job.body)
         if 'type' in dout['atts']: job.type = dout['atts']['type']
