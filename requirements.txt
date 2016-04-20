@@ -1,0 +1,9 @@
+Flask
+flask-mongoengine
+Flask-Script
+Flask-WTF
+mongoengine
+pymongo
+readline
+Werkzeug
+WTForms

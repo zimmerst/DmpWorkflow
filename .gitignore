@@ -1,3 +1,4 @@
 config/dampe.cfg
 *.pyc
 *.log
+.idea
