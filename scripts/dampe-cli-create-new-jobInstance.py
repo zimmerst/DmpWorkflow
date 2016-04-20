@@ -22,8 +22,8 @@ if __name__ == '__main__':
     description = "create new instances for job in DB"
     parser.set_usage(usage)
     parser.set_description(description)
-    #parser.add_option("--instance", dest="inst",type=int, default = None,
-    #                  help='use this to offset an instance')
+    parser.add_option("--instance", dest="inst",type=int, default = None,
+                      help='use this to offset an instance')
     (opts, arguments) = parser.parse_args()
     #if len(sys.argv)!=3:
     #    print parser.print_help()
@@ -38,13 +38,14 @@ if __name__ == '__main__':
         dout = parseJobXmlToDict(job.body)
         if 'type' in dout['atts']: job.type = dout['atts']['type']
         if 'release' in dout['atts']: job.release = dout['atts']['release']
+        nmin = 0 if opts.inst is None else opts.inst
         if ninst:
-            for j in range(ninst):
+            for j in range(nmin,ninst):
                 jI = JobInstance(body=str(dummy_dict))
-                #if opts.inst and j == 0:
-                #    job.addInstance(jI,inst=opts.inst)
-                #else:
-                job.addInstance(jI)
+                if opts.inst:
+                    job.addInstance(jI,inst=opts.inst)
+                else:
+                    job.addInstance(jI)
         #print len(job.jobInstances)
         job.update()
         print 'added %i new instances for job %s'%(ninst,taskName)
