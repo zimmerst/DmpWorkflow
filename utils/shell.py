@@ -22,7 +22,7 @@ def source_bash(setup_script):
     foo = open("tmp.sh","w")
     foo.write("#/bin/bash\nsource $1\nenv|sort")
     foo.close()
-    out, err, rc = run(["bash tmp.sh %s"%setup_script],logging=False)
+    out, err, rc = run(["bash tmp.sh %s"%setup_script],useLogging=False)
     if rc:
         print 'source encountered error, returning that one'
         return err
