@@ -41,7 +41,7 @@ if __name__ == '__main__':
                 jI = JobInstance(body=str(dummy_dict))
                 job.addInstance(jI)
         #print len(job.jobInstances)
-        job.save()
+        job.update()
         print 'added %i new instances for job %s'%(ninst,taskName)
     else: 
         raise NotFound('could not find job %s'%taskName)
