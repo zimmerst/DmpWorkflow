@@ -17,6 +17,7 @@ logging.basicConfig(format=FORMAT, level=LOG_LEVEL, datefmt='%m/%d/%Y %I:%M:%S %
 log = logging.getLogger()
 
 
+
 def main():
     fii = sys.argv[1]
     if os.path.isfile(fii):
@@ -27,10 +28,7 @@ def main():
 
     batchId = os.getenv("LSF_JOBID", "1234")
     job.updateStatus("Running", "PreparingInputData", hostname=socket.gethostname(), batchId=batchId)
-
-    # source the relevant script
-    source_bash(job.getSetupScript())
-
+    
     # first, set all variables
     for var in job.MetaData: os.environ[var['name']] = os.path.expandvars(var['value'])
     log.debug("current environment settings {}".format(os.environ))
