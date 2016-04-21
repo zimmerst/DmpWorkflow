@@ -1,8 +1,8 @@
-'''
+"""
 Created on Mar 15, 2016
 
 @author: zimmer
-'''
+"""
 import copy, sys, os
 from DmpWorkflow.scriptDefaults import cfg
 from DmpWorkflow.core import db, models

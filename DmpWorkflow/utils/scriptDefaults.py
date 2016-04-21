@@ -6,8 +6,8 @@ Created on Apr 20, 2016
 
 """
 import ConfigParser, os, sys
+import DmpWorkflow
 from DmpWorkflow.utils.tools import exceptionHandler
-from DmpWorkflow.utils.shell import source_bash
 
 myDefaults = {
     "DAMPE_SW_DIR": ".",
@@ -19,29 +19,17 @@ myDefaults = {
     "task_major_statii": "New,Running,Failed,Terminated,Done,Submitted,Suspended".split(",")
 }
 
+DAMPE_WORKFLOW_ROOT = os.path.dirname(DmpWorkflow.__file__)
+
 cfg = ConfigParser.SafeConfigParser(defaults=myDefaults)
-cfg.read(os.getenv("WorkflowConfig", "config/dampe.cfg"))
+cfg.read(os.path.join(DAMPE_WORKFLOW_ROOT,"config/settings.cfg"))
+
 os.environ["DAMPE_SW_DIR"] = cfg.get("site", "DAMPE_SW_DIR")
+os.environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
 
-# print "seting up externals"
-source_bash(cfg.get("site", "ExternalsScript"))
+# print "setting up externals"
+#source_bash(cfg.get("site", "ExternalsScript"))
 
-WorkflowRoot = os.getenv("DWF_ROOT", os.getenv("DAMPE_SW_DIR"))
-# print "ROOT workflow: %s"%WorkflowRoot
-
-pwd = os.getenv("PWD", ".")
-# print "current path %s"%os.path.abspath(pwd)
-
-dbg = cfg.getboolean("site", "traceback")
+dbg = cfg.getboolean("global", "traceback")
 if not dbg:
     sys.excepthook = exceptionHandler
-
-
-    # print "seting up flask"
-    # activate_this_file = os.path.expandvars("${DWF_ROOT}/bin/activate")
-    # os.system('/bin/bash --rcfile %s'%activate_this_file)
-
-    # print 'calling execfile(%s)'%activate_this_file
-    # execfile(activate_this_file, dict(__file__=activate_this_file))
-
-    ## done with that.

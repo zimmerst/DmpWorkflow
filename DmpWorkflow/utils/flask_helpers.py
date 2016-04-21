@@ -9,8 +9,8 @@ import time, os, re
 
 
 def update_status(JobId, InstanceId, major_status, **kwargs):
-    from core import db
-    from core.models import Job, MAJOR_STATII
+    from DmpWorkflow.core import db
+    from DmpWorkflow.core.models import Job, MAJOR_STATII
     db.connect()
     my_job = Job.objects.filter(id=JobId)
     if not len(my_job):
