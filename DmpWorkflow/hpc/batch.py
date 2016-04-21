@@ -3,7 +3,7 @@ Created on Mar 22, 2016
 
 @author: zimmer
 """
-from utils.shell import run
+from DmpWorkflow.utils.shell import run
 import logging
 
 

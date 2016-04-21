@@ -3,11 +3,10 @@ Created on Mar 15, 2016
 
 @author: zimmer
 '''
-from scriptDefaults import cfg
 import copy, sys, os
-from core import db
-import core.models as models
-from core.DmpJob import DmpJob
+from DmpWorkflow.scriptDefaults import cfg
+from DmpWorkflow.core import db, models
+from DmpWorkflow.core.DmpJob import DmpJob
 
 import random, time
 

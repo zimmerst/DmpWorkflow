@@ -5,9 +5,9 @@ Created on Mar 15, 2016
 """
 from argparse import ArgumentParser
 
-from utils.scriptDefaults import cfg
 import copy, sys, time
-from utils.flask_helpers import update_status
+from DmpWorkflow.utils.flask_helpers import update_status
+from DmpWorkflow.utils.scriptDefaults import cfg
 
 
 # each job has an immutable document identifier.

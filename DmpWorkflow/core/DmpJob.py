@@ -6,10 +6,10 @@ Created on Mar 15, 2016
 import os.path
 import jsonpickle
 import sys
-from models import JobInstance
-from utils.flask_helpers import parseJobXmlToDict, update_status
-from utils.tools import mkdir, touch, rm, Ndigits, safe_copy, exceptionHandler
-from hpc.lsf import LSF, BatchJob
+from DmpWorkflow.core.models import JobInstance
+from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict, update_status
+from DmpWorkflow.utils.tools import mkdir, touch, rm, Ndigits, safe_copy, exceptionHandler
+from DmpWorkflow.hpc.lsf import LSF, BatchJob
 
 
 # todo2: add cfg parsing variables.

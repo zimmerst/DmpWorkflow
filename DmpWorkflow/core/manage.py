@@ -4,9 +4,7 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from flask.ext.script import Manager, Server, Shell
-from core import app, db, cfg
-import models
-
+from DmpWorkflow.core import app, db, cfg, models
 
 def _make_context():
     return dict(app=app, db=db, models=models)

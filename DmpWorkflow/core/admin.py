@@ -8,8 +8,8 @@ from flask.views import MethodView
 
 from flask.ext.mongoengine.wtf import model_form
 
-from core.auth import requires_auth
-from core.models import Job, JobInstance
+from DmpWorkflow.core.auth import requires_auth
+from DmpWorkflow.core.models import Job, JobInstance
 
 admin = Blueprint('admin', __name__, template_folder='templates')
 

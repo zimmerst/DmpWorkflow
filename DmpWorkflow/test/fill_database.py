@@ -3,10 +3,10 @@ Created on Mar 25, 2016
 
 @author: zimmer
 '''
-from scriptDefaults import cfg
-from core.models import Job, JobInstance, TYPES
-from core import db
 import random
+from DmpWorkflow.utils.scriptDefaults import cfg
+from DmpWorkflow.core.models import Job, JobInstance, TYPES
+from DmpWorkflow.core import db
 
 jobs = 10
 instances = 20

@@ -6,8 +6,8 @@ Created on Apr 20, 2016
 
 """
 import ConfigParser, os, sys
-from utils.tools import exceptionHandler
-from utils.shell import source_bash
+from DmpWorkflow.utils.tools import exceptionHandler
+from DmpWorkflow.utils.shell import source_bash
 
 myDefaults = {
     "DAMPE_SW_DIR": ".",

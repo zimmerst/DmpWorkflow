@@ -3,12 +3,12 @@ Created on Mar 15, 2016
 
 @author: zimmer
 """
-from core.models import Job
-from utils.scriptDefaults import cfg
 import copy, sys, time
-from core import db
-from utils.flask_helpers import update_status
-from hpc.lsf import LSF 
+from DmpWorkflow.core.models import Job
+from DmpWorkflow.core import db
+from DmpWorkflow.hpc.lsf import LSF 
+from DmpWorkflow.utils.scriptDefaults import cfg
+from DmpWorkflow.utils.flask_helpers import update_status
 
 
 # FIXME: add watchdog triggers

@@ -8,9 +8,9 @@ import os
 import sys
 from argparse import ArgumentParser
 
-from core import db
-from core.models import Job, JobInstance, TYPES
-from utils.flask_helpers import parseJobXmlToDict
+from DmpWorkflow.core import db
+from DmpWorkflow.core.models import Job, JobInstance, TYPES
+from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
 
 _TYPES = list(TYPES) + ["NONE"]
 

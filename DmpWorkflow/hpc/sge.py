@@ -3,8 +3,8 @@ Created on Mar 23, 2016
 
 @author: zimmer
 """
-import hpc.batch
-from utils.shell import run
+import DmpWorkflow.hpc.batch
+from DmpWorkflow.utils.shell import run
 
 # LSF-specific stuff
 

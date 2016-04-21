@@ -1,7 +1,7 @@
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
 from flask.views import MethodView
-from core.models import Job, JobInstance
+from DmpWorkflow.core.models import Job, JobInstance
 
 jobs = Blueprint('jobs', __name__, template_folder='templates')
 

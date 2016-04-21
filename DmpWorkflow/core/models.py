@@ -4,10 +4,11 @@ import os
 import sys
 import logging
 from flask import url_for
-from core import db, cfg
 from bson import ObjectId
-from utils.tools import random_string_generator, Ndigits, exceptionHandler
-from utils.flask_helpers import parseJobXmlToDict
+
+from DmpWorkflow.core import db, cfg
+from DmpWorkflow.utils.tools import random_string_generator, Ndigits, exceptionHandler
+from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
 
 MAJOR_STATII = tuple(cfg.get("JobDB", "task_major_statii").split(","))
 FINAL_STATII = tuple(cfg.get("JobDB", "task_final_statii").split(","))

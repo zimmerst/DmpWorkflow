@@ -5,12 +5,11 @@ Created on Mar 15, 2016
 '''
 from utils.scriptDefaults import cfg
 import copy
-from core import db
-import core.models as models
-from core.DmpJob import DmpJob
-from utils.flask_helpers import parseJobXmlToDict
-
 import random
+from DmpWorkflow.core import db, models
+from DmpWorkflow.core.DmpJob import DmpJob
+from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
+
 
 
 def random_with_N_digits(n):

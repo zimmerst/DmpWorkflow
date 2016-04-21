@@ -4,10 +4,10 @@ Created on Apr 19, 2016
 @author: zimmer
 @brief: payload script
 """
-from utils.scriptDefaults import cfg
-from core.DmpJob import createFromJSON
-from utils.tools import mkdir, safe_copy, rm, camelize, exceptionHandler
-from utils.shell import run, source_bash
+from DmpWorkflow.utils.scriptDefaults import cfg
+from DmpWorkflow.core.DmpJob import createFromJSON
+from DmpWorkflow.utils.tools import mkdir, safe_copy, rm, camelize, exceptionHandler
+from DmpWorkflow.utils.shell import run, source_bash
 import sys, os, logging, pprint, socket
 DEBUG_TEST = False
 
