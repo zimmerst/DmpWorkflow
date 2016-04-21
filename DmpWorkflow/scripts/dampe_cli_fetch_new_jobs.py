@@ -1,15 +1,14 @@
-'''
+"""
 Created on Mar 15, 2016
 
 @author: zimmer
-'''
+"""
 from utils.scriptDefaults import cfg
 import copy
 import random
 from DmpWorkflow.core import db, models
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
-
 
 
 def random_with_N_digits(n):
