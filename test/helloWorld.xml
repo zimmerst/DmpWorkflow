@@ -1,7 +1,6 @@
 <Jobs>
 	<Job release="5-1-2" type='User'>
 		<MetaData>
-			<Var name="NEVENTS_GENERATED" value="0" var_type="long"/>
 			<Var name="USER_DIR" value="/home/DAMPE/zimmer/tests/tmp" var_type="str"/>
 		</MetaData>
 		<InputFiles/>
