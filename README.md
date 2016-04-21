@@ -1,7 +1,7 @@
 # DmpWorkflow
 Workflow framework for DAMPE remote computing &amp; accounting
 
-external contributor: @sposs
+external contributor: Stephane Poss @sposs on github (lots of help in packaging & dealing with requests as well as for the initial suggestion to using flask/mongodb)
 
 Prerequisites: 
 --------------
