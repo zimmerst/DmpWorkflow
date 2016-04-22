@@ -3,14 +3,17 @@ Created on Mar 15, 2016
 
 @author: zimmer
 """
+import os
+import time
 import xml.dom.minidom as xdom
 from StringIO import StringIO
-import time, os, re
+
+from DmpWorkflow.core import db
+from DmpWorkflow.core.models import Job, MAJOR_STATII
 
 
 def update_status(JobId, InstanceId, major_status, **kwargs):
-    from DmpWorkflow.core import db
-    from DmpWorkflow.core.models import Job, MAJOR_STATII
+
     db.connect()
     my_job = Job.objects.filter(id=JobId)
     if not len(my_job):

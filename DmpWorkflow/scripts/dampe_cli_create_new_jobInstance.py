@@ -6,17 +6,13 @@ Created on Mar 30, 2016
 """
 import os
 import sys
+import requests
 from argparse import ArgumentParser
+# from DmpWorkflow.core import db
+# from DmpWorkflow.core.models import Job, JobInstance, TYPES
+# from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
 
-from werkzeug.exceptions import NotFound
-
-from DmpWorkflow.core import db
-from DmpWorkflow.core.models import Job, JobInstance, TYPES
-from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
-
-_TYPES = list(TYPES) + ["NONE"]
-
-dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
+# _TYPES = list(TYPES) + ["NONE"]
 
 
 def main(args=None):
@@ -25,31 +21,40 @@ def main(args=None):
     parser = ArgumentParser(usage=usage, description=description)
     # parser.add_option("--instance", dest="inst",type=int, default = None,
     #                  help='use this to offset an instance')
-    (opts, arguments) = parser.parse_args(args)
+    parser.add_argument("-n", "--name", help="task name", dest="name")
+    parser.add_argument("-i", "--instances", help="number of instances", dest="inst", type=int)
+    opts = parser.parse_args(args)
     # if len(sys.argv)!=3:
     #    print parser.print_help()
     #    raise Exception
-    taskName = sys.argv[1]
-    ninst = int(sys.argv[2])
-    db.connect()
-    jobs = Job.objects.filter(title=taskName)
-    if len(jobs):
-        job = jobs[0]
-        os.environ['DWF_JOBNAME'] = job.title
-        dout = parseJobXmlToDict(job.body)
-        if 'type' in dout['atts']:
-            job.type = dout['atts']['type']
-        if 'release' in dout['atts']:
-            job.release = dout['atts']['release']
-        if ninst:
-            for j in range(ninst):
-                jI = JobInstance(body=str(dummy_dict))
-                # if opts.inst and j == 0:
-                #    job.addInstance(jI,inst=opts.inst)
-                # else:
-                job.addInstance(jI)
-        # print len(job.jobInstances)
-        job.update()
-        print 'added %i new instances for job %s' % (ninst, taskName)
-    else:
-        raise NotFound('could not find job %s' % taskName)
+    taskName = opts['name']
+    ninst = opts["inst"]
+    res = requests.post("http://yourserver/jobInstances/",
+                        data={"taskname": taskName, "n_instances": ninst})
+    res.raise_for_status()
+    res = res.json()
+    if res.get("result", "nok") == "nok":
+        print "Error : %s" % res.get("message", "")
+    os.environ['DWF_JOBNAME'] = taskName
+    # db.connect()
+    # jobs = Job.objects.filter(title=taskName)
+    # if len(jobs):
+    #     job = jobs[0]
+    #     os.environ['DWF_JOBNAME'] = job.title
+    #     dout = parseJobXmlToDict(job.body)
+    #     if 'type' in dout['atts']:
+    #         job.type = dout['atts']['type']
+    #     if 'release' in dout['atts']:
+    #         job.release = dout['atts']['release']
+    #     if ninst:
+    #         for j in range(ninst):
+    #             jI = JobInstance(body=str(dummy_dict))
+    #             # if opts.inst and j == 0:
+    #             #    job.addInstance(jI,inst=opts.inst)
+    #             # else:
+    #             job.addInstance(jI)
+    #     # print len(job.jobInstances)
+    #     job.update()
+    #     print 'added %i new instances for job %s' % (ninst, taskName)
+    # else:
+    #     raise NotFound('could not find job %s' % taskName)

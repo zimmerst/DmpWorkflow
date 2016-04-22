@@ -80,7 +80,7 @@ class BATCH(object):
         ret = {}
         for jobID in self.allJobs:
             val = None
-            if not self.allJobs[jobID].has_key(key):
+            if key not in self.allJobs[jobID]:
                 logging.error("could not find key %s in job %s" % (key, jobID))
             else:
                 val = self.allJobs[jobID][key]
