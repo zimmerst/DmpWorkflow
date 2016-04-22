@@ -9,6 +9,7 @@ import random
 from DmpWorkflow.core import db, models
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
+import requests
 
 
 def random_with_N_digits(n):
@@ -20,6 +21,9 @@ def random_with_N_digits(n):
 def main():
     newJobInstances = []
     db.connect()  # connect to DB
+    res = requests.get("http://yourserver/newjobs/")
+    res.raise_for_status()
+
     for job in models.Job.objects:
         newJobs = [j for j in job.jobInstances if j.status == 'New']
         if len(newJobs):

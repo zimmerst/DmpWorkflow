@@ -1,8 +1,11 @@
+import copy
 import json
 import logging
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
 from flask.views import MethodView, View
+
+from DmpWorkflow.core import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance
 from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict, update_status
 
@@ -140,6 +143,21 @@ class SetJobStatus(MethodView):
             return json.dumps({"result": "nok", "error": str(err)})
         return json.dumps({"result": "ok"})
 
+
+class NewJobs(MethodView):
+    def get(self):
+        jobs = {}
+        newJobInstances = []
+        for job in Job.objects:
+            newJobs = [j for j in job.jobInstances if j.status == 'New']
+            if len(newJobs):
+                dJob = DmpJob(job)
+                for j in newJobs:
+                    dInstance = copy.deepcopy(dJob)
+                    dInstance.setInstanceParameters(j)
+                    newJobInstances.append(dInstance)
+        return json.dumps(jobs)
+
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
 jobs.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
@@ -147,3 +165,4 @@ jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "P
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobalive/", view_func=RefreshJobAlive.as_view('jobalive'), methods=["POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["POST"])
+jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])

@@ -69,7 +69,7 @@ class DmpJob(object):
 
     def write_script(self, debug=False):
         """ based on meta-data should create job-executable """
-        safe_copy(os.path.join(os.path.dirname(DmpWorkflow),"scripts/dampe_execute_payload.py"),
+        safe_copy(os.path.join(os.path.dirname(__file__), "scripts/dampe_execute_payload.py"),
                   os.path.join(self.wd, "script.py"), debug=debug)
         json_file = open(os.path.join(self.wd, "job.json"), "wb")
         json_file.write(self.exportToJSON())
