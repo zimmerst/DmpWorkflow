@@ -1,10 +1,6 @@
-import ConfigParser
-import os
+from DmpWorkflow.config.defaults import cfg, os
 from flask import Flask
 from flask.ext.mongoengine import MongoEngine
-
-cfg = ConfigParser.SafeConfigParser()
-cfg.read(os.getenv("WorkflowConfig", "config/dampe.cfg"))
 
 app = Flask(__name__)
 app.config['MONGODB_DB'] = cfg.get("database", "name")
@@ -17,8 +13,8 @@ db = MongoEngine(app)
 
 def register_blueprints(app):
     # Prevents circular imports
-    from core.views import jobs
-    from core.admin import admin
+    from DmpWorkflow.core.views import jobs
+    from DmpWorkflow.core.admin import admin
     app.register_blueprint(jobs)
     app.register_blueprint(admin)
 

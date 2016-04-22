@@ -4,7 +4,7 @@ Created on Apr 19, 2016
 @author: zimmer
 @brief: payload script
 """
-from DmpWorkflow.utils.scriptDefaults import cfg
+from DmpWorkflow.config.defaults import cfg
 from DmpWorkflow.core.DmpJob import createFromJSON
 from DmpWorkflow.utils.tools import mkdir, safe_copy, rm, camelize, exceptionHandler
 from DmpWorkflow.utils.shell import run, source_bash

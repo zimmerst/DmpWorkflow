@@ -3,9 +3,9 @@ Created on Mar 15, 2016
 
 @author: zimmer
 '''
-from DmpWorkflow.utils.scriptDefaults import cfg
 import copy
 import random
+from DmpWorkflow.config.defaults import cfg, ArgumentParser
 from DmpWorkflow.core import db, models
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
