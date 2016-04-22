@@ -7,3 +7,4 @@ pymongo
 Werkzeug
 WTForms
 jsonpickle
+bson==0.4.3
