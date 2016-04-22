@@ -4,10 +4,10 @@ Created on Mar 15, 2016
 @author: zimmer
 """
 import copy, sys, time
-from DmpWorkflow.config.defaults import cfg, ArgumentParser
 from DmpWorkflow.core.models import Job
 from DmpWorkflow.core import db
 from DmpWorkflow.hpc.lsf import LSF 
+from DmpWorkflow.utils.scriptDefaults import cfg
 from DmpWorkflow.utils.flask_helpers import update_status
 
 

@@ -5,10 +5,9 @@ Created on Apr 20, 2016
 @brief: prototype script that handles config parsing etc.
 
 """
+import ConfigParser, os, sys
 import DmpWorkflow
 from DmpWorkflow.utils.tools import exceptionHandler
-import ConfigParser, os, sys
-from argparse import ArgumentParser
 
 myDefaults = {
     "DAMPE_SW_DIR": ".",

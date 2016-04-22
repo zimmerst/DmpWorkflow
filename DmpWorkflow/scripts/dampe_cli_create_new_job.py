@@ -6,7 +6,8 @@ Created on Mar 30, 2016
 """
 import os
 import sys
-from DmpWorkflow.config.defaults import cfg, ArgumentParser
+from argparse import ArgumentParser
+
 from DmpWorkflow.core import db
 from DmpWorkflow.core.models import Job, JobInstance, TYPES
 from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict

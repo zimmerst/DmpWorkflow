@@ -3,9 +3,11 @@ Created on Mar 15, 2016
 
 @author: zimmer
 """
+from argparse import ArgumentParser
+
 import copy, sys, time
-from DmpWorkflow.config.defaults import cfg, ArgumentParser
 from DmpWorkflow.utils.flask_helpers import update_status
+from DmpWorkflow.utils.scriptDefaults import cfg
 
 
 # each job has an immutable document identifier.

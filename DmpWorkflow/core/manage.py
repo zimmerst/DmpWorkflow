@@ -1,8 +1,10 @@
 # Set the path
-from DmpWorkflow.config.defaults import cfg, os, sys
+import os
+import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from flask.ext.script import Manager, Server, Shell
-from DmpWorkflow.core import app, db, models
+from DmpWorkflow.core import app, db, cfg, models
 
 def _make_context():
     return dict(app=app, db=db, models=models)
