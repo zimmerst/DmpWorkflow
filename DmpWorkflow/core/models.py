@@ -4,7 +4,7 @@ import os
 import sys
 import logging
 from flask import url_for
-from bson import ObjectId
+#from bson import ObjectId
 
 from DmpWorkflow.core import db, cfg
 from DmpWorkflow.utils.tools import random_string_generator, Ndigits, exceptionHandler
@@ -22,7 +22,6 @@ log = logging.getLogger()
 
 
 class JobInstance(db.EmbeddedDocument):
-    _id = db.ObjectIdField(required=True, default=lambda: ObjectId())  # drop this in future.
     instanceId = db.LongField(verbose_name="instanceId", required=False, default=None)
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")

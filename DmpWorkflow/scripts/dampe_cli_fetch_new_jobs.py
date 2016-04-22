@@ -3,7 +3,7 @@ Created on Mar 15, 2016
 
 @author: zimmer
 '''
-from utils.scriptDefaults import cfg
+from DmpWorkflow.utils.scriptDefaults import cfg
 import copy
 import random
 from DmpWorkflow.core import db, models
