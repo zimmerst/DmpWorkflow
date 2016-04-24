@@ -5,7 +5,7 @@ from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
 from flask.views import MethodView, View
 
-from DmpWorkflow.core import DmpJob
+from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance
 from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict, update_status
 
@@ -63,8 +63,10 @@ class JobView(MethodView):
         jobdesc = request.files['job_description']
         type = request.form['type']
         n_instances = request.form['n_instances']
-        job = Job(title=taskname, body=jobdesc.read())
-        dout = parseJobXmlToDict(job.body)
+        job = Job(title=taskname)
+        job.body.put(jobdesc, content_type="application/xml")
+        job.save()
+        dout = parseJobXmlToDict(job.body.read())
         if 'type' in dout['atts']:
             job.type = dout['atts']['type']
         if 'release' in dout['atts']:
@@ -92,7 +94,7 @@ class JobInstanceView(MethodView):
         if len(jobs):
             logger.debug("Found job")
             job = jobs[0]
-            dout = parseJobXmlToDict(job.body)
+            dout = parseJobXmlToDict(job.body.read())
             if 'type' in dout['atts']:
                 job.type = dout['atts']['type']
             if 'release' in dout['atts']:

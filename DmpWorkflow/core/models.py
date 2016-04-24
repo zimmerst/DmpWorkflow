@@ -3,6 +3,8 @@ import time
 import os
 import sys
 import logging
+
+import mongoengine
 from flask import url_for
 from bson import ObjectId
 
@@ -21,8 +23,7 @@ if not cfg.getboolean("site", "traceback"):
 log = logging.getLogger()
 
 
-class JobInstance(db.EmbeddedDocument):
-    _id = db.ObjectIdField(required=True, default=lambda: ObjectId())  # drop this in future.
+class JobInstance(db.Document):
     instanceId = db.LongField(verbose_name="instanceId", required=False, default=None)
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
@@ -35,6 +36,7 @@ class JobInstance(db.EmbeddedDocument):
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
     status_history = db.ListField()
     log = db.StringField(verbose_name="log", required=False, default="")
+    job = db.ReferenceField("Job", reverse_delete_rule=mongoengine.CASCADE)
 
     def getLog(self):
         lines = self.log.split("\n")
@@ -45,7 +47,7 @@ class JobInstance(db.EmbeddedDocument):
         self.__setattr__("last_update", time.ctime())
 
     def setStatus(self, stat):
-        if not stat in MAJOR_STATII:
+        if stat not in MAJOR_STATII:
             raise Exception("status not found in supported list of statii")
         curr_status = self.status
         curr_time = time.ctime()
@@ -68,17 +70,17 @@ class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     slug = db.StringField(verbose_name="slug", required=True, default=random_string_generator)
     title = db.StringField(max_length=255, required=True)
-    body = db.StringField(required=True)
+    body = db.FileField()
     type = db.StringField(verbose_name="type", required=False, default="Other", choices=TYPES)
     release = db.StringField(max_length=255, required=False)
-    dependencies = db.ListField(db.ObjectIdField)
+    dependencies = db.ListField(db.ReferenceField("Job"))
     execution_site = db.StringField(max_length=255, required=False, default="CNAF", choices=SITES)
-    jobInstances = db.ListField(db.EmbeddedDocumentField('JobInstance'))
+    jobInstances = db.ListField(db.ReferenceField('JobInstance'))
 
     def addDependency(self, job):
         if not isinstance(job, Job):
             raise Exception("Must be job to be added")
-        self.dependencies.append(job._id)
+        self.dependencies.append(job)
 
     def getDependency(self):
         if not len(self.dependencies):
@@ -99,9 +101,9 @@ class Job(db.Document):
 
     def getBody(self):
         os.environ["DWF_JOBNAME"] = self.title
-        return parseJobXmlToDict(self.body)
+        return parseJobXmlToDict(self.body.read())
 
-    def getInstance(self,_id,silent=False):
+    def getInstance(self, _id, silent=False):
         for jI in self.jobInstances:
             if long(jI.instanceId) == long(_id):
                 return jI
@@ -126,9 +128,10 @@ class Job(db.Document):
 
     def aggregateStatii(self):
         """ will return an aggregated summary of all instances in all statuses """
-        counting_dict = dict(zip(MAJOR_STATII, [0 for m in MAJOR_STATII]))
+        counting_dict = dict(zip(MAJOR_STATII, [0 for _ in MAJOR_STATII]))
         for jI in self.jobInstances:
-            if not jI.status in MAJOR_STATII: raise Exception("Instance found in status not known to system")
+            if jI.status not in MAJOR_STATII:
+                raise Exception("Instance found in status not known to system")
             counting_dict[jI.status] += 1
         return [(k, counting_dict[k]) for k in MAJOR_STATII]
         # return counting_dict
