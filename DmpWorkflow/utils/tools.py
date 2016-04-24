@@ -10,6 +10,8 @@ import shlex
 import string
 import subprocess as sub
 import time
+from StringIO import StringIO
+from xml.dom import minidom as xdom
 
 
 def exceptionHandler(exception_type, exception, traceback):
@@ -19,7 +21,7 @@ def exceptionHandler(exception_type, exception, traceback):
 
 
 def random_string_generator(size=16, chars=string.ascii_letters + string.digits):
-    return ''.join(random.choice(chars) for x in range(size))
+    return ''.join(random.choice(chars) for _ in range(size))
 
 
 def makeSafeName(srcname):
@@ -35,7 +37,8 @@ def pwd():
 
 
 def mkdir(dir):
-    if not os.path.exists(dir):  os.makedirs(dir)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
     return dir
 
 
@@ -139,3 +142,51 @@ def random_with_N_digits(n):
     range_end = (10**n)-1
     return random.randint(range_start, range_end)
 
+
+def parseJobXmlToDict(domInstance, parent="Job", setVars=True):
+    out = {}
+    elems = xdom.parse(StringIO(domInstance)).getElementsByTagName(parent)
+    if len(elems) > 1:
+        print 'found multiple job instances in xml, will ignore everything but last.'
+    if not len(elems):
+        raise Exception('found no Job element in xml.')
+    el = elems[-1]
+    datt = dict(zip(el.attributes.keys(), [v.value for v in el.attributes.values()]))
+    if setVars:
+        for k, v in datt.iteritems():
+            os.environ[k] = v
+    nodes = [node for node in el.childNodes if isinstance(node, xdom.Element)]
+    for node in nodes:
+        name = str(node.localName)
+        if name == "JobWrapper":
+            out['executable'] = node.getAttribute("executable")
+            out['script'] = node.firstChild.data
+        else:
+            if name in ["InputFiles", "OutputFiles"]:
+                my_key = "File"
+            else:
+                my_key = "Var"
+            section = []
+            for elem in node.getElementsByTagName(my_key):
+                section.append(dict(zip(elem.attributes.keys(), [v.value for v in elem.attributes.values()])))
+            out[str(name)] = section
+    if setVars:
+        for var in out['MetaData']:
+            key = var['name']
+            value = var['value']
+            if "$" in value:
+                value = os.path.expandvars(value)
+            os.environ[key] = value
+            var['value'] = value
+            # expand vars
+    out['atts'] = datt
+    if 'type' in datt:
+        os.environ["DWF_TYPE"] = datt["type"]
+
+    for var in out['InputFiles'] + out['OutputFiles']:
+        if '$' in var['source']:
+            var['source'] = os.path.expandvars(var['source'])
+        if '$' in var['target']:
+            var['target'] = os.path.expandvars(var['target'])
+        # print var['source'],"->",var['target']
+    return out

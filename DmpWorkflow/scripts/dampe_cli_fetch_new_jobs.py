@@ -5,13 +5,10 @@ Created on Mar 15, 2016
 """
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
-from DmpWorkflow.core import db
 import requests
 
 
 def main():
-    newJobInstances = []
-    db.connect()  # connect to DB
     res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL)
     res.raise_for_status()
     jobs = res.json().get("jobs")
@@ -29,7 +26,7 @@ def main():
     #             dInstance.setInstanceParameters(j)
     #             newJobInstances.append(dInstance)
                 
-    print 'found %i new job instances to deploy' % len(newJobInstances)
+    print 'found %i new job instances to deploy' % len(jobs)
 
 if __name__ == "__main__":
     main()

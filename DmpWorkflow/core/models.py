@@ -1,14 +1,12 @@
 import datetime
 import time
-import os
 import sys
 import logging
 
 import mongoengine
 from flask import url_for
 from DmpWorkflow.core import db, cfg
-from DmpWorkflow.utils.tools import random_string_generator, Ndigits, exceptionHandler
-from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
+from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, parseJobXmlToDict
 
 MAJOR_STATII = tuple(cfg.get("JobDB", "task_major_statii").split(","))
 FINAL_STATII = tuple(cfg.get("JobDB", "task_final_statii").split(","))

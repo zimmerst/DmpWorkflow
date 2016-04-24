@@ -1,18 +1,14 @@
-'''
+"""
 Created on Mar 15, 2016
 @author: zimmer
 @brief: base class for DAMPE Workflow (HPC/client side)
-'''
+"""
 import os.path
 import requests
-
 import jsonpickle
-import sys
-import DmpWorkflow
+
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
-from DmpWorkflow.core.models import JobInstance
-from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict, update_status
-from DmpWorkflow.utils.tools import mkdir, touch, rm, Ndigits, safe_copy, exceptionHandler
+from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict
 from DmpWorkflow.hpc.lsf import LSF, BatchJob
 
 

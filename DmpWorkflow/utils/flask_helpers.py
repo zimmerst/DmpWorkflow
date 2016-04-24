@@ -3,17 +3,13 @@ Created on Mar 15, 2016
 
 @author: zimmer
 """
-import os
 import time
-import xml.dom.minidom as xdom
-from StringIO import StringIO
 
 from DmpWorkflow.core import db
 from DmpWorkflow.core.models import Job, MAJOR_STATII
 
 
 def update_status(JobId, InstanceId, major_status, **kwargs):
-
     db.connect()
     my_job = Job.objects.filter(id=JobId)
     if not len(my_job):
@@ -34,49 +30,3 @@ def update_status(JobId, InstanceId, major_status, **kwargs):
     return
 
 
-def parseJobXmlToDict(domInstance, parent="Job", setVars=True):
-    out = {}
-    elems = xdom.parse(StringIO(domInstance)).getElementsByTagName(parent)
-    if len(elems) > 1:
-        print 'found multiple job instances in xml, will ignore everything but last.'
-    if not len(elems):
-        raise Exception('found no Job element in xml.')
-    el = elems[-1]
-    datt = dict(zip(el.attributes.keys(), [v.value for v in el.attributes.values()]))
-    if setVars:
-        for k, v in datt.iteritems(): os.environ[k] = v
-    nodes = [node for node in el.childNodes if isinstance(node, xdom.Element)]
-    for node in nodes:
-        name = str(node.localName)
-        if name == "JobWrapper":
-            out['executable'] = node.getAttribute("executable")
-            out['script'] = node.firstChild.data
-        else:
-            if name in ["InputFiles", "OutputFiles"]:
-                my_key = "File"
-            else:
-                my_key = "Var"
-            section = []
-            for elem in node.getElementsByTagName(my_key):
-                section.append(dict(zip(elem.attributes.keys(), [v.value for v in elem.attributes.values()])))
-            out[str(name)] = section
-    if setVars:
-        for var in out['MetaData']:
-            key = var['name']
-            value = var['value']
-            if "$" in value:
-                value = os.path.expandvars(value)
-            os.environ[key] = value
-            var['value'] = value
-            # expand vars
-    out['atts'] = datt
-    if 'type' in datt:
-        os.environ["DWF_TYPE"] = datt["type"]
-
-    for var in out['InputFiles'] + out['OutputFiles']:
-        if '$' in var['source']:
-            var['source'] = os.path.expandvars(var['source'])
-        if '$' in var['target']:
-            var['target'] = os.path.expandvars(var['target'])
-        # print var['source'],"->",var['target']
-    return out

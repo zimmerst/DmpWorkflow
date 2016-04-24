@@ -3,11 +3,12 @@ import json
 import logging
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
-from flask.views import MethodView, View
+from flask.views import MethodView
 
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance
-from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict, update_status
+from DmpWorkflow.utils.flask_helpers import update_status
+from DmpWorkflow.utils.tools import parseJobXmlToDict
 
 jobs = Blueprint('jobs', __name__, template_folder='templates')
 
