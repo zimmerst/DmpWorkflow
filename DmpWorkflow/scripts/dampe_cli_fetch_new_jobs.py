@@ -3,19 +3,22 @@ Created on Mar 15, 2016
 
 @author: zimmer
 """
-from DmpWorkflow.config.defaults import ArgumentParser, os, sys, cfg, DAMPE_WORKFLOW_URL
-import copy
-from DmpWorkflow.core import db, models
 from DmpWorkflow.core.DmpJob import DmpJob
-from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
+from DmpWorkflow.core import db
 import requests
 
 
 def main():
     newJobInstances = []
     db.connect()  # connect to DB
-    res = requests.get("http://yourserver/newjobs/")
+    res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL)
     res.raise_for_status()
+    jobs = res.json().get("jobs")
+    for job in jobs:
+        j = DmpJob.fromJSON(job)
+        j.write_script()
+        j.submit()
     #
     # for job in models.Job.objects:
     #     newJobs = [j for j in job.jobInstances if j.status == 'New']

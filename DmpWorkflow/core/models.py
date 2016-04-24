@@ -6,8 +6,6 @@ import logging
 
 import mongoengine
 from flask import url_for
-from bson import ObjectId
-
 from DmpWorkflow.core import db, cfg
 from DmpWorkflow.utils.tools import random_string_generator, Ndigits, exceptionHandler
 from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
@@ -63,7 +61,7 @@ class JobInstance(db.Document):
         return
 
     def sixDigit(self, size=6):
-        return Ndigits(self.instanceId, size=size)
+        return str(self.instanceId).zfill(size)
 
 
 class Job(db.Document):
@@ -100,13 +98,16 @@ class Job(db.Document):
         return "NaN"
 
     def getBody(self):
-        os.environ["DWF_JOBNAME"] = self.title
+        # os.environ["DWF_JOBNAME"] = self.title
         return parseJobXmlToDict(self.body.read())
 
     def getInstance(self, _id, silent=False):
-        for jI in self.jobInstances:
-            if long(jI.instanceId) == long(_id):
-                return jI
+        jI = JobInstance.objects.filter(job=self, instanceId=_id)
+        if len(jI):
+            return jI[0]
+        # for jI in self.jobInstances:
+        #    if long(jI.instanceId) == long(_id):
+        #         return jI
         if not silent:
             print "could not find matching id"
         return None
@@ -120,10 +121,11 @@ class Job(db.Document):
             last_stream = inst - 1
             if self.getInstance(last_stream + 1, silent=True):
                 raise Exception("job with instance %i exists already" % inst)
-        jInst.set("instanceId", last_stream + 1)
+        jInst.instanceId = last_stream + 1
         if not len(jInst.status_history):
             sH = {"status": jInst.status, "update": jInst.last_update, "minor_status": jInst.minor_status}
             jInst.status_history.append(sH)
+        jInst.save()
         self.jobInstances.append(jInst)
 
     def aggregateStatii(self):

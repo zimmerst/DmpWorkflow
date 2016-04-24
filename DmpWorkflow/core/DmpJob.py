@@ -4,9 +4,12 @@ Created on Mar 15, 2016
 @brief: base class for DAMPE Workflow (HPC/client side)
 '''
 import os.path
+import requests
+
 import jsonpickle
 import sys
 import DmpWorkflow
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 from DmpWorkflow.core.models import JobInstance
 from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict, update_status
 from DmpWorkflow.utils.tools import mkdir, touch, rm, Ndigits, safe_copy, exceptionHandler
@@ -15,11 +18,10 @@ from DmpWorkflow.hpc.lsf import LSF, BatchJob
 
 # todo2: add cfg parsing variables.
 class DmpJob(object):
-    def __init__(self, job, **kwargs):
+    def __init__(self, job_id, body=None, **kwargs):
         self.wd = os.path.abspath(".")
-        self.DBjob = job
         self.title = None
-        self.jobId = str(job.id)
+        self.jobId = str(job_id)
         self.instanceId = None
         self.batchId = None
         self.InputFiles = []
@@ -33,7 +35,7 @@ class DmpJob(object):
         self.exec_wrapper = ""
         self.script = None
         self.__dict__.update(kwargs)
-        self.extract_xml_metadata(job.body)
+        self.extract_xml_metadata(body)
         self.__updateEnv__()
 
     def __updateEnv__(self):
@@ -56,10 +58,10 @@ class DmpJob(object):
         self.executable = el['executable']
         self.__dict__.update(el['atts'])
 
-    def setInstanceParameters(self, JobInstance):
+    def setInstanceParameters(self, instance_id, JobInstance_body):
         """ extract jobInstanceParameters to fully define job """
-        body = JobInstance.body
-        self.instanceId = JobInstance.instanceId  # aka stream
+        body = JobInstance_body
+        self.instanceId = instance_id  # aka stream
         keys = ['InputFiles', 'OutputFiles', 'MetaData']
         if isinstance(body, dict):
             for key in keys:
@@ -71,9 +73,8 @@ class DmpJob(object):
         """ based on meta-data should create job-executable """
         safe_copy(os.path.join(os.path.dirname(__file__), "scripts/dampe_execute_payload.py"),
                   os.path.join(self.wd, "script.py"), debug=debug)
-        json_file = open(os.path.join(self.wd, "job.json"), "wb")
-        json_file.write(self.exportToJSON())
-        json_file.close()
+        with open(os.path.join(self.wd, "job.json"), "wb") as json_file:
+            json_file.write(self.exportToJSON())
         scriptLOC = os.path.abspath(os.path.join(self.wd, "script.py"))
         jsonLOC = os.path.abspath(os.path.join(self.wd, "job.json"))
         cmd = "python %s %s" % (scriptLOC, jsonLOC)
@@ -93,7 +94,15 @@ class DmpJob(object):
 
     def updateStatus(self, majorStatus, minorStatus, **kwargs):
         """ passes status """
-        update_status(self.jobId, self.instanceId, majorStatus, minor_status=minorStatus, **kwargs)
+        my_dict = {"t_id": self.jobId, "inst_id": self.instanceId, "major_status": majorStatus,
+                   "minor_status": minorStatus}
+        my_dict.update(kwargs)
+        res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": my_dict})
+        res.raise_for_status()
+        if not res.json().get("result", "nok") == "ok":
+            raise Exception(res.json().get('error'))
+        return
+        # update_status(self.jobId, self.instanceId, majorStatus, minor_status=minorStatus, **kwargs)
 
     def getStatusBatch(self):
         """ interacts with the backend HPC stuff and returns the status of the job """
@@ -115,9 +124,8 @@ class DmpJob(object):
         return jsonpickle.encode(self)
 
     def getSixDigits(self):
-        return Ndigits(self.instanceId, 6)
+        return str(self.instanceId).zfill(6)
 
-
-def createFromJSON(jsonstr):
-    dmpJob = jsonpickle.decode(jsonstr)
-    return dmpJob
+    @classmethod
+    def fromJSON(cls, jsonstr):
+        return jsonpickle.decode(jsonstr)

@@ -57,7 +57,7 @@ class BATCH(object):
     status_map = {}
 
     def __init__(self):
-        allJobs = self.update()
+        self.allJobs = self.update()
 
     def update(self):
         return {}

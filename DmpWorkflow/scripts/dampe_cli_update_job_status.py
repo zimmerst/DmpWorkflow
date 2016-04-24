@@ -4,7 +4,8 @@ Created on Mar 15, 2016
 @author: zimmer
 """
 import requests
-from DmpWorkflow.config.defaults import ArgumentParser, os, sys, cfg, DAMPE_WORKFLOW_URL
+from argparse import ArgumentParser
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 
 # import copy, sys, time
 # from DmpWorkflow.utils.flask_helpers import update_status
@@ -33,7 +34,7 @@ def main(args=None):
     for key in opts.__dict__:
         if opts.__dict__[key] is not None:
             my_dict[key] = opts.__dict__[key]
-    res = requests.post("%s/jobstatus/"%DAMPE_WORKFLOW_URL, data={"args": my_dict})
+    res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": my_dict})
     res.raise_for_status()
     res = res.json()
     if res.get("result", "nok") != "ok":

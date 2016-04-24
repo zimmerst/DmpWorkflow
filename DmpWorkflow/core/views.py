@@ -148,17 +148,16 @@ class SetJobStatus(MethodView):
 
 class NewJobs(MethodView):
     def get(self):
-        jobs = {}
         newJobInstances = []
         for job in Job.objects:
-            newJobs = [j for j in job.jobInstances if j.status == 'New']
+            newJobs = JobInstance.objects.filter(job=job, status="new")
             if len(newJobs):
-                dJob = DmpJob(job)
+                dJob = DmpJob(job.id, job.body.read())
                 for j in newJobs:
                     dInstance = copy.deepcopy(dJob)
-                    dInstance.setInstanceParameters(j)
-                    newJobInstances.append(dInstance)
-        return json.dumps(jobs)
+                    dInstance.setInstanceParameters(j.instanceId, j.body)
+                    newJobInstances.append(dInstance.exportToJSON())
+        return json.dumps({"jobs": newJobInstances})
 
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))

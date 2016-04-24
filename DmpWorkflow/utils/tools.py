@@ -60,13 +60,12 @@ def touch(path):
 def Ndigits(val, size=6):
     """ returns a N-digit integer with leading zeros """
     _sixDigit = "%i" % val
-    while len(_sixDigit) < size:
-        _sixDigit = "0" + _sixDigit
-    return _sixDigit
+    return _sixDigit.zfill(size)
 
 
 def safe_copy(infile, outfile, sleep=10, attempts=10, debug=False):
-    if debug: print 'cp %s -> %s' % (infile, outfile)
+    if debug:
+        print 'cp %s -> %s' % (infile, outfile)
     infile = infile.replace("@", "") if infile.startswith("@") else infile
     # Try not to step on any toes....
     sleep = parse_sleep(sleep)
@@ -133,6 +132,7 @@ def get_resources():
 def camelize(myStr):
     d = "".join(x for x in str(myStr).title() if not x.isspace())
     return d
+
 
 def random_with_N_digits(n):
     range_start = 10**(n-1)
