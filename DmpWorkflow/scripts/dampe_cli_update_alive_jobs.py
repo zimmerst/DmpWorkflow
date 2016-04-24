@@ -3,13 +3,13 @@ Created on Mar 15, 2016
 
 @author: zimmer
 """
-import copy, sys, time
-import requests
+from DmpWorkflow.config.defaults import ArgumentParser, os, sys, cfg, DAMPE_WORKFLOW_URL
+import copy, time, requests
 
 from DmpWorkflow.core.models import Job
 from DmpWorkflow.core import db
 from DmpWorkflow.hpc.lsf import LSF 
-from DmpWorkflow.utils.scriptDefaults import cfg
+from DmpWorkflow.config.defaults import cfg
 from DmpWorkflow.utils.flask_helpers import update_status
 
 
@@ -19,7 +19,7 @@ def check_status(jobId):
 
     
 def main():
-    db.connect()
+    #db.connect()
     batchEngine = LSF()
     batchEngine.update()
     for batchId in batchEngine.allJobs:
@@ -27,7 +27,7 @@ def main():
         JobId, InstanceId = job_dict['JOB_NAME'].split(".")
         hostname = job_dict["EXEC_HOST"]
         status = batchEngine.status_map[job_dict['STAT']]
-        res = requests.post("http://yourserver/jobalive/", data={"taskid": JobId, "instanceid": InstanceId,
+        res = requests.post("%s/jobalive/"%DAMPE_WORKFLOW_URL, data={"taskid": JobId, "instanceid": InstanceId,
                                                                   "hostname": hostname, "status": status})
         res.raise_for_status()
         res = res.json()

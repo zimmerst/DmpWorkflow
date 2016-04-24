@@ -4,7 +4,7 @@ Created on Mar 25, 2016
 @author: zimmer
 '''
 import random
-from DmpWorkflow.utils.scriptDefaults import cfg
+from DmpWorkflow.config.defaults import cfg
 from DmpWorkflow.core.models import Job, JobInstance, TYPES
 from DmpWorkflow.core import db
 

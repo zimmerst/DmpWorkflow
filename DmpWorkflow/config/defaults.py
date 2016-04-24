@@ -6,10 +6,13 @@ Created on Apr 20, 2016
 
 """
 import ConfigParser, os, sys
+from argparse import ArgumentParser
 import DmpWorkflow
 from DmpWorkflow.utils.tools import exceptionHandler
 
-myDefaults = {
+DAMPE_WORKFLOW_ROOT = os.path.dirname(DmpWorkflow.__file__)
+
+__myDefaults = {
     "DAMPE_SW_DIR": ".",
     "ExternalsScript": "${DAMPE_SW_DIR}/setup/setup.sh",
     "use_debugger": "true",
@@ -19,17 +22,19 @@ myDefaults = {
     "task_major_statii": "New,Running,Failed,Terminated,Done,Submitted,Suspended".split(",")
 }
 
-DAMPE_WORKFLOW_ROOT = os.path.dirname(DmpWorkflow.__file__)
+cfg = ConfigParser.SafeConfigParser(defaults=__myDefaults)
 
-cfg = ConfigParser.SafeConfigParser(defaults=myDefaults)
 cfg.read(os.path.join(DAMPE_WORKFLOW_ROOT,"config/settings.cfg"))
 
 os.environ["DAMPE_SW_DIR"] = cfg.get("site", "DAMPE_SW_DIR")
 os.environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
 
+#os.environ["DAMPE_URL"] = cfg.get("server","url")
 # print "setting up externals"
 #source_bash(cfg.get("site", "ExternalsScript"))
 
 dbg = cfg.getboolean("global", "traceback")
 if not dbg:
     sys.excepthook = exceptionHandler
+
+DAMPE_WORKFLOW_URL = cfg.get("server","url")

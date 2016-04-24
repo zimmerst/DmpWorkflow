@@ -3,12 +3,11 @@ Created on Mar 15, 2016
 
 @author: zimmer
 """
-import copy, sys, os
-from DmpWorkflow.scriptDefaults import cfg
+from DmpWorkflow.config.defaults import os, sys, DAMPE_WORKFLOW_URL
 from DmpWorkflow.core import db, models
 from DmpWorkflow.core.DmpJob import DmpJob
 
-import random, time
+import random, time, copy
 
 hostnames = ['fell', 'bullet', 'iris', 'hequ']
 

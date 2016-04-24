@@ -4,10 +4,8 @@ Created on Mar 30, 2016
 @author: zimmer
 @brief: prototype script to create a new job from the jobXml
 """
-import os
-import sys
 import requests
-from argparse import ArgumentParser
+from DmpWorkflow.config.defaults import ArgumentParser, os, sys, cfg, DAMPE_WORKFLOW_URL
 # from DmpWorkflow.core import db
 # from DmpWorkflow.core.models import Job, JobInstance, TYPES
 # from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
@@ -29,7 +27,7 @@ def main(args=None):
     #    raise Exception
     taskName = opts['name']
     ninst = opts["inst"]
-    res = requests.post("http://yourserver/jobInstances/",
+    res = requests.post("%s/jobInstances/"%DAMPE_WORKFLOW_URL,
                         data={"taskname": taskName, "n_instances": ninst})
     res.raise_for_status()
     res = res.json()
