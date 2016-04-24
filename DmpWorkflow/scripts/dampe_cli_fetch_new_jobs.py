@@ -3,18 +3,11 @@ Created on Mar 15, 2016
 
 @author: zimmer
 """
-from utils.scriptDefaults import cfg
+from DmpWorkflow.config.defaults import ArgumentParser, os, sys, cfg, DAMPE_WORKFLOW_URL
 import copy
-import random
 from DmpWorkflow.core import db, models
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
-
-
-def random_with_N_digits(n):
-    range_start = 10**(n-1)
-    range_end = (10**n)-1
-    return random.randint(range_start, range_end)
 
 
 def main():

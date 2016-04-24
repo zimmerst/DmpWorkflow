@@ -4,11 +4,11 @@ Created on Apr 19, 2016
 @author: zimmer
 @brief: payload script
 """
-from DmpWorkflow.utils.scriptDefaults import cfg
+from DmpWorkflow.config.defaults import os, sys, DAMPE_WORKFLOW_URL
 from DmpWorkflow.core.DmpJob import createFromJSON
-from DmpWorkflow.utils.tools import mkdir, safe_copy, rm, camelize, exceptionHandler
+from DmpWorkflow.utils.tools import mkdir, safe_copy, rm, camelize
 from DmpWorkflow.utils.shell import run, source_bash
-import sys, os, logging, pprint, socket
+import logging, socket
 DEBUG_TEST = False
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
