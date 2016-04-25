@@ -1,10 +1,8 @@
+from DmpWorkflow.config.defaults import cfg
 import ConfigParser
 import os
 from flask import Flask
 from flask.ext.mongoengine import MongoEngine
-
-cfg = ConfigParser.SafeConfigParser()
-cfg.read(os.getenv("WorkflowConfig", "config/dampe.cfg"))
 
 app = Flask(__name__)
 app.config['MONGODB_DB'] = cfg.get("database", "name")
