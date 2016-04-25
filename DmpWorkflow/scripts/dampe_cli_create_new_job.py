@@ -10,7 +10,7 @@ from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 from DmpWorkflow.core.models import TYPES, log
 # from DmpWorkflow.utils.db_helpers import parseJobXmlToDict
 
-_TYPES = list(TYPES) + ["NONE"]
+_TYPES = list(TYPES) + [u"NONE"]
 
 # dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
 
@@ -26,10 +26,10 @@ def main(args=None):
     # if len(sys.argv)!=3:
     #    print parser.print_help()
     #    raise Exception
-    taskName = opts.tname
-    xmlFile = opts.xml
-    t_type = opts.t_type
-    n_instances = opts.Ninstances
+    taskName = unicode(opts.tname)
+    xmlFile = unicode(opts.xml)
+    t_type = unicode(opts.t_type)
+    n_instances = int(opts.Ninstances)
     res = requests.post("%s/job/" % DAMPE_WORKFLOW_URL,
                         data={"taskname": taskName, "t_type": t_type, "n_instances": n_instances},
                         files={"file":open(xmlFile, "rb")})
