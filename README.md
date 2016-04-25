@@ -34,7 +34,7 @@ again, it's advisable to use a virtual environment.
 4.	set configuration file:
 	``` bash
 	cdsitepackages
-	nano config/defaults.cfg
+	nano DmpWorkflow/config/defaults.cfg
 	```
 
 5.	enjoy!
