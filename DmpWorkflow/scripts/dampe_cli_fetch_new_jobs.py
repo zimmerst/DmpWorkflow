@@ -5,8 +5,9 @@ Created on Mar 15, 2016
 """
 import requests
 from argparse import ArgumentParser
+from DmpWorkflow.utils.tools import mkdir
 from DmpWorkflow.core.DmpJob import DmpJob
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, cfg
 
 def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
