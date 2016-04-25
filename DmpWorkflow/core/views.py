@@ -61,7 +61,7 @@ class JobView(MethodView):
 
     def post(self):
         taskname = request.form['taskname']
-        jobdesc = request.files['job_description']
+        jobdesc = request.files['file']
         type = request.form['type']
         n_instances = request.form['n_instances']
         job = Job(title=taskname)
