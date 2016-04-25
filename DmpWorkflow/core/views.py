@@ -69,7 +69,7 @@ class JobView(MethodView):
             if taskname is None:
                 logger.exception("task name must be defined.")
                 raise Exception("task name must be defined")
-            job = Job(title=taskname)
+            job = Job(title=taskname, type=t_type)
             job.body.put(jobdesc, content_type="application/xml")
             job.save()
             dout = parseJobXmlToDict(job.body.read())
@@ -77,7 +77,7 @@ class JobView(MethodView):
                 job.type = dout['atts']['type']
             if 'release' in dout['atts']:
                 job.release = dout['atts']['release']
-            if type is not None: job.type = type
+            if t_type is not None: job.type = t_type
             dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
             if n_instances:
                 for j in range(n_instances):
@@ -104,7 +104,7 @@ class JobInstanceView(MethodView):
             job = jobs[0]
             dout = parseJobXmlToDict(job.body.read())
             if 'type' in dout['atts']:
-                job.type = dout['atts']['type']
+                job.type = unicode(dout['atts']['type'])
             if 'release' in dout['atts']:
                 job.release = dout['atts']['release']
             dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
