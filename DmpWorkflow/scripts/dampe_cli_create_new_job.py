@@ -32,7 +32,7 @@ def main(args=None):
     n_instances = opts.Ninstances
     res = requests.post("%s/job/" % DAMPE_WORKFLOW_URL,
                         data={"taskname": taskName, "type": t_type, "n_instance": n_instances},
-                        file={'job_description', open(xmlFile, "rb")})
+                        files={'job_description', open(xmlFile, "rb")})
     res.raise_for_status()
     if res.json().get("result", "nok") == "ok":
         print 'Added job'
