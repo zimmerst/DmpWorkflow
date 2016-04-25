@@ -15,9 +15,9 @@ pip install virtualenv
 NEW Installation Instructions:
 ------------------------------
 again, it's advisable to use a virtual environment.
-get tarball: 
-``` bash wget --no-check-certificate https://dampevm3.unige.ch/dmpworkflow/releases/DmpWorkflow-0.0.1.dev247.tar.gz ```
-``` bash pip install DmpWorkflow-0.0.1.dev247.tar.gz ```
+1.      get tarball: 
+	``` bash wget --no-check-certificate https://dampevm3.unige.ch/dmpworkflow/releases/DmpWorkflow-0.0.1.dev247.tar.gz ```
+2. 	``` bash pip install DmpWorkflow-0.0.1.dev247.tar.gz ```
 
 
 Installation Instructions:
