@@ -60,9 +60,9 @@ class JobView(MethodView):
         return "Nothing to display"
 
     def post(self):
-        print str(request.__dict__)
         taskname = request.form['taskname']
         jobdesc = request.files['file']
+        logger.info(jobdesc)
         type = request.form['type']
         n_instances = request.form['n_instances']
         job = Job(title=taskname)
