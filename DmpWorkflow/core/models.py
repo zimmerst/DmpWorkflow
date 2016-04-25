@@ -28,7 +28,7 @@ class Job(db.Document):
     release = db.StringField(max_length=255, required=False)
     dependencies = db.ListField(db.ReferenceField("Job"))
     execution_site = db.StringField(max_length=255, required=False, default="CNAF", choices=SITES)
-    jobInstances = db.ListField(db.ReferenceField('JobInstance'))
+    jobInstances = db.ListField(db.ReferenceField("JobInstance"))
 
     def addDependency(self, job):
         if not isinstance(job, Job):
