@@ -1,6 +1,4 @@
 from DmpWorkflow.config.defaults import cfg
-import ConfigParser
-import os
 from flask import Flask
 from flask.ext.mongoengine import MongoEngine
 
@@ -10,13 +8,13 @@ app.config['MONGODB_USERNAME'] = cfg.get("database", "user")
 app.config['MONGODB_PASSWORD'] = cfg.get("database", "password")
 app.config['MONGODB_HOST'] = cfg.get("database", "host")
 app.config["SECRET_KEY"] = "KeepThisS3cr3t"
-db = MongoEngine(app)
 
+db = MongoEngine(app)
 
 def register_blueprints(app):
     # Prevents circular imports
-    from core.views import jobs
-    from core.admin import admin
+    from DmpWorkflow.core.views import jobs
+    from DmpWorkflow.core.admin import admin
     app.register_blueprint(jobs)
     app.register_blueprint(admin)
 

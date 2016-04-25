@@ -76,6 +76,8 @@ def safe_copy(infile, outfile, sleep=10, attempts=10, debug=False):
         print 'file is on xrootd - switching to XRD library'
         cmnd = "xrdcp %s %s" % (infile, outfile)
     else:
+        if "$" in infile: infile = os.path.expandvars(infile)
+        if "$" in outfile: outfile = os.path.expandvars(outfile)
         cmnd = "cp %s %s" % (infile, outfile)
     i = 1
     if debug:

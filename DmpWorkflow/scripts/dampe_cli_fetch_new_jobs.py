@@ -12,6 +12,7 @@ def main():
     res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL)
     res.raise_for_status()
     jobs = res.json().get("jobs")
+    print 'found %i new job instances to deploy' % len(jobs)
     for job in jobs:
         j = DmpJob.fromJSON(job)
         j.write_script()
@@ -26,7 +27,7 @@ def main():
     #             dInstance.setInstanceParameters(j)
     #             newJobInstances.append(dInstance)
                 
-    print 'found %i new job instances to deploy' % len(jobs)
+    
 
 if __name__ == "__main__":
     main()

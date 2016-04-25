@@ -3,16 +3,20 @@ Created on Mar 10, 2016
 
 @author: zimmer
 """
+from DmpWorkflow.config.defaults import cfg
 
 from functools import wraps
 from flask import request, Response
 
+USERNAME = cfg.get("server","admin_user")
+PASSWORD = cfg.get("server","admin_password")
 
 def check_auth(username, password):
     """This function is called to check if a username /
     password combination is valid.
     """
-    return username == 'admin' and password == 'secret'
+ 
+    return username == USERNAME and password == PASSWORD
 
 
 def authenticate():
