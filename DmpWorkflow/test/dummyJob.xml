@@ -1,5 +1,5 @@
 <Jobs>
-	<JobInstance>
+	<Job>
 		<InputFiles>
 			<File source="" target="" file_type="" />
 		</InputFiles>
@@ -14,5 +14,5 @@ echo hostname
 		<MetaData>
 			<Var name="" value="" var_type="string"/>
 		</MetaData>
-	</JobInstance>
+	</Job>
 </Jobs>
