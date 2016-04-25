@@ -157,7 +157,7 @@ class SetJobStatus(MethodView):
 class NewJobs(MethodView):
     def get(self):
         newJobInstances = []
-        for job in Job.objects:
+        for job in Job.objects.all():
             newJobs = JobInstance.objects.filter(job=job, status=u"New")
             logger.info("newJobs: %s"%str(newJobs))
             if len(newJobs):
