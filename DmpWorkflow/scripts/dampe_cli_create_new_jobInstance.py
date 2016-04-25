@@ -37,6 +37,10 @@ def main(args=None):
     if res.get("result", "nok") == "nok":
         print "Error : %s" % res.get("message", "")
     os.environ['DWF_JOBNAME'] = taskName
+
+if __name__ == "__main__":
+    main()
+
     # db.connect()
     # jobs = Job.objects.filter(title=taskName)
     # if len(jobs):

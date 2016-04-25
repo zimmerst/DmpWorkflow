@@ -16,8 +16,9 @@ def main(args=None):
     opts = parser.parse_args(args)
     if opts.file is not None:
         src = opts.file
-        tg  = os.path.dirname(os.path.abspath(DmpWorkflow.__file__))
-        safe_copy(src, tg, sleep='3s', attempts = 3)
+        dmpROOT = os.path.dirname(os.path.abspath(DmpWorkflow.__file__))
+        tg  = os.path.join(dmpROOT,"config/settings.cfg")
+        safe_copy(src, tg, sleep='3s', attempts = 3, debug=True)
         return 
     
 if __name__ == "__main__":
