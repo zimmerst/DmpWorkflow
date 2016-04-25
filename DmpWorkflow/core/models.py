@@ -80,6 +80,7 @@ class Job(db.Document):
         if not len(jInst.status_history):
             sH = {"status": jInst.status, "update": jInst.last_update, "minor_status": jInst.minor_status}
             jInst.status_history.append(sH)
+        jInst.job = self # add self reference?
         jInst.save()
         self.jobInstances.append(jInst)
 
