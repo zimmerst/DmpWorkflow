@@ -105,7 +105,7 @@ class DmpJob(object):
         res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": my_dict})
         res.raise_for_status()
         if not res.json().get("result", "nok") == "ok":
-            raise Exception(res.json().get('error'))
+            raise Exception(res.json().get("error","ErrorMissing"))
         return
         # update_status(self.jobId, self.instanceId, majorStatus, minor_status=minorStatus, **kwargs)
 
