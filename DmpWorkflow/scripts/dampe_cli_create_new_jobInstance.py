@@ -9,11 +9,6 @@ from argparse import ArgumentParser
 import os
 
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
-# from DmpWorkflow.core import db
-# from DmpWorkflow.core.models import Job, JobInstance, TYPES
-# from DmpWorkflow.utils.db_helpers import parseJobXmlToDict
-
-# _TYPES = list(TYPES) + ["NONE"]
 
 
 def main(args=None):
