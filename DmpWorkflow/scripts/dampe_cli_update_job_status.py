@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 
 # import copy, sys, time
-# from DmpWorkflow.utils.flask_helpers import update_status
+# from DmpWorkflow.utils.db_helpers import update_status
 # from DmpWorkflow.config.defaults import cfg
 
 

@@ -10,6 +10,7 @@ from DmpWorkflow.core.models import Job, MAJOR_STATII
 
 
 def update_status(JobId, InstanceId, major_status, **kwargs):
+    ''' method to connect to db directly, without requests, i.e. should be run from server-side. '''
     db.connect()
     my_job = Job.objects.filter(id=JobId)
     if not len(my_job):

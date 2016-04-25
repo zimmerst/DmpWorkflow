@@ -8,7 +8,7 @@ import requests
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 from DmpWorkflow.core.models import TYPES
-# from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict
+# from DmpWorkflow.utils.db_helpers import parseJobXmlToDict
 
 _TYPES = list(TYPES) + ["NONE"]
 
