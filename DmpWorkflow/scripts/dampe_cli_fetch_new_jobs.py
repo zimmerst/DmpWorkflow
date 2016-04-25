@@ -15,7 +15,10 @@ def main(args=None):
 
     res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL)
     res.raise_for_status()
-    jobs = res.json().get("jobs")
+    res = res.json()
+    if not res.get("result", "nok") == "ok":
+        print "error %s" % res.get("error")
+    jobs = res.get("jobs")
     print 'found %i new job instances to deploy' % len(jobs)
     for job in jobs:
         j = DmpJob.fromJSON(job)

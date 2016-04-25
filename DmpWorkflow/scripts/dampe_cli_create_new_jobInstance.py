@@ -30,10 +30,10 @@ def main(args=None):
                         data={"taskname": taskName, "n_instances": ninst})
     res.raise_for_status()
     res = res.json()
-    if res.json().get("result", "nok") == "ok":
+    if res.get("result", "nok") == "ok":
         print 'Added %i instances'%int(ninst)
     else:
-        print "Error message: %s" % res.json().get("error", "")
+        print "Error message: %s" % res.get("error", "")
 
 if __name__ == "__main__":
     main()
