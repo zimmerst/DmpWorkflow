@@ -29,37 +29,17 @@ def main(args=None):
     #    print parser.print_help()
     #    raise Exception
     taskName = opts.name
+    os.environ['DWF_JOBNAME'] = taskName
     ninst = opts.inst
     res = requests.post("%s/jobInstances/" % DAMPE_WORKFLOW_URL,
                         data={"taskname": taskName, "n_instances": ninst})
     res.raise_for_status()
     res = res.json()
-    if res.get("result", "nok") == "nok":
-        print "Error : %s" % res.get("error", "")
-    os.environ['DWF_JOBNAME'] = taskName
+    if res.json().get("result", "nok") == "ok":
+        print 'Added %i instances'%int(ninst)
+    else:
+        print "Error message: %s" % res.json().get("error", "")
 
 if __name__ == "__main__":
     main()
 
-    # db.connect()
-    # jobs = Job.objects.filter(title=taskName)
-    # if len(jobs):
-    #     job = jobs[0]
-    #     os.environ['DWF_JOBNAME'] = job.title
-    #     dout = parseJobXmlToDict(job.body)
-    #     if 'type' in dout['atts']:
-    #         job.type = dout['atts']['type']
-    #     if 'release' in dout['atts']:
-    #         job.release = dout['atts']['release']
-    #     if ninst:
-    #         for j in range(ninst):
-    #             jI = JobInstance(body=str(dummy_dict))
-    #             # if opts.inst and j == 0:
-    #             #    job.addInstance(jI,inst=opts.inst)
-    #             # else:
-    #             job.addInstance(jI)
-    #     # print len(job.jobInstances)
-    #     job.update()
-    #     print 'added %i new instances for job %s' % (ninst, taskName)
-    # else:
-    #     raise NotFound('could not find job %s' % taskName)

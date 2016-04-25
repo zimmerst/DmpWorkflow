@@ -17,17 +17,6 @@ def main():
         j = DmpJob.fromJSON(job)
         j.write_script()
         j.submit()
-    #
-    # for job in models.Job.objects:
-    #     newJobs = [j for j in job.jobInstances if j.status == 'New']
-    #     if len(newJobs):
-    #         dJob = DmpJob(job)
-    #         for j in newJobs:
-    #             dInstance = copy.deepcopy(dJob)
-    #             dInstance.setInstanceParameters(j)
-    #             newJobInstances.append(dInstance)
-                
-    
 
 if __name__ == "__main__":
     main()

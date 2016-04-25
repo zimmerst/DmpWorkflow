@@ -6,7 +6,7 @@ import logging
 import mongoengine
 from flask import url_for
 from DmpWorkflow.config.defaults import cfg
-from DmpWorkflow.core import db
+from DmpWorkflow.core import db, app
 from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, parseJobXmlToDict
 
 MAJOR_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_major_statii").split(",")])
@@ -17,7 +17,7 @@ SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])
 if not cfg.getboolean("site", "traceback"):
     sys.excepthook = exceptionHandler
 
-log = logging.getLogger()
+log = app.logger
 
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)

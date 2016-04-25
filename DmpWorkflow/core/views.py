@@ -120,7 +120,7 @@ class JobInstanceView(MethodView):
             return json.dumps({"result": "ok"})
         else:
             logger.error("Cannot find job")
-            return json.dumps({"result": "ok", "error": 'Could not find job %s' % taskName})
+            return json.dumps({"result": "nok", "error": 'Could not find job %s' % taskName})
 
 
 class RefreshJobAlive(MethodView):
