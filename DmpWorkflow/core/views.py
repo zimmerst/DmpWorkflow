@@ -146,6 +146,7 @@ class RefreshJobAlive(MethodView):
 class SetJobStatus(MethodView):
     def post(self):
         arguments = request.form.get('args',None)
+        logger.info("request arguments %s"%str(arguments))
         try:
             update_status(arguments['t_id'], arguments["inst_id"], arguments['major_status'], **arguments)
         except Exception as err:
