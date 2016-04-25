@@ -159,8 +159,9 @@ class NewJobs(MethodView):
         newJobInstances = []
         for job in Job.objects:
             newJobs = JobInstance.objects.filter(job=job, status=u"New")
-            logger.info("found %i new instances for job %s"%(len(newJobs),job.title))
+            logger.info("newJobs: %s"%str(newJobs))
             if len(newJobs):
+                logger.info("found %i new instances for job %s"%(len(newJobs),str(job.title)))
                 dJob = DmpJob(job.id, job.body.read())
                 for j in newJobs:
                     dInstance = copy.deepcopy(dJob)
