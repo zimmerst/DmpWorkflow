@@ -62,11 +62,13 @@ class JobView(MethodView):
 
     def post(self):
         try:
-            taskname = request.form['taskname']
-            jobdesc = request.files['file']
-            logger.info(jobdesc)
-            t_type = request.form['t_type']
-            n_instances = request.form['n_instances']
+            taskname = request.form.get("taskname",None)
+            jobdesc = request.files.get("file",None)
+            t_type = request.form.get("t_type",None)
+            n_instances = request.form.get("n_instances",0)
+            if taskname is None:
+                logger.exception("task name must be defined.")
+                raise Exception("task name must be defined")
             job = Job(title=taskname)
             job.body.put(jobdesc, content_type="application/xml")
             job.save()
@@ -75,7 +77,7 @@ class JobView(MethodView):
                 job.type = dout['atts']['type']
             if 'release' in dout['atts']:
                 job.release = dout['atts']['release']
-            if type is not "": job.type = type
+            if type is not None: job.type = type
             dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
             if n_instances:
                 for j in range(n_instances):
