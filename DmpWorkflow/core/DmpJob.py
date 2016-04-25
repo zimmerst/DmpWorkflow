@@ -7,7 +7,7 @@ import os.path
 import requests
 import jsonpickle
 
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict
 from DmpWorkflow.hpc.lsf import LSF, BatchJob
 
@@ -67,7 +67,7 @@ class DmpJob(object):
 
     def write_script(self, debug=False):
         """ based on meta-data should create job-executable """
-        safe_copy(os.path.join(os.path.dirname(os.path.dirname(__file__)), "scripts/dampe_execute_payload.py"),
+        safe_copy(os.path.join(DAMPE_WORKFLOW_ROOT, "scripts/dampe_execute_payload.py"),
                   os.path.join(self.wd, "script.py"), debug=debug)
         with open(os.path.join(self.wd, "job.json"), "wb") as json_file:
             json_file.write(self.exportToJSON())
