@@ -28,8 +28,8 @@ def main(args=None):
     # if len(sys.argv)!=3:
     #    print parser.print_help()
     #    raise Exception
-    taskName = opts['name']
-    ninst = opts["inst"]
+    taskName = opts.name
+    ninst = opts.inst
     res = requests.post("%s/jobInstances/" % DAMPE_WORKFLOW_URL,
                         data={"taskname": taskName, "n_instances": ninst})
     res.raise_for_status()

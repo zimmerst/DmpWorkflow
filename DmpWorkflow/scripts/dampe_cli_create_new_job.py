@@ -26,10 +26,10 @@ def main(args=None):
     # if len(sys.argv)!=3:
     #    print parser.print_help()
     #    raise Exception
-    taskName = opts['tname']
-    xmlFile = opts["xml"]
-    t_type = opts['type']
-    n_instances = opts["Ninstances"]
+    taskName = opts.tname
+    xmlFile = opts.xml
+    t_type = opts.type
+    n_instances = opts.Ninstances
     res = requests.post("%s/job/" % DAMPE_WORKFLOW_URL,
                         data={"taskname": taskName, "type": t_type, "n_instance": n_instances},
                         file={'job_description', open(xmlFile, "rb")})
