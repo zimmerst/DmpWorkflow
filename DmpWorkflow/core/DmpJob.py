@@ -35,7 +35,7 @@ class DmpJob(object):
         self.__updateEnv__()
     
     def getWorkDir(self):
-        wdROOT = os.path.expandvars(wd)
+        wdROOT = cfg.get("site","workdir")
         wd = os.path.join(wdROOT,self.jobId)
         wd = os.path.join(wd,self.instanceId)
         return wd
