@@ -22,7 +22,7 @@ def main(args=None):
                         help='number of instances to create at the same time')
     parser.add_argument("-i", "--input", dest="xml", help="Path to job XML")
     parser.add_argument("-n", '--name', help="task Name", dest="tname")
-    opts = parser.parse_args(args)s
+    opts = parser.parse_args(args)
     # if len(sys.argv)!=3:
     #    print parser.print_help()
     #    raise Exception
