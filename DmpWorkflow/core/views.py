@@ -75,8 +75,7 @@ class JobView(MethodView):
                 job.type = dout['atts']['type']
             if 'release' in dout['atts']:
                 job.release = dout['atts']['release']
-            if type is not None:
-                job.type = type
+            if type is not "": job.type = type
             dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
             if n_instances:
                 for j in range(n_instances):
