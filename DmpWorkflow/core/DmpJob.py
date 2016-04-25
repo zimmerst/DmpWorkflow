@@ -48,7 +48,7 @@ class DmpJob(object):
         return
 
     def getJobName(self):
-        return "-".join([self.jobId, self.instanceId])
+        return "-".join([str(self.jobId), str(self.instanceId]))
 
     def extract_xml_metadata(self, xmldoc):
         """ given the structured job definition, read out and set variables """
