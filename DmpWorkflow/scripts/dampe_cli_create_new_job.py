@@ -16,7 +16,7 @@ _TYPES = list(TYPES) + [u"NONE"]
 
 
 def main(args=None):
-    parser = ArgumentParser(usage="Usage: %prog taskName xmlFile [options]", description="create new job in DB")
+    parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
     parser.add_argument("-t", "--type", dest="t_type", type=str, default="", help='task type', choices=_TYPES)
     parser.add_argument("--Ninstances", dest="Ninstances", type=int, default=0,
                         help='number of instances to create at the same time')

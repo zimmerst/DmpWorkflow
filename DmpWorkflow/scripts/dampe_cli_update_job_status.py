@@ -16,7 +16,7 @@ from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 # jobId instanceId major_status minor_status
 
 def main(args=None):
-    usage = "Usage: %prog JobID InstanceID status [options]"
+    usage = "Usage: %(prog)s JobID InstanceID status [options]"
     description = "update job in DB"
     parser = ArgumentParser(usage=usage, description=description)
     parser.add_argument("t_id", help="task ID")

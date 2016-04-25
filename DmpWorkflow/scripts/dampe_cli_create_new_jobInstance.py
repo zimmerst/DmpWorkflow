@@ -17,7 +17,7 @@ from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 
 
 def main(args=None):
-    usage = "Usage: %prog taskName xmlFile [options]"
+    usage = "Usage: %(prog)s taskName xmlFile [options]"
     description = "create new instances for job in DB"
     parser = ArgumentParser(usage=usage, description=description)
     # parser.add_option("--instance", dest="inst",type=int, default = None,
