@@ -36,9 +36,10 @@ class DmpJob(object):
     
     def getWorkDir(self):
         wdROOT = cfg.get("site","workdir")
-        wd = os.path.join(wdROOT,self.jobId)
-        wd = os.path.join(wd,self.instanceId)
+        wd = os.path.join(wdROOT,str(self.jobId))
+        wd = os.path.join(wd,str(self.instanceId))
         return wd
+
     def __updateEnv__(self):
         for fi in self.InputFiles + self.OutputFiles + self.MetaData:
             for key in ['value', 'source', 'target']:
