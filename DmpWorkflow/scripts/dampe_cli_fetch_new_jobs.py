@@ -10,7 +10,7 @@ from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 
 def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
-    parser.add_argument("-d", "--dry", dest="dry", type="action", default=False, help='if dry, do not try interacting with batch farm')
+    parser.add_argument("-d", "--dry", dest="dry", action = 'store_true', default=False, help='if dry, do not try interacting with batch farm')
     opts = parser.parse_args(args)
 
     res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL)
