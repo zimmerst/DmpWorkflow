@@ -158,7 +158,7 @@ class NewJobs(MethodView):
     def get(self):
         newJobInstances = []
         for job in Job.objects:
-            newJobs = JobInstance.objects.filter(job=job, status="new")
+            newJobs = JobInstance.objects.filter(job=job, status=u"New")
             if len(newJobs):
                 dJob = DmpJob(job.id, job.body.read())
                 for j in newJobs:
