@@ -16,13 +16,13 @@ _TYPES = list(TYPES) + ["NONE"]
 
 
 def main(args=None):
-    parser = ArgumentParser(usage="Usage: %prog taskName xmlFile [options]", description="update job in DB")
-    parser.add_argument("-t", "--type", dest="t_type", type=str, default="", help='minor status', choices=_TYPES)
+    parser = ArgumentParser(usage="Usage: %prog taskName xmlFile [options]", description="create new job in DB")
+    parser.add_argument("-t", "--type", dest="t_type", type=str, default="", help='task type', choices=_TYPES)
     parser.add_argument("--Ninstances", dest="Ninstances", type=int, default=0,
                         help='number of instances to create at the same time')
     parser.add_argument("-i", "--input", dest="xml", help="Path to job XML")
     parser.add_argument("-n", '--name', help="task Name", dest="tname")
-    opts = parser.parse_args(args)
+    opts = parser.parse_args(args)s
     # if len(sys.argv)!=3:
     #    print parser.print_help()
     #    raise Exception
@@ -31,7 +31,7 @@ def main(args=None):
     t_type = opts.t_type
     n_instances = opts.Ninstances
     res = requests.post("%s/job/" % DAMPE_WORKFLOW_URL,
-                        data={"taskname": taskName, "t_type": t_type, "n_instance": n_instances},
+                        data={"taskname": taskName, "t_type": t_type, "n_instances": n_instances},
                         files={"file":open(xmlFile, "rb")})
     try:
         res.raise_for_status()
