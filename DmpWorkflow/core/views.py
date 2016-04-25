@@ -86,7 +86,7 @@ class JobView(MethodView):
             return json.dumps({"result": "ok", "jobID": str(job.id)})
         except Exception as err:
             logger.exception(err)
-            return json.dumps({"result": "nok", "jobID": str(job.id), "err":str(err)})
+            return json.dumps({"result": "nok", "jobID": "None", "err":str(err)})
 
 class JobInstanceView(MethodView):
     def get(self):
