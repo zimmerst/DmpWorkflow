@@ -1,15 +1,15 @@
-'''
+"""
 Created on Mar 10, 2016
 
 @author: zimmer
-'''
+"""
 from flask import Blueprint, request, redirect, render_template, url_for, current_app
 from flask.views import MethodView
 
 from flask.ext.mongoengine.wtf import model_form
 
 from DmpWorkflow.core.auth import requires_auth
-from DmpWorkflow.core.models import Job, JobInstance
+from DmpWorkflow.core.models import Job
 
 admin = Blueprint('admin', __name__, template_folder='templates')
 

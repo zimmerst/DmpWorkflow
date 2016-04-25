@@ -5,8 +5,10 @@ Created on Apr 20, 2016
 @brief: prototype script that handles config parsing etc.
 
 """
-import ConfigParser, os, sys
-from argparse import ArgumentParser
+import ConfigParser
+import os
+import sys
+
 import DmpWorkflow
 from DmpWorkflow.utils.tools import exceptionHandler
 
@@ -24,7 +26,7 @@ __myDefaults = {
 
 cfg = ConfigParser.SafeConfigParser(defaults=__myDefaults)
 
-cfg.read(os.path.join(DAMPE_WORKFLOW_ROOT,"config/settings.cfg"))
+cfg.read(os.path.join(DAMPE_WORKFLOW_ROOT, "config/settings.cfg"))
 
 os.environ["DAMPE_SW_DIR"] = cfg.get("site", "DAMPE_SW_DIR")
 os.environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
@@ -37,4 +39,4 @@ dbg = cfg.getboolean("global", "traceback")
 if not dbg:
     sys.excepthook = exceptionHandler
 
-DAMPE_WORKFLOW_URL = cfg.get("server","url")
+DAMPE_WORKFLOW_URL = cfg.get("server", "url")

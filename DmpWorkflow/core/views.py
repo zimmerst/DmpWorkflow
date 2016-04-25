@@ -1,10 +1,14 @@
+import copy
 import json
 import logging
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
-from flask.views import MethodView, View
+from flask.views import MethodView
+
+from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance
-from DmpWorkflow.utils.flask_helpers import parseJobXmlToDict, update_status
+from DmpWorkflow.utils.flask_helpers import update_status
+from DmpWorkflow.utils.tools import parseJobXmlToDict
 
 jobs = Blueprint('jobs', __name__, template_folder='templates')
 
@@ -60,8 +64,10 @@ class JobView(MethodView):
         jobdesc = request.files['job_description']
         type = request.form['type']
         n_instances = request.form['n_instances']
-        job = Job(title=taskname, body=jobdesc.read())
-        dout = parseJobXmlToDict(job.body)
+        job = Job(title=taskname)
+        job.body.put(jobdesc, content_type="application/xml")
+        job.save()
+        dout = parseJobXmlToDict(job.body.read())
         if 'type' in dout['atts']:
             job.type = dout['atts']['type']
         if 'release' in dout['atts']:
@@ -89,7 +95,7 @@ class JobInstanceView(MethodView):
         if len(jobs):
             logger.debug("Found job")
             job = jobs[0]
-            dout = parseJobXmlToDict(job.body)
+            dout = parseJobXmlToDict(job.body.read())
             if 'type' in dout['atts']:
                 job.type = dout['atts']['type']
             if 'release' in dout['atts']:
@@ -140,6 +146,20 @@ class SetJobStatus(MethodView):
             return json.dumps({"result": "nok", "error": str(err)})
         return json.dumps({"result": "ok"})
 
+
+class NewJobs(MethodView):
+    def get(self):
+        newJobInstances = []
+        for job in Job.objects:
+            newJobs = JobInstance.objects.filter(job=job, status="new")
+            if len(newJobs):
+                dJob = DmpJob(job.id, job.body.read())
+                for j in newJobs:
+                    dInstance = copy.deepcopy(dJob)
+                    dInstance.setInstanceParameters(j.instanceId, j.body)
+                    newJobInstances.append(dInstance.exportToJSON())
+        return json.dumps({"jobs": newJobInstances})
+
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
 jobs.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
@@ -147,3 +167,4 @@ jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "P
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobalive/", view_func=RefreshJobAlive.as_view('jobalive'), methods=["POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["POST"])
+jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
