@@ -1,7 +1,7 @@
 import copy
 import json
 import logging
-from requests.exceptions import HTTPError
+import requests.exceptions.HTTPError as HTTPError
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
 from flask.views import MethodView
