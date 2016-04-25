@@ -89,7 +89,7 @@ class JobView(MethodView):
         except Exception as err:
             logger.info("request dict: %s"%str(request.form))
             logger.exception(err)
-            return json.dumps({"result": "nok", "jobID": "None", "err":str(err)})
+            return json.dumps({"result": "nok", "jobID": "None", "error":str(err)})
 
 class JobInstanceView(MethodView):
     def get(self):
@@ -120,7 +120,7 @@ class JobInstanceView(MethodView):
             return json.dumps({"result": "ok"})
         else:
             logger.error("Cannot find job")
-            return json.dumps({"result": "ok", "message": 'Could not find job %s' % taskName})
+            return json.dumps({"result": "ok", "error": 'Could not find job %s' % taskName})
 
 
 class RefreshJobAlive(MethodView):

@@ -35,7 +35,7 @@ def main(args=None):
     res.raise_for_status()
     res = res.json()
     if res.get("result", "nok") == "nok":
-        print "Error : %s" % res.get("message", "")
+        print "Error : %s" % res.get("error", "")
     os.environ['DWF_JOBNAME'] = taskName
 
 if __name__ == "__main__":
