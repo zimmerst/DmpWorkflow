@@ -86,6 +86,7 @@ class JobView(MethodView):
             job.save()
             return json.dumps({"result": "ok", "jobID": str(job.id)})
         except Exception as err:
+            logger.info("request keys: %s"%str(request.form.keys()))
             logger.exception(err)
             return json.dumps({"result": "nok", "jobID": "None", "err":str(err)})
 
