@@ -60,30 +60,32 @@ class JobView(MethodView):
         return "Nothing to display"
 
     def post(self):
-        taskname = request.form['taskname']
-        jobdesc = request.files['file']
-        logger.info(jobdesc)
-        type = request.form['type']
-        n_instances = request.form['n_instances']
-        job = Job(title=taskname)
-        job.body.put(jobdesc, content_type="application/xml")
-        job.save()
-        dout = parseJobXmlToDict(job.body.read())
-        if 'type' in dout['atts']:
-            job.type = dout['atts']['type']
-        if 'release' in dout['atts']:
-            job.release = dout['atts']['release']
-        if type is not None:
-            job.type = type
-        dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
-        if n_instances:
-            for j in range(n_instances):
-                jI = JobInstance(body=str(dummy_dict))
-                job.addInstance(jI)
-        # print len(job.jobInstances)
-        job.save()
-        return json.dumps({"result": "ok", "jobID": str(job.id)})
-
+        try:
+            taskname = request.form['taskname']
+            jobdesc = request.files['file']
+            logger.info(jobdesc)
+            type = request.form['type']
+            n_instances = request.form['n_instances']
+            job = Job(title=taskname)
+            job.body.put(jobdesc, content_type="application/xml")
+            job.save()
+            dout = parseJobXmlToDict(job.body.read())
+            if 'type' in dout['atts']:
+                job.type = dout['atts']['type']
+            if 'release' in dout['atts']:
+                job.release = dout['atts']['release']
+            if type is not None:
+                job.type = type
+            dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
+            if n_instances:
+                for j in range(n_instances):
+                    jI = JobInstance(body=str(dummy_dict))
+                    job.addInstance(jI)
+            # print len(job.jobInstances)
+            job.save()
+            return json.dumps({"result": "ok", "jobID": str(job.id)})
+        except requests.exceptions.HTTPError, ex:
+            logger.exception(ex)
 
 class JobInstanceView(MethodView):
     def get(self):
