@@ -7,14 +7,6 @@ import requests
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 
-# import copy, sys, time
-# from DmpWorkflow.utils.db_helpers import update_status
-# from DmpWorkflow.config.defaults import cfg
-
-
-# each job has an immutable document identifier.
-# jobId instanceId major_status minor_status
-
 def main(args=None):
     usage = "Usage: %(prog)s JobID InstanceID status [options]"
     description = "update job in DB"
