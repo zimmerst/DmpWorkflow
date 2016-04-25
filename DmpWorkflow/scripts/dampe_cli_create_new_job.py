@@ -17,7 +17,7 @@ _TYPES = list(TYPES) + ["NONE"]
 
 def main(args=None):
     parser = ArgumentParser(usage="Usage: %prog taskName xmlFile [options]", description="update job in DB")
-    parser.add_argument("-t", "--type", dest="type", type=str, default=None, help='minor status', choices=_TYPES)
+    parser.add_argument("-t", "--type", dest="t_type", type=str, default=None, help='minor status', choices=_TYPES)
     parser.add_argument("--Ninstances", dest="Ninstances", type=int, default=0,
                         help='number of instances to create at the same time')
     parser.add_argument("-i", "--input", dest="xml", help="Path to job XML")
@@ -28,10 +28,10 @@ def main(args=None):
     #    raise Exception
     taskName = opts.tname
     xmlFile = opts.xml
-    t_type = opts.type
+    t_type = opts.t_type
     n_instances = opts.Ninstances
     res = requests.post("%s/job/" % DAMPE_WORKFLOW_URL,
-                        data={"taskname": taskName, "type": t_type, "n_instance": n_instances},
+                        data={"taskname": taskName, "t_type": t_type, "n_instance": n_instances},
                         files={"file":open(xmlFile, "rb")})
     try:
         res.raise_for_status()

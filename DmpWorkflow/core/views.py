@@ -65,7 +65,7 @@ class JobView(MethodView):
             taskname = request.form['taskname']
             jobdesc = request.files['file']
             logger.info(jobdesc)
-            type = request.form['type']
+            t_type = request.form['t_type']
             n_instances = request.form['n_instances']
             job = Job(title=taskname)
             job.body.put(jobdesc, content_type="application/xml")
