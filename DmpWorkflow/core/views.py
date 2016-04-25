@@ -65,7 +65,7 @@ class JobView(MethodView):
             taskname = request.form.get("taskname",None)
             jobdesc = request.files.get("file",None)
             t_type = request.form.get("t_type",None)
-            n_instances = request.form.get("n_instances",0)
+            n_instances = int(request.form.get("n_instances","0"))
             if taskname is None:
                 logger.exception("task name must be defined.")
                 raise Exception("task name must be defined")
@@ -96,8 +96,8 @@ class JobInstanceView(MethodView):
         return 'Nothing yet'
 
     def post(self):
-        taskName = request.form["taskname"]
-        ninst = request.form['n_instances']
+        taskName = request.form.get("taskname",None)
+        ninst = int(request.form.get("n_instances","0"))
         jobs = Job.objects.filter(title=taskName)
         if len(jobs):
             logger.debug("Found job")
@@ -126,10 +126,10 @@ class JobInstanceView(MethodView):
 class RefreshJobAlive(MethodView):
     def post(self):
         try:
-            taskid = request.form["taskid"]
-            instance_id = request.form["instanceid"]
-            hostname = request.form["hostname"]
-            status = request.form["status"]
+            taskid = request.form.get("taskid",None)
+            instance_id = request.form.get("instanceid",None)
+            hostname = request.form.get("hostname","")
+            status = request.form.get("status","None")
             my_job = Job.objects.filter(id=taskid)
             jInstance = my_job.getInstance(instance_id)
             jInstance.set("hostname", hostname)
@@ -145,7 +145,7 @@ class RefreshJobAlive(MethodView):
 
 class SetJobStatus(MethodView):
     def post(self):
-        arguments = request.form['args']
+        arguments = request.form.get('args',None)
         try:
             update_status(arguments['t_id'], arguments["inst_id"], arguments['major_status'], **arguments)
         except Exception as err:
