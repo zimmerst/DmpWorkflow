@@ -31,6 +31,13 @@ again, it's advisable to use a virtual environment.
 	pip install DmpWorkflow-0.0.1.dev247.tar.gz
 	```
 
+4.	set configuration file:
+	``` bash
+	cdsitepackages
+	nano config/defaults.cfg
+	```
+
+5.	enjoy!
 
 Installation Instructions:
 --------------------------
