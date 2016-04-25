@@ -5,7 +5,6 @@ Created on Mar 30, 2016
 @brief: prototype script to create a new job from the jobXml
 """
 import requests
-import requests.exceptions as exceptions
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 from DmpWorkflow.core.models import TYPES, log
@@ -36,8 +35,8 @@ def main(args=None):
                         files={"file":open(xmlFile, "rb")})
     try:
         res.raise_for_status()
-    except exceptions.HTTPError, ha:
-        log.exception(ha)
+    except Exception as err:
+        log.exception(err)
     if res.json().get("result", "nok") == "ok":
         print 'Added job'
     else:
