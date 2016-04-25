@@ -5,9 +5,10 @@ Created on Mar 30, 2016
 @brief: prototype script to create a new job from the jobXml
 """
 import requests
+import requests.exceptions as exceptions
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
-from DmpWorkflow.core.models import TYPES
+from DmpWorkflow.core.models import TYPES, log
 # from DmpWorkflow.utils.db_helpers import parseJobXmlToDict
 
 _TYPES = list(TYPES) + ["NONE"]
@@ -33,7 +34,10 @@ def main(args=None):
     res = requests.post("%s/job/" % DAMPE_WORKFLOW_URL,
                         data={"taskname": taskName, "type": t_type, "n_instance": n_instances},
                         files={"file":open(xmlFile, "rb")})
-    res.raise_for_status()
+    try:
+        res.raise_for_status()
+    except exceptions.HTTPError, ha:
+        log.exception(ha)
     if res.json().get("result", "nok") == "ok":
         print 'Added job'
     else:
