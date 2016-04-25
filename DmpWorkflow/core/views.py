@@ -13,7 +13,7 @@ from DmpWorkflow.utils.tools import parseJobXmlToDict
 
 jobs = Blueprint('jobs', __name__, template_folder='templates')
 
-logger = app.logger("views")
+logger = app.logger
 
 
 class ListView(MethodView):
