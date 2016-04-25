@@ -145,8 +145,7 @@ class RefreshJobAlive(MethodView):
 
 class SetJobStatus(MethodView):
     def post(self):
-        arguments = request.form.get('args',None)
-        
+        arguments = request.form.get('args',{})
         if not 't_id' in arguments:         logger.exception("couldn't find t_id in arguments")
         if not 'inst_id' in arguments:      logger.exception("couldn't find inst_id in arguments")
         if not 'major_status' in arguments: logger.exception("couldn't find major_status in arguments")
