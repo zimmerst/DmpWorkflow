@@ -48,7 +48,7 @@ class DmpJob(object):
         return
 
     def getJobName(self):
-        return "-".join([str(self.jobId), str(self.instanceId)])
+        return "-".join([str(self.jobId), self.getSixDigits()])
 
     def extract_xml_metadata(self, xmldoc):
         """ given the structured job definition, read out and set variables """
@@ -89,8 +89,8 @@ class DmpJob(object):
         return "${DAMPE_SW_DIR}/releases/DmpSoftware-%s/bin/thisdmpsw.sh" % self.release
 
     def createLogFile(self):
-        mkdir(os.path.join("%s/logs" % self.wd))
-        self.logfile = os.path.join("%s/logs" % self.wd, "%s.log" % self.getJobName())
+        #mkdir(os.path.join("%s/logs" % self.wd))
+        self.logfile = os.path.join(self.wd, "output.log")
         if os.path.isfile(self.logfile):
             rm(self.logfile)
         # create the logfile before submitting.
