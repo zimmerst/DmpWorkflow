@@ -1,7 +1,7 @@
 import copy
 import json
 import logging
-import requests.exceptions.HTTPError as HTTPError
+import requests.exceptions as exceptions
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
 from flask.views import MethodView
@@ -85,7 +85,7 @@ class JobView(MethodView):
             # print len(job.jobInstances)
             job.save()
             return json.dumps({"result": "ok", "jobID": str(job.id)})
-        except HTTPError, ex:
+        except exceptions.HTTPError, ex:
             logger.exception(ex)
 
 class JobInstanceView(MethodView):
