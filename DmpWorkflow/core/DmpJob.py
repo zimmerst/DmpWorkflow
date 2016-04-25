@@ -68,7 +68,7 @@ class DmpJob(object):
     def write_script(self, debug=False):
         """ based on meta-data should create job-executable """
         safe_copy(os.path.join(DAMPE_WORKFLOW_ROOT, "scripts/dampe_execute_payload.py"),
-                  os.path.join(self.wd, "script.py"), debug=debug)
+                  os.path.join(self.wd, "script.py"), debug=True)
         with open(os.path.join(self.wd, "job.json"), "wb") as json_file:
             json_file.write(self.exportToJSON())
         scriptLOC = os.path.abspath(os.path.join(self.wd, "script.py"))
