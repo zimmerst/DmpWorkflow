@@ -3,6 +3,7 @@ Workflow framework for DAMPE remote computing &amp; accounting
 
 external contributor: Stephane Poss @sposs on github (lots of help in packaging & dealing with requests as well as for the initial suggestion to using flask/mongodb)
 
+
 Prerequisites: 
 --------------
 it's advisable to install virtualenv to handle the different python installations
@@ -11,6 +12,13 @@ it's advisable to install virtualenv to handle the different python installation
 easy_install virtualenv OR
 pip install virtualenv
 ```
+NEW Installation Instructions:
+------------------------------
+again, it's advisable to use a virtual environment.
+get tarball: 
+``` bash wget --no-check-certificate https://dampevm3.unige.ch/dmpworkflow/releases/DmpWorkflow-0.0.1.dev247.tar.gz ```
+``` bash pip install DmpWorkflow-0.0.1.dev247.tar.gz ```
+
 
 Installation Instructions:
 --------------------------
