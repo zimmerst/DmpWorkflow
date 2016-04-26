@@ -125,6 +125,9 @@ class DmpJob(object):
         if not dry: 
             self.createLogFile()
         bj = BatchJob(name=self.getJobName(), command=self.execCommand, logFile=self.logfile)
+        if dry:
+            print "DRY_COMMAND: %s"%self.execCommand
+            return -1
         if local: 
             from DmpWorkflow.utils.tools import random_with_N_digits
             run(["%s &> %s"%(self.execCommand,self.logfile)])
