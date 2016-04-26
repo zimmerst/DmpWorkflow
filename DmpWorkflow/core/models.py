@@ -138,7 +138,7 @@ class JobInstance(db.Document):
 
     def set(self, key, value):
         self.__setattr__(key, value)
-        self.__setattr__("last_update", time.ctime())
+        self.__setattr__("last_update", datetime.datetime.now)
         self.save()
 
     def setStatus(self, stat):
@@ -153,9 +153,10 @@ class JobInstance(db.Document):
         if curr_status in FINAL_STATII:
             if not stat == 'New':
                 raise Exception("job found in final state, can only set to New")
+        self.last_update = self.last_update
         self.set("status", stat)
         sH = {"status": self.status, 
-              "update": datetime.datetime.strptime(self.last_update,"%a %b %d %HH:%MM:%SS %Y"),
+              "update": self.last_update,
               "minor_status": self.minor_status}
         log.info("statusSet %s",str(sH))
         self.status_history.append(sH)
