@@ -108,6 +108,7 @@ class Job(db.Document):
         super(db.Document, self).save()
 
     def update(self):
+        log.info("calling update on job")
         super(db.Document, self).save()
 
     meta = {
@@ -152,6 +153,7 @@ class JobInstance(db.Document):
                 raise Exception("job found in final state, can only set to New")
         self.set("status", stat)
         sH = {"status": self.status, "update": self.last_update, "minor_status": self.minor_status}
+        log.info("statusSet %s"%str(sH))
         self.status_history.append(sH)
         return
 
