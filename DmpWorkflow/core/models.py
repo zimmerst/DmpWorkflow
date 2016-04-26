@@ -112,7 +112,7 @@ class Job(db.Document):
 
     meta = {
         'allow_inheritance': True,
-        'indexes': ['-created_at', 'slug', 'title'],
+        'indexes': ['-created_at', 'slug', 'title', 'id'],
         'ordering': ['-created_at']
     }
 
