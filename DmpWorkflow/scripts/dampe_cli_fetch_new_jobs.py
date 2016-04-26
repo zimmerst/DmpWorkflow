@@ -24,11 +24,7 @@ def main(args=None):
     for job in jobs:
         j = DmpJob.fromJSON(job)
         j.write_script()
-        if not opts.dry:
-            if opts.local:
-                j.submit(local=True,dry=opts.dry)
-            else:
-                j.submit(dry=opts.dry)
+        j.submit(dry=opts.dry,local=opts.local)
                 
 if __name__ == "__main__":
     main()
