@@ -5,16 +5,17 @@ Created on Mar 15, 2016
 """
 import time
 
-from DmpWorkflow.core import db
+from DmpWorkflow.core import db, app
 from DmpWorkflow.core.models import Job, MAJOR_STATII
 
+log = app.logger
 
 def update_status(JobId, InstanceId, major_status, **kwargs):
     ''' method to connect to db directly, without requests, i.e. should be run from server-side. '''
     db.connect()
-    my_job = Job.objects.filter(id=JobId)
+    my_job = Job.objects.filter(id=unicode(JobId))
     if not len(my_job):
-        print 'could not find jobId %s' % JobId
+        log.exception("update_status: could not find jobId")
         return
     my_job = my_job[0]
     assert major_status in MAJOR_STATII
