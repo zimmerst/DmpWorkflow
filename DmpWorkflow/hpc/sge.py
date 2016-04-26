@@ -46,7 +46,7 @@ class SGE(BATCH):
         jobs = {}
         output, error, rc = run(command)
         logging.debug("rc: i",int(rc))
-        if not error is None:
+        if error is not None:
             for e in error.split("\n"): logging.error(e)
         if not asDict:
             return output

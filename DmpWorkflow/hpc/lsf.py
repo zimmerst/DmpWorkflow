@@ -45,7 +45,7 @@ class LSF(BATCH):
         jobs = {}
         output, error, rc = run(command)
         logging.debug("rc: i",int(rc))
-        if not error is None:
+        if error is not None:
             print error.split("\n")
             for e in error.split("\n"): 
                 if len(e): logging.error(e)

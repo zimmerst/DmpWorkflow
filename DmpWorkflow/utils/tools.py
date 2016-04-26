@@ -151,12 +151,11 @@ def parseJobXmlToDict(domInstance, parent="Job", setVars=True):
         print 'found multiple job instances in xml, will ignore everything but last.'
     if not len(elems):
         raise Exception('found no Job element in xml.')
-    el = elems[-1]
-    datt = dict(zip(el.attributes.keys(), [v.value for v in el.attributes.values()]))
+    datt = dict(zip(elems[-1].attributes.keys(), [v.value for v in elems[-1].attributes.values()]))
     if setVars:
         for k, v in datt.iteritems():
             os.environ[k] = v
-    nodes = [node for node in el.childNodes if isinstance(node, xdom.Element)]
+    nodes = [node for node in elems[-1].childNodes if isinstance(node, xdom.Element)]
     for node in nodes:
         name = str(node.localName)
         if name == "JobWrapper":
@@ -171,6 +170,7 @@ def parseJobXmlToDict(domInstance, parent="Job", setVars=True):
             for elem in node.getElementsByTagName(my_key):
                 section.append(dict(zip(elem.attributes.keys(), [v.value for v in elem.attributes.values()])))
             out[str(name)] = section
+            del section
     if setVars:
         for var in out['MetaData']:
             key = var['name']
@@ -183,7 +183,9 @@ def parseJobXmlToDict(domInstance, parent="Job", setVars=True):
     out['atts'] = datt
     if 'type' in datt:
         os.environ["DWF_TYPE"] = datt["type"]
-
+    del datt
+    del elems
+    del nodes
     for var in out['InputFiles'] + out['OutputFiles']:
         if '$' in var['source']:
             var['source'] = os.path.expandvars(var['source'])
