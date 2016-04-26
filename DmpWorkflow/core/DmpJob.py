@@ -38,8 +38,7 @@ class DmpJob(object):
     
     def getWorkDir(self):
         wdROOT = cfg.get("site","workdir")
-        wd = os.path.join(wdROOT,str(self.jobId))
-        wd = os.path.join(wd,str(self.instanceId))
+        wd = os.path.join(wdROOT,str(self.jobId),self.getSixDigits())
         return wd
 
     def __updateEnv__(self):
@@ -81,7 +80,7 @@ class DmpJob(object):
                   os.path.join(self.wd, "script.py"), debug=True)
         with open(os.path.join(self.wd, "job.json"), "wb") as json_file:
             json_file.write(self.exportToJSON())
-        scriptLOC = os.path.abspath(os.path.join(self.wd, "script.py"))
+        scriptLOC = os.path.abspath(os.path.join(self.wd, "script.py"),)
         jsonLOC = os.path.abspath(os.path.join(self.wd, "job.json"))
         cmd = "python %s %s" % (scriptLOC, jsonLOC)
         self.execCommand = cmd
