@@ -4,6 +4,7 @@ Created on Mar 15, 2016
 @author: zimmer
 """
 import requests
+import json
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 
@@ -26,7 +27,7 @@ def main(args=None):
     for key in opts.__dict__:
         if opts.__dict__[key] is not None:
             my_dict[key] = opts.__dict__[key]
-    res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": my_dict})
+    res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
     res.raise_for_status()
     res = res.json()
     if res.get("result", "nok") != "ok":
