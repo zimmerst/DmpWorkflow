@@ -26,9 +26,9 @@ def main(args=None):
         j.write_script()
         if not opts.dry:
             if opts.local:
-                j.submit(local=True)
+                j.submit(local=True,dry=opts.dry)
             else:
-                j.submit()
+                j.submit(dry=opts.dry)
                 
 if __name__ == "__main__":
     main()
