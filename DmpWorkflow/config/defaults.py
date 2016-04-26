@@ -8,9 +8,11 @@ Created on Apr 20, 2016
 import ConfigParser
 import os
 import sys
-
-import DmpWorkflow.__path__ as DAMPE_WORKFLOW_ROOT
 from DmpWorkflow.utils.tools import exceptionHandler
+
+def getPath():
+    import DmpWorkflow as DWF
+    return DWF.__path__
 
 __myDefaults = {
     "DAMPE_SW_DIR": ".",
@@ -21,6 +23,8 @@ __myDefaults = {
     "task_types": "Generation,Digitization,Reconstruction,User,Other".split(","),
     "task_major_statii": "New,Running,Failed,Terminated,Done,Submitted,Suspended".split(",")
 }
+
+DAMPE_WORKFLOW_URL = getPath()
 
 cfg = ConfigParser.SafeConfigParser(defaults=__myDefaults)
 

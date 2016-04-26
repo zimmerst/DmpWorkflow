@@ -13,7 +13,6 @@ import time
 from StringIO import StringIO
 from xml.dom import minidom as xdom
 
-
 def exceptionHandler(exception_type, exception, traceback):
     # All your trace are belong to us!
     # your format
