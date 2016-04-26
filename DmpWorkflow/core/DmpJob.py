@@ -6,6 +6,7 @@ Created on Mar 15, 2016
 import os.path
 import requests
 import jsonpickle
+import json
 
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, cfg
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict
