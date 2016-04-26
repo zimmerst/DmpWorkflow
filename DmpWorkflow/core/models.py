@@ -108,7 +108,7 @@ class Job(db.Document):
         super(Job, self).save()
 
     def update(self):
-        log.info("calling update on job")
+        log.info("calling update on Job")
         super(Job, self).save()
 
     meta = {
@@ -141,6 +141,7 @@ class JobInstance(db.Document):
         self.__setattr__("last_update", time.ctime())
 
     def setStatus(self, stat):
+        log.debug("calling JobInstance.setStatus")
         if stat not in MAJOR_STATII:
             raise Exception("status not found in supported list of statii")
         curr_status = self.status

@@ -30,6 +30,7 @@ def update_status(JobId, InstanceId, major_status, **kwargs):
     jInstance.setStatus(major_status)
     # print 'calling my_job.save'
     my_job.update()
+    log.debug("updated job")
     return
 
 
