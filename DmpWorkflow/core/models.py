@@ -1,3 +1,4 @@
+# pylint: disable=E1002
 import datetime
 import time
 import sys
