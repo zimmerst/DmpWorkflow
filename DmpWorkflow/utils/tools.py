@@ -35,10 +35,10 @@ def pwd():
     return os.environ['PWD']
 
 
-def mkdir(dir):
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-    return dir
+def mkdir(Dir):
+    if not os.path.exists(Dir):
+        os.makedirs(Dir)
+    return Dir
 
 
 def rm(pwd):

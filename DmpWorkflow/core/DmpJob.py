@@ -72,7 +72,7 @@ class DmpJob(object):
                     if len(body[key]):
                         self.__dict__[key] += body[key]
 
-    def write_script(self, debug=False):
+    def write_script(self):
         """ based on meta-data should create job-executable """
         self.wd = self.getWorkDir()
         mkdir(self.wd)

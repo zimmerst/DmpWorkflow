@@ -15,7 +15,7 @@ from DmpWorkflow.hpc.lsf import LSF
 def main():
     batchEngine = LSF()
     batchEngine.update()
-    for batchId, job_dict in batchEngine.allJobs:
+    for batchId, job_dict in batchEngine.allJobs.iteritems():
         JobId, InstanceId = job_dict['JOB_NAME'].split(".")
         hostname = job_dict["EXEC_HOST"]
         status = batchEngine.status_map[job_dict['STAT']]
@@ -24,7 +24,7 @@ def main():
         res.raise_for_status()
         res = res.json()
         if not res.get("result", "nok") == "ok":
-            print "error %s" % res.get("error")
+            print "error updating %i %s"%(int(batchId), res.get("error"))
 
 if __name__ == '__main__':
     main()

@@ -19,7 +19,7 @@ class BatchJob(HPCBatchJob):
 
         cmd = "bsub -q %s -eo %s -R \"%s\" %s %s" % (self.queue, self.logFile,
                                                      "&&".join(self.requirements),
-                                                     self.extra, self.command)
+                                                     extra, self.command)
         if 'local' in kwargs:
             cmd = self.command
         self.__execWithUpdate__(cmd, "batchId")

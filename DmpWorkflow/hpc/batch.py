@@ -64,7 +64,7 @@ class BATCH(object):
 
     def __checkKeys__(self, key):
         if key not in self.keys:
-            logging.error("could not extract key, allowed keys %s" % str(self.keys))
+            logging.error("could not extract key, allowed keys %s", str(self.keys))
             raise Exception
 
     def getJob(self, jobID, key="STAT", callable=str):
@@ -81,7 +81,7 @@ class BATCH(object):
         for jobID in self.allJobs:
             val = None
             if key not in self.allJobs[jobID]:
-                logging.error("could not find key %s in job %s" % (key, jobID))
+                logging.error("could not find key %s in job %s", key, jobID)
             else:
                 val = self.allJobs[jobID][key]
             print val

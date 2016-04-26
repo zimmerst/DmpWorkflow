@@ -11,7 +11,7 @@ import os
 def run(cmd_args, useLogging=True, suppressErrors=False):
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
-    logging.info("attempting to run: %s" % " ".join(cmd_args))
+    logging.info("attempting to run: %s",str(cmd_args))
     proc = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
     rc = proc.returncode
