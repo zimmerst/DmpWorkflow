@@ -102,7 +102,7 @@ class DmpJob(object):
         my_dict = {"t_id": self.jobId, "inst_id": self.instanceId, "major_status": majorStatus,
                    "minor_status": minorStatus}
         my_dict.update(kwargs)
-        print '*DEBUG* my_dict: %s'%str(my_dict)
+        #print '*DEBUG* my_dict: %s'%str(my_dict)
         res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
         res.raise_for_status()
         if not res.json().get("result", "nok") == "ok":
