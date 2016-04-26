@@ -13,6 +13,7 @@ log = app.logger
 def update_status(JobId, InstanceId, major_status, **kwargs):
     ''' method to connect to db directly, without requests, i.e. should be run from server-side. '''
     db.connect()
+    log.debug("calling update_status: %s %s status:%s"%(JobId,InstanceId,major_status))
     my_job = Job.objects.filter(id=unicode(JobId))
     if not len(my_job):
         log.exception("update_status: could not find jobId")
