@@ -155,9 +155,16 @@ class SetJobStatus(MethodView):
         t_id = arguments["t_id"]
         inst_id = arguments["inst_id"]
         major_status = arguments["major_status"]
-        for key in ["t_id","inst_id","major_status"]: del arguments[key]
         try:
-            update_status(t_id,inst_id,major_status, **arguments)
+            my_job = Job.objects.filter(id=t_id)
+            jInstance = my_job.getInstance(inst_id)
+            oldStatus = jInstance.status
+            if major_status != oldStatus:
+                jInstance.setStatus(major_status)
+            for key in ["t_id","inst_id","major_status"]: del arguments[key]
+            for key,value in arguments.iteritems():
+                jInstance.set(key,value)
+            #update_status(t_id,inst_id,major_status, **arguments)
         except Exception as err:
             logger.exception(err)
             return json.dumps({"result": "nok", "error": str(err)})
