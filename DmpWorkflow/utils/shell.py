@@ -27,9 +27,9 @@ def run(cmd_args, useLogging=True, suppressErrors=False):
 
 
 def source_bash(setup_script):
-    foo = open("tmp.sh", "w")
-    foo.write("#/bin/bash\nsource $1\nenv|sort")
-    foo.close()
+    foop = open("tmp.sh", "w")
+    foop.write("#/bin/bash\nsource $1\nenv|sort")
+    foop.close()
     out, err, rc = run(["bash tmp.sh %s" % os.path.expandvars(setup_script)], useLogging=False, suppressErrors=True)
     if rc:
         print 'source encountered error, returning that one'

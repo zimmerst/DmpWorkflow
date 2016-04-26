@@ -57,7 +57,7 @@ if __name__ == '__main__':
         foo.write(job.exec_wrapper)
     log.info("about to run payload")
     CMD = "%s payload" % job.executable
-    log.info("CMD: %s" % CMD)
+    log.info("CMD: %s", CMD)
     job.updateStatus("Running", "ExecutingApplication")
     output, error, rc = run([CMD])
     if rc:

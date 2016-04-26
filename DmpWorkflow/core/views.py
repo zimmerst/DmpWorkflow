@@ -150,10 +150,10 @@ class RefreshJobAlive(MethodView):
 class SetJobStatus(MethodView):
     def post(self):
         arguments = json.loads(request.form.get("args","{}"))
-        if not isinstance(arguments,dict):  logger.exception("arguments MUST be dictionary.")        
-        if not 't_id' in arguments:         logger.exception("couldn't find t_id in arguments")
-        if not 'inst_id' in arguments:      logger.exception("couldn't find inst_id in arguments")
-        if not 'major_status' in arguments: logger.exception("couldn't find major_status in arguments")
+        if isinstance(arguments,dict):      logger.exception("arguments MUST be dictionary.")        
+        if 't_id' not in arguments:         logger.exception("couldn't find t_id in arguments")
+        if 'inst_id' not in arguments:      logger.exception("couldn't find inst_id in arguments")
+        if 'major_status' not in arguments: logger.exception("couldn't find major_status in arguments")
         logger.info("request arguments %s", str(arguments))
         t_id = arguments["t_id"]
         inst_id = arguments["inst_id"]
