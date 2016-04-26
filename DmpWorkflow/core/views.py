@@ -191,7 +191,7 @@ class NewJobs(MethodView):
                     dInstance = copy.deepcopy(dJob)
                     dInstance.setInstanceParameters(j.instanceId, j.body)
                     newJobInstances.append(dInstance.exportToJSON())
-        return json.dumps({"jobs": newJobInstances})
+        return json.dumps({"result":"ok", "jobs": newJobInstances})
 
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
