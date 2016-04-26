@@ -103,7 +103,7 @@ class DmpJob(object):
                    "minor_status": minorStatus}
         my_dict.update(kwargs)
         print '*DEBUG* my_dict: %s'%str(my_dict)
-        res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(m_dict)})
+        res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
         res.raise_for_status()
         if not res.json().get("result", "nok") == "ok":
             raise Exception(res.json().get("error","ErrorMissing"))
