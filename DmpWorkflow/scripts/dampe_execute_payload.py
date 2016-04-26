@@ -7,11 +7,12 @@ Created on Apr 19, 2016
 import os
 import sys
 from DmpWorkflow.core.DmpJob import DmpJob
-from DmpWorkflow.utils.tools import safe_copy, camelize
+from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm
 from DmpWorkflow.utils.shell import run
 import logging, socket
 
 if __name__ == '__main__':
+    pwd = os.curdir
     DEBUG_TEST = False
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
     FORMAT = '%(asctime)s %(levelname)s:%(message)s'
@@ -23,8 +24,12 @@ if __name__ == '__main__':
     log.info("reading json input")
     job = DmpJob.fromJSON(fii)
     os.environ["DWF_SIXDIGIT"] = job.getSixDigits()
-    
+    EXEC_DIR = os.getenv("EXEC_DIR_ROOT","/tmp")
     batchId = os.getenv("LSF_JOBID", "-1")
+    my_exec_dir = os.path.join(EXEC_DIR,"local" if batchId == "-1" else batchId,job.getJob())
+    mkdir(my_exec_dir)
+    os.chdir(my_exec_dir)
+    log.info("execution directory %s",my_exec_dir)
     try:
         job.updateStatus("Running", "PreparingInputData", hostname=socket.gethostname(), batchId=batchId)
     except Exception as err:
@@ -82,7 +87,9 @@ if __name__ == '__main__':
                 if not DEBUG_TEST:
                     exit(6)
     log.info("successfully completed staging.")
-    log.info("job complete")
+    log.info("job complete, cleaning up working directory")
+    os.chdir(pwd)
+    rm(my_exec_dir)
     try:
         job.updateStatus("Done", "ApplicationComplete")
     except Exception as err:
