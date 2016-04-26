@@ -26,7 +26,7 @@ if __name__ == '__main__':
     os.environ["DWF_SIXDIGIT"] = job.getSixDigits()
     EXEC_DIR = os.getenv("EXEC_DIR_ROOT","/tmp")
     batchId = os.getenv("LSF_JOBID", "-1")
-    my_exec_dir = os.path.join(EXEC_DIR,"local" if batchId == "-1" else batchId,job.getJob())
+    my_exec_dir = os.path.join(EXEC_DIR,job.getSixDigits(),"local" if batchId == "-1" else batchId)
     mkdir(my_exec_dir)
     os.chdir(my_exec_dir)
     log.info("execution directory %s",my_exec_dir)
