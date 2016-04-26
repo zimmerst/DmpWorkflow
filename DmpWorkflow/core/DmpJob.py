@@ -10,6 +10,7 @@ import json
 
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, cfg
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict
+from DmpWorkflow.utils.shell import run
 from DmpWorkflow.hpc.lsf import LSF, BatchJob
 
 
@@ -119,10 +120,18 @@ class DmpJob(object):
 
     def submit(self, **kwargs):
         """ handles the submission part """
-        self.createLogFile()
+        dry = kwargs['dry'] if 'dry' in kwargs else False
+        local = kwargs['local'] if 'local' in kwargs else False
+        if not dry: 
+            self.createLogFile()
         bj = BatchJob(name=self.getJobName(), command=self.execCommand, logFile=self.logfile)
-        bj.submit(**kwargs)
-        self.batchId = bj.get("batchId")
+        if local: 
+            from DmpWorkflow.utils.tools import random_with_N_digits
+            run(["%s &> %s"%(self.execCommand,self.logfile)])
+            self.batchId = random_with_N_digits(4)
+        else:
+            bj.submit(**kwargs)
+            self.batchId = bj.get("batchId")
         return self.batchId
 
     def exportToJSON(self):

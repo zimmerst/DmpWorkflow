@@ -10,31 +10,17 @@ from DmpWorkflow.utils.shell import run
 # LSF-specific stuff
 
 class BatchJob(HPCBatchJob):
-    def submit(self, dry=False, **kwargs):
+    def submit(self, **kwargs):
         """ each class MUST implement its own submission command """
-        cmd = None
-        local = False
-        kargs = {}
-        kargs.update(**kwargs)
-        if 'local' in kargs: local = kargs['local']
         extra = "%s" % self.extra if isinstance(self.extra, str) else None
         if isinstance(self.extra, dict):
-            self.extra.update(kargs)
+            self.extra.update(kwargs)
             extra = "-%s %s".join([(k, v) for (k, v) in self.extra.iteritems()])
-        if local: 
-            cmd = self.command
-        else:
-            cmd = "bsub -q %s -eo %s -R \"%s\" %s %s" % (self.queue, self.logFile,
+
+        cmd = "bsub -q %s -eo %s -R \"%s\" %s %s" % (self.queue, self.logFile,
                                                      "&&".join(self.requirements),
-                                                     extra, self.command)
-        if dry:
-            print cmd
-            return
-        else:
-            if local:
-                run([cmd])
-            else:
-                self.__execWithUpdate__(cmd, "batchId")
+                                                     extra, self.command)    
+        self.__execWithUpdate__(cmd, "batchId")
 
     def kill(self):
         """ likewise, it should implement its own batch-specific removal command """
