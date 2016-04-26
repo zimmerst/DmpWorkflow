@@ -106,11 +106,11 @@ class Job(db.Document):
         req = Job.objects.filter(title=self.title)
         if req:
             raise Exception("a task with the specified name exists already.")
-        super(db.Document, self).save()
+        super(Job, self).save()
 
     def update(self):
         log.info("calling update on job")
-        super(db.Document, self).save()
+        super(Job, self).save()
 
     meta = {
         'allow_inheritance': True,
