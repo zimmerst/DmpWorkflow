@@ -25,6 +25,8 @@ class BatchJob(object):
     def __execWithUpdate__(self, cmd, key, value=None):
         """ execute command cmd & update key with output from running """
         output, error, rc = run([cmd])
+        if error:
+            for e in error.split("\n"): logging.error(e)
         if value is None:
             self.update(key, output)
         else:

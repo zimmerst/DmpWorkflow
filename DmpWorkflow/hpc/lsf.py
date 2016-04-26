@@ -12,6 +12,8 @@ from DmpWorkflow.utils.shell import run
 class BatchJob(HPCBatchJob):
     def submit(self, **kwargs):
         """ each class MUST implement its own submission command """
+        local = False
+        if 'local' in kwargs: local = kwargs['local']
         extra = "%s" % self.extra if isinstance(self.extra, str) else None
         if isinstance(self.extra, dict):
             self.extra.update(kwargs)
@@ -20,9 +22,11 @@ class BatchJob(HPCBatchJob):
         cmd = "bsub -q %s -eo %s -R \"%s\" %s %s" % (self.queue, self.logFile,
                                                      "&&".join(self.requirements),
                                                      extra, self.command)
-        if 'local' in kwargs:
+        if local:
             cmd = self.command
-        self.__execWithUpdate__(cmd, "batchId")
+            run([cmd])
+        else:
+            self.__execWithUpdate__(cmd, "batchId")
 
     def kill(self):
         """ likewise, it should implement its own batch-specific removal command """
