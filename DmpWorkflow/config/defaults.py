@@ -8,11 +8,11 @@ Created on Apr 20, 2016
 import ConfigParser
 import os
 import sys
+
+import DmpWorkflow
 from DmpWorkflow.utils.tools import exceptionHandler
 
-def getPath():
-    import DmpWorkflow as DWF
-    return DWF.__path__
+DAMPE_WORKFLOW_ROOT = os.path.dirname(DmpWorkflow.__file__)
 
 __myDefaults = {
     "DAMPE_SW_DIR": ".",
@@ -26,18 +26,17 @@ __myDefaults = {
 
 cfg = ConfigParser.SafeConfigParser(defaults=__myDefaults)
 
-DAMPE_WORKFLOW_ROOT = getPath()
 cfg.read(os.path.join(DAMPE_WORKFLOW_ROOT, "config/settings.cfg"))
+
+os.environ["DAMPE_SW_DIR"] = cfg.get("site", "DAMPE_SW_DIR")
+os.environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
 
 #os.environ["DAMPE_URL"] = cfg.get("server","url")
 # print "setting up externals"
 #source_bash(cfg.get("site", "ExternalsScript"))
+
 dbg = cfg.getboolean("global", "traceback")
 if not dbg:
     sys.excepthook = exceptionHandler
 
 DAMPE_WORKFLOW_URL = cfg.get("server", "url")
-
-os.environ["DAMPE_SW_DIR"] = cfg.get("site", "DAMPE_SW_DIR")
-os.environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
-os.environ["DAMPE_WORKFLOW_URL"] = DAMPE_WORKFLOW_URL
