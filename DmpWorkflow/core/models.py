@@ -75,7 +75,7 @@ class Job(db.Document):
         if inst is not None:
             # FIXME: offsets one, but then goes back to the length counter.
             last_stream = inst - 1
-            if self.getInstance(last_stream + 1, silent=True):
+            if self.getInstance(last_stream + 1):
                 log.exception("job with instance %i exists already"%inst)
                 raise Exception("job with instance %i exists already" % inst)
         jInst.instanceId = last_stream + 1

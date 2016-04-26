@@ -3,7 +3,7 @@ Created on Mar 23, 2016
 
 @author: zimmer
 """
-import DmpWorkflow.hpc.batch
+from DmpWorkflow.hpc.batch import BATCH, BatchJob
 from DmpWorkflow.utils.shell import run
 
 # LSF-specific stuff
@@ -11,7 +11,7 @@ from DmpWorkflow.utils.shell import run
 raise ImportError("SGE class not supported")
 
 
-class BatchJob(hpc.batch.BatchJob):
+class BatchJob(BatchJob):
     def submit(self, **kwargs):
         ''' each class MUST implement its own submission command '''
         extra = "%s" % self.extra if isinstance(self.extra, str) else None
@@ -30,7 +30,7 @@ class BatchJob(hpc.batch.BatchJob):
         self.__execWithUpdate__(cmd, "status", value="Failed")
 
 
-class SGE(hpc.batch.BATCH):
+class SGE(BATCH):
     keys = "USER,STAT,QUEUE,FROM_HOST,EXEC_HOST,JOB_NAME,"
     keys += "SUBMIT_TIME,PROJ_NAME,CPU_USED,MEM,SWAP,PIDS,START_TIME,FINISH_TIME,SLOTS"
     keys = keys.split(",")
