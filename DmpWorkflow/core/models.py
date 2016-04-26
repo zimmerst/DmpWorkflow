@@ -1,6 +1,5 @@
 # pylint: disable=E1002
 import datetime
-import time
 import sys
 import mongoengine
 from flask import url_for
@@ -138,7 +137,7 @@ class JobInstance(db.Document):
 
     def set(self, key, value):
         self.__setattr__(key, value)
-        self.__setattr__("last_update", datetime.datetime.now)
+        self.__setattr__("last_update", datetime.datetime.now())
         self.save()
 
     def setStatus(self, stat):
@@ -146,7 +145,7 @@ class JobInstance(db.Document):
         if stat not in MAJOR_STATII:
             raise Exception("status not found in supported list of statii")
         curr_status = self.status
-        curr_time = time.ctime()
+        curr_time = datetime.datetime.now()
         self.last_update = curr_time
         if curr_status == stat and self.minor_status == self.status_history[-1]['minor_status']:
             return
