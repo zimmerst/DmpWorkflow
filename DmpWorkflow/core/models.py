@@ -139,6 +139,7 @@ class JobInstance(db.Document):
     def set(self, key, value):
         self.__setattr__(key, value)
         self.__setattr__("last_update", time.ctime())
+        self.save()
 
     def setStatus(self, stat):
         log.debug("calling JobInstance.setStatus")
@@ -156,6 +157,7 @@ class JobInstance(db.Document):
         sH = {"status": self.status, "update": self.last_update, "minor_status": self.minor_status}
         log.info("statusSet %s",str(sH))
         self.status_history.append(sH)
+        self.save()
         return
 
     def sixDigit(self, size=6):
