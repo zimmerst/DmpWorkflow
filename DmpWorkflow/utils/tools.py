@@ -79,9 +79,9 @@ def safe_copy(infile, outfile, sleep=10, attempts=10, debug=False):
         if "$" in outfile: outfile = os.path.expandvars(outfile)
         cmnd = "cp %s %s" % (infile, outfile)
     i = 1
-    if debug:
-        print "Attempting to copy file..."
     while i < attempts:
+        if (debug and i > 0):             
+            print "Attempting to copy file..."
         status = sub.call(shlex.split(cmnd))
         if status == 0:
             return status
