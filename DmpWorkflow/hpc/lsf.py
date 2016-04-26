@@ -10,14 +10,16 @@ from DmpWorkflow.utils.shell import run
 # LSF-specific stuff
 
 class BatchJob(HPCBatchJob):
-    def submit(self, dry=False **kwargs):
+    def submit(self, dry=False, **kwargs):
         """ each class MUST implement its own submission command """
         cmd = None
         local = False
-        if 'local' in kwargs: local = kwargs['local']
+        kargs = {}
+        kargs.update(**kwargs)
+        if 'local' in kargs: local = kargs['local']
         extra = "%s" % self.extra if isinstance(self.extra, str) else None
         if isinstance(self.extra, dict):
-            self.extra.update(kwargs)
+            self.extra.update(kargs)
             extra = "-%s %s".join([(k, v) for (k, v) in self.extra.iteritems()])
         if local: 
             cmd = self.command
