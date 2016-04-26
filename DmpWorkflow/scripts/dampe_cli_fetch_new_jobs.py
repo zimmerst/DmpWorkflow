@@ -23,7 +23,7 @@ def main(args=None):
     print 'found %i new job instances to deploy' % len(jobs)
     for job in jobs:
         j = DmpJob.fromJSON(job)
-        j.write_script()
+        if not opts.dry: j.write_script()
         j.submit(dry=opts.dry,local=opts.local)
                 
 if __name__ == "__main__":
