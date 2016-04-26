@@ -49,7 +49,7 @@ class Job(db.Document):
         return my_site
 
     def getNevents(self):
-        log.warning("FIXME: need to implement fast query")
+        #log.warning("FIXME: need to implement fast query")
         return "NaN"
 
     def getBody(self):
@@ -58,6 +58,7 @@ class Job(db.Document):
 
     def getInstance(self, _id):
         jI = JobInstance.objects.filter(job=self, instanceId=_id)
+        log.info("jobInstances from query: %s"%str(jI))
         if len(jI):
             return jI[0]
         # for jI in self.jobInstances:
