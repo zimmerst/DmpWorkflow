@@ -15,13 +15,13 @@ def run(cmd_args, useLogging=True, suppressErrors=False):
     proc = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
     rc = proc.returncode
-    if not err is None:
-        if not suppressErrors:
-            for e in err.split("\n"):
-                if useLogging:
-                    logging.error(e)
-                else:
-                    print e
+    if rc:
+        for e in err.split("\n"):
+            if suppressErrors: continue
+            if useLogging:
+                logging.error(e)
+            else:
+                print e
     return out, err, rc
 
 
