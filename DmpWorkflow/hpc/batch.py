@@ -25,6 +25,7 @@ class BatchJob(object):
     def __execWithUpdate__(self, cmd, key, value=None):
         """ execute command cmd & update key with output from running """
         output, error, rc = run([cmd])
+        logging.debug("execution with rc: %",rc)
         if error:
             for e in error.split("\n"): logging.error(e)
         if value is None:
@@ -71,7 +72,7 @@ class BATCH(object):
 
     def getJob(self, jobID, key="STAT", callable=str):
         if jobID not in self.allJobs:
-            logging.error("could not find job %s" % jobID)
+            logging.error("could not find job %s", jobID)
         self.__checkKeys__(key)
         return callable(self.allJobs[jobID][key])
 

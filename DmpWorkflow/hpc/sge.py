@@ -3,7 +3,7 @@ Created on Mar 23, 2016
 
 @author: zimmer
 """
-from DmpWorkflow.hpc.batch import BATCH, BatchJob as HPCBatchJob
+from DmpWorkflow.hpc.batch import BATCH, logging, BatchJob as HPCBatchJob
 from DmpWorkflow.utils.shell import run
 
 # LSF-specific stuff
@@ -45,6 +45,9 @@ class SGE(BATCH):
             command = ["bjobs -Wa"]
         jobs = {}
         output, error, rc = run(command)
+        logging.debug("rc: i",int(rc))
+        if not error is None:
+            for e in error.split("\n"): logging.error(e)
         if not asDict:
             return output
         else:

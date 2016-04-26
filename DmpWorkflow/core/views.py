@@ -68,7 +68,8 @@ class JobView(MethodView):
             if taskname is None:
                 logger.exception("task name must be defined.")
                 raise Exception("task name must be defined")
-            job = Job(title=taskname, type=t_type)
+            #job = Job(title=taskname, type=t_type)
+            job = Job.objects(title=taskname, type=t_type).modify(upsert=True, new=True, title=taskname, type=t_type)
             job.body.put(jobdesc, content_type="application/xml")
             job.save()
             dout = parseJobXmlToDict(job.body.read())
