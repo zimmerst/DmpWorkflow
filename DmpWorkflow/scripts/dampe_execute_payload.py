@@ -24,7 +24,7 @@ if __name__ == '__main__':
     job = DmpJob.fromJSON(fii)
     os.environ["DWF_SIXDIGIT"] = job.getSixDigits()
     
-    batchId = os.getenv("LSF_JOBID", "1234")
+    batchId = os.getenv("LSF_JOBID", "-1")
     try:
         job.updateStatus("Running", "PreparingInputData", hostname=socket.gethostname(), batchId=batchId)
     except Exception as err:

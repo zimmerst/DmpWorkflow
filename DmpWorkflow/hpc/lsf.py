@@ -20,6 +20,7 @@ class BatchJob(HPCBatchJob):
         cmd = "bsub -q %s -eo %s -R \"%s\" %s %s" % (self.queue, self.logFile,
                                                      "&&".join(self.requirements),
                                                      extra, self.command)    
+        print cmd
         self.__execWithUpdate__(cmd, "batchId")
 
     def kill(self):

@@ -129,9 +129,8 @@ class DmpJob(object):
             print "DRY_COMMAND: %s"%self.execCommand
             return -1
         if local: 
-            from DmpWorkflow.utils.tools import random_with_N_digits
             run(["%s &> %s"%(self.execCommand,self.logfile)])
-            self.batchId = random_with_N_digits(4)
+            self.batchId = -1
         else:
             bj.submit(**kwargs)
             self.batchId = bj.get("batchId")
