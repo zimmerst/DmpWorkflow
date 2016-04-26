@@ -57,7 +57,7 @@ class Job(db.Document):
 
     def getInstance(self, _id):
         jI = JobInstance.objects.filter(job=self, instanceId=_id)
-        log.info("jobInstances from query: %s"%str(jI))
+        log.info("jobInstances from query: %s",str(jI))
         if len(jI):
             return jI[0]
         # for jI in self.jobInstances:
@@ -75,7 +75,7 @@ class Job(db.Document):
             # FIXME: offsets one, but then goes back to the length counter.
             last_stream = inst - 1
             if self.getInstance(last_stream + 1):
-                log.exception("job with instance %i exists already"%inst)
+                log.exception("job with instance %i exists already", inst)
                 raise Exception("job with instance %i exists already" % inst)
         jInst.instanceId = last_stream + 1
         if not len(jInst.status_history):
@@ -153,7 +153,7 @@ class JobInstance(db.Document):
                 raise Exception("job found in final state, can only set to New")
         self.set("status", stat)
         sH = {"status": self.status, "update": self.last_update, "minor_status": self.minor_status}
-        log.info("statusSet %s"%str(sH))
+        log.info("statusSet %s",str(sH))
         self.status_history.append(sH)
         return
 

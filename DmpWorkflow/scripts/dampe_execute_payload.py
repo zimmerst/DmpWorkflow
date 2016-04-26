@@ -31,7 +31,7 @@ if __name__ == '__main__':
         log.exception(err)
     # first, set all variables
     for var in job.MetaData: os.environ[var['name']] = os.path.expandvars(var['value'])
-    log.debug("current environment settings {}".format(os.environ))
+    log.debug("current environment settings %s",str(os.environ))
     
     for fi in job.InputFiles:
         src = os.path.expandvars(fi['source'])
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     job.updateStatus("Running", "ExecutingApplication")
     output, error, rc = run([CMD])
     if rc:
-        log.error("Payload returned exit code %i, see above for more details." % rc)
+        log.error("Payload returned exit code %i, see above for more details.", rc)
         try:
             job.updateStatus("Running" if DEBUG_TEST else "Failed", "ApplicationExitCode%i" % rc)
         except Exception as err:

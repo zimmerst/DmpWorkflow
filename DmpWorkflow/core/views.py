@@ -87,7 +87,7 @@ class JobView(MethodView):
             job.update()
             return json.dumps({"result": "ok", "jobID": str(job.id)})
         except Exception as err:
-            logger.info("request dict: %s"%str(request.form))
+            logger.info("request dict: %s",str(request.form))
             logger.exception(err)
             return json.dumps({"result": "nok", "jobID": "None", "error":str(err)})
 
@@ -150,7 +150,7 @@ class SetJobStatus(MethodView):
         if not 't_id' in arguments:         logger.exception("couldn't find t_id in arguments")
         if not 'inst_id' in arguments:      logger.exception("couldn't find inst_id in arguments")
         if not 'major_status' in arguments: logger.exception("couldn't find major_status in arguments")
-        logger.info("request arguments %s"%str(arguments))
+        logger.info("request arguments %s", str(arguments))
         t_id = arguments["t_id"]
         inst_id = arguments["inst_id"]
         major_status = arguments["major_status"]
@@ -167,12 +167,12 @@ class NewJobs(MethodView):
     def get(self):
         newJobInstances = []
         allJobs = Job.objects.all()
-        logger.info("allJobs = %s"%str(allJobs))
+        logger.info("allJobs = %s",str(allJobs))
         for job in allJobs:
             newJobs = JobInstance.objects.filter(job=job, status=u"New")
-            logger.info("newJobs: %s"%str(newJobs))
+            logger.info("newJobs: %s",str(newJobs))
             if len(newJobs):
-                logger.info("found %i new instances for job %s"%(len(newJobs),str(job.title)))
+                logger.info("found %i new instances for job %s",len(newJobs),str(job.title))
                 dJob = DmpJob(job.id, job.body.read())
                 for j in newJobs:
                     dInstance = copy.deepcopy(dJob)
