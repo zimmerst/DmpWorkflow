@@ -151,8 +151,12 @@ class SetJobStatus(MethodView):
         if not 'inst_id' in arguments:      logger.exception("couldn't find inst_id in arguments")
         if not 'major_status' in arguments: logger.exception("couldn't find major_status in arguments")
         logger.info("request arguments %s"%str(arguments))
+        t_id = arguments["t_id"]
+        inst_id = arguments["inst_id"]
+        major_status = arguments["major_status"]
+        for key in ["t_id","inst_id","major_status"]: del arguments[key]
         try:
-            update_status(arguments['t_id'], arguments["inst_id"], arguments['major_status'], **arguments)
+            update_status(t_id,inst_id,major_status, **arguments)
         except Exception as err:
             logger.exception(err)
             return json.dumps({"result": "nok", "error": str(err)})
