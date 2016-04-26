@@ -82,7 +82,7 @@ class JobView(MethodView):
                 for j in range(n_instances):
                     jI = JobInstance(body=str(dummy_dict))
                     job.addInstance(jI)
-                    logger.debug("added instance %i to job %s",jI.instanceId,job._id)
+                    logger.debug("added instance %i to job %s",j,job._id)
             # print len(job.jobInstances)
             job.update()
             return json.dumps({"result": "ok", "jobID": str(job.id)})
@@ -115,7 +115,7 @@ class JobInstanceView(MethodView):
                     #    job.addInstance(jI,inst=opts.inst)
                     # else:
                     job.addInstance(jI)
-                    logger.debug("added instance %i to job %s",jI.instanceId,job._id)
+                    logger.debug("added instance %i to job %s",j,job._id)
             # print len(job.jobInstances)
             job.update()
             return json.dumps({"result": "ok"})

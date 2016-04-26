@@ -8,7 +8,7 @@ from DmpWorkflow.utils.shell import run
 
 # LSF-specific stuff
 
-raise ImportError("SGE class not supported")
+#raise ImportError("SGE class not supported")
 
 
 class BatchJob(HPCBatchJob):
