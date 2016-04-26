@@ -7,25 +7,23 @@ Created on Apr 19, 2016
 import os
 import sys
 from DmpWorkflow.core.DmpJob import DmpJob
-from DmpWorkflow.utils.tools import mkdir, safe_copy, rm, camelize
-from DmpWorkflow.utils.shell import run, source_bash
+from DmpWorkflow.utils.tools import safe_copy, camelize
+from DmpWorkflow.utils.shell import run
 import logging, socket
-DEBUG_TEST = False
 
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-FORMAT = '%(asctime)s %(levelname)s:%(message)s'
-logging.basicConfig(format=FORMAT, level=LOG_LEVEL, datefmt='%m/%d/%Y %I:%M:%S %p')
-log = logging.getLogger()
-
-
-def main():
+if __name__ == '__main__':
+    DEBUG_TEST = False
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+    FORMAT = '%(asctime)s %(levelname)s:%(message)s'
+    logging.basicConfig(format=FORMAT, level=LOG_LEVEL, datefmt='%m/%d/%Y %I:%M:%S %p')
+    log = logging.getLogger()
     fii = sys.argv[1]
     if os.path.isfile(fii):
         fii = open(fii, 'rb').read()
     log.info("reading json input")
     job = DmpJob.fromJSON(fii)
     os.environ["DWF_SIXDIGIT"] = job.getSixDigits()
-
+    
     batchId = os.getenv("LSF_JOBID", "1234")
     try:
         job.updateStatus("Running", "PreparingInputData", hostname=socket.gethostname(), batchId=batchId)
@@ -34,7 +32,7 @@ def main():
     # first, set all variables
     for var in job.MetaData: os.environ[var['name']] = os.path.expandvars(var['value'])
     log.debug("current environment settings {}".format(os.environ))
-
+    
     for fi in job.InputFiles:
         src = os.path.expandvars(fi['source'])
         tg = os.path.expandvars(fi['target'])
@@ -68,7 +66,7 @@ def main():
             if not DEBUG_TEST:
                 exit(5)
     log.info("successfully completed running application")
-
+    
     # finally, compile output file.
     job.updateStatus("Running", "PreparingOutputData")
     for fi in job.OutputFiles:
@@ -91,12 +89,5 @@ def main():
         job.updateStatus("Done", "ApplicationComplete")
     except Exception as err:
         log.exception(err)
+    
 
-
-if __name__ == '__main__':
-    try:
-        main()
-    except Exception as err:
-        log.exception(err)
-        exit(1)
-    exit(0)

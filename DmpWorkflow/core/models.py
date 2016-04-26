@@ -2,8 +2,6 @@
 import datetime
 import time
 import sys
-import logging
-
 import mongoengine
 from flask import url_for
 from DmpWorkflow.config.defaults import cfg
