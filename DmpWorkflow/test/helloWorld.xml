@@ -1,7 +1,7 @@
 <Jobs>
 	<Job release="5-1-2" type='User'>
 		<MetaData>
-			<Var name="USER_DIR" value="/home/DAMPE/zimmer/tests/tmp" var_type="str"/>
+			<Var name="USER_DIR" value="/Users/zimmer/Documents/work/Projects/DAMPE/workflow/workdir" var_type="str"/>
 		</MetaData>
 		<InputFiles/>
 		<OutputFiles>
