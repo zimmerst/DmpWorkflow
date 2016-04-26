@@ -132,6 +132,8 @@ class RefreshJobAlive(MethodView):
             hostname = request.form.get("hostname","")
             status = request.form.get("status","None")
             my_job = Job.objects.filter(id=taskid)
+            if not len(my_job): raise Exception("could not find Job")
+            my_job = my_job[0]
             jInstance = my_job.getInstance(instance_id)
             jInstance.set("hostname", hostname)
             oldStatus = jInstance.status
@@ -157,6 +159,8 @@ class SetJobStatus(MethodView):
         major_status = arguments["major_status"]
         try:
             my_job = Job.objects.filter(id=t_id)
+            if not len(my_job): raise Exception("could not find Job")
+            my_job = my_job[0]
             jInstance = my_job.getInstance(inst_id)
             oldStatus = jInstance.status
             if major_status != oldStatus:
