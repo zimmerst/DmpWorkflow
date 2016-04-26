@@ -17,11 +17,12 @@ def run(cmd_args, useLogging=True, suppressErrors=False):
     rc = proc.returncode
     if rc:
         for e in err.split("\n"):
-            if suppressErrors: continue
-            if useLogging:
-                logging.error(e)
-            else:
-                print e
+            if len(e):
+                if suppressErrors: continue
+                if useLogging:
+                    logging.error(e)
+                else:
+                    print e
     return out, err, rc
 
 

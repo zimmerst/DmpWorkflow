@@ -51,7 +51,9 @@ class LSF(BATCH):
         output, error, rc = run(command)
         logging.debug("rc: i",int(rc))
         if not error is None:
-            for e in error.split("\n"): logging.error(e)
+            print error.split("\n")
+            for e in error.split("\n"): 
+                if len(e): logging.error(e)
         
         if not asDict:
             return output

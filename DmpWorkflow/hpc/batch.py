@@ -27,7 +27,9 @@ class BatchJob(object):
         output, error, rc = run([cmd])
         logging.debug("execution with rc: %i",int(rc))
         if error:
-            for e in error.split("\n"): logging.error(e)
+            for e in error.split("\n"): 
+                if len(e): logging.error(e)
+                
         if value is None:
             self.update(key, output)
         else:
