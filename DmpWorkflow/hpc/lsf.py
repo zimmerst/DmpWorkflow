@@ -16,10 +16,8 @@ class BatchJob(HPCBatchJob):
         if isinstance(self.extra, dict):
             self.extra.update(kwargs)
             extra = "-%s %s".join([(k, v) for (k, v) in self.extra.iteritems()])
-
-        cmd = "bsub -q %s -eo %s -R \"%s\" %s %s" % (self.queue, self.logFile,
-                                                     "&&".join(self.requirements),
-                                                     extra, self.command)    
+        req = "-R \"%s\""%"&&".join(self.requirements)
+        cmd = "bsub -q %s -eo %s %s %s" % (self.queue, self.logFile, req, extra, self.command)    
         print cmd
         self.__execWithUpdate__(cmd, "batchId")
 
