@@ -19,6 +19,8 @@ __myDefaults = {
     "ExternalsScript": "${DAMPE_SW_DIR}/setup/setup.sh",
     "use_debugger": "true",
     "use_reloader": "true",
+    "workdir" : ".",
+    "url" : "",
     "traceback": "true",
     "task_types": "Generation,Digitization,Reconstruction,User,Other".split(","),
     "task_major_statii": "New,Running,Failed,Terminated,Done,Submitted,Suspended".split(","),
