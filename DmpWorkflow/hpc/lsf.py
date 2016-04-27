@@ -19,7 +19,10 @@ class BatchJob(HPCBatchJob):
         extra+= " -W \"%s\" "%self.cputime
         if isinstance(self.requirements,str): self.requirements.split(",")
         self.requirements+="rusage[mem=%i]"%int(self.memory)
-        req = "-R \"%s\""%"&&".join(self.requirements)
+        
+        req_str = " && ".join(self.requirements)
+        print self.requirements, "STRING: ",req_str # to be removed!
+        req = "-R \"%s\""%req_str
         cmd = "bsub -q {0} -eo {1} {2} {3} {4}".format(self.queue, self.logFile, req, extra, self.command)    
         print cmd
         self.__execWithUpdate__(cmd, "batchId")
