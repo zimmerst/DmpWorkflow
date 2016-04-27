@@ -17,12 +17,11 @@ class BatchJob(object):
     defaults = None
     requirements = []
     status = None
-    logging = None
+    logging = AppLogger("BatchJob")
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.__processDefaults__()
-        self.logging = AppLogger(LOG_LEVEL="INFO")
         
     def __processDefaults__(self):
         if self.defaults is None: return 
@@ -80,10 +79,11 @@ class BATCH(object):
     allJobs = {}
     keys = []
     status_map = {}
+    logging = AppLogger("BATCH")
 
     def __init__(self):
         self.allJobs = self.update()
-        self.logging = AppLogger(LOG_LEVEL="INFO")
+        
 
     def update(self):
         return {}

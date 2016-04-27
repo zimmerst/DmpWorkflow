@@ -17,7 +17,7 @@ def main(args=None):
     parser.add_argument("-p", "--pythonbin", dest="python", default=None, type=str, help='the python executable if non standard is chosen')
     parser.add_argument("-c", "--chunk", dest="chunk", default=100, type=int, help='number of jobs to process per cycle')
     opts = parser.parse_args(args)
-    log = AppLogger(LOG_LEVEL="INFO")
+    log = AppLogger("dampe-cli-fetch-new-jobs")
     batchsite = BATCH_DEFAULTS['name']
     res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
     res.raise_for_status()

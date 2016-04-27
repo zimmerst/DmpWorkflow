@@ -13,7 +13,7 @@ HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 #    return True
 
 def main():
-    log = AppLogger(LOG_LEVEL="INFO")
+    log = AppLogger("dampe-cli-update-alive-jobs")
     batchEngine = HPC.BatchEngine()
     batchEngine.update()
     for batchId, job_dict in batchEngine.allJobs.iteritems():

@@ -7,6 +7,7 @@ Created on Apr 19, 2016
 import os
 import sys
 import importlib
+import logging
 from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS, AppLogger
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm
@@ -16,7 +17,7 @@ HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 if __name__ == '__main__':
     pwd = os.curdir
     DEBUG_TEST = False
-    log = AppLogger(LOG_LEVEL="INFO")
+    log = AppLogger("dampe-payload-executor")
     fii = sys.argv[1]
     if os.path.isfile(fii):
         fii = open(fii, 'rb').read()
