@@ -9,11 +9,11 @@ import jsonpickle
 import json
 import importlib
 
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, WHICH_PYTHON, cfg
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict
 from DmpWorkflow.utils.shell import run, make_executable
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
-
+PYTHONBIN = ""
 ExtScript = cfg.get("site","ExternalsScript")
 
 # todo2: add cfg parsing variables.
@@ -78,7 +78,7 @@ class DmpJob(object):
                     if len(body[key]):
                         self.__dict__[key] += body[key]
 
-    def write_script(self):
+    def write_script(self,pythonbin="/usr/bin"):
         """ based on meta-data should create job-executable """
         self.wd = self.getWorkDir()
         mkdir(self.wd)
@@ -91,7 +91,7 @@ class DmpJob(object):
         cmds = ["#!/bin/bash","echo \"batch wrapper executing on $(date)\"",\
                 "source %s"%os.path.expandvars(ExtScript),\
                 "cd %s"%self.wd,\
-                "%s script.py %s"%(WHICH_PYTHON,jsonLOC),\
+                "%s script.py %s"%(pythonbin,jsonLOC),\
                 "echo \"batch wrapper completed at $(date)\""]
         script_file.write("\n".join(cmds))
         script_file.close()

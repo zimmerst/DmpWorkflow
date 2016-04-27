@@ -12,6 +12,7 @@ def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
     parser.add_argument("-d", "--dry", dest="dry", action = 'store_true', default=False, help='if dry, do not try interacting with batch farm')
     parser.add_argument("-l", "--local", dest="local", action = 'store_true', default=False, help='run locally')
+    parser.add_argument("-p", "--pythonbin", dest="python", default="/usr/bin/python", help='the python executable')
     opts = parser.parse_args(args)
     batchsite = BATCH_DEFAULTS['name']
     res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
@@ -23,7 +24,7 @@ def main(args=None):
     print 'found %i new job instances to deploy' % len(jobs)
     for job in jobs:
         j = DmpJob.fromJSON(job)
-        j.write_script()
+        j.write_script(pythonbin=opts.python)
         j.submit(dry=opts.dry,local=opts.local)
                 
 if __name__ == "__main__":
