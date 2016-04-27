@@ -18,6 +18,7 @@ class BatchJob(HPCBatchJob):
             extra = "-%s %s".join([(k, v) for (k, v) in self.extra.iteritems()])
         while "\"" in extra: extra = extra.replace("\"","")
         # explicit list conversion
+        if self.requirements == "": self.requirements = []
         if isinstance(self.requirements,str): self.requirements = self.requirements.split(",")
         self.requirements.append("rusage[mem=%i]"%int(self.memory))
         
