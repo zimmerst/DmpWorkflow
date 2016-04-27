@@ -182,12 +182,12 @@ class NewJobs(MethodView):
         batchsite = unicode(request.form.get("site","local"))
         newJobInstances = []
         allJobs = Job.objects.filter(execution_site=batchsite)
-        logger.info("allJobs = %s",str(allJobs))
+        logger.debug("allJobs = %s",str(allJobs))
         for job in allJobs:
             newJobs = JobInstance.objects.filter(job=job, status=u"New")
-            logger.info("newJobs: %s",str(newJobs))
+            logger.debug("newJobs: %s",str(newJobs))
             if len(newJobs):
-                logger.info("found %i new instances for job %s",len(newJobs),str(job.title))
+                logger.debug("found %i new instances for job %s",len(newJobs),str(job.title))
                 dJob = DmpJob(job.id, job.body.read())
                 for j in newJobs:
                     dInstance = copy.deepcopy(dJob)
