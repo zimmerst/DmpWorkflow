@@ -14,7 +14,7 @@ def main(args=None):
     parser.add_argument("-l", "--local", dest="local", action = 'store_true', default=False, help='run locally')
     opts = parser.parse_args(args)
     batchsite = BATCH_DEFAULTS['name']
-    res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, date = {"site":str(batchsite)})
+    res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
     res.raise_for_status()
     res = res.json()
     if not res.get("result", "nok") == "ok":
