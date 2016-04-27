@@ -16,7 +16,7 @@ DAMPE_WORKFLOW_ROOT = os.path.dirname(DmpWorkflow.__file__)
 
 __myDefaults = {
     "DAMPE_SW_DIR": ".",
-    "installation", "server",
+    "installation": "server",
     "ExternalsScript": "${DAMPE_SW_DIR}/setup/setup.sh",
     "use_debugger": "true",
     "use_reloader": "true",
