@@ -148,8 +148,7 @@ class DmpJob(object):
             run(["%s &> %s"%(self.execCommand,self.logfile)])
             self.batchId = -1
         else:
-            bj.submit(**kwargs)
-            self.batchId = bj.get("batchId")
+            self.batchId = bj.submit(**kwargs)
         return self.batchId
 
     def exportToJSON(self):
