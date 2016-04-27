@@ -46,6 +46,7 @@ if not dbg:
     sys.excepthook = exceptionHandler
 
 DAMPE_WORKFLOW_URL = cfg.get("server", "url")
+DAMPE_WORKFLOW_DIR = cfg.get("site","workdir")
 
 os.environ["BATCH_SYSTEM"] = cfg.get("site","HPCsystem")
 os.environ["BATCH_REQUIREMENTS"] = cfg.get("site","HPCrequirements")
@@ -55,7 +56,7 @@ os.environ["BATCH_QUEUE"] = cfg.get("site","HPCqueue")
 BATCH_DEFAULTS = {key:os.getenv("BATCH_%s"%key.upper()) for key in ['system','requirements','extras','queue']}
 BATCH_DEFAULTS['memory']=cfg.get("site","HPCmemory")
 BATCH_DEFAULTS['cputime']=cfg.get("site","HPCcputime")
-
+BATCH_DEFAULTS['name']=cfg.get("site","name")
 # verify that the site configuration is okay.
-assert cfg.get("site","name") in cfg.get("JobDB","batch_sites"), "Batch site %s not in DB"%cfg.get("site","name")
+assert BATCH_DEFAULTS['name'] in cfg.get("JobDB","batch_sites"), "Batch site %s not in DB"%BATCH_DEFAULTS['name']
 assert BATCH_DEFAULTS['system'] in ["lsf","sge"], "HPCSystem %s not supported."%BATCH_DEFAULTS["system"]
