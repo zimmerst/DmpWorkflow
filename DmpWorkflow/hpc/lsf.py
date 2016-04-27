@@ -17,7 +17,6 @@ class BatchJob(HPCBatchJob):
             self.extra.update(kwargs)
             extra = "-%s %s".join([(k, v) for (k, v) in self.extra.iteritems()])
         while "\"" in extra: extra = extra.replace("\"","")
-        extra+= " -W \"%s\" "%self.cputime
         # explicit list conversion
         if isinstance(self.requirements,str): self.requirements = self.requirements.split(",")
         self.requirements.append("rusage[mem=%i]"%int(self.memory))
@@ -25,7 +24,8 @@ class BatchJob(HPCBatchJob):
         req_str = " && ".join(self.requirements)
         print self.requirements, "STRING: ",req_str # to be removed!
         req = "-R \"%s\""%req_str
-        cmd = "bsub -J {5} -q {0} -eo {1} {2} {3} {4}".format(self.queue, self.logFile, req, extra, self.command, self.name)    
+        cmd = "bsub -J {5} -W {6} -q {0} -oo {1} {2} {3} {4}".format(self.queue, self.logFile, req, extra,\
+                                                                     self.command, self.name, self.cputime)    
         print cmd
         self.__execWithUpdate__(cmd, "batchId")
 
