@@ -6,26 +6,24 @@ Created on Apr 19, 2016
 """
 import os
 import sys
-from DmpWorkflow.config.defaults import EXEC_DIR_ROOT
+import importlib
+from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS, AppLogger
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm
 from DmpWorkflow.utils.shell import run
-import logging, socket
+HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
 if __name__ == '__main__':
     pwd = os.curdir
     DEBUG_TEST = False
-    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-    FORMAT = '%(asctime)s %(levelname)s:%(message)s'
-    logging.basicConfig(format=FORMAT, level=LOG_LEVEL, datefmt='%m/%d/%Y %I:%M:%S %p')
-    log = logging.getLogger()
+    log = AppLogger(LOG_LEVEL="INFO")
     fii = sys.argv[1]
     if os.path.isfile(fii):
         fii = open(fii, 'rb').read()
     log.info("reading json input")
     job = DmpJob.fromJSON(fii)
     os.environ["DWF_SIXDIGIT"] = job.getSixDigits()
-    batchId = os.getenv("LSF_JOBID", "-1")
+    batchId = os.getenv(HPC.BATCH_ID_ENV, "-1")
     my_exec_dir = os.path.join(EXEC_DIR_ROOT,job.getSixDigits(),"local" if batchId == "-1" else batchId)
     mkdir(my_exec_dir)
     os.chdir(my_exec_dir)

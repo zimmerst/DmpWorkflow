@@ -8,7 +8,7 @@ import logging
 import time
 from argparse import ArgumentParser
 from DmpWorkflow.core.DmpJob import DmpJob
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, AppLogger
 
 def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
@@ -17,12 +17,13 @@ def main(args=None):
     parser.add_argument("-p", "--pythonbin", dest="python", default=None, type=str, help='the python executable if non standard is chosen')
     parser.add_argument("-c", "--chunk", dest="chunk", default=100, type=int, help='number of jobs to process per cycle')
     opts = parser.parse_args(args)
+    log = AppLogger(LOG_LEVEL="INFO")
     batchsite = BATCH_DEFAULTS['name']
     res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
     res.raise_for_status()
     res = res.json()
     if not res.get("result", "nok") == "ok":
-        logging.error(res.get("error"))
+        log.error(res.get("error"))
     jobs = res.get("jobs")
     logging.info('found %i new job instances to deploy',len(jobs))
     for i,job in enumerate(jobs):
@@ -31,7 +32,7 @@ def main(args=None):
             j.write_script(pythonbin=opts.python,debug=opts.dry)
             ret = j.submit(dry=opts.dry,local=opts.local)
             j.updateStatus("Submitted","WaitingForExecution",batchId=ret)
-    logging.info("cycle complete at %s",str(time.ctime()))
+    log.info("cycle complete at %s",str(time.ctime()))
 
 if __name__ == "__main__":
     main()

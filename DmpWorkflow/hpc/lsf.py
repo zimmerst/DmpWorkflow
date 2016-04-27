@@ -4,11 +4,12 @@ Created on Mar 23, 2016
 @author: zimmer
 """
 import re
-from DmpWorkflow.hpc.batch import BATCH, logging, BatchJob as HPCBatchJob
+from DmpWorkflow.hpc.batch import BATCH, BatchJob as HPCBatchJob
 from DmpWorkflow.utils.shell import run
 
 
 # LSF-specific stuff
+BATCH_ID_ENV = ""
 
 class BatchJob(HPCBatchJob):
     def submit(self, **kwargs):
@@ -65,11 +66,11 @@ class BatchEngine(BATCH):
             command = ["bjobs -Wa"]
         jobs = {}
         output, error, rc = run(command)
-        logging.debug("rc: i",int(rc))
+        self.logging.debug("rc: i",int(rc))
         if error is not None:
             print error.split("\n")
             for e in error.split("\n"): 
-                if len(e): logging.error(e)
+                if len(e): self.logging.error(e)
         
         if not asDict:
             return output

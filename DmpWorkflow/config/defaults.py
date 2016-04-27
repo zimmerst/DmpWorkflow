@@ -8,12 +8,21 @@ Created on Apr 20, 2016
 import ConfigParser
 import os
 import sys
-
+import logging
 import DmpWorkflow
 from DmpWorkflow.utils.tools import exceptionHandler
 from DmpWorkflow.utils.shell import run
 
 DAMPE_WORKFLOW_ROOT = os.path.dirname(DmpWorkflow.__file__)
+
+class AppLogger(object):
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+    FORMAT = '%(asctime)s %(levelname)s:%(message)s'
+    LOG = None
+    def __init__(self,**kwargs):
+        self.__dict__.update(**kwargs)
+        logging.basicConfig(format=self.FORMAT, level=self.LOG_LEVEL, datefmt='%m/%d/%Y %I:%M:%S %p')
+        self.log = logging.getLogger()
 
 __myDefaults = {
     "DAMPE_SW_DIR": ".",

@@ -6,12 +6,14 @@ Created on Mar 15, 2016
 """
 import requests
 import importlib
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
+import time
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, AppLogger
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 #def check_status(jobId):
 #    return True
 
 def main():
+    log = AppLogger(LOG_LEVEL="INFO")
     batchEngine = HPC.BatchEngine()
     batchEngine.update()
     for batchId, job_dict in batchEngine.allJobs.iteritems():
@@ -23,7 +25,7 @@ def main():
         res.raise_for_status()
         res = res.json()
         if not res.get("result", "nok") == "ok":
-            print "error updating %i %s"%(int(batchId), res.get("error"))
-
+            log.error("error updating %i %s",int(batchId), res.get("error"))
+    log.info("completed cycle at %s",str(time.ctime()))
 if __name__ == '__main__':
     main()
