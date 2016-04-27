@@ -11,6 +11,7 @@ import sys
 
 import DmpWorkflow
 from DmpWorkflow.utils.tools import exceptionHandler
+from DmpWorkflow.utils.shell import run
 
 DAMPE_WORKFLOW_ROOT = os.path.dirname(DmpWorkflow.__file__)
 
@@ -72,3 +73,5 @@ SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])
 # verify that the site configuration is okay.
 assert BATCH_DEFAULTS['name'] in cfg.get("JobDB","batch_sites"), "Batch site %s not in DB"%BATCH_DEFAULTS['name']
 assert BATCH_DEFAULTS['system'] in ["lsf","sge"], "HPCSystem %s not supported."%BATCH_DEFAULTS["system"]
+
+WHICH_PYTHON=run(['which python'])[0].replace("\n","")

@@ -25,6 +25,10 @@ def run(cmd_args, useLogging=True, suppressErrors=False):
                     print e
     return out, err, rc
 
+def make_executable(path):
+    mode = os.stat(path).st_mode
+    mode |= (mode & 0o444) >> 2    # copy R bits to X
+    os.chmod(path, mode)
 
 def source_bash(setup_script):
     foop = open("tmp.sh", "w")

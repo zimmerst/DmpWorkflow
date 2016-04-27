@@ -9,11 +9,12 @@ import jsonpickle
 import json
 import importlib
 
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, WHICH_PYTHON, cfg
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict
-from DmpWorkflow.utils.shell import run
+from DmpWorkflow.utils.shell import run, make_executable
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
+ExtScript = cfg.get("site","ExternalsScript")
 
 # todo2: add cfg parsing variables.
 class DmpJob(object):
@@ -85,10 +86,17 @@ class DmpJob(object):
                   os.path.join(self.wd, "script.py"), debug=True)
         with open(os.path.join(self.wd, "job.json"), "wb") as json_file:
             json_file.write(self.exportToJSON())
-        scriptLOC = os.path.abspath(os.path.join(self.wd, "script.py"),)
         jsonLOC = os.path.abspath(os.path.join(self.wd, "job.json"))
-        cmd = "python %s %s" % (scriptLOC, jsonLOC)
-        self.execCommand = cmd
+        script_file = open(os.path.join(self.wd,"script"),"w")
+        cmds = ["#!/bin/bash","echo \"batch wrapper executing on $(date)\"",\
+                "source %s"%os.path.expandvars(ExtScript),\
+                "cd %s"%self.wd,\
+                "%s script.py %s"%(WHICH_PYTHON,jsonLOC),\
+                "echo \"batch wrapper completed at $(date)\""]
+        script_file.write("\n".join(cmds))
+        script_file.close()
+        make_executable(os.path.join(self.wd,"script"))
+        self.execCommand = "%s/script"%self.wd
         return
 
     def getSetupScript(self):

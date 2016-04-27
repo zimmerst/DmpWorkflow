@@ -16,6 +16,7 @@ class BatchJob(HPCBatchJob):
         if isinstance(self.extra, dict):
             self.extra.update(kwargs)
             extra = "-%s %s".join([(k, v) for (k, v) in self.extra.iteritems()])
+        while "\"" in extra: extra = extra.replace("\"","")
         extra+= " -W \"%s\" "%self.cputime
         # explicit list conversion
         if isinstance(self.requirements,str): self.requirements = self.requirements.split(",")
@@ -24,9 +25,23 @@ class BatchJob(HPCBatchJob):
         req_str = " && ".join(self.requirements)
         print self.requirements, "STRING: ",req_str # to be removed!
         req = "-R \"%s\""%req_str
-        cmd = "bsub -q {0} -eo {1} {2} {3} {4}".format(self.queue, self.logFile, req, extra, self.command)    
+        cmd = "bsub -J {5} -q {0} -eo {1} {2} {3} {4}".format(self.queue, self.logFile, req, extra, self.command, self.name)    
         print cmd
         self.__execWithUpdate__(cmd, "batchId")
+
+    def __execWithUpdate__(self, cmd, key, value=None):
+        """ execute command cmd & update key with output from running """
+        output, error, rc = run([cmd])
+        logging.debug("execution with rc: %i",int(rc))
+        if error:
+            for e in error.split("\n"): 
+                if len(e): logging.error(e)
+                
+        if value is None:
+            self.update(key, output)
+        else:
+            
+            self.update(key, value)
 
     def kill(self):
         """ likewise, it should implement its own batch-specific removal command """
