@@ -17,7 +17,8 @@ class BatchJob(HPCBatchJob):
             self.extra.update(kwargs)
             extra = "-%s %s".join([(k, v) for (k, v) in self.extra.iteritems()])
         extra+= " -W \"%s\" "%self.cputime
-        if isinstance(self.requirements,str): self.requirements.split(",")
+        # explicit list conversion
+        if isinstance(self.requirements,str): self.requirements = self.requirements.split(",")
         self.requirements.append("rusage[mem=%i]"%int(self.memory))
         
         req_str = " && ".join(self.requirements)
