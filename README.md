@@ -74,3 +74,34 @@ Installation Instructions:
 General Comments:
 -----------------
 to facilitate easier queries, jobs are being submitted with name JobID.JobInstanceID (so can query for that)
+
+XML Job Definition:
+-------------------
+Job definition is done in Xml markup
+
+```xml
+<Jobs>
+	<Job>
+		<InputFiles>
+			<File source="" target="" file_type="" />
+		</InputFiles>
+		<OutputFiles>
+			<File source="" target="" file_type="" />
+		</OutputFiles>
+			<JobWrapper executable="/bin/bash"><![CDATA[
+#/bin/bash
+echo hostname
+]]>		
+			</JobWrapper>
+		<MetaData>
+			<Var name="" value="" var_type="string"/>
+		</MetaData>
+	</Job>
+</Jobs>
+```
+
+Note that there are a few reserved variables:
+  * BATCH\_OVERRIDE\_REQUIREMENTS - will override whatever BATCH_REQUIREMENTS are defined in settings.cfg
+  * BATCH\_OVERRIDE\_EXTRAS - complements requirements
+  * BATCH\_OVERRIDE\_QUEUE - the queue to be used, overrides BATCH_QUEUE
+  * BATCH\_OVERRIDE\_SYSTEM	- shouldn't be used.
