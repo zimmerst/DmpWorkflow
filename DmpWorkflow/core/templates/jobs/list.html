@@ -17,7 +17,9 @@
 		<td>{{ job.type }}</td>
 		<td>{{ job.release }}</td>
 		<td>{{ job.getNevents() }}</td>
-		{% for key, value in job.aggregateStatii() %}
+		{% set statdict = job.aggregateStatii(asdict=True) %}
+		{% for key in MAJOR_STATII %}
+		{% set value = statdict[key] %}
 		<td>{{ value }}</td>
 		{% endfor %}
 		<td>{{job.jobInstances|length}}</td>

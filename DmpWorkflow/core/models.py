@@ -72,15 +72,18 @@ class Job(db.Document):
         jInst.save()
         self.jobInstances.append(jInst)
 
-    def aggregateStatii(self):
+    def aggregateStatii(self, asdict=False):
         """ will return an aggregated summary of all instances in all statuses """
         counting_dict = dict(zip(MAJOR_STATII, [0 for _ in MAJOR_STATII]))
         for jI in self.jobInstances:
             if jI.status not in MAJOR_STATII:
                 raise Exception("Instance found in status not known to system")
             counting_dict[jI.status] += 1
-        return [(k, counting_dict[k]) for k in MAJOR_STATII]
-        # return counting_dict
+        ret = [(k, counting_dict[k]) for k in MAJOR_STATII]
+        if asdict: 
+            return {v[0]:v[1] for v in ret} 
+        else:
+            return ret
 
     def get_absolute_url(self):
         return url_for('job', kwargs={"slug": self.slug})
