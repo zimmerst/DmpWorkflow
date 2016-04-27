@@ -82,6 +82,7 @@ class DmpJob(object):
         """ based on meta-data should create job-executable """
         if pythonbin is None:
             pythonbin = run(["which python"])[0]
+        print pythonbin
         self.wd = self.getWorkDir()
         mkdir(self.wd)
         safe_copy(os.path.join(DAMPE_WORKFLOW_ROOT, "scripts/dampe_execute_payload.py"),
