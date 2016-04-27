@@ -27,7 +27,7 @@ __myDefaults = {
     "task_major_statii": "New,Running,Failed,Terminated,Done,Submitted,Suspended".split(","),
     "HPCsystem" : "lsf",
     "HPCrequirements" : "",
-    "HPCextras" : "",
+    "HPCextra" : "",
     "HPCqueue" : "",
     "HPCcputime" : "24:00",
     "HPCmemory": "1000."
@@ -55,10 +55,10 @@ DAMPE_WORKFLOW_DIR = cfg.get("site","workdir")
 
 os.environ["BATCH_SYSTEM"] = cfg.get("site","HPCsystem")
 os.environ["BATCH_REQUIREMENTS"] = cfg.get("site","HPCrequirements")
-os.environ["BATCH_EXTRAS"] = cfg.get("site","HPCextras")
+os.environ["BATCH_EXTRA"] = cfg.get("site","HPCextras")
 os.environ["BATCH_QUEUE"] = cfg.get("site","HPCqueue")
 
-BATCH_DEFAULTS = {key:os.getenv("BATCH_%s"%key.upper()) for key in ['system','requirements','extras','queue']}
+BATCH_DEFAULTS = {key:os.getenv("BATCH_%s"%key.upper()) for key in ['system','requirements','extra','queue']}
 BATCH_DEFAULTS['memory']=cfg.get("site","HPCmemory")
 BATCH_DEFAULTS['cputime']=cfg.get("site","HPCcputime")
 BATCH_DEFAULTS['name']=cfg.get("site","name")
