@@ -3,6 +3,7 @@ Created on Mar 23, 2016
 
 @author: zimmer
 """
+import re
 from DmpWorkflow.hpc.batch import BATCH, logging, BatchJob as HPCBatchJob
 from DmpWorkflow.utils.shell import run
 
@@ -23,13 +24,21 @@ class BatchJob(HPCBatchJob):
         self.requirements.append("rusage[mem=%i]"%int(self.memory))
         
         req_str = " && ".join(self.requirements)
-        print self.requirements, "STRING: ",req_str # to be removed!
+        #print self.requirements, "STRING: ",req_str # to be removed!
         req = "-R \"%s\""%req_str
         cmd = "bsub -J {5} -W {6} -q {0} -oo {1} {2} {3} {4}".format(self.queue, self.logFile, req, extra,\
                                                                      self.command, self.name, self.cputime)    
-        print cmd
+        if 'verbose' in kwargs and kwargs['verbose']: print cmd
         self.__execWithUpdate__(cmd, "batchId")
-
+    def __regexId__(self,_str):
+        """ returns the batch Id using some regular expression, lsf specific """
+        # default: Job <32110807> is submitted to queue <dampe>.
+        bk = -1
+        res = re.findall("\d+",_str)
+        if len(res):
+            bk = int(res[0])
+        return bk
+    
     def __execWithUpdate__(self, cmd, key, value=None):
         """ execute command cmd & update key with output from running """
         output, error, rc = run([cmd])
@@ -37,11 +46,10 @@ class BatchJob(HPCBatchJob):
         if error:
             for e in error.split("\n"): 
                 if len(e): logging.error(e)
-                
+        output = self.__regexId__(output)
         if value is None:
             self.update(key, output)
-        else:
-            
+        else:            
             self.update(key, value)
 
     def kill(self):
