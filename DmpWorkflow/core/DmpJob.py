@@ -78,8 +78,10 @@ class DmpJob(object):
                     if len(body[key]):
                         self.__dict__[key] += body[key]
 
-    def write_script(self,pythonbin="/usr/bin"):
+    def write_script(self,pythonbin=None):
         """ based on meta-data should create job-executable """
+        if pythonbin is None:
+            pythonbin = run(["which python"])[0]
         self.wd = self.getWorkDir()
         mkdir(self.wd)
         safe_copy(os.path.join(DAMPE_WORKFLOW_ROOT, "scripts/dampe_execute_payload.py"),
