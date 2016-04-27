@@ -3,7 +3,7 @@ Workflow framework for DAMPE remote computing &amp; accounting
 
 external contributor: Stephane Poss @sposs on github (lots of help in packaging & dealing with requests as well as for the initial suggestion to using flask/mongodb)
 
-[![Code Health](https://landscape.io/github/zimmerst/DmpWorkflow/master/landscape.svg?style=flat)](https://landscape.io/github/zimmerst/DmpWorkflow/master)
+[![Code Health](https://landscape.io/github/zimmerst/DmpWorkflow/master/landscape.svg?style=plastic)](https://landscape.io/github/zimmerst/DmpWorkflow/master)
 
 Prerequisites: 
 --------------
@@ -13,7 +13,7 @@ it's advisable to install virtualenv to handle the different python installation
 easy_install virtualenv OR
 pip install virtualenv
 ```
-NEW Installation Instructions:
+Installation Instructions:
 ------------------------------
 again, it's advisable to use a virtual environment.
 
@@ -40,41 +40,6 @@ again, it's advisable to use a virtual environment.
 
 5.	enjoy!
 
-Installation Instructions:
---------------------------
-1. 	clone the repository via git: 
-	```bash
-	git clone https://github.com/zimmerst/DmpWorkflow.git
-	```
-
-2.	set DmpWorkflow as virtualenv:
-	```bash
-	virtualenv DmpWorkflow
-	```
-
-3.	activate virtualenv:
-	```bash
-	source DmpWorkflow/bin/activate
-	```
-		
-4.	install missing flask packages with pip (only needs to be done once!)
-	```python
-	pip install flask
-	pip install flask-mongoengine
-	pip install flask-script
-	pip install mongoengine
-	pip install -U jsonpickle
-	```
-
-5.	modify config to have right server & DB address. See config/default.cfg for an example.
-	(note that the framework may run on two different servers!) 
-	
-6.	source DmpWorkflow/setup.sh to initialize relevant environment variables
-
-General Comments:
------------------
-to facilitate easier queries, jobs are being submitted with name JobID.JobInstanceID (so can query for that)
-
 XML Job Definition:
 -------------------
 Job definition is done in Xml markup
@@ -100,7 +65,7 @@ echo hostname
 </Jobs>
 ```
 
-Note that there are a few reserved variables:
+Note that there are a few reserved metadata variables:
   * BATCH\_OVERRIDE\_REQUIREMENTS - will override whatever BATCH_REQUIREMENTS are defined in settings.cfg
   * BATCH\_OVERRIDE\_EXTRAS - complements requirements
   * BATCH\_OVERRIDE\_QUEUE - the queue to be used, overrides BATCH_QUEUE
