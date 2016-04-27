@@ -31,7 +31,8 @@ __myDefaults = {
     "HPCextra" : "",
     "HPCqueue" : "",
     "HPCcputime" : "24:00",
-    "HPCmemory": "1000."
+    "HPCmemory": "1000.",
+    "EXEC_DIR_ROOT" : "/tmp"
 }
 
 cfg = ConfigParser.SafeConfigParser(defaults=__myDefaults)
@@ -53,11 +54,13 @@ if not dbg:
 
 DAMPE_WORKFLOW_URL = cfg.get("server", "url")
 DAMPE_WORKFLOW_DIR = cfg.get("site","workdir")
+EXEC_DIR_ROOT = cfg.get("site","EXEC_DIR_ROOT")
 
 os.environ["BATCH_SYSTEM"] = cfg.get("site","HPCsystem")
 os.environ["BATCH_REQUIREMENTS"] = cfg.get("site","HPCrequirements")
 os.environ["BATCH_EXTRA"] = cfg.get("site","HPCextra")
 os.environ["BATCH_QUEUE"] = cfg.get("site","HPCqueue")
+os.environ["EXEC_DIR_ROOT"] = EXEC_DIR_ROOT
 
 BATCH_DEFAULTS = {key:os.getenv("BATCH_%s"%key.upper()) for key in ['system','requirements','extra','queue']}
 BATCH_DEFAULTS['memory']=cfg.get("site","HPCmemory")

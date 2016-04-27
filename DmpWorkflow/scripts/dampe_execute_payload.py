@@ -6,6 +6,7 @@ Created on Apr 19, 2016
 """
 import os
 import sys
+from DmpWorkflow.config.defaults import EXEC_DIR_ROOT
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm
 from DmpWorkflow.utils.shell import run
@@ -24,9 +25,8 @@ if __name__ == '__main__':
     log.info("reading json input")
     job = DmpJob.fromJSON(fii)
     os.environ["DWF_SIXDIGIT"] = job.getSixDigits()
-    EXEC_DIR = os.getenv("EXEC_DIR_ROOT","/tmp")
     batchId = os.getenv("LSF_JOBID", "-1")
-    my_exec_dir = os.path.join(EXEC_DIR,job.getSixDigits(),"local" if batchId == "-1" else batchId)
+    my_exec_dir = os.path.join(EXEC_DIR_ROOT,job.getSixDigits(),"local" if batchId == "-1" else batchId)
     mkdir(my_exec_dir)
     os.chdir(my_exec_dir)
     log.info("execution directory %s",my_exec_dir)
