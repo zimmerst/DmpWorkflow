@@ -60,6 +60,7 @@ if __name__ == '__main__':
     log.info("CMD: %s", CMD)
     job.updateStatus("Running", "ExecutingApplication")
     output, error, rc = run([CMD])
+    print output
     if rc:
         log.error("Payload returned exit code %i, see above for more details.", rc)
         try:
