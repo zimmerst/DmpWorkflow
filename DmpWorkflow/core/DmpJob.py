@@ -43,7 +43,7 @@ class DmpJob(object):
         return wd
 
     def __updateEnv__(self):
-        override_keys = ["BATCH_OVERRIDE_%s".upper(key) for key in BATCH_DEFAULTS.keys()]
+        override_keys = ["BATCH_OVERRIDE_%s"%key.upper() for key in BATCH_DEFAULTS.keys()]
         for fi in self.InputFiles + self.OutputFiles + self.MetaData:
             for key in ['value', 'source', 'target']:
                 if key in fi:
