@@ -27,5 +27,6 @@ def main(args=None):
         j.write_script(pythonbin=opts.python)
         ret = j.submit(dry=opts.dry,local=opts.local)
         print ret
+        j.updateStatus("Submitted","WaitingForExecution",batchId=ret)
 if __name__ == "__main__":
     main()
