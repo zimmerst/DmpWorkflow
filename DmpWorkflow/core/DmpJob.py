@@ -78,7 +78,7 @@ class DmpJob(object):
                     if len(body[key]):
                         self.__dict__[key] += body[key]
 
-    def write_script(self,pythonbin=None):
+    def write_script(self,pythonbin=None,debug=False):
         """ based on meta-data should create job-executable """
         if pythonbin is None:
             pythonbin = "python"
@@ -86,7 +86,7 @@ class DmpJob(object):
         self.wd = self.getWorkDir()
         mkdir(self.wd)
         safe_copy(os.path.join(DAMPE_WORKFLOW_ROOT, "scripts/dampe_execute_payload.py"),
-                  os.path.join(self.wd, "script.py"), debug=True)
+                  os.path.join(self.wd, "script.py"), debug=debug)
         with open(os.path.join(self.wd, "job.json"), "wb") as json_file:
             json_file.write(self.exportToJSON())
         jsonLOC = os.path.abspath(os.path.join(self.wd, "job.json"))
@@ -94,6 +94,8 @@ class DmpJob(object):
         cmds = ["#!/bin/bash","echo \"batch wrapper executing on $(date)\"",\
                 "source %s"%os.path.expandvars(ExtScript),\
                 "cd %s"%self.wd,\
+                "echo \" dump of all environment variables \"",\
+                "env|sort",\
                 "%s script.py %s"%(pythonbin,jsonLOC),\
                 "echo \"batch wrapper completed at $(date)\""]
         script_file.write("\n".join(cmds))
