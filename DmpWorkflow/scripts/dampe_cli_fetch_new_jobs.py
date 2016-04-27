@@ -24,13 +24,15 @@ def main(args=None):
         log.error(res.get("error"))
     jobs = res.get("jobs")
     log.info('found %i new job instances to deploy',len(jobs))
+    njobs = 0
     for i,job in enumerate(jobs):
         if i < opts.chunk: 
             j = DmpJob.fromJSON(job)
             j.write_script(pythonbin=opts.python,debug=opts.dry)
             ret = j.submit(dry=opts.dry,local=opts.local)
             j.updateStatus("Submitted","WaitingForExecution",batchId=ret)
-    log.info("cycle complete")
+            njobs+=1
+    log.info("cycle completed, submitted %i new jobs",njobs)
 
 if __name__ == "__main__":
     main()
