@@ -62,6 +62,13 @@ BATCH_DEFAULTS = {key:os.getenv("BATCH_%s"%key.upper()) for key in ['system','re
 BATCH_DEFAULTS['memory']=cfg.get("site","HPCmemory")
 BATCH_DEFAULTS['cputime']=cfg.get("site","HPCcputime")
 BATCH_DEFAULTS['name']=cfg.get("site","name")
+
+# JobDB specifics
+MAJOR_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_major_statii").split(",")])
+FINAL_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_final_statii").split(",")])
+TYPES = tuple([unicode(t) for t in cfg.get("JobDB", "task_types").split(",")])
+SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])
+
 # verify that the site configuration is okay.
 assert BATCH_DEFAULTS['name'] in cfg.get("JobDB","batch_sites"), "Batch site %s not in DB"%BATCH_DEFAULTS['name']
 assert BATCH_DEFAULTS['system'] in ["lsf","sge"], "HPCSystem %s not supported."%BATCH_DEFAULTS["system"]

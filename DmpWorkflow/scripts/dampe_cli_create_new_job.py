@@ -6,8 +6,7 @@ Created on Mar 30, 2016
 """
 import requests
 from argparse import ArgumentParser
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
-from DmpWorkflow.core.models import TYPES
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, TYPES
 # from DmpWorkflow.utils.db_helpers import parseJobXmlToDict
 
 _TYPES = list(TYPES) + [u"NONE"]

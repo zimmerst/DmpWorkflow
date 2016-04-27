@@ -3,14 +3,9 @@ import datetime
 import sys
 import mongoengine
 from flask import url_for
-from DmpWorkflow.config.defaults import cfg
+from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db, app
 from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, parseJobXmlToDict
-
-MAJOR_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_major_statii").split(",")])
-FINAL_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_final_statii").split(",")])
-TYPES = tuple([unicode(t) for t in cfg.get("JobDB", "task_types").split(",")])
-SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])
 
 if not cfg.getboolean("site", "traceback"):
     sys.excepthook = exceptionHandler
