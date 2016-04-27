@@ -16,11 +16,20 @@ class BatchJob(object):
     memory = 0.
     command = ""
     extra = ""
+    defaults = None
     requirements = []
     status = None
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+
+    def __processDefaults__(self):
+        if self.defaults is None: return 
+        self.queue = self.defaults['queue']
+        self.requirements = self.defaults['requirements']
+        self.extra = self.defaults['extra']
+        self.memory = self.defaults['memory']
+        self.cputime = self.defaults['cputime']
 
     def __execWithUpdate__(self, cmd, key, value=None):
         """ execute command cmd & update key with output from running """

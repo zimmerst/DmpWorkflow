@@ -129,7 +129,7 @@ class DmpJob(object):
         local = kwargs['local'] if 'local' in kwargs else False
         if not dry: 
             self.createLogFile()
-        bj = HPC.BatchJob(name=self.getJobName(), command=self.execCommand, logFile=self.logfile)
+        bj = HPC.BatchJob(name=self.getJobName(), command=self.execCommand, logFile=self.logfile, defaults = BATCH_DEFAULTS)
         if dry:
             print "DRY_COMMAND: %s"%self.execCommand
             return -1

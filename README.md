@@ -70,3 +70,4 @@ Note that there are a few reserved metadata variables:
   * BATCH\_OVERRIDE\_EXTRAS - complements requirements
   * BATCH\_OVERRIDE\_QUEUE - the queue to be used, overrides BATCH_QUEUE
   * BATCH\_OVERRIDE\_SYSTEM	- shouldn't be used.
+These variables can be used to control the submission behavior for each batch job.

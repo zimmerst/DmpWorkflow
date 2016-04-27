@@ -25,7 +25,9 @@ __myDefaults = {
     "HPCsystem" : "lsf",
     "HPCrequirements" : "",
     "HPCextras" : "",
-    "HPCqueue" : ""
+    "HPCqueue" : "",
+    "HPCcputime" : "24:00",
+    "HPCmemory": "1000."
 }
 
 cfg = ConfigParser.SafeConfigParser(defaults=__myDefaults)
@@ -51,6 +53,8 @@ os.environ["BATCH_EXTRAS"] = cfg.get("site","HPCextras")
 os.environ["BATCH_QUEUE"] = cfg.get("site","HPCqueue")
 
 BATCH_DEFAULTS = {key:os.getenv("BATCH_%s"%key.upper()) for key in ['system','requirements','extras','queue']}
+BATCH_DEFAULTS['memory']=cfg.get("site","HPCmemory")
+BATCH_DEFAULTS['cputime']=cfg.get("site","HPCcputime")
 
 # verify that the site configuration is okay.
 assert cfg.get("site","name") in cfg.get("JobDB","batch_sites"), "Batch site %s not in DB"%cfg.get("site","name")
