@@ -5,15 +5,14 @@ Created on Mar 15, 2016
 @todo: add watchdog triggers.
 """
 import requests
-
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
-from DmpWorkflow.hpc.lsf import LSF
-
+import importlib
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
+HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 #def check_status(jobId):
 #    return True
 
 def main():
-    batchEngine = LSF()
+    batchEngine = HPC.BatchEngine()
     batchEngine.update()
     for batchId, job_dict in batchEngine.allJobs.iteritems():
         JobId, InstanceId = job_dict['JOB_NAME'].split(".")

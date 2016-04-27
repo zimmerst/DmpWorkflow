@@ -17,7 +17,7 @@ class BatchJob(HPCBatchJob):
             self.extra.update(kwargs)
             extra = "-%s %s".join([(k, v) for (k, v) in self.extra.iteritems()])
         req = "-R \"%s\""%"&&".join(self.requirements)
-        cmd = "bsub -q %s -eo %s %s %s" % (self.queue, self.logFile, req, extra, self.command)    
+        cmd = "bsub -q {0} -eo {1} {2} {3} {4}".format(self.queue, self.logFile, req, extra, self.command)    
         print cmd
         self.__execWithUpdate__(cmd, "batchId")
 
@@ -27,7 +27,8 @@ class BatchJob(HPCBatchJob):
         self.__execWithUpdate__(cmd, "status", value="Failed")
 
 
-class LSF(BATCH):
+class BatchEngine(BATCH):
+    kind = "lsf"
     keys = "USER,STAT,QUEUE,FROM_HOST,EXEC_HOST,JOB_NAME,"
     keys += "SUBMIT_TIME,PROJ_NAME,CPU_USED,MEM,SWAP,PIDS,START_TIME,FINISH_TIME,SLOTS"
     keys = keys.split(",")

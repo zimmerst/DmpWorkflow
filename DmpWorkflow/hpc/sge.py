@@ -30,7 +30,8 @@ class BatchJob(HPCBatchJob):
         self.__execWithUpdate__(cmd, "status", value="Failed")
 
 
-class SGE(BATCH):
+class BatchEngine(BATCH):
+    kind = "sge"
     keys = "USER,STAT,QUEUE,FROM_HOST,EXEC_HOST,JOB_NAME,"
     keys += "SUBMIT_TIME,PROJ_NAME,CPU_USED,MEM,SWAP,PIDS,START_TIME,FINISH_TIME,SLOTS"
     keys = keys.split(",")

@@ -25,7 +25,7 @@ class Job(db.Document):
     type = db.StringField(verbose_name="type", required=False, default="Other", choices=TYPES)
     release = db.StringField(max_length=255, required=False)
     dependencies = db.ListField(db.ReferenceField("Job"))
-    execution_site = db.StringField(max_length=255, required=False, default="CNAF", choices=SITES)
+    execution_site = db.StringField(max_length=255, required=False, default="local", choices=SITES)
     jobInstances = db.ListField(db.ReferenceField("JobInstance"))
 
     def addDependency(self, job):
@@ -38,13 +38,6 @@ class Job(db.Document):
             return "None"
         else:
             return tuple(self.dependencies)
-
-    def getSite(self):
-        my_site = self.execution_site
-        for jI in self.jobInstances:
-            if jI.site != my_site:
-                my_site = "Mixed"
-        return my_site
 
     def getNevents(self):
         #log.warning("FIXME: need to implement fast query")
@@ -112,7 +105,7 @@ class Job(db.Document):
 
     meta = {
         'allow_inheritance': True,
-        'indexes': ['-created_at', 'slug', 'title', 'id'],
+        'indexes': ['-created_at', 'slug', 'title', 'id', 'execution_site'],
         'ordering': ['-created_at']
     }
 
@@ -165,3 +158,8 @@ class JobInstance(db.Document):
     def sixDigit(self, size=6):
         return str(self.instanceId).zfill(size)
 
+    meta = {
+        'allow_inheritance': True,
+        'indexes': ['-created_at', 'instanceId', 'site'],
+        'ordering': ['-created_at']
+    }

@@ -21,7 +21,11 @@ __myDefaults = {
     "use_reloader": "true",
     "traceback": "true",
     "task_types": "Generation,Digitization,Reconstruction,User,Other".split(","),
-    "task_major_statii": "New,Running,Failed,Terminated,Done,Submitted,Suspended".split(",")
+    "task_major_statii": "New,Running,Failed,Terminated,Done,Submitted,Suspended".split(","),
+    "HPCsystem" : "lsf",
+    "HPCrequirements" : "",
+    "HPCextras" : "",
+    "HPCqueuue" : ""
 }
 
 cfg = ConfigParser.SafeConfigParser(defaults=__myDefaults)
@@ -40,3 +44,14 @@ if not dbg:
     sys.excepthook = exceptionHandler
 
 DAMPE_WORKFLOW_URL = cfg.get("server", "url")
+
+os.environ["BATCH_SYSTEM"] = cfg.get("site","HPCsystem")
+os.environ["BATCH_REQUIREMENTS"] = cfg.get("site","HPCrequirements")
+os.environ["BATCH_EXTRAS"] = cfg.get("site","HPCextras")
+os.environ["BATCH_QUEUE"] = cfg.get("site","HPCqueue")
+
+BATCH_DEFAULTS = {key:os.getenv("BATCH_%s"%key.upper()) for key in ['system','requirements','extras','queue']}
+
+# verify that the site configuration is okay.
+assert cfg.get("site","name") in cfg.get("JobDB","batch_sites"), "Batch site not in DB"
+assert BATCH_DEFAULTS['system'] in ["lsf","sge"], "HPCSystem not supported."

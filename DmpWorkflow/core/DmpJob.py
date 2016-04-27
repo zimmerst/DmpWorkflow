@@ -7,11 +7,12 @@ import os.path
 import requests
 import jsonpickle
 import json
+import importlib
 
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, cfg
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict
 from DmpWorkflow.utils.shell import run
-from DmpWorkflow.hpc.lsf import LSF, BatchJob
+HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
 
 # todo2: add cfg parsing variables.
@@ -42,11 +43,15 @@ class DmpJob(object):
         return wd
 
     def __updateEnv__(self):
+        override_keys = ["BATCH_OVERRIDE_%s".upper(key) for key in BATCH_DEFAULTS.keys()]
         for fi in self.InputFiles + self.OutputFiles + self.MetaData:
             for key in ['value', 'source', 'target']:
                 if key in fi:
                     fi[key] = os.path.expandvars(fi[key])
-        return
+                    if key in override_keys:
+                        bkey = key.replace("BATCH_OVERRIDE_","").lower()
+                        BATCH_DEFAULTS[bkey]=fi[key]
+        return      
 
     def getJobName(self):
         return "-".join([str(self.jobId), self.getSixDigits()])
@@ -113,17 +118,18 @@ class DmpJob(object):
     def getStatusBatch(self):
         """ interacts with the backend HPC stuff and returns the status of the job """
         # todo: make the whole thing batch-independent!
-        batch = LSF()
+        batch = HPC.BatchEngine()
         ret = batch.status_map[batch.getJob(self.batchId, key="STAT")]
         return ret
 
     def submit(self, **kwargs):
         """ handles the submission part """
+        print BATCH_DEFAULTS
         dry = kwargs['dry'] if 'dry' in kwargs else False
         local = kwargs['local'] if 'local' in kwargs else False
         if not dry: 
             self.createLogFile()
-        bj = BatchJob(name=self.getJobName(), command=self.execCommand, logFile=self.logfile)
+        bj = HPC.BatchJob(name=self.getJobName(), command=self.execCommand, logFile=self.logfile)
         if dry:
             print "DRY_COMMAND: %s"%self.execCommand
             return -1
