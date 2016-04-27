@@ -32,7 +32,7 @@ def main(args=None):
             j.write_script(pythonbin=opts.python,debug=opts.dry)
             ret = j.submit(dry=opts.dry,local=opts.local)
             j.updateStatus("Submitted","WaitingForExecution",batchId=ret)
-    log.info("cycle complete at %s",str(time.ctime()))
+    log.info("cycle complete")
 
 if __name__ == "__main__":
     main()

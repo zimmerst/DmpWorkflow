@@ -8,6 +8,7 @@ import os
 import sys
 import importlib
 import logging
+import socket
 from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS, AppLogger
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm
