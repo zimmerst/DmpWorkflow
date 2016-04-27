@@ -29,7 +29,9 @@ class BatchJob(HPCBatchJob):
         cmd = "bsub -J {5} -W {6} -q {0} -oo {1} {2} {3} {4}".format(self.queue, self.logFile, req, extra,\
                                                                      self.command, self.name, self.cputime)    
         if 'verbose' in kwargs and kwargs['verbose']: print cmd
-        self.__execWithUpdate__(cmd, "batchId")
+        output = self.__run__(cmd)
+        return self.__regexId__(output)
+    
     def __regexId__(self,_str):
         """ returns the batch Id using some regular expression, lsf specific """
         # default: Job <32110807> is submitted to queue <dampe>.
@@ -38,24 +40,13 @@ class BatchJob(HPCBatchJob):
         if len(res):
             bk = int(res[0])
         return bk
-    
-    def __execWithUpdate__(self, cmd, key, value=None):
-        """ execute command cmd & update key with output from running """
-        output, error, rc = run([cmd])
-        logging.debug("execution with rc: %i",int(rc))
-        if error:
-            for e in error.split("\n"): 
-                if len(e): logging.error(e)
-        output = self.__regexId__(output)
-        if value is None:
-            self.update(key, output)
-        else:            
-            self.update(key, value)
+        
 
     def kill(self):
         """ likewise, it should implement its own batch-specific removal command """
         cmd = "bkill %s" % self.batchId
-        self.__execWithUpdate__(cmd, "status", value="Failed")
+        self.__run__(cmd)
+        self.update("status","Failed")
 
 
 class BatchEngine(BATCH):

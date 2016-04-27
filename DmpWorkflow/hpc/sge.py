@@ -3,6 +3,7 @@ Created on Mar 23, 2016
 
 @author: zimmer
 """
+import re
 from DmpWorkflow.hpc.batch import BATCH, logging, BatchJob as HPCBatchJob
 from DmpWorkflow.utils.shell import run
 
@@ -22,12 +23,23 @@ class BatchJob(HPCBatchJob):
         cmd = "qsub -q %s -eo %s -R \"%s\" %s %s" % (self.queue, self.logFile,
                                                      "&&".join(self.requirements),
                                                      extra, self.command)
-        self.__execWithUpdate__(cmd, "batchId")
+        output = self.__run__(cmd)
+        return self.__regexId__(output)
+    
+    def __regexId__(self,_str):
+        """ returns the batch Id using some regular expression, sge specific """
+        # default: 
+        bk = -1
+        res = re.findall("\d+",_str)
+        if len(res):
+            bk = int(res[0])
+        return bk
 
     def kill(self):
         ''' likewise, it should implement its own batch-specific removal command '''
         cmd = "qdel %s" % self.batchId
-        self.__execWithUpdate__(cmd, "status", value="Failed")
+        self.__run__(cmd)
+        self.update("status","Failed")
 
 
 class BatchEngine(BATCH):

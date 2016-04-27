@@ -61,6 +61,16 @@ class BatchJob(object):
         if key in self.__dict__:
             return callable(self.__dict__[key])
         return None
+    
+    def __run__(self,cmd):
+        output, error, rc = run([cmd])
+        logging.debug("execution with rc: %i",int(rc))
+        if error:
+            for e in error.split("\n"): 
+                if len(e): logging.error(e)
+        if rc:
+            logging.error("exception during execution")
+        return output
 
 
 class BATCH(object):
