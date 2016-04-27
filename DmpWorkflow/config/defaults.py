@@ -25,7 +25,7 @@ __myDefaults = {
     "HPCsystem" : "lsf",
     "HPCrequirements" : "",
     "HPCextras" : "",
-    "HPCqueuue" : ""
+    "HPCqueue" : ""
 }
 
 cfg = ConfigParser.SafeConfigParser(defaults=__myDefaults)
