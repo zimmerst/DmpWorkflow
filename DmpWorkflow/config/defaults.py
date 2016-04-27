@@ -55,7 +55,7 @@ DAMPE_WORKFLOW_DIR = cfg.get("site","workdir")
 
 os.environ["BATCH_SYSTEM"] = cfg.get("site","HPCsystem")
 os.environ["BATCH_REQUIREMENTS"] = cfg.get("site","HPCrequirements")
-os.environ["BATCH_EXTRA"] = cfg.get("site","HPCextras")
+os.environ["BATCH_EXTRA"] = cfg.get("site","HPCextra")
 os.environ["BATCH_QUEUE"] = cfg.get("site","HPCqueue")
 
 BATCH_DEFAULTS = {key:os.getenv("BATCH_%s"%key.upper()) for key in ['system','requirements','extra','queue']}
