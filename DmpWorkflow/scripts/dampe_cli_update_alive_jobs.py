@@ -6,11 +6,8 @@ Created on Mar 15, 2016
 """
 import requests
 import importlib
-import time
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, AppLogger
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
-#def check_status(jobId):
-#    return True
 
 def main():
     log = AppLogger("dampe-cli-update-alive-jobs")
@@ -26,6 +23,6 @@ def main():
         res = res.json()
         if not res.get("result", "nok") == "ok":
             log.error("error updating %i %s",int(batchId), res.get("error"))
-    log.info("completed cycle at %s",str(time.ctime()))
+    log.info("completed cycle")
 if __name__ == '__main__':
     main()

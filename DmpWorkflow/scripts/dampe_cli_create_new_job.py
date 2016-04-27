@@ -34,7 +34,7 @@ def main(args=None):
                         files={"file":open(xmlFile, "rb")})
     res.raise_for_status()
     if res.json().get("result", "nok") == "ok":
-        print 'Added job'
+        print 'Added job %s with %i instances'%(taskName,n_instances)
     else:
         print "Error message: %s" % res.json().get("error", "")
 

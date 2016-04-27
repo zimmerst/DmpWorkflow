@@ -26,7 +26,7 @@ def main(args=None):
     res.raise_for_status()
     res = res.json()
     if res.get("result", "nok") == "ok":
-        print 'Added %i instances'%int(ninst)
+        print 'Added %i instances to job %s'%(int(ninst), taskName)
     else:
         print "Error message: %s" % res.get("error", "")
 
