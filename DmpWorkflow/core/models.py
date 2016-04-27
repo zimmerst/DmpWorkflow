@@ -20,7 +20,7 @@ class Job(db.Document):
     type = db.StringField(verbose_name="type", required=False, default="Other", choices=TYPES)
     release = db.StringField(max_length=255, required=False)
     dependencies = db.ListField(db.ReferenceField("Job"))
-    execution_site = db.StringField(max_length=255, required=False, default="local", choices=SITES)
+    execution_site = db.StringField(max_length=255, required=True, default="local", choices=SITES)
     jobInstances = db.ListField(db.ReferenceField("JobInstance"))
 
     def addDependency(self, job):

@@ -6,7 +6,7 @@ Created on Mar 30, 2016
 """
 import requests
 from argparse import ArgumentParser
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, TYPES
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, TYPES, SITES
 # from DmpWorkflow.utils.db_helpers import parseJobXmlToDict
 
 _TYPES = list(TYPES) + [u"NONE"]
@@ -21,14 +21,16 @@ def main(args=None):
                         help='number of instances to create at the same time')
     parser.add_argument("-i", "--input", dest="xml", help="Path to job XML")
     parser.add_argument("-n", '--name', help="task Name", dest="tname")
+    parser.add_argument("-s", '--site', help="site to run at", dest="site")
     opts = parser.parse_args(args)
 
     taskName = unicode(opts.tname)
     xmlFile = unicode(opts.xml)
     t_type = unicode(opts.t_type)
     n_instances = int(opts.Ninstances)
+    site = unicode(opts.site)
     res = requests.post("%s/job/" % DAMPE_WORKFLOW_URL,
-                        data={"taskname": taskName, "t_type": t_type, "n_instances": n_instances},
+                        data={"taskname": taskName, "t_type": t_type, "n_instances": n_instances, "site" : site},
                         files={"file":open(xmlFile, "rb")})
     res.raise_for_status()
     if res.json().get("result", "nok") == "ok":

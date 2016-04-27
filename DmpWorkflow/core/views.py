@@ -64,11 +64,12 @@ class JobView(MethodView):
             taskname = request.form.get("taskname",None)
             jobdesc = request.files.get("file",None)
             t_type = request.form.get("t_type",None)
+            site = request.form.get("site","local")
             n_instances = int(request.form.get("n_instances","0"))
             if taskname is None:
                 logger.exception("task name must be defined.")
                 raise Exception("task name must be defined")
-            job = Job(title=taskname, type=t_type)
+            job = Job(title=taskname, type=t_type, execution_site=site)
             #job = Job.objects(title=taskname, type=t_type).modify(upsert=True, new=True, title=taskname, type=t_type)
             job.body.put(jobdesc, content_type="application/xml")
             job.save()
