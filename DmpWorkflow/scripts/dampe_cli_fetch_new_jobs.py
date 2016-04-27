@@ -12,7 +12,7 @@ def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
     parser.add_argument("-d", "--dry", dest="dry", action = 'store_true', default=False, help='if dry, do not try interacting with batch farm')
     parser.add_argument("-l", "--local", dest="local", action = 'store_true', default=False, help='run locally')
-    parser.add_argument("-p", "--pythonbin", dest="python", default=None, type=str, help='the python executable')
+    parser.add_argument("-p", "--pythonbin", dest="python", default=None, type=str, help='the python executable if non standard is chosen')
     opts = parser.parse_args(args)
     batchsite = BATCH_DEFAULTS['name']
     res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
