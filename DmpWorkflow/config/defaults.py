@@ -16,6 +16,7 @@ DAMPE_WORKFLOW_ROOT = os.path.dirname(DmpWorkflow.__file__)
 
 __myDefaults = {
     "DAMPE_SW_DIR": ".",
+    "installation", "server",
     "ExternalsScript": "${DAMPE_SW_DIR}/setup/setup.sh",
     "use_debugger": "true",
     "use_reloader": "true",
@@ -35,6 +36,8 @@ __myDefaults = {
 cfg = ConfigParser.SafeConfigParser(defaults=__myDefaults)
 
 cfg.read(os.path.join(DAMPE_WORKFLOW_ROOT, "config/settings.cfg"))
+
+assert cfg.get("global","installation") in ['server','client'], "installation must be server or client!"
 
 os.environ["DAMPE_SW_DIR"] = cfg.get("site", "DAMPE_SW_DIR")
 os.environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
