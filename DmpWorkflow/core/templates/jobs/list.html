@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <h2> Job Summary </h2>
-{% set MAJOR_STATII = ['New','Running','Suspended','Failed','Terminated','Done','Submitted'] %}
+{% set MAJOR_STATII = ['New','Submitted','Running','Suspended','Done','Failed','Terminated'] %}
 {% set keys = ['Name','Site','Type','Release Tag','#events']+MAJOR_STATII+["Total"] %}
 <table class="table">
 	<thead>
