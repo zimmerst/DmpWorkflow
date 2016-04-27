@@ -116,7 +116,7 @@ class JobInstance(db.Document):
     last_update = db.DateTimeField(default=datetime.datetime.now, required=True)
     batchId = db.LongField(verbose_name="batchId", required=False, default=None)
     Nevents = db.LongField(verbose_name="Nevents", required=False, default=None)
-    site = db.StringField(verbose_name="site", required=False, default="CNAF")
+    site = db.StringField(verbose_name="site", required=False, default="local", choices=SITES)
     hostname = db.StringField(verbose_name="hostname", required=False, default=None)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
