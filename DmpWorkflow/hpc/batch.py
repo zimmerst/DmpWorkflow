@@ -22,6 +22,7 @@ class BatchJob(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+        self.__processDefaults__()
 
     def __processDefaults__(self):
         if self.defaults is None: return 
