@@ -9,7 +9,7 @@ from DmpWorkflow.utils.shell import run
 
 
 # LSF-specific stuff
-BATCH_ID_ENV = ""
+BATCH_ID_ENV = "LSB_JOBID"
 
 class BatchJob(HPCBatchJob):
     def submit(self, **kwargs):
