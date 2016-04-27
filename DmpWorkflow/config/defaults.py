@@ -53,5 +53,5 @@ os.environ["BATCH_QUEUE"] = cfg.get("site","HPCqueue")
 BATCH_DEFAULTS = {key:os.getenv("BATCH_%s"%key.upper()) for key in ['system','requirements','extras','queue']}
 
 # verify that the site configuration is okay.
-assert cfg.get("site","name") in cfg.get("JobDB","batch_sites"), "Batch site not in DB"
-assert BATCH_DEFAULTS['system'] in ["lsf","sge"], "HPCSystem not supported."
+assert cfg.get("site","name") in cfg.get("JobDB","batch_sites"), "Batch site %s not in DB"%cfg.get("site","name")
+assert BATCH_DEFAULTS['system'] in ["lsf","sge"], "HPCSystem %s not supported."%BATCH_DEFAULTS["system"]
