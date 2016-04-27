@@ -58,7 +58,7 @@ class BatchEngine(BATCH):
             command = ["bjobs -Wa"]
         jobs = {}
         output, error, rc = run(command)
-        self.logging.debug("rc: i",int(rc))
+        self.logging.debug("rc: %i",int(rc))
         if error is not None:
             for e in error.split("\n"): self.logging.error(e)
         if not asDict:

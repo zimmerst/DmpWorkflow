@@ -14,7 +14,7 @@ from DmpWorkflow.utils.tools import exceptionHandler
 
 def AppLogger(name,level=logging.INFO):
     log = logging.getLogger(name)
-    log.setLevel(logging.INFO)
+    log.setLevel(level)
     ch = logging.StreamHandler()
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)

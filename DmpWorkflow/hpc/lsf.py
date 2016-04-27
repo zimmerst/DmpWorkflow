@@ -66,7 +66,7 @@ class BatchEngine(BATCH):
             command = ["bjobs -Wa"]
         jobs = {}
         output, error, rc = run(command)
-        self.logging.debug("rc: i",int(rc))
+        self.logging.debug("rc: %i",int(rc))
         if error is not None:
             print error.split("\n")
             for e in error.split("\n"): 

@@ -7,7 +7,6 @@ Created on Apr 19, 2016
 import os
 import sys
 import importlib
-import logging
 import socket
 from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS, AppLogger
 from DmpWorkflow.core.DmpJob import DmpJob
