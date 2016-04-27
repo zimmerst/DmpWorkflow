@@ -18,7 +18,7 @@ class BatchJob(HPCBatchJob):
             extra = "-%s %s".join([(k, v) for (k, v) in self.extra.iteritems()])
         extra+= " -W \"%s\" "%self.cputime
         if isinstance(self.requirements,str): self.requirements.split(",")
-        self.requirements+="rusage[mem=%i]"%int(self.memory)
+        self.requirements.append("rusage[mem=%i]"%int(self.memory))
         
         req_str = " && ".join(self.requirements)
         print self.requirements, "STRING: ",req_str # to be removed!
