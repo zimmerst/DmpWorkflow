@@ -119,6 +119,8 @@ class JobInstance(db.Document):
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
     status_history = db.ListField()
+    memory = db.FloatField(verbose_name="memory", required=False)
+    cpu = db.FloatField(verbose_name="cpu", required=False)
     log = db.StringField(verbose_name="log", required=False, default="")
     job = db.ReferenceField("Job", reverse_delete_rule=mongoengine.CASCADE)
 
