@@ -18,7 +18,8 @@ class BatchJob(HPCBatchJob):
             extra = "-%s %s".join([(k, v) for (k, v) in self.extra.iteritems()])
         extra+= " -W \"%s\" "%self.cputime
         if isinstance(self.requirements,str): self.requirements.split(",")
-        req = "-R \"%s\""%"&&".join(self.requirements+["rusage[mem=%i"%int(self.memory)])
+        self.requirements+="rusage[mem=%i]"%int(self.memory)
+        req = "-R \"%s\""%"&&".join(self.requirements)
         cmd = "bsub -q {0} -eo {1} {2} {3} {4}".format(self.queue, self.logFile, req, extra, self.command)    
         print cmd
         self.__execWithUpdate__(cmd, "batchId")
