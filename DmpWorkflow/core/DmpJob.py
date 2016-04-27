@@ -81,8 +81,8 @@ class DmpJob(object):
     def write_script(self,pythonbin=None):
         """ based on meta-data should create job-executable """
         if pythonbin is None:
-            pythonbin = run(["which python"])[0]
-        print pythonbin
+            pythonbin = "python"
+        #print pythonbin
         self.wd = self.getWorkDir()
         mkdir(self.wd)
         safe_copy(os.path.join(DAMPE_WORKFLOW_ROOT, "scripts/dampe_execute_payload.py"),
@@ -135,7 +135,7 @@ class DmpJob(object):
 
     def submit(self, **kwargs):
         """ handles the submission part """
-        print BATCH_DEFAULTS
+        #print BATCH_DEFAULTS
         dry = kwargs['dry'] if 'dry' in kwargs else False
         local = kwargs['local'] if 'local' in kwargs else False
         if not dry: 

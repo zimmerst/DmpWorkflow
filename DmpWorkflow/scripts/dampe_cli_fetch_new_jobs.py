@@ -25,7 +25,7 @@ def main(args=None):
     for job in jobs:
         j = DmpJob.fromJSON(job)
         j.write_script(pythonbin=opts.python)
-        j.submit(dry=opts.dry,local=opts.local)
-                
+        ret = j.submit(dry=opts.dry,local=opts.local)
+        print ret
 if __name__ == "__main__":
     main()
