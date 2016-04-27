@@ -23,6 +23,18 @@ class AppLogger(object):
         self.__dict__.update(**kwargs)
         logging.basicConfig(format=self.FORMAT, level=self.LOG_LEVEL, datefmt='%m/%d/%Y %I:%M:%S %p')
         self.log = logging.getLogger()
+    def info(self,msg):
+        self.log.info(msg)
+    def error(self,msg):
+        self.log.error(msg)
+    def debug(self,msg):
+        self.log.debug(msg)
+    def exception(self,msg):
+        self.log.exception(msg)
+    def warning(self,msg):
+        self.log.warning(msg)
+    def critical(self,msg):
+        self.log.critical(msg)
 
 __myDefaults = {
     "DAMPE_SW_DIR": ".",
