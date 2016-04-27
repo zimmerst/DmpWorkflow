@@ -4,8 +4,6 @@ Created on Mar 15, 2016
 @author: zimmer
 """
 import requests
-import logging
-import time
 from argparse import ArgumentParser
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, AppLogger
@@ -25,7 +23,7 @@ def main(args=None):
     if not res.get("result", "nok") == "ok":
         log.error(res.get("error"))
     jobs = res.get("jobs")
-    logging.info('found %i new job instances to deploy',len(jobs))
+    log.info('found %i new job instances to deploy',len(jobs))
     for i,job in enumerate(jobs):
         if i < opts.chunk: 
             j = DmpJob.fromJSON(job)
