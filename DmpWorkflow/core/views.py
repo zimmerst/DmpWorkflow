@@ -185,10 +185,18 @@ class SetJobStatus(MethodView):
         job = Job.objects.filter(title=title)
         logger.debug("get: found job %s",job)
         queried_instances = []
-        if instId == -1 and n_min == -1 and n_max == -1:
-            queried_instances = JobInstance.objects.filter((job=job) & (status=stat))
+        if instId == -1:
+            queried_instances = JobInstance.objects.filter(job=job, status=stat)
+            filtered_instances = []
+            for inst in filtered_instances:
+                keep = True
+                instId = inst.instanceId
+                if n_min != -1 and instId <= n_min: keep = False
+                if n_max != -1 and instId  > n_max: keep = False
+                if keep: filtered_instances.append(inst)
+            queried_instances = filtered_instances        
         else:
-            queried_instances = JobInstance.objects.filter((job=job) & (status=stat) & ((instanceId=instId) | ((instanceId>=n_min) & (instanceId<n_max))))
+            queried_instances = JobInstance.objects.filter(job=job, status=stat, instanceId = instId)
         logger.debug("query returned %i instances",len(queried_instances))
         return json.dumps({"result":"ok", "jobs": queried_instances})
 
