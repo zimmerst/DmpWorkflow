@@ -5,6 +5,8 @@ Created on Mar 22, 2016
 """
 from DmpWorkflow.utils.shell import run
 from DmpWorkflow.config.defaults import AppLogger
+
+BATCH_ID_ENV = "NOT_DEFINED"
 class BatchJob(object):
     """ generic batch job which can be expanded by classes inheriting from this class """
     name = None
@@ -68,7 +70,9 @@ class BatchJob(object):
             for e in error.split("\n"): 
                 if len(e): self.logging.error(e)
         if rc:
-            self.logging.error("exception during execution")
+            err = "exception during execution"
+            self.logging.error(err)
+            raise Exception(err)
         return output
 
 

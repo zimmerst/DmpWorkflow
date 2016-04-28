@@ -29,9 +29,13 @@ def main(args=None):
         if i < opts.chunk: 
             j = DmpJob.fromJSON(job)
             j.write_script(pythonbin=opts.python,debug=opts.dry)
-            ret = j.submit(dry=opts.dry,local=opts.local)
-            j.updateStatus("Submitted","WaitingForExecution",batchId=ret)
-            njobs+=1
+            try: 
+                ret = j.submit(dry=opts.dry,local=opts.local)
+                j.updateStatus("Submitted","WaitingForExecution",batchId=ret)
+                njobs+=1
+            except Exception, e:
+                log.exception(e)
+                
     log.info("cycle completed, submitted %i new jobs",njobs)
 
 if __name__ == "__main__":
