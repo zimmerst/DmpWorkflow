@@ -25,10 +25,12 @@ def main(args=None):
     # get all jobs to roll back.
     res = requests.get("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data=my_dict)
     res.raise_for_status()
+    res = res.json()
     if res.get("result","nok") != "ok":
         print "error %s" % res.get("error")
     jobs = res.get("jobs")
     print 'found %i jobs that satisfy query conditions.'%len(jobs)
+
     #for j in jobs:
     #    job_id = 
     #    res = requests.post("%s/jobalive/" % DAMPE_WORKFLOW_URL, data={"taskid": JobId, "instanceid": InstanceId,
