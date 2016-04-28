@@ -84,6 +84,8 @@ class DmpJob(object):
             pythonbin = "python"
         #print pythonbin
         self.wd = self.getWorkDir()
+        if os.path.isdir(self.wd):
+            rm(self.wd)
         mkdir(self.wd)
         safe_copy(os.path.join(DAMPE_WORKFLOW_ROOT, "scripts/dampe_execute_payload.py"),
                   os.path.join(self.wd, "script.py"), debug=debug)
@@ -110,9 +112,7 @@ class DmpJob(object):
     def createLogFile(self):
         #mkdir(os.path.join("%s/logs" % self.wd))
         self.logfile = os.path.join(self.wd, "output.log")
-        if os.path.isfile(self.logfile):
-            rm(self.logfile)
-        # create the logfile before submitting.
+        if os.path.isfile(self.logfile): rm(self.logfile)
         touch(self.logfile)
 
     def updateStatus(self, majorStatus, minorStatus, **kwargs):
@@ -125,6 +125,10 @@ class DmpJob(object):
         res.raise_for_status()
         if not res.json().get("result", "nok") == "ok":
             raise Exception(res.json().get("error","ErrorMissing"))
+        if majorStatus in ["Done","Failed","Terminated"]:
+            witness = open(os.path.join(self.wd,"%s"%majorStatus.upper()),'w')
+            witness.write(self.getJobName())
+            witness.close()
         return
         # update_status(self.jobId, self.instanceId, majorStatus, minor_status=minorStatus, **kwargs)
 
