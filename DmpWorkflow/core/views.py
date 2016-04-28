@@ -176,6 +176,21 @@ class SetJobStatus(MethodView):
             return json.dumps({"result": "nok", "error": str(err)})
         return json.dumps({"result": "ok"})
 
+    def get(self):
+        title = unicode(request.form.get("title",None))
+        stat  = unicode(request.form.get("stat","Failed"))
+        instId = int(request.form.get("inst",-1))
+        n_min = int(request.form.get("n_min",-1))
+        n_max = int(request.form.get("n_max",-1))
+        job = Job.objects.filter(title=title)
+        logger.debug("get: found job %s",job)
+        queried_instances = []
+        if instId == -1 and n_min == -1 and n_max == -1:
+            queried_instances = JobInstance.objects.filter((job=job) & (status=stat))
+        else:
+            queried_instances = JobInstance.objects.filter((job=job) & (status=stat) & ((instanceId=instId) | ((instanceId>=n_min) & (instanceId<n_max))))
+        logger.debug("query returned %i instances",len(queried_instances))
+        return json.dumps({"result":"ok", "jobs": queried_instances})
 
 class NewJobs(MethodView):
     def get(self):
@@ -201,5 +216,5 @@ jobs.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
 jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobalive/", view_func=RefreshJobAlive.as_view('jobalive'), methods=["POST"])
-jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["POST"])
+jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET","POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
