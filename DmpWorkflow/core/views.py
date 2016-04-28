@@ -183,21 +183,25 @@ class SetJobStatus(MethodView):
         n_min = int(request.form.get("n_min",-1))
         n_max = int(request.form.get("n_max",-1))
         job = Job.objects.filter(title=title)
-        logger.debug("get: found job %s",job)
         queried_instances = []
-        if instId == -1:
-            queried_instances = JobInstance.objects.filter(job=job, status=stat)
-            filtered_instances = []
-            for inst in filtered_instances:
-                keep = True
-                instId = inst.instanceId
-                if n_min != -1 and instId <= n_min: keep = False
-                if n_max != -1 and instId  > n_max: keep = False
-                if keep: filtered_instances.append(inst)
-            queried_instances = filtered_instances        
+        if len(job):
+            logger.debug("get: found job %s",job)
+            if instId == -1:
+                queried_instances = JobInstance.objects.filter(job=job, status=stat)
+                filtered_instances = []
+                for inst in filtered_instances:
+                    keep = True
+                    instId = inst.instanceId
+                    if n_min != -1 and instId <= n_min: keep = False
+                    if n_max != -1 and instId  > n_max: keep = False
+                    if keep: filtered_instances.append(inst)
+                queried_instances = filtered_instances        
+            else:
+                queried_instances = JobInstance.objects.filter(job=job, status=stat, instanceId = instId)
+            logger.debug("query returned %i instances",len(queried_instances))
         else:
-            queried_instances = JobInstance.objects.filter(job=job, status=stat, instanceId = instId)
-        logger.debug("query returned %i instances",len(queried_instances))
+            logger.exception("could not find job")
+            return json.dumps({"result":"nok","error": "could not find job"})
         return json.dumps({"result":"ok", "jobs": queried_instances})
 
 class NewJobs(MethodView):
