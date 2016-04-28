@@ -21,9 +21,9 @@ def main(args=None):
                         help='number of instances to create at the same time')
     parser.add_argument("-i", "--input", dest="xml", help="Path to job XML")
     parser.add_argument("-n", '--name', help="task Name", dest="tname")
-    parser.add_argument("-s", '--site', help="site to run at", dest="site")
+    parser.add_argument("-s", '--site', help="site to run at", dest="site", required=True)
     opts = parser.parse_args(args)
-
+    assert opts.site in SITES, "site not supported in DB %s"%opts.site
     taskName = unicode(opts.tname)
     xmlFile = unicode(opts.xml)
     t_type = unicode(opts.t_type)
