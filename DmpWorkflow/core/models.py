@@ -54,7 +54,7 @@ class Job(db.Document):
         return None
 
     def addInstance(self, jInst, inst=None):
-        if len(self.jobInstances>=1000000):
+        if len(self.jobInstances)>=1000000:
             raise Exception("reached maximum of job instances, consider cloning this job instead.")
         if not isinstance(jInst, JobInstance):
             log.exception("must be job instance to be added")
