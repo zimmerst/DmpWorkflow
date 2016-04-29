@@ -3,7 +3,8 @@ Created on Mar 15, 2016
 @author: zimmer
 @brief: base class for DAMPE Workflow (HPC/client side)
 """
-import os.path
+
+import os.path as oPath
 import requests
 import jsonpickle
 import json
@@ -19,7 +20,7 @@ ExtScript = cfg.get("site","ExternalsScript")
 # todo2: add cfg parsing variables.
 class DmpJob(object):
     def __init__(self, job_id, body=None, **kwargs):
-        self.wd = os.path.abspath(".")
+        self.wd = oPath.abspath(".")
         self.title = None
         self.jobId = str(job_id)
         self.instanceId = None
@@ -40,7 +41,7 @@ class DmpJob(object):
     
     def getWorkDir(self):
         wdROOT = cfg.get("site","workdir")
-        wd = os.path.join(wdROOT,str(self.title),self.getSixDigits(asPath=True))
+        wd = oPath.join(wdROOT,str(self.title),self.getSixDigits(asPath=True))
         return wd
 
     def __updateEnv__(self):
@@ -48,7 +49,7 @@ class DmpJob(object):
         for fi in self.InputFiles + self.OutputFiles + self.MetaData:
             for key in ['value', 'source', 'target']:
                 if key in fi:
-                    fi[key] = os.path.expandvars(fi[key])
+                    fi[key] = oPath.expandvars(fi[key])
                     if key in override_keys:
                         bkey = key.replace("BATCH_OVERRIDE_","").lower()
                         BATCH_DEFAULTS[bkey]=fi[key]
@@ -84,17 +85,17 @@ class DmpJob(object):
             pythonbin = "python"
         #print pythonbin
         self.wd = self.getWorkDir()
-        if os.path.isdir(self.wd):
+        if oPath.isdir(self.wd):
             rm(self.wd)
         mkdir(self.wd)
-        safe_copy(os.path.join(DAMPE_WORKFLOW_ROOT, "scripts/dampe_execute_payload.py"),
-                  os.path.join(self.wd, "script.py"), debug=debug)
-        with open(os.path.join(self.wd, "job.json"), "wb") as json_file:
+        safe_copy(oPath.join(DAMPE_WORKFLOW_ROOT, "scripts/dampe_execute_payload.py"),
+                  oPath.join(self.wd, "script.py"), debug=debug)
+        with open(oPath.join(self.wd, "job.json"), "wb") as json_file:
             json_file.write(self.exportToJSON())
-        jsonLOC = os.path.abspath(os.path.join(self.wd, "job.json"))
-        script_file = open(os.path.join(self.wd,"script"),"w")
+        jsonLOC = oPath.abspath(oPath.join(self.wd, "job.json"))
+        script_file = open(oPath.join(self.wd,"script"),"w")
         cmds = ["#!/bin/bash","echo \"batch wrapper executing on $(date)\"",\
-                "source %s"%os.path.expandvars(ExtScript),\
+                "source %s"%oPath.expandvars(ExtScript),\
                 "cd %s"%self.wd,\
                 "echo \" dump of all environment variables \"",\
                 "env|sort",\
@@ -102,7 +103,7 @@ class DmpJob(object):
                 "echo \"batch wrapper completed at $(date)\""]
         script_file.write("\n".join(cmds))
         script_file.close()
-        make_executable(os.path.join(self.wd,"script"))
+        make_executable(oPath.join(self.wd,"script"))
         self.execCommand = "%s/script"%self.wd
         return
 
@@ -110,9 +111,9 @@ class DmpJob(object):
         return "${DAMPE_SW_DIR}/releases/DmpSoftware-%s/bin/thisdmpsw.sh" % self.release
 
     def createLogFile(self):
-        #mkdir(os.path.join("%s/logs" % self.wd))
-        self.logfile = os.path.join(self.wd, "output.log")
-        if os.path.isfile(self.logfile): rm(self.logfile)
+        #mkdir(oPath.join("%s/logs" % self.wd))
+        self.logfile = oPath.join(self.wd, "output.log")
+        if oPath.isfile(self.logfile): rm(self.logfile)
         touch(self.logfile)
 
     def updateStatus(self, majorStatus, minorStatus, **kwargs):
@@ -126,7 +127,7 @@ class DmpJob(object):
         if not res.json().get("result", "nok") == "ok":
             raise Exception(res.json().get("error","ErrorMissing"))
         if majorStatus in ["Done","Failed","Terminated"]:
-            witness = open(os.path.join(self.wd,"%s"%majorStatus.upper()),'w')
+            witness = open(oPath.join(self.wd,"%s"%majorStatus.upper()),'w')
             witness.write(self.getJobName())
             witness.close()
         return
