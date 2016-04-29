@@ -9,7 +9,7 @@ import ConfigParser
 import os
 import sys
 import logging
-import DmpWorkflow
+from DmpWorkflow import __path__ as DMPPath
 from DmpWorkflow.utils.tools import exceptionHandler
 
 def AppLogger(name,level=logging.INFO):
@@ -21,7 +21,7 @@ def AppLogger(name,level=logging.INFO):
     log.addHandler(ch)
     return log
 
-DAMPE_WORKFLOW_ROOT = os.path.dirname(DmpWorkflow.__file__)
+DAMPE_WORKFLOW_ROOT = os.path.dirname(DMPPath)
 
 __myDefaults = {
     "DAMPE_SW_DIR": ".",
