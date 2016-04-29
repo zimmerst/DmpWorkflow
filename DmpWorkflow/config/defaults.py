@@ -21,7 +21,7 @@ def AppLogger(name,level=logging.INFO):
     log.addHandler(ch)
     return log
 
-DAMPE_WORKFLOW_ROOT = os.path.dirname(DMPPath[0])
+DAMPE_WORKFLOW_ROOT = os.path.abspath(DMPPath[0])
 
 __myDefaults = {
     "DAMPE_SW_DIR": ".",
