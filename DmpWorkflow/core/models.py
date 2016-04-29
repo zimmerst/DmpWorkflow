@@ -2,6 +2,7 @@
 import datetime
 import sys
 import mongoengine
+import jsonpickle
 from flask import url_for
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db, app
@@ -11,8 +12,12 @@ if not cfg.getboolean("site", "traceback"):
     sys.excepthook = exceptionHandler
 
 log = app.logger
+class DampeDocument(db.Document):
+     def exportToJSON(self):
+        """ return a pickler of itself as JSON format """
+        return jsonpickle.encode(self)
 
-class Job(db.Document):
+class Job(DampeDocument):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     slug = db.StringField(verbose_name="slug", required=True, default=random_string_generator)
     title = db.StringField(max_length=255, required=True)
@@ -107,7 +112,7 @@ class Job(db.Document):
         'ordering': ['-created_at']
     }
 
-class JobInstance(db.Document):
+class JobInstance(DampeDocument):
     instanceId = db.LongField(verbose_name="instanceId", required=False, default=None)
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
