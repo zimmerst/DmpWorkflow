@@ -205,7 +205,7 @@ class SetJobStatus(MethodView):
                     if keep: filtered_instances.append(inst)
                 queried_instances = filtered_instances
             else:
-                queried_instances = JobInstance.objects.filter(job=job, status=stat, instanceId = instId)
+                queried_instances = JobInstance.objects.filter(job=job, instanceId = instId)
             logger.debug("query returned %i instances",len(queried_instances))
             queried_instances = [{"instanceId":q.instanceId, "jobId":str(q.job.id)} for q in queried_instances]
             if len(queried_instances): 

@@ -130,6 +130,8 @@ class JobInstance(db.Document):
         return lines
 
     def set(self, key, value):
+        if key == "created_at" and value == "Now": 
+            value = datetime.datetime.now()
         self.__setattr__(key, value)
         log.debug("setting %s : %s",key,value)
         self.__setattr__("last_update", datetime.datetime.now())
