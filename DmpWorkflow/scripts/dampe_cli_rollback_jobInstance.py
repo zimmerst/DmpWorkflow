@@ -6,6 +6,7 @@ Created on Mar 15, 2016
 import requests
 import json
 import datetime
+import sys
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 from DmpWorkflow.utils.tools import query_yes_no
@@ -24,6 +25,12 @@ def main(args=None):
     parser.add_argument("--n_max", dest="n_max", type=int, default=None, help='roll back everything below this number', 
                         required=False)
     opts = parser.parse_args(args)
+    if opts.n_min is None and opts.n_max is None and opts.inst is None and opts.stat == "Any":
+        q = query_yes_no("WARNING: you are requesting to roll back all instances of job %s, are you sure?"%opts.title)
+        if not q:
+            print 'rollback aborted'
+            sys.exit()
+            
     my_dict = {}
     for key in opts.__dict__:
         if opts.__dict__[key] is not None:
@@ -51,9 +58,10 @@ def main(args=None):
             print 'rolled back %i instances'%len(jobs)
         else:
             print 'rollback aborted'
+            sys.exit()
     else:
         print 'could not find any jobs satisfying the query.'
-
+        sys.exit()
 
 if __name__ == '__main__':
     main()
