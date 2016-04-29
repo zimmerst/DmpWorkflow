@@ -7,7 +7,6 @@ import requests
 import json
 import datetime
 import sys
-import progressbar
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 from DmpWorkflow.utils.tools import query_yes_no
@@ -46,12 +45,9 @@ def main(args=None):
         print "error %s" % res.get("error")
     jobs = res.get("jobs")
     if len(jobs):
-        progress = progressbar.AnimatedProgressBar(end=len(jobs), width=50)
         print 'found %i jobs that satisfy query conditions.'%len(jobs)
         if query_yes_no("continue rolling back %i instances?"%len(jobs)):
             for j in jobs:
-                progress.show_progress()
-                progress + 1
                 my_dict = {"t_id": j['jobId'], "inst_id": j['instanceId'], 
                            "major_status": "New", "minor_status":"AwaitingBatchSubmission", "hostname":None,
                            "batchId":None, "status_history":[], 

@@ -9,4 +9,3 @@ WTForms
 jsonpickle
 requests
 importlib
-progressbar
