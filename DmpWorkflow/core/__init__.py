@@ -21,7 +21,7 @@ if kind == 'server':
         app.register_blueprint(jobs)
         app.register_blueprint(admin)
     
-    
+
     register_blueprints(app)
     
     

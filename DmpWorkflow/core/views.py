@@ -182,12 +182,17 @@ class SetJobStatus(MethodView):
         instId = int(request.form.get("inst",-1))
         n_min = int(request.form.get("n_min",-1))
         n_max = int(request.form.get("n_max",-1))
-        job = Job.objects.filter(title=title)
+        jobs = Job.objects.filter(title=title)
         queried_instances = []
-        if len(job):
-            logger.debug("get: found job %s",job)
+        if len(jobs):
+            logger.debug("get: found jobs matching query %s",jobs)
+            if len(jobs)!=1:
+                logger.error("found multiple jobs matching query, that shouldn't happen!")
+            job = jobs[0]
             if instId == -1:
-                queried_instances = JobInstance.objects.filter(job=job, status=stat)
+                logger.debug("Q: job=%s status=%s",job,stat)
+                queried_instances = JobInstance.objects.filter(job=job, status=str(stat))
+                logger.debug("query returned %i queried_instances",len(queried_instances))
                 filtered_instances = []
                 for inst in filtered_instances:
                     keep = True
