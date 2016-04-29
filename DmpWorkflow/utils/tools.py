@@ -33,7 +33,7 @@ def getSixDigits(number,asPath=False):
                     padding = "".join(["x" for i in range(len(str(b))-1)])
                     my_path.append("%i%s"%(value,padding))
                     rest = rest
-            my_path.append(rest.zfill(2))
+            my_path.append(str(rest).zfill(2))
             return "/".join([str(s) for s in my_path])
 
 def query_yes_no(question):
