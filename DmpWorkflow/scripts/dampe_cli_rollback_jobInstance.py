@@ -7,7 +7,7 @@ import requests
 import json
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
-from DmpWorkflow.utils.tools import user_yes_no_query
+from DmpWorkflow.utils.tools import query_yes_no
 
 def main(args=None):
     usage = "Usage: %(prog)s JobName [options]"
@@ -31,15 +31,17 @@ def main(args=None):
         print "error %s" % res.get("error")
     jobs = res.get("jobs")
     print 'found %i jobs that satisfy query conditions.'%len(jobs)
-    user_yes_no_query("continue rolling back %i instances?"%len(jobs))
-    for j in jobs:
-        res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"taskid": j['jobId'], "instanceid": j['instanceId'],
-                                                                       "hostname": "None", "status": "New"})
-        res.raise_for_status()
-        res = res.json()
-        if not res.get("result", "nok") == "ok":
-            print ("error resetting instance %s"%res.get("error"))
-    print 'rollback complete'
+    if query_yes_no("continue rolling back %i instances?"%len(jobs)):
+        for j in jobs:
+            my_dict = {"t_id": j['jobId'], "inst_id": j['instanceId'], "major_status": "New", "hostname":"None"}
+            res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": my_dict})
+            res.raise_for_status()
+            res = res.json()
+            if not res.get("result", "nok") == "ok":
+                print ("error resetting instance %s"%res.get("error"))
+        print 'rolled back %i instances'%len(jobs)
+    else:
+        print 'rollback aborted'
         
 
 

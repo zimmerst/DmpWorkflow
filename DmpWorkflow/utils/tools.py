@@ -13,16 +13,19 @@ import subprocess as sub
 import time
 from StringIO import StringIO
 from xml.dom import minidom as xdom
-from distutils.util import strtobool
 
-def user_yes_no_query(question):
-    #http://stackoverflow.com/questions/3041986/python-command-line-yes-no-input
-    sys.stdout.write('%s [y/n]\n' % question)
-    while True:
-        try:
-            return strtobool(raw_input().lower())
-        except ValueError:
-            sys.stdout.write('Please respond with \'y\' or \'n\'.\n')
+def query_yes_no(question):
+    print question
+    yes = set(['yes','y', 'ye', ''])
+    no = set(['no','n'])
+    choice = raw_input().lower()
+    if choice in yes:
+        return True
+    elif choice in no:
+        return False
+    else:
+        sys.stdout.write("Please respond with 'yes' or 'no'")
+        return False
 
 def exceptionHandler(exception_type, exception, traceback):
     # All your trace are belong to us!
