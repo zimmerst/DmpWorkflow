@@ -178,7 +178,7 @@ class SetJobStatus(MethodView):
 
     def get(self):
         title = unicode(request.form.get("title",None))
-        stat  = unicode(request.form.get("stat","Failed"))
+        stat  = unicode(request.form.get("stat","Any"))
         instId = int(request.form.get("inst",-1))
         n_min = int(request.form.get("n_min",-1))
         n_max = int(request.form.get("n_max",-1))
@@ -191,7 +191,10 @@ class SetJobStatus(MethodView):
             job = jobs[0]
             if instId == -1:
                 logger.debug("Q: job=%s status=%s",job,stat)
-                queried_instances = JobInstance.objects.filter(job=job, status=str(stat))
+                if stat == "Any":
+                    queried_instances = JobInstance.objects.filter(job=job)
+                else:
+                    queried_instances = JobInstance.objects.filter(job=job,status=str(stat))
                 logger.debug("query returned %i queried_instances",len(queried_instances))
                 filtered_instances = []
                 for inst in queried_instances:

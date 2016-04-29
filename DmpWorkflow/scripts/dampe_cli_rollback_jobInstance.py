@@ -14,9 +14,10 @@ def main(args=None):
     usage = "Usage: %(prog)s JobName [options]"
     description = "roll-back Jobs in DB"
     parser = ArgumentParser(usage=usage, description=description)
-    parser.add_argument("--title", dest="title", type=str, default=None, help='name of job', required=False)
-    parser.add_argument("--instance", dest="inst", type=int, default=None, help='to roll back specific instance', required=False)
-    parser.add_argument("--status", dest="stat", type=str, default="Failed", help='jobs to be picked for roll-back', required=False)
+    parser.add_argument("--title", dest="title", type=str, default=None, help='name of job, required!', required=True)
+    parser.add_argument("--instance", dest="inst", type=int, default=None, 
+                        help='to roll back specific instance', required=False)
+    parser.add_argument("--status", dest="stat", type=str, default="Any", help='jobs to be picked for roll-back, Any will return all statii!', required=False)
     parser.add_argument("--n_min", dest="n_min", type=int, default=None, help='roll back everything above this number', required=False)
     parser.add_argument("--n_max", dest="n_max", type=int, default=None, help='roll back everything below this number', required=False)
     opts = parser.parse_args(args)
