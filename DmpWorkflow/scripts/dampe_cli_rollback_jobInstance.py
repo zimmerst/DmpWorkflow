@@ -26,11 +26,13 @@ def main(args=None):
                         required=False)
     opts = parser.parse_args(args)
     if opts.n_min is None and opts.n_max is None and opts.inst is None and opts.stat == "Any":
-        q = query_yes_no("WARNING: you are requesting to roll back all instances of job %s, are you sure?"%opts.title)
+        q = query_yes_no("WARNING: you are requesting to roll back all instances of job %s.\nThis query may take a while to be completed, are you sure?"%opts.title)
         if not q:
             print 'rollback aborted'
             sys.exit()
-            
+    if not (opts.n_min is None and opts.n_max is None):
+        _range = opts.n_max - opts.n_min
+        if _range > 100: print 'WARNING: you are querying more than 100 jobs, this may take a while to complete'
     my_dict = {}
     for key in opts.__dict__:
         if opts.__dict__[key] is not None:
