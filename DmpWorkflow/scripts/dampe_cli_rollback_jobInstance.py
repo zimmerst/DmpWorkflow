@@ -38,7 +38,7 @@ def main(args=None):
         res.raise_for_status()
         res = res.json()
         if not res.get("result", "nok") == "ok":
-            print.error("error resetting instance %s", res.get("error"))
+            print ("error resetting instance %s"%res.get("error"))
     print 'rollback complete'
         
 
