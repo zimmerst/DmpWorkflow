@@ -21,7 +21,7 @@ def getSixDigits(number,asPath=False):
     if not asPath: return str(number).zfill(6)
     else:
         if number<100:
-            return str(number)
+            return str(number).zfill(2)
         else:
             my_path = []
             rest = copy.deepcopy(number)
@@ -33,7 +33,7 @@ def getSixDigits(number,asPath=False):
                     padding = "".join(["x" for i in range(len(str(b))-1)])
                     my_path.append("%i%s"%(value,padding))
                     rest = rest
-            my_path.append(rest.zfill(3))
+            my_path.append(rest.zfill(2))
             return "/".join([str(s) for s in my_path])
 
 def query_yes_no(question):
