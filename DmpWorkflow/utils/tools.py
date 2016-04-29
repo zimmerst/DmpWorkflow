@@ -23,7 +23,7 @@ def query_yes_no(question):
     if choice in yes: ret = True
     elif choice in no: ret = False
     else:
-        sys.stdout.write("Please respond with 'yes' or 'no', aborting")
+        sys.stdout.write("Please respond with 'yes' or 'no', aborting\n")
         ret = False
     return ret
 
