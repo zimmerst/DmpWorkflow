@@ -205,7 +205,8 @@ class SetJobStatus(MethodView):
                 queried_instances = JobInstance.objects.filter(job=job, status=stat, instanceId = instId)
             logger.debug("query returned %i instances",len(queried_instances))
             queried_instances = [{"instanceId":q.instanceId, "jobId":q.job.id} for q in queried_instances]
-            
+            if len(queried_instances): 
+                logger.debug("example query instance %s",queried_instances[-1])
         else:
             logger.exception("could not find job")
             return json.dumps({"result":"nok","error": "could not find job"})
