@@ -7,7 +7,7 @@ import requests
 import json
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
-from DmpWorkflow.tools.utils import user_yes_no_query
+from DmpWorkflow.utils.tools import user_yes_no_query
 
 def main(args=None):
     usage = "Usage: %(prog)s JobName [options]"
