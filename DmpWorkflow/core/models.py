@@ -23,9 +23,6 @@ class Job(db.Document):
     dependencies = db.ListField(db.ReferenceField("Job"))
     execution_site = db.StringField(max_length=255, required=True, default="local", choices=SITES)
     jobInstances = db.ListField(db.ReferenceField("JobInstance"))
-    def exportToJSON(self):
-        """ return a pickler of itself as JSON format """
-        return jsonpickle.encode(self)
 
     def addDependency(self, job):
         if not isinstance(job, Job):
@@ -127,10 +124,6 @@ class JobInstance(db.Document):
     cpu = db.FloatField(verbose_name="cpu", required=False)
     log = db.StringField(verbose_name="log", required=False, default="")
     job = db.ReferenceField("Job", reverse_delete_rule=mongoengine.CASCADE)
-
-    def exportToJSON(self):
-        """ return a pickler of itself as JSON format """
-        return jsonpickle.encode(self)
 
     def getLog(self):
         lines = self.log.split("\n")
