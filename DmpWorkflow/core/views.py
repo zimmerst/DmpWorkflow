@@ -200,10 +200,11 @@ class SetJobStatus(MethodView):
                     if n_min != -1 and instId <= n_min: keep = False
                     if n_max != -1 and instId  > n_max: keep = False
                     if keep: filtered_instances.append(inst)
-                queried_instances = filtered_instances        
+                queried_instances = filtered_instances
             else:
                 queried_instances = JobInstance.objects.filter(job=job, status=stat, instanceId = instId)
             logger.debug("query returned %i instances",len(queried_instances))
+            queried_instances = [q.exportToJSON() for q in queried_instances]
         else:
             logger.exception("could not find job")
             return json.dumps({"result":"nok","error": "could not find job"})
