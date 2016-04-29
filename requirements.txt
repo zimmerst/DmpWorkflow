@@ -9,3 +9,4 @@ WTForms
 jsonpickle
 requests
 importlib
+distutils

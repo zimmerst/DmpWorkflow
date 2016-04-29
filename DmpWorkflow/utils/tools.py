@@ -4,6 +4,7 @@ Created on Mar 25, 2016
 @author: zimmer
 """
 import os
+import sys
 import os.path
 import random
 import shlex
@@ -12,6 +13,15 @@ import subprocess as sub
 import time
 from StringIO import StringIO
 from xml.dom import minidom as xdom
+from distutils.util import strtobool
+
+def user_yes_no_query(question):
+    sys.stdout.write('%s [y/n]\n' % question)
+    while True:
+        try:
+            return strtobool(raw_input().lower())
+        except ValueError:
+            sys.stdout.write('Please respond with \'y\' or \'n\'.\n')
 
 def exceptionHandler(exception_type, exception, traceback):
     # All your trace are belong to us!
