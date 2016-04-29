@@ -131,6 +131,7 @@ class JobInstance(db.Document):
 
     def set(self, key, value):
         self.__setattr__(key, value)
+        log.debug("setting %s : %s",key,value)
         self.__setattr__("last_update", datetime.datetime.now())
         self.save()
 
