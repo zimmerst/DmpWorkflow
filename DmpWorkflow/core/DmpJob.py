@@ -10,7 +10,7 @@ import json
 import importlib
 
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
-from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict
+from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits
 from DmpWorkflow.utils.shell import run, make_executable
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 PYTHONBIN = ""
@@ -40,7 +40,7 @@ class DmpJob(object):
     
     def getWorkDir(self):
         wdROOT = cfg.get("site","workdir")
-        wd = os.path.join(wdROOT,str(self.jobId),self.getSixDigits())
+        wd = os.path.join(wdROOT,str(self.title),self.getSixDigits(asPath=True))
         return wd
 
     def __updateEnv__(self):
@@ -161,8 +161,8 @@ class DmpJob(object):
         """ return a pickler of itself as JSON format """
         return jsonpickle.encode(self)
 
-    def getSixDigits(self):
-        return str(self.instanceId).zfill(6)
+    def getSixDigits(self, asPath=False):
+        return getSixDigits(self.instanceId, asPath=asPath)
 
     @classmethod
     def fromJSON(cls, jsonstr):

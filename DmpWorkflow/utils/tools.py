@@ -5,6 +5,7 @@ Created on Mar 25, 2016
 """
 import os
 import sys
+import copy
 import os.path
 import random
 import shlex
@@ -13,6 +14,27 @@ import subprocess as sub
 import time
 from StringIO import StringIO
 from xml.dom import minidom as xdom
+
+def getSixDigits(number,asPath=False):
+    """ since we can have many many streams, break things up into chunks, 
+        this should make sure that 'ls' is not too slow. """
+    if not asPath: return str(number).zfill(6)
+    else:
+        if number<100:
+            return str(number)
+        else:
+            my_path = []
+            rest = copy.deepcopy(number)
+            blocks = [100000,10000,1000,100]
+            for b in blocks:
+                value, rest = divmod(rest,b)
+                #print b, value, rest
+                if value:
+                    padding = "".join(["x" for i in range(len(str(b))-1)])
+                    my_path.append("%i%s"%(value,padding))
+                    rest = rest
+            my_path.append(rest)
+            return "/".join([str(s) for s in my_path])
 
 def query_yes_no(question):
     print question+" [yes/no]"
