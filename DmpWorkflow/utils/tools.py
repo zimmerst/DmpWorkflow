@@ -16,6 +16,7 @@ from xml.dom import minidom as xdom
 from distutils.util import strtobool
 
 def user_yes_no_query(question):
+    #http://stackoverflow.com/questions/3041986/python-command-line-yes-no-input
     sys.stdout.write('%s [y/n]\n' % question)
     while True:
         try:
