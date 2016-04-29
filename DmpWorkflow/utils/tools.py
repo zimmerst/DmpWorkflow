@@ -15,17 +15,17 @@ from StringIO import StringIO
 from xml.dom import minidom as xdom
 
 def query_yes_no(question):
-    print question
+    print question+" [yes/no]"
+    ret = False
     yes = set(['yes','y', 'ye', ''])
     no = set(['no','n'])
     choice = raw_input().lower()
-    if choice in yes:
-        return True
-    elif choice in no:
-        return False
+    if choice in yes: ret = True
+    elif choice in no: ret = False
     else:
-        sys.stdout.write("Please respond with 'yes' or 'no'")
-        return False
+        sys.stdout.write("Please respond with 'yes' or 'no', aborting")
+        ret = False
+    return ret
 
 def exceptionHandler(exception_type, exception, traceback):
     # All your trace are belong to us!

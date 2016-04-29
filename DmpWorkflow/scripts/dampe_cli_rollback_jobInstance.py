@@ -34,7 +34,7 @@ def main(args=None):
     if query_yes_no("continue rolling back %i instances?"%len(jobs)):
         for j in jobs:
             my_dict = {"t_id": j['jobId'], "inst_id": j['instanceId'], "major_status": "New", "hostname":"None"}
-            res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": my_dict})
+            res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
             res.raise_for_status()
             res = res.json()
             if not res.get("result", "nok") == "ok":
