@@ -2,7 +2,6 @@
 import datetime
 import sys
 import mongoengine
-import jsonpickle
 from flask import url_for
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db, app
