@@ -30,7 +30,8 @@ def main(args=None):
         print "error %s" % res.get("error")
     jobs = res.get("jobs")
     print 'found %i jobs that satisfy query conditions.'%len(jobs)
-
+    for j in jobs:
+        print "InstanceId: {0} Created_at: {1} Major Status: {2} Minor Status: {3} Job Reference: {4} ".format(j.instanceId, j.created_at, j.status, j.minor_status, j.job)
     #for j in jobs:
     #    job_id = 
     #    res = requests.post("%s/jobalive/" % DAMPE_WORKFLOW_URL, data={"taskid": JobId, "instanceid": InstanceId,
