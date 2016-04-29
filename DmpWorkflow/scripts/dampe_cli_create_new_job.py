@@ -7,21 +7,15 @@ Created on Mar 30, 2016
 import requests
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, TYPES, SITES
-# from DmpWorkflow.utils.db_helpers import parseJobXmlToDict
-
-_TYPES = list(TYPES) + [u"NONE"]
-
-# dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
-
 
 def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
-    parser.add_argument("-t", "--type", dest="t_type", type=str, default="", help='task type', choices=_TYPES)
+    parser.add_argument("-t", "--type", dest="t_type", type=str, default="User", help='task type', choices=TYPES)
     parser.add_argument("--Ninstances", dest="Ninstances", type=int, default=0,
                         help='number of instances to create at the same time')
     parser.add_argument("-i", "--input", dest="xml", help="Path to job XML")
     parser.add_argument("-n", '--name', help="task Name", dest="tname")
-    parser.add_argument("-s", '--site', help="site to run at", dest="site", required=True)
+    parser.add_argument("-s", '--site', help="site to run at", dest="site", default='local', required=True, choices=SITES)
     opts = parser.parse_args(args)
     assert opts.site in SITES, "site not supported in DB %s"%opts.site
     taskName = unicode(opts.tname)
