@@ -229,6 +229,7 @@ class NewJobs(MethodView):
                 dJob = DmpJob(job.id, job.body.read())
                 for j in newJobs:
                     dInstance = copy.deepcopy(dJob)
+                    dInstance.title = job.title
                     dInstance.setInstanceParameters(j.instanceId, j.body)
                     newJobInstances.append(dInstance.exportToJSON())
         return json.dumps({"result":"ok", "jobs": newJobInstances})
