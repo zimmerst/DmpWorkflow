@@ -17,7 +17,7 @@ def main(args=None):
     parser.add_argument("--Ninstances", dest="Ninstances", type=int, default=0,
                         help='number of instances to create at the same time')
     parser.add_argument("-i", "--input", dest="xml", help="Path to job XML", required=True)
-    parser.add_argument("-n", '--name', help="task Name", dest="tname")
+    parser.add_argument("-n", '--name', help="task Name", dest="name")
     parser.add_argument("-s", '--site', help="site to run at", dest="site", default='local', choices=SITES)
     opts = parser.parse_args(args)
     xmlFile = unicode(opts.xml)
