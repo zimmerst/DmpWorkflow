@@ -14,6 +14,7 @@ def main():
     batchEngine = HPC.BatchEngine()
     batchEngine.update()
     for batchId, job_dict in batchEngine.allJobs.iteritems():
+        print batchId, job_dict
         JobId, InstanceId = job_dict['JOB_NAME'].split(".")
         hostname = job_dict["EXEC_HOST"]
         status = batchEngine.status_map[job_dict['STAT']]

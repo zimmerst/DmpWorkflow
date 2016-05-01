@@ -80,14 +80,12 @@ class BATCH(object):
     """
     generic Batch class, all HPC-specific modules should inherit from it.
     """
-    allJobs = {}
-    keys = []
-    status_map = {}
-    logging = AppLogger("BATCH")
 
     def __init__(self):
-        self.allJobs = self.update()
-        
+        self.allJobs = {}
+        self.keys = []
+        self.status_map = {}
+        self.logging = AppLogger("BATCH")        
 
     def update(self):
         return {}
