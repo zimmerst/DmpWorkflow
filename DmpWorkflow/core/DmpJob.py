@@ -55,6 +55,7 @@ class DmpJob(object):
                         bkey = key.replace("BATCH_OVERRIDE_","").lower()
                         BATCH_DEFAULTS[bkey]=fi[key]
         environ['DWF_TASKNAME']=self.title
+        os.environ['RELEASE_TAG']=self.release
         return      
 
     def getJobName(self):

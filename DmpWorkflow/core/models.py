@@ -36,7 +36,11 @@ class Job(db.Document):
 
     def getNevents(self):
         #log.warning("FIXME: need to implement fast query")
-        return "NaN"
+        jIs = JobInstance.objects.filter(job=self)
+        envs = [j.Nevents for j in jIs]
+        while None in envs:
+            envs.remove(None)
+        return sum(envs)
 
     def getBody(self):
         # os.environ["DWF_JOBNAME"] = self.title
@@ -115,7 +119,7 @@ class JobInstance(db.Document):
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
     last_update = db.DateTimeField(default=datetime.datetime.now, required=True)
     batchId = db.LongField(verbose_name="batchId", required=False, default=None)
-    Nevents = db.LongField(verbose_name="Nevents", required=False, default=None)
+    Nevents = db.LongField(verbose_name="Nevents", required=False, default=0)
     site = db.StringField(verbose_name="site", required=False, default="local", choices=SITES)
     hostname = db.StringField(verbose_name="hostname", required=False, default=None)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
