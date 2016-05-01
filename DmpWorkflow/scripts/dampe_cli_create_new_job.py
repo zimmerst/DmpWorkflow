@@ -24,7 +24,7 @@ def main(args=None):
     assert isfile(opts.xml), "must be an accessible file."
     xdict = parseJobXmlToDict(open(opts.xml,"r").read())
     atts = xdict['atts']
-    opts.update(atts)
+    vars(opts).update(atts)
     assert opts.site in SITES, "site not supported in DB %s"%opts.site
     taskName = unicode(opts.tname)
     t_type = unicode(opts.t_type)
