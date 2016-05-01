@@ -50,6 +50,8 @@ if __name__ == '__main__':
             finally:
                 if not DEBUG_TEST:
                     exit(4)
+    log.info("content of current working directory %s: %s",os.path.abspath(os.curdir),str(os.listdir(os.curdir)))
+    
     log.info("successfully completed staging.")
     # next, run the executable
     with open('payload', 'w') as foo:
@@ -70,6 +72,7 @@ if __name__ == '__main__':
             if not DEBUG_TEST:
                 exit(5)
     log.info("successfully completed running application")
+    log.info("content of current working directory %s: %s",os.path.abspath(os.curdir),str(os.listdir(os.curdir)))
     
     # finally, compile output file.
     job.updateStatus("Running", "PreparingOutputData")
