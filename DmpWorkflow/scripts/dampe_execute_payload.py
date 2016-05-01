@@ -35,7 +35,9 @@ if __name__ == '__main__':
         log.exception(err)
     # first, set all variables
     for var in job.MetaData: os.environ[var['name']] = os.path.expandvars(var['value'])
-    log.debug("current environment settings %s",str(os.environ))
+    log.info("current environment settings")
+    for key, value in os.environ.iteritems():
+        log.info("%s: %s",key,value)
     
     for fi in job.InputFiles:
         src = os.path.expandvars(fi['source'])
