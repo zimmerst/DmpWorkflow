@@ -29,7 +29,7 @@ def main(args=None):
     taskName = unicode(atts['name'])
     t_type = unicode(atts['t_type'])
     site = unicode(atts['site'])
-    print vars(opts)        
+    #print vars(opts)        
     res = requests.post("%s/job/" % DAMPE_WORKFLOW_URL,
                         data={"taskname": taskName, "t_type": t_type, "n_instances": n_instances, "site" : site},
                         files={"file":open(xmlFile, "rb")})
