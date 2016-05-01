@@ -5,6 +5,7 @@ Created on Mar 15, 2016
 """
 
 import os.path as oPath
+from os import environ
 import requests
 import jsonpickle
 import json
@@ -53,7 +54,7 @@ class DmpJob(object):
                     if key in override_keys:
                         bkey = key.replace("BATCH_OVERRIDE_","").lower()
                         BATCH_DEFAULTS[bkey]=fi[key]
-        os.environ['DWF_TASKNAME']=self.title
+        environ['DWF_TASKNAME']=self.title
         return      
 
     def getJobName(self):
