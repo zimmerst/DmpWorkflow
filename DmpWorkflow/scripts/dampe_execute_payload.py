@@ -36,9 +36,7 @@ if __name__ == '__main__':
     # first, set all variables
     for var in job.MetaData: os.environ[var['name']] = os.path.expandvars(var['value'])
     log.info("current environment settings")
-    for key, value in os.environ.iteritems():
-        log.info("%s: %s",key,value)
-    
+    log.info("\n".join(["%s: %s"%(key,value) for key, value in sorted(os.environ.iteritems())]))    
     for fi in job.InputFiles:
         src = os.path.expandvars(fi['source'])
         tg = os.path.expandvars(fi['target'])

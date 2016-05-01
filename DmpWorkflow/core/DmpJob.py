@@ -167,4 +167,6 @@ class DmpJob(object):
 
     @classmethod
     def fromJSON(cls, jsonstr):
-        return jsonpickle.decode(jsonstr)
+        kc = jsonpickle.decode(jsonstr)
+        kc.__updateEnv__()
+        return kc
