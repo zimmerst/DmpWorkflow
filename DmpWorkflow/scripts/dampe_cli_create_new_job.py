@@ -26,7 +26,7 @@ def main(args=None):
     atts = xdict['atts']
     vars(opts).update(atts)
     assert opts.site in SITES, "site not supported in DB %s"%opts.site
-    taskName = unicode(opts.tname)
+    taskName = unicode(opts.name)
     t_type = unicode(opts.t_type)
     n_instances = int(opts.Ninstances)
     site = unicode(opts.site)
