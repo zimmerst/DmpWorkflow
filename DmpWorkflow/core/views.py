@@ -226,10 +226,9 @@ class NewJobs(MethodView):
             logger.debug("newJobs: %s",str(newJobs))
             if len(newJobs):
                 logger.debug("found %i new instances for job %s",len(newJobs),str(job.title))
-                dJob = DmpJob(job.id, job.body.read())
+                dJob = DmpJob(job.id, job.body.read(), title=job.title)
                 for j in newJobs:
                     dInstance = copy.deepcopy(dJob)
-                    dInstance.title = job.title
                     dInstance.setInstanceParameters(j.instanceId, j.body)
                     newJobInstances.append(dInstance.exportToJSON())
         return json.dumps({"result":"ok", "jobs": newJobInstances})
