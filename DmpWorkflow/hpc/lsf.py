@@ -71,7 +71,6 @@ class BatchEngine(BATCH):
             print error.split("\n")
             for e in error.split("\n"): 
                 if len(e): self.logging.error(e)
-        
         if not asDict:
             return output
         else:
