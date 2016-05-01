@@ -6,7 +6,6 @@ Created on Mar 30, 2016
 """
 import requests
 from os.path import isfile
-import os.path as oP
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, TYPES, SITES
 from DmpWorkflow.utils.tools import parseJobXmlToDict
