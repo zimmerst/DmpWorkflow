@@ -98,8 +98,6 @@ class DmpJob(object):
         cmds = ["#!/bin/bash","echo \"batch wrapper executing on $(date)\"",\
                 "source %s"%oPath.expandvars(ExtScript),\
                 "cd %s"%self.wd,\
-                "echo \" dump of all environment variables \"",\
-                "env|sort",\
                 "%s script.py %s"%(pythonbin,jsonLOC),\
                 "echo \"batch wrapper completed at $(date)\""]
         script_file.write("\n".join(cmds))
