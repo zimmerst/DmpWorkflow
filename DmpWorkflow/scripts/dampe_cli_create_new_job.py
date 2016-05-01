@@ -24,7 +24,7 @@ def main(args=None):
     n_instances = int(opts.Ninstances)
     xdict = parseJobXmlToDict(open(opts.xml,"r").read())
     atts = xdict['atts']
-    atts.update(vars(opts))
+    for key, value in vars(opts).iteritems: atts.setdefault(key,value)
     assert atts['site'] in SITES, "site not supported in DB %s"%atts['site']
     taskName = unicode(atts['name'])
     t_type = unicode(atts['t_type'])
