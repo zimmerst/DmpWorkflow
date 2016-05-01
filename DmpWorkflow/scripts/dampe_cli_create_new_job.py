@@ -22,14 +22,14 @@ def main(args=None):
     opts = parser.parse_args(args)
     xmlFile = unicode(opts.xml)
     assert isfile(opts.xml), "must be an accessible file."
+    n_instances = int(opts.Ninstances)
     xdict = parseJobXmlToDict(open(opts.xml,"r").read())
     atts = xdict['atts']
-    vars(opts).update(atts)
-    assert opts.site in SITES, "site not supported in DB %s"%opts.site
-    taskName = unicode(opts.name)
-    t_type = unicode(opts.t_type)
-    n_instances = int(opts.Ninstances)
-    site = unicode(opts.site)
+    atts.update(vars(opts))
+    assert atts['site'] in SITES, "site not supported in DB %s"%atts['site']
+    taskName = unicode(atts['name'])
+    t_type = unicode(atts['t_type'])
+    site = unicode(atts['site'])
     print vars(opts)        
     res = requests.post("%s/job/" % DAMPE_WORKFLOW_URL,
                         data={"taskname": taskName, "t_type": t_type, "n_instances": n_instances, "site" : site},
