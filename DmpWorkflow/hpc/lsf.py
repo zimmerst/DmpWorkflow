@@ -70,12 +70,17 @@ class BatchEngine(BATCH):
         totalSecs = float(secs)+60*float(min)+3600*float(hr)
         return totalSecs
     
-    def getMemory(self,jobId, key = "MEM"):
+    def getMemory(self,jobId, key = "MEM", unit='kB'):
         """ format is kb, i believe."""
         if not jobId in self.allJobs:
             return 0.
         mem_str = self.allJobs[jobId][key]
-        return float(mem_str)
+        mem = float(mem_str)
+        if unit in ['MB','GB']:
+            mem/=1024.
+            if unit == 'GB':
+                mem/=1024.
+        return mem
         
         
     def aggregateStatii(self, asDict=True, command=None):

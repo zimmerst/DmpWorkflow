@@ -93,7 +93,7 @@ class BATCH(object):
         return {}
     def getCPUtime(self,job, key = None):
         return 0.
-    def getMemory(self,job, key = None):
+    def getMemory(self,job, key = None, unit='kB'):
         return 0.
     
     def __checkKeys__(self, key):
