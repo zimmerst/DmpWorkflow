@@ -145,7 +145,7 @@ class JobInstance(db.Document):
     def setStatus(self, stat):
         log.debug("calling JobInstance.setStatus")
         if stat not in MAJOR_STATII:
-            raise Exception("status not found in supported list of statii")
+            raise Exception("status not found in supported list of statii: %s", stat)
         curr_status = self.status
         curr_time = datetime.datetime.now()
         self.last_update = curr_time
