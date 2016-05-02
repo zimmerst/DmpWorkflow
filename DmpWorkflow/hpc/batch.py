@@ -24,9 +24,9 @@ class BatchJob(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.__processDefaults__()
-        
+
     def __processDefaults__(self):
-        if self.defaults is None: return 
+        if self.defaults is None: return
         self.queue = self.defaults['queue']
         self.requirements = self.defaults['requirements']
         self.extra = self.defaults['extra']
@@ -38,9 +38,9 @@ class BatchJob(object):
         output, error, rc = run([cmd])
         self.logging.debug("execution with rc: %i",int(rc))
         if error:
-            for e in error.split("\n"): 
+            for e in error.split("\n"):
                 if len(e): self.logging.error(e)
-                
+
         if value is None:
             self.update(key, output)
         else:
@@ -62,12 +62,12 @@ class BatchJob(object):
         if key in self.__dict__:
             return callable(self.__dict__[key])
         return None
-    
+
     def __run__(self,cmd):
         output, error, rc = run([cmd])
         self.logging.debug("execution with rc: %i",int(rc))
         if error:
-            for e in error.split("\n"): 
+            for e in error.split("\n"):
                 if len(e): self.logging.error(e)
         if rc:
             err = "exception during execution"
@@ -80,12 +80,13 @@ class BATCH(object):
     """
     generic Batch class, all HPC-specific modules should inherit from it.
     """
+    allJobs = {}
+    keys = []
+    status_map = {}
+    kind = "generic"
 
     def __init__(self):
-        self.allJobs = {}
-        self.keys = []
-        self.status_map = {}
-        self.logging = AppLogger("BATCH")        
+        self.logging = AppLogger(self.kind)
 
     def update(self):
         return {}
