@@ -24,7 +24,7 @@ def main():
             continue
         hostname = job_dict["EXEC_HOST"]
         status = batchEngine.status_map[job_dict['STAT']] 
-        #if status in FINAL_STATII: continue
+        if status in FINAL_STATII: continue
         cpu = float(batchEngine.getCPUtime(batchId))
         mem = float(batchEngine.getMemory(batchId,unit='MB'))
         my_dict = {"t_id": JobId, "inst_id": InstanceId, "hostname": hostname, "major_status": status, "cpu":cpu, "memory":mem}

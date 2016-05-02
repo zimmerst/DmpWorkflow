@@ -49,6 +49,22 @@ def main(args=None):
         max_mem = bj.getMemory(unit='MB')
         ratio_cpu = current_cpu/max_cpu
         ratio_mem = current_mem/max_mem
+        if bj.batchId in batchEngine.allJobs:
+            # check current status
+            stat = batchEngine.status_map[batchEngine.allJobs[bj.batchId]['STAT']]
+            if stat in FINAL_STATII:
+                if j['major_status']!=stat:
+                    log.warning("found a job that should be in non-final state but batch reports it to be failed, updating db")
+                my_dict = {'t_id':j['t_id'],'inst_id':j['inst_id'],
+                           'major_status':'Terminated','minor_status':"KilledByBatch"}
+                res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
+                res.raise_for_status()
+                res = res.json()
+                if res.get("result", "nok") != "ok":
+                    log.exception(res.get("error"))
+                else:
+                    log.debug("status updated")
+    prin
         if (ratio_cpu >= ratio_cpu_max) or (ratio_mem >= ratio_mem_max):
             log.info('%s cpu %1.1f mem %1.1f',bj.batchId,ratio_cpu, ratio_mem)
             log.warning('Watchdog identified job %s to exceed its sending kill signal', bj.batchId)            

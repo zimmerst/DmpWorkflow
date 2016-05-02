@@ -272,6 +272,7 @@ class JobResources(MethodView):
                     "memory":j.get("memory"), 
                     "t_id":str(j.job.id), 
                     "inst_id":j.instanceId,
+                    "major_status":j.major_status,
                     "meta":j.parseBodyXml()} for j in runningJobs]
         return json.dumps({"result":"ok", "jobs": allJobs})
         
