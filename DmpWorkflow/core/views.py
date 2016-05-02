@@ -17,6 +17,7 @@ logger = app.logger
 
 class ListView(MethodView):
     def get(self):
+        logger.debug("request %s",str(request))
         jobs = Job.objects.all()
         return render_template('jobs/list.html', jobs=jobs)
 
@@ -34,11 +35,13 @@ class DetailView(MethodView):
         return context
 
     def get(self, slug):
+        logger.debug("request %s",str(request))
         context = self.get_context(slug)
         logger.debug("redering jobs/detail.html")
         return render_template('jobs/detail.html', **context)
 
     def post(self, slug):
+        logger.debug("request %s",str(request))
         context = self.get_context(slug)
         form = context.get('form')
 
@@ -83,7 +86,8 @@ class JobView(MethodView):
         return "Nothing to display"
 
     def post(self):
-        try:
+        try:    
+            logger.debug("request %s",str(request)) 
             taskname = request.form.get("taskname",None)
             jobdesc = request.files.get("file",None)
             t_type = request.form.get("t_type",None)
@@ -121,6 +125,7 @@ class JobInstanceView(MethodView):
         return 'Nothing yet'
 
     def post(self):
+        logger.debug("request %s",str(request))
         taskName = request.form.get("taskname",None)
         ninst = int(request.form.get("n_instances","0"))
         jobs = Job.objects.filter(title=taskName)
@@ -200,6 +205,7 @@ class SetJobStatus(MethodView):
         return json.dumps({"result": "ok"})
 
     def get(self):
+        logger.debug("request %s",str(request))
         title = unicode(request.form.get("title",None))
         stat  = unicode(request.form.get("stat","Any"))
         instId = int(request.form.get("inst",-1))
@@ -240,6 +246,7 @@ class SetJobStatus(MethodView):
 
 class NewJobs(MethodView):
     def get(self):
+        logger.debug("request %s",str(request))
         batchsite = unicode(request.form.get("site","local"))
         newJobInstances = []
         allJobs = Job.objects.filter(execution_site=batchsite)
