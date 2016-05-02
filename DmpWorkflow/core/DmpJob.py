@@ -110,7 +110,7 @@ class DmpJob(object):
         return
 
     def getSetupScript(self):
-        return "${DAMPE_SW_DIR}/releases/DmpSoftware-%s/bin/thisdmpsw.sh" % self.release
+        return oPath.expandvars("${DAMPE_SW_DIR}/releases/DmpSoftware-%s/bin/thisdmpsw.sh" % self.release)
 
     def createLogFile(self):
         #mkdir(oPath.join("%s/logs" % self.wd))
