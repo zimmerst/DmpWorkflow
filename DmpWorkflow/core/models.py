@@ -6,6 +6,7 @@ from flask import url_for
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db, app
 from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, parseJobXmlToDict
+from __builtin__ import None
 
 if not cfg.getboolean("site", "traceback"):
     sys.excepthook = exceptionHandler
@@ -125,8 +126,8 @@ class JobInstance(db.Document):
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
     status_history = db.ListField()
-    memory = db.FloatField(verbose_name="memory", required=False, default=None)
-    cpu = db.FloatField(verbose_name="cpu", required=False, default=None)
+    memory = db.ListField()
+    cpu = db.ListField()
     log = db.StringField(verbose_name="log", required=False, default="")
     job = db.ReferenceField("Job", reverse_delete_rule=mongoengine.CASCADE)
 
@@ -134,10 +135,22 @@ class JobInstance(db.Document):
         lines = self.log.split("\n")
         return lines
 
+    def get(self,key):
+        if key == 'cpu':
+            return self.cpu[-1]['value']
+        elif key == 'memory':
+            return self.memory[-1]['value']
+        else return None
+        
     def set(self, key, value):
         if key == "created_at" and value == "Now": 
             value = datetime.datetime.now()
-        self.__setattr__(key, value)
+        elif key == 'cpu':
+            self.cpu.append({"time":datetime.datetime.now(),"value":value})
+        elif key == 'memory':
+            self.memory.append({"time":datetime.datetime.now(),"value":value})
+        else:
+            self.__setattr__(key, value)
         log.debug("setting %s : %s",key,value)
         self.__setattr__("last_update", datetime.datetime.now())
         self.save()
