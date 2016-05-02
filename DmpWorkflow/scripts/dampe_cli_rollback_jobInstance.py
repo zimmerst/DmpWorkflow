@@ -51,7 +51,7 @@ def main(args=None):
                 my_dict = {"t_id": j['jobId'], "inst_id": j['instanceId'], 
                            "major_status": "New", "minor_status":"AwaitingBatchSubmission", "hostname":None,
                            "batchId":None, "status_history":[], 
-                           "log": "", "cpu":None, "memory":None, "created_at":"Now"}
+                           "log": "", "cpu":[], "memory":[], "created_at":"Now"}
                 res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
                 res.raise_for_status()
                 res = res.json()
