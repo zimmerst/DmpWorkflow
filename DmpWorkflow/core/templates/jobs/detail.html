@@ -75,7 +75,7 @@
   	{% if job.jobInstances %}  	
     {% for jobInstance in job.jobInstances %}
 	<tr>
-		<td> {{ jobInstance.sixDigit() }} </td>
+		<td><a href="{{ url_for('jobs.instanceDetail', slug=job.slug, instId=jobInstance.instanceId) }}">{{ jobInstance.sixDigit() }}</a></td>
 		<td> {{ jobInstance.batchId }} </td>
 		<td> {{ jobInstance.created_at.strftime('%Y-%m-%d %H:%M:%S') }} </td>
 		<td> {{ jobInstance.last_update.strftime('%Y-%m-%d %H:%M:%S') }} </td>
