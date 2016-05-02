@@ -75,7 +75,7 @@
   	{% if job.jobInstances %}  	
     {% for jobInstance in job.jobInstances %}
 	<tr>
-		<td><a href="/{{job.slug}}/detail?inst_id={{jobInstance.instanceId}}">{{ jobInstance.sixDigit() }}</a></td> 
+		<td><a href="/InstanceDetail?slug={{job.slug}}&inst_id={{jobInstance.instanceId}}">{{ jobInstance.sixDigit() }}</a></td> 
 {#		<td> {{ jobInstance.sixDigit() }} </td> #}
 		<td> {{ jobInstance.batchId }} </td>
 		<td> {{ jobInstance.created_at.strftime('%Y-%m-%d %H:%M:%S') }} </td>

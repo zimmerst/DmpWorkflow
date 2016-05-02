@@ -77,16 +77,15 @@ class InstanceView(MethodView):
         }
         return context
 
-    def get(self, slug):
+    def get(self):
         inst_id = str(request.form.get("inst_id",""))
+        slug    = str(request.form.get("slug",""))
+        if slug == "":
+            raise Exception("slug must be non-zero")
         logger.debug("InstanceView: get slug, inst_id",slug, inst_id)
         context = self.get_context(slug,inst_id=inst_id)
-        if inst_id=="":
-            logger.debug("redering jobs/detail.html")
-            return render_template('jobs/detail.html', **context)
-        else:
-            logger.debug("rendering jobs/instanceDetail")
-            return render_template('jobs/instanceDetail.html', **context)
+        logger.debug("rendering jobs/instanceDetail")
+        return render_template('jobs/instanceDetail.html', **context)
 
 class JobView(MethodView):
     def get(self):
@@ -269,8 +268,8 @@ class NewJobs(MethodView):
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
 jobs.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
-jobs.add_url_rule('/<slug>/detail', view_func=InstanceView.as_view('detail'), methods=['GET'])
 jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET","POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
+jobs.add_url_rule('/InstanceDetail', view_func=InstanceView.as_view('instancedetail'), methods=['GET'])
