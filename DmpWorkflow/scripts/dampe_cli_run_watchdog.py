@@ -13,7 +13,7 @@ from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINA
 from DmpWorkflow.utils.tools import getSixDigits
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
-def main():
+def main(args=None):
     usage = "Usage: %(prog)s [options]"
     description = "run watchdog"
     parser = ArgumentParser(usage=usage, description=description)
