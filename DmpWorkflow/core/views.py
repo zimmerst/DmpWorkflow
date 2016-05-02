@@ -266,7 +266,7 @@ class NewJobs(MethodView):
 class JobResources(MethodView):
     def get(self):
         batchsite = unicode(request.form.get("site","local"))
-        runningJobs = JobInstance.objects.filter(execution_site=batchsite, status=u"Running")
+        runningJobs = JobInstance.objects.filter(site=batchsite, status=u"Running")
         logger.debug("runningJobs = %s",str(runningJobs))
         allJobs = [{"batchId":job.batchId, "cpu":job.get("cpu"), 
                     "memory":job.get("memory"), 
