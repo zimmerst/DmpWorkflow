@@ -41,6 +41,8 @@ __myDefaults = {
     "HPCcputime" : "24:00",
     "HPCmemory": "1000.",
     "EXEC_DIR_ROOT" : "/tmp"
+    "ratio_mem" : "1.0",
+    "ratio_cpu" : "1.0",
 }
 
 cfg = ConfigParser.SafeConfigParser(defaults=__myDefaults)

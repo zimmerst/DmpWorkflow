@@ -9,7 +9,7 @@ import importlib
 import json
 import copy
 from argparse import ArgumentParser
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII, AppLogger
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII, AppLogger, cfg
 from DmpWorkflow.utils.tools import getSixDigits
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
@@ -29,6 +29,10 @@ def main(args=None):
     if not res.get("result", "nok") == "ok":
         log.error(res.get("error"))
     jobs = res.get("jobs")
+
+    ratio_cpu_max = cfg.get("watchdog","ratio_cpu")
+    ratio_mem_max = cfg.get("watchdog","ratio_mem")
+    
     site_defaults = BATCH_DEFAULTS    
     for j in jobs:
         job_defaults = copy.deepcopy(site_defaults)
@@ -43,7 +47,11 @@ def main(args=None):
         current_mem = float(j['memory'])
         max_cpu = bj.getCPU()
         max_mem = bj.getMemory(unit='MB')
-        print '%s cpu (%1f/%1f) mem (%1f/%1f)'%(bj.batchId,current_cpu,max_cpu,current_mem,max_mem)
+        ratio_cpu = current_cpu/max_cpu
+        ratio_mem = current_mem/max_mem
+        if (ratio_cpu >= ratio_cpu_max) or (ratio_mem >= ratio_mem_max):
+            log.info('%s cpu (%1f/%1f) mem (%1f/%1f)',bj.batchId,current_cpu,max_cpu,current_mem,max_mem)
+            log.info('Watchdog identified job %s to exceed its resources, terminating', bj.batchId)            
     print 'found %i jobs with requirements'%len(jobs)
     log.info("completed cycle")
 if __name__ == '__main__':
