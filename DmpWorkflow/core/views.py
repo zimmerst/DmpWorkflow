@@ -80,6 +80,7 @@ class InstanceView(MethodView):
     def get(self):
         inst_id = str(request.form.get("inst_id",""))
         slug    = str(request.form.get("slug",""))
+        logger.debug("slug %s - inst_id %s",slug, inst_id)
         if slug == "":
             raise Exception("slug must be non-zero")
         logger.debug("InstanceView: get slug, inst_id",slug, inst_id)
