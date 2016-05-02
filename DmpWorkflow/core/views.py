@@ -268,7 +268,11 @@ class JobResources(MethodView):
         batchsite = unicode(request.form.get("site","local"))
         runningJobs = Job.objects.filter(execution_site=batchsite, status=u"Running")
         logger.debug("runningJobs = %s",str(runningJobs))
-        allJobs = [{"batchId":job.batchId, "cpu":job.get("cpu"), "memory":job.get("memory"), "meta":job.parseBodyXml()} for j in runningJobs]
+        allJobs = [{"batchId":job.batchId, "cpu":job.get("cpu"), 
+                    "memory":job.get("memory"), 
+                    "t_id":str(job.job.id), 
+                    "inst_id":job.instanceId,
+                    "meta":job.parseBodyXml()} for j in runningJobs]
         return json.dumps({"result":"ok", "jobs": allJobs})
         
 # Register the urls
