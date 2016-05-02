@@ -13,7 +13,7 @@ import importlib
 
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits
-from DmpWorkflow.utils.shell import run, make_executable, source_bash
+from DmpWorkflow.utils.shell import run, make_executable#, source_bash
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 PYTHONBIN = ""
 ExtScript = cfg.get("site","ExternalsScript")
@@ -97,10 +97,12 @@ class DmpJob(object):
             json_file.write(self.exportToJSON())
         jsonLOC = oPath.abspath(oPath.join(self.wd, "job.json"))
         script_file = open(oPath.join(self.wd,"script"),"w")
+        setup = oPath.split(self.getSetupScript())
         cmds = ["#!/bin/bash","echo \"batch wrapper executing on $(date)\"",\
                 "source %s"%oPath.expandvars(ExtScript),\
+                "cd %s"%setup[0],\
+                "source %s"%setup[1],\
                 "cd %s"%self.wd,\
-                "source %s"%self.getSetupScript(),\
                 "%s script.py %s"%(pythonbin,jsonLOC),\
                 "echo \"batch wrapper completed at $(date)\""]
         script_file.write("\n".join(cmds))
@@ -112,9 +114,9 @@ class DmpJob(object):
     def getSetupScript(self):
         return oPath.expandvars("${DAMPE_SW_DIR}/releases/DmpSoftware-%s/bin/thisdmpsw.sh" % self.release)
 
-    def sourceSetupScript(self):
-        src = self.getSetupScript()
-        source_bash(src)
+    #def sourceSetupScript(self):
+    #    src = self.getSetupScript()
+    #    source_bash(src)
 
     def createLogFile(self):
         #mkdir(oPath.join("%s/logs" % self.wd))
