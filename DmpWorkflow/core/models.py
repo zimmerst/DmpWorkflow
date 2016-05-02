@@ -142,15 +142,17 @@ class JobInstance(db.Document):
     def get(self,key):
         if key == 'cpu':
             # -1 doesn't appear to be a valid key
+            if not len(self.cpu): return 0.
             index = len(self.cpu)-1
             if index<0: index=0
             return self.cpu[index]['value']
         elif key == 'memory':
-            index = len(self.cpu)-1
+            if not len(self.memory): return 0.
+            index = len(self.memory)-1
             if index<0: index=0
             return self.memory[index]['value']
         else:
-            return None
+            return 0.
         
     def set(self, key, value):
         if key == "created_at" and value == "Now": 
