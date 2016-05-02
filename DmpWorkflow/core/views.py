@@ -282,5 +282,5 @@ jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "P
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET","POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
-jobs.add_url_rule("/watchdog/",view_func=JobResources.as_view("watchdog"), method=["GET"])
+jobs.add_url_rule("/watchdog/",view_func=JobResources.as_view("watchdog"), methods=["GET"])
 #jobs.add_url_rule('/InstanceDetail', view_func=InstanceView.as_view('instancedetail'), methods=['GET'])
