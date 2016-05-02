@@ -31,8 +31,7 @@ if __name__ == '__main__':
     log.info("execution directory %s",my_exec_dir)
     try:
         job.updateStatus("Running", "PreparingInputData", hostname=socket.gethostname(), batchId=batchId)
-    except Exception as err:
-        log.exception(err)
+    except Exception as err: log.exception(err)
     # first, set all variables
     for var in job.MetaData: os.environ[var['name']] = os.path.expandvars(var['value'])
     log.info("current environment settings")
@@ -45,17 +44,15 @@ if __name__ == '__main__':
         except IOError, e:
             try:
                 job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e))
-            except Exception as err:
-                log.exception(err)
-            finally:
-                if not DEBUG_TEST:
-                    exit(4)
+            except Exception as err: log.exception(err)
+            if not DEBUG_TEST: exit(4)
     log.info("content of current working directory %s: %s",os.path.abspath(os.curdir),str(os.listdir(os.curdir)))
     
     log.info("successfully completed staging.")
     # next, run the executable
-    with open('payload', 'w') as foo:
+    with open('payload', 'w') as foo: 
         foo.write(job.exec_wrapper)
+        foo.close()
     log.info("about to run payload")
     CMD = "%s payload" % job.executable
     log.info("CMD: %s", CMD)
@@ -66,11 +63,8 @@ if __name__ == '__main__':
         log.error("Payload returned exit code %i, see above for more details.", rc)
         try:
             job.updateStatus("Running" if DEBUG_TEST else "Failed", "ApplicationExitCode%i" % rc)
-        except Exception as err:
-            log.exception(err)
-        finally:
-            if not DEBUG_TEST:
-                exit(5)
+        except Exception as err: log.exception(err)
+        if not DEBUG_TEST: exit(5)
     log.info("successfully completed running application")
     log.info("content of current working directory %s: %s",os.path.abspath(os.curdir),str(os.listdir(os.curdir)))
     
@@ -88,11 +82,8 @@ if __name__ == '__main__':
         except IOError, e:
             try:
                 job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e))
-            except Exception as err:
-                log.exception(err)
-            finally:
-                if not DEBUG_TEST:
-                    exit(6)
+            except Exception as err: log.exception(err)
+            if not DEBUG_TEST: exit(6)
     log.info("successfully completed staging.")
     log.info("job complete, cleaning up working directory")
     os.chdir(pwd)
