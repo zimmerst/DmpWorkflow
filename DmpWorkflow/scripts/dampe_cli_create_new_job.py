@@ -29,7 +29,7 @@ def main(args=None):
         atts.setdefault(key,value)
     assert atts['site'] in SITES, "site not supported in DB %s"%atts['site']
     taskName = unicode(atts['name'])
-    t_type = unicode(atts['t_type'])
+    t_type = unicode(atts['type'])
     site = unicode(atts['site'])
     print atts        
     res = requests.post("%s/job/" % DAMPE_WORKFLOW_URL,
