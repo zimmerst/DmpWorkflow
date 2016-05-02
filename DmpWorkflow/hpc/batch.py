@@ -96,6 +96,13 @@ class BATCH(object):
     def getMemory(self,job, key = None, unit='kB'):
         return 0.
     
+    def addBatchJob(self,job):
+        if not isinstance(job,BatchJob):
+            self.logging.error("must be BatchJob instance")
+            raise Exception
+        self.allJobs[job.batchId]=job
+        return
+    
     def __checkKeys__(self, key):
         if key not in self.keys:
             self.logging.error("could not extract key, allowed keys %s", str(self.keys))
