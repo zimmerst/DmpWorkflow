@@ -28,7 +28,7 @@ class DetailView(MethodView):
         job = Job.objects.get_or_404(slug=slug)
         jobInstance = None
         if instId!="": 
-            jobInstance = Job.objects.filter(job=job, instanceId=instId="")[0]
+            jobInstance = Job.objects.filter(job=job, instanceId=instId)[0]
         form = self.form(request.form)
         context = {
             "job": job,
