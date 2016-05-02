@@ -100,6 +100,8 @@ class DmpJob(object):
         rel_path = self.getReleasePath()
         setup_script = self.getSetupScript()
         setup_script = setup_script.replace(rel_path,"")
+        if setup_script.startswith("/"):
+            setup_script = setup_script.replace("/","")
         cmds = ["#!/bin/bash","echo \"batch wrapper executing on $(date)\"",\
                 "source %s"%oPath.expandvars(ExtScript),\
                 "cd %s"%rel_path,\
@@ -115,7 +117,7 @@ class DmpJob(object):
 
     def getSetupScript(self):
         rpath = self.getReleasePath()
-        return oPath.expandvars("%s/bin/thisdmpsw.sh" % rpath)
+        return oPath.expandvars("%sbin/thisdmpsw.sh" % rpath)
     
     def getReleasePath(self):
         return oPath.expandvars("${DAMPE_SW_DIR}/releases/DmpSoftware-%s/" % self.release)
