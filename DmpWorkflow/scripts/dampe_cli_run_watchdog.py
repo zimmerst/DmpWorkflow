@@ -30,9 +30,9 @@ def main(args=None):
         log.error(res.get("error"))
     jobs = res.get("jobs")
 
-    ratio_cpu_max = cfg.get("watchdog","ratio_cpu")
-    ratio_mem_max = cfg.get("watchdog","ratio_mem")
-    
+    ratio_cpu_max = float(cfg.get("watchdog","ratio_cpu"))
+    ratio_mem_max = float(cfg.get("watchdog","ratio_mem"))
+    log.info("watchdog settings: max_cpu %1.2f max_mem %1.2f (ratio with respect to max. allocated)",ratio_cpu_max,ratio_mem_max)    
     site_defaults = BATCH_DEFAULTS    
     for j in jobs:
         job_defaults = copy.deepcopy(site_defaults)
