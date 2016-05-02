@@ -263,6 +263,14 @@ class NewJobs(MethodView):
                     newJobInstances.append(dInstance.exportToJSON())
         return json.dumps({"result":"ok", "jobs": newJobInstances})
 
+class JobResources(MethodView):
+    def get(self):
+        batchsite = unicode(request.form.get("site","local"))
+        runningJobs = Job.objects.filter(execution_site=batchsite, status=u"Running")
+        logger.debug("runningJobs = %s",str(runningJobs))
+        allJobs = [{"batchId":job.batchId, "cpu":job.get("cpu"), "memory":job.get("memory"), "meta":job.parseBodyXml()} for j in runningJobs]
+        return json.dumps({"result":"ok", "jobs": allJobs})
+        
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
 jobs.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
@@ -270,4 +278,5 @@ jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "P
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET","POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
+jobs.add_url_rule("/watchdog/",view_func=JobResources.as_view("watchdog"), method=["GET"])
 #jobs.add_url_rule('/InstanceDetail', view_func=InstanceView.as_view('instancedetail'), methods=['GET'])

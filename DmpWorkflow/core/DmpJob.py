@@ -174,6 +174,19 @@ class DmpJob(object):
             self.batchId = bj.submit(**kwargs)
         return self.batchId
 
+    def kill(self,msg="ReceivedKillCommand",dry=False):
+        """ handles the submission part """
+        #print BATCH_DEFAULTS
+        if not dry: 
+            self.createLogFile()
+        bj = HPC.BatchJob(batchId=self.batchId)
+        if dry:
+            print "DRY_COMMAND: bkill %s"%self.batchId
+            return -1
+        else:
+            bj.kill()
+            self.updateStatus("Terminated", "ReceivedKillCommand")
+
     def exportToJSON(self):
         """ return a pickler of itself as JSON format """
         return jsonpickle.encode(self)

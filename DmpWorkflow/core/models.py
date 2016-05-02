@@ -130,6 +130,11 @@ class JobInstance(db.Document):
     log = db.StringField(verbose_name="log", required=False, default="")
     job = db.ReferenceField("Job", reverse_delete_rule=mongoengine.CASCADE)
 
+    def parseBodyXml(self,key="MetaData"):
+        from DmpWorkflow.utils.tools import parseJobXmlToDict
+        p = parseJobXmlToDict(self.job.body.read())
+        return p[key]
+
     def getLog(self):
         lines = self.log.split("\n")
         return lines
