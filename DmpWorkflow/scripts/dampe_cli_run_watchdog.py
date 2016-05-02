@@ -41,7 +41,7 @@ def main(args=None):
                           batchId = j['batchId'],defaults=job_defaults)
         current_cpu = float(j['cpu'])
         current_mem = float(j['memory'])
-        print '%s cpu (%1f/%1f) mem (%1f/%1f)'%(bj.batchId,current_cpu,bj.cputime,current_mem,bj.memory)
+        print '%s cpu (%1f/%1f) mem (%1f/%1f)'%(bj.batchId,current_cpu,float(bj.cputime),current_mem,float(bj.memory))
     print 'found %i jobs with requirements'%len(jobs)
     log.info("completed cycle")
 if __name__ == '__main__':
