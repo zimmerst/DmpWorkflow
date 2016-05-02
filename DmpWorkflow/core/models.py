@@ -136,9 +136,10 @@ class JobInstance(db.Document):
 
     def get(self,key):
         if key == 'cpu':
-            return self.cpu[-1]['value']
+            # -1 doesn't appear to be a valid key
+            return self.cpu[(len(self.cpu)-1)]['value']
         elif key == 'memory':
-            return self.memory[-1]['value']
+            return self.memory[(len(self.cpu)-1)]['value']
         else:
             return None
         
