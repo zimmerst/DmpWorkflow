@@ -16,7 +16,11 @@ def main():
     batchEngine.update()
     for batchId, job_dict in batchEngine.allJobs.iteritems():
         #print batchId, job_dict
-        JobId, InstanceId = job_dict['JOB_NAME'].split("-")
+        try:
+            JobId, InstanceId = job_dict['JOB_NAME'].split("-")
+        except Exception as err:
+            log.exception(err)
+            continue
         hostname = job_dict["EXEC_HOST"]
         status = batchEngine.status_map[job_dict['STAT']] 
         if status in FINAL_STATII: continue
