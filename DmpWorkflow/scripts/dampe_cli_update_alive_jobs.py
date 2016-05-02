@@ -23,6 +23,7 @@ def main():
         cpu = job_dict[batchEngine.parameter_map['cpu']]
         mem = job_dict[batchEngine.parameter_map['mem']]
         my_dict = {"t_id": JobId, "inst_id": InstanceId, "hostname": hostname, "major_status": status, "cpu":cpu, "memory":mem}
+        log.debug("%s : %s",batchId,my_dict)
         res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args":json.dumps(my_dict)})
         res.raise_for_status()
         res = res.json()

@@ -69,7 +69,7 @@ class BatchEngine(BATCH):
         output, error, rc = run(command)
         self.logging.debug("rc: %i",int(rc))
         if error is not None:
-            print error.split("\n")
+            #print error.split("\n")
             for e in error.split("\n"):
                 if len(e): self.logging.error(e)
         if not asDict:

@@ -114,6 +114,6 @@ class BATCH(object):
                 self.logging.error("could not find key %s in job %s", key, jobID)
             else:
                 val = self.allJobs[jobID][key]
-            print val
+            #print val
             ret[jobID] = val
         return ret
