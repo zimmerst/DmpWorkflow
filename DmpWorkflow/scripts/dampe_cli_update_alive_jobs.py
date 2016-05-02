@@ -19,7 +19,8 @@ def main():
         try:
             JobId, InstanceId = job_dict['JOB_NAME'].split("-")
         except Exception as err:
-            log.exception(err)
+            log.error("trapped exception for job %s, dict: %s",str(batchId),str(job_dict))
+            log.debug(err)
             continue
         hostname = job_dict["EXEC_HOST"]
         status = batchEngine.status_map[job_dict['STAT']] 
