@@ -8,6 +8,7 @@ import requests
 import importlib
 import json
 import copy
+from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII, AppLogger
 from DmpWorkflow.utils.tools import getSixDigits
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
