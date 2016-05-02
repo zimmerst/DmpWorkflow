@@ -97,11 +97,13 @@ class DmpJob(object):
             json_file.write(self.exportToJSON())
         jsonLOC = oPath.abspath(oPath.join(self.wd, "job.json"))
         script_file = open(oPath.join(self.wd,"script"),"w")
-        setup = oPath.split(self.getSetupScript())
+        rel_path = self.getReleasePath()
+        setup_script = self.getSetupScript()
+        setup_script = setup_script.replace(rel_path,"")
         cmds = ["#!/bin/bash","echo \"batch wrapper executing on $(date)\"",\
                 "source %s"%oPath.expandvars(ExtScript),\
-                "cd %s"%setup[0],\
-                "source %s"%setup[1],\
+                "cd %s"%rel_path,\
+                "source %s"%setup_script,\
                 "cd %s"%self.wd,\
                 "%s script.py %s"%(pythonbin,jsonLOC),\
                 "echo \"batch wrapper completed at $(date)\""]
@@ -112,7 +114,11 @@ class DmpJob(object):
         return
 
     def getSetupScript(self):
-        return oPath.expandvars("${DAMPE_SW_DIR}/releases/DmpSoftware-%s/bin/thisdmpsw.sh" % self.release)
+        rpath = self.getReleasePath()
+        return oPath.expandvars("%s/bin/thisdmpsw.sh" % rpath)
+    
+    def getReleasePath(self):
+        return oPath.expandvars("${DAMPE_SW_DIR}/releases/DmpSoftware-%s/" % self.release)
 
     #def sourceSetupScript(self):
     #    src = self.getSetupScript()
