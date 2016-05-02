@@ -55,7 +55,7 @@ class BatchEngine(BATCH):
     keys = ["USER","STAT","QUEUE","FROM_HOST","EXEC_HOST","JOB_NAME","SUBMIT_TIME","PROJ_NAME","CPU_USED",\
                 "MEM","SWAP","PIDS","START_TIME","FINISH_TIME","SLOTS"]
     status_map = {"RUN": "Running", "PEND": "Submitted", "SSUSP": "Suspended",
-                       "EXIT": "Failed", "DONE": "Completed"}
+                       "EXIT": "Failed", "DONE": "Done"}
     parameter_map = {"mem":"MEM","cpu":"CPU_USED"}
 
     def update(self):
