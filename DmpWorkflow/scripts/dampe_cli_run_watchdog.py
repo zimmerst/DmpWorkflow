@@ -51,7 +51,7 @@ def main(args=None):
         ratio_mem = current_mem/max_mem
         if (ratio_cpu >= ratio_cpu_max) or (ratio_mem >= ratio_mem_max):
             log.info('%s cpu %1.1f mem %1.1f',bj.batchId,ratio_cpu, ratio_mem)
-            log.info('Watchdog identified job %s to exceed its sending kill signal', bj.batchId)            
+            log.warning('Watchdog identified job %s to exceed its sending kill signal', bj.batchId)            
             try:
                 bj.kill()
             except Exception as err:
