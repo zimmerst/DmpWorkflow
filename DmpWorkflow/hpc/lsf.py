@@ -56,6 +56,7 @@ class BatchEngine(BATCH):
                 "MEM","SWAP","PIDS","START_TIME","FINISH_TIME","SLOTS"]
     status_map = {"RUN": "Running", "PEND": "Submitted", "SSUSP": "Suspended",
                        "EXIT": "Failed", "DONE": "Completed"}
+    parameter_map = {"mem":"MEM","cpu":"CPU_USED"}
 
     def update(self):
         self.allJobs.update(self.aggregateStatii())

@@ -126,26 +126,26 @@ class JobInstanceView(MethodView):
             return json.dumps({"result": "nok", "error": 'Could not find job %s' % taskName})
 
 
-class RefreshJobAlive(MethodView):
-    def post(self):
-        try:
-            taskid = request.form.get("taskid",None)
-            instance_id = request.form.get("instanceid",None)
-            hostname = request.form.get("hostname","")
-            status = request.form.get("status","None")
-            my_job = Job.objects.filter(id=taskid)
-            if not len(my_job): raise Exception("could not find Job")
-            my_job = my_job[0]
-            jInstance = my_job.getInstance(instance_id)
-            jInstance.set("hostname", hostname)
-            oldStatus = jInstance.status
-            if status != oldStatus:
-                jInstance.setStatus(status)
-            my_job.update()
-            return json.dumps({"result": "ok"})
-        except Exception as err:
-            logger.exception(err)
-            return json.dumps({"result": "nok", "error": "server error"})
+#class RefreshJobAlive(MethodView):
+#    def post(self):
+#        try:
+#            taskid = request.form.get("taskid",None)
+#            instance_id = request.form.get("instanceid",None)
+#            hostname = request.form.get("hostname","")
+#            status = request.form.get("status","None")
+#            my_job = Job.objects.filter(id=taskid)
+#            if not len(my_job): raise Exception("could not find Job")
+#            my_job = my_job[0]
+#            jInstance = my_job.getInstance(instance_id)
+#            jInstance.set("hostname", hostname)
+#            oldStatus = jInstance.status
+#            if status != oldStatus:
+#                jInstance.setStatus(status)
+#            my_job.update()
+#            return json.dumps({"result": "ok"})
+#        except Exception as err:
+#            logger.exception(err)
+#           return json.dumps({"result": "nok", "error": "server error"})
 
 
 class SetJobStatus(MethodView):
@@ -238,6 +238,6 @@ jobs.add_url_rule('/', view_func=ListView.as_view('list'))
 jobs.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
 jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
-jobs.add_url_rule("/jobalive/", view_func=RefreshJobAlive.as_view('jobalive'), methods=["POST"])
+#jobs.add_url_rule("/jobalive/", view_func=RefreshJobAlive.as_view('jobalive'), methods=["POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET","POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])

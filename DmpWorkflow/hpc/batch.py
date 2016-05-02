@@ -83,6 +83,7 @@ class BATCH(object):
     allJobs = {}
     keys = []
     status_map = {}
+    parameter_map = {}
     kind = "generic"
 
     def __init__(self):
