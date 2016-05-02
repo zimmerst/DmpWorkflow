@@ -50,7 +50,7 @@ def main(args=None):
         ratio_cpu = current_cpu/max_cpu
         ratio_mem = current_mem/max_mem
         if (ratio_cpu >= ratio_cpu_max) or (ratio_mem >= ratio_mem_max):
-            log.info('%s cpu (%1f/%1f) mem (%1f/%1f)',bj.batchId,current_cpu,max_cpu,current_mem,max_mem)
+            log.info('%s cpu %1.1f mem %1.1f',bj.batchId,ratio_cpu, ratio_mem)
             log.info('Watchdog identified job %s to exceed its resources, terminating', bj.batchId)            
     print 'found %i jobs with requirements'%len(jobs)
     log.info("completed cycle")
