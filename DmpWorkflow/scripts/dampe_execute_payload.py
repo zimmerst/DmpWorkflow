@@ -23,6 +23,13 @@ if __name__ == '__main__':
         fii = open(fii, 'rb').read()
     log.info("reading json input")
     job = DmpJob.fromJSON(fii)
+    DMPSWSYS = os.getenv("DMPSWSYS")
+    DAMPE_SW_DIR = os.getenv("DAMPE_SW_DIR",None)
+    if DAMPE_SW_DIR is None:
+        raise Exception("must define $DAMPE_SW_DIR")
+    if not DAMPE_SW_DIR in DMPSWSYS:
+        log.info("trying to re-source setup script.")
+        job.sourceSetupScript()
     os.environ["DWF_SIXDIGIT"] = job.getSixDigits()
     batchId = os.getenv(HPC.BATCH_ID_ENV, "-1")
     my_exec_dir = os.path.join(EXEC_DIR_ROOT,job.getSixDigits(),"local" if batchId == "-1" else batchId)

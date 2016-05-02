@@ -13,7 +13,7 @@ import importlib
 
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits
-from DmpWorkflow.utils.shell import run, make_executable
+from DmpWorkflow.utils.shell import run, make_executable, source_bash
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 PYTHONBIN = ""
 ExtScript = cfg.get("site","ExternalsScript")
@@ -111,6 +111,10 @@ class DmpJob(object):
 
     def getSetupScript(self):
         return oPath.expandvars("${DAMPE_SW_DIR}/releases/DmpSoftware-%s/bin/thisdmpsw.sh" % self.release)
+
+    def sourceSetupScript(self):
+        src = self.getSetupScript()
+        source_bash(src)
 
     def createLogFile(self):
         #mkdir(oPath.join("%s/logs" % self.wd))
