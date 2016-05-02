@@ -63,6 +63,11 @@ class BatchJob(object):
             return callable(self.__dict__[key])
         return None
 
+    def getCPU(self):
+        pass
+    def getMemory(self):
+        pass
+
     def __run__(self,cmd):
         output, error, rc = run([cmd])
         self.logging.debug("execution with rc: %i",int(rc))

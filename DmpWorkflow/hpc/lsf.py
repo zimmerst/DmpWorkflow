@@ -32,6 +32,23 @@ class BatchJob(HPCBatchJob):
         if 'verbose' in kwargs and kwargs['verbose']: print cmd
         output = self.__run__(cmd)
         return self.__regexId__(output)
+    def getCPU(self):
+        """ format is 00:00 """
+        cputime = None
+        blocks = self.cputime.split(":")
+        if len(blocks) == 2:
+            cputime = float(blocks[0])*3600+float(blocks[1])*60
+        else:
+            cputime = 0.
+        return cputime
+    
+    def getMemory(self,unit='kB'):
+        kret = float(self.memory)
+        if unit in ['MB','GB']:
+            kret/=1024.
+            if unit == 'GB':
+                kret/=1024.
+        return kret
 
     def __regexId__(self,_str):
         """ returns the batch Id using some regular expression, lsf specific """
