@@ -7,7 +7,7 @@ Created on Mar 15, 2016
 import requests
 import importlib
 import json
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, AppLogger
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII, AppLogger
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
 def main():
@@ -15,10 +15,11 @@ def main():
     batchEngine = HPC.BatchEngine()
     batchEngine.update()
     for batchId, job_dict in batchEngine.allJobs.iteritems():
-        print batchId, job_dict
+        #print batchId, job_dict
         JobId, InstanceId = job_dict['JOB_NAME'].split("-")
         hostname = job_dict["EXEC_HOST"]
-        status = batchEngine.status_map[job_dict['STAT']]
+        status = batchEngine.status_map[job_dict['STAT']] 
+        if status in FINAL_STATII: continue
         cpu = job_dict[batchEngine.parameter_map['cpu']]
         mem = job_dict[batchEngine.parameter_map['mem']]
         my_dict = {"taskid": JobId, "instanceid": InstanceId, "hostname": hostname, "status": status, "cpu":cpu, "memory":mem}
