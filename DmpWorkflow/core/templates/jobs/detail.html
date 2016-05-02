@@ -66,7 +66,7 @@
   </code>
   <hr>
   <h2>Job Instances ({{job.jobInstances|length}} total)</h2>
-  {% set columns = ["id","batchId", "created at", "last sign of life", "status", "minor_status","host"]%}
+  {% set columns = ["id","batchId", "created at", "last sign of life", "status", "minor_status","host", "CPU", "MEM"]%}
 <table class="table">
   <thead>
 	{% for col in columns %}  	
@@ -82,6 +82,8 @@
 		<td> {{ jobInstance.status }} </td>
 		<td> {{ jobInstance.minor_status }} </td>
 		<td> {{ jobInstance.hostname }} </td>
+		<td> {{ jobInstance.cpu }} </td>
+		<td> {{ jobInstance.memory }} </td>
 	</tr>
 	{% endfor %}
     {% endif %}
