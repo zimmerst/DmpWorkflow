@@ -120,7 +120,8 @@ class JobInstance(db.Document):
     last_update = db.DateTimeField(default=datetime.datetime.now, required=True)
     batchId = db.LongField(verbose_name="batchId", required=False, default=None)
     Nevents = db.LongField(verbose_name="Nevents", required=False, default=0)
-    site = db.StringField(verbose_name="site", required=False, default="local", choices=SITES)
+    job = db.ReferenceField("Job", reverse_delete_rule=mongoengine.CASCADE)
+    site = db.StringField(verbose_name="site", required=False, default=job.site, choices=SITES)
     hostname = db.StringField(verbose_name="hostname", required=False, default=None)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
@@ -128,7 +129,6 @@ class JobInstance(db.Document):
     memory = db.ListField()
     cpu = db.ListField()
     log = db.StringField(verbose_name="log", required=False, default="")
-    job = db.ReferenceField("Job", reverse_delete_rule=mongoengine.CASCADE)
 
     def parseBodyXml(self,key="MetaData"):
         from DmpWorkflow.utils.tools import parseJobXmlToDict

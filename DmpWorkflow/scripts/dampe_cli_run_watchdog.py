@@ -14,7 +14,7 @@ def main():
     log = AppLogger("watchdog")
     batchEngine = HPC.BatchEngine()
     batchEngine.update()
-    batchsite = BATCH_DEFAULTS['name']
+    batchsite = "local"#BATCH_DEFAULTS['name']
     res = requests.get("%s/watchdog/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
     res.raise_for_status()
     res = res.json()
