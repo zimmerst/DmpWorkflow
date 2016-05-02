@@ -82,8 +82,8 @@
 		<td> {{ jobInstance.status }} </td>
 		<td> {{ jobInstance.minor_status }} </td>
 		<td> {{ jobInstance.hostname }} </td>
-		<td> {{ jobInstance.cpu }} </td>
-		<td> {{ jobInstance.memory }} </td>
+		<td> {{ "%1.1f"%jobInstance.cpu }} </td>
+		<td> {{ "%1.1f"%jobInstance.memory }} </td>
 	</tr>
 	{% endfor %}
     {% endif %}
