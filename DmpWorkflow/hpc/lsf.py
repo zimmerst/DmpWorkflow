@@ -85,6 +85,6 @@ class BatchEngine(BATCH):
                     #print len(this_line), len(self.keys)
                     this_job = dict(zip(self.keys, this_line))
                     if len(this_job):
-                        print i, this_job
+                        #print i, this_job
                         jobs[jobID] = this_job
             return jobs
