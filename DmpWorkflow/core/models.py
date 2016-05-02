@@ -6,7 +6,6 @@ from flask import url_for
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db, app
 from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, parseJobXmlToDict
-from __builtin__ import None
 
 if not cfg.getboolean("site", "traceback"):
     sys.excepthook = exceptionHandler
