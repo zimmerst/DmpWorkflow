@@ -140,7 +140,8 @@ class JobInstance(db.Document):
             return self.cpu[-1]['value']
         elif key == 'memory':
             return self.memory[-1]['value']
-        else return None
+        else:
+            return None
         
     def set(self, key, value):
         if key == "created_at" and value == "Now": 
