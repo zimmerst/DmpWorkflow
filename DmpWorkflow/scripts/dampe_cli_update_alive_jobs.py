@@ -20,8 +20,8 @@ def main():
         hostname = job_dict["EXEC_HOST"]
         status = batchEngine.status_map[job_dict['STAT']] 
         if status in FINAL_STATII: continue
-        cpu = float(job_dict[batchEngine.parameter_map['cpu']])
-        mem = float(job_dict[batchEngine.parameter_map['mem']])
+        cpu = float(batchEngine.getCPUtime(batchId))
+        mem = float(batchEngine.getMemory(batchId))
         my_dict = {"t_id": JobId, "inst_id": InstanceId, "hostname": hostname, "major_status": status, "cpu":cpu, "memory":mem}
         log.debug("%s : %s",batchId,my_dict)
         res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args":json.dumps(my_dict)})

@@ -91,7 +91,11 @@ class BATCH(object):
 
     def update(self):
         return {}
-
+    def getCPUtime(self,job, key = None):
+        return 0.
+    def getMemory(self,job, key = None):
+        return 0.
+    
     def __checkKeys__(self, key):
         if key not in self.keys:
             self.logging.error("could not extract key, allowed keys %s", str(self.keys))

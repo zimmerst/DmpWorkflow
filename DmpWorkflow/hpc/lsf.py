@@ -60,7 +60,24 @@ class BatchEngine(BATCH):
 
     def update(self):
         self.allJobs.update(self.aggregateStatii())
-
+    
+    def getCPUtime(self,jobId, key = "CPU_USED"):
+        """ format is: 000:00:00.00 """
+        if not jobId in self.allJobs:
+            return 0.
+        cpu_str = self.allJobs[jobId][key]
+        hr,min,secs = cpu_str.split(":")
+        totalSecs = float(secs)+60*float(min)+3600*float(hr)
+        return totalSecs
+    
+    def getMemory(self,jobId, key = "MEM"):
+        """ format is kb, i believe."""
+        if not jobId in self.allJobs:
+            return 0.
+        mem_str = self.allJobs[jobId][key]
+        return float(mem_str)
+        
+        
     def aggregateStatii(self, asDict=True, command=None):
         #print self.keys
         if command is None:
