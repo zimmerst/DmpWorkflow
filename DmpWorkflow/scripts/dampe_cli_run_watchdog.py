@@ -21,7 +21,7 @@ def main():
     if not res.get("result", "nok") == "ok":
         log.error(res.get("error"))
     jobs = res.get("jobs")
-    print 'found %i jobs with requirements'
+    print 'found %i jobs with requirements'%len(jobs)
     log.info("completed cycle")
 if __name__ == '__main__':
     main()
