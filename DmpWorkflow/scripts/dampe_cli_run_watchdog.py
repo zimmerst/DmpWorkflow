@@ -51,7 +51,21 @@ def main(args=None):
         ratio_mem = current_mem/max_mem
         if (ratio_cpu >= ratio_cpu_max) or (ratio_mem >= ratio_mem_max):
             log.info('%s cpu %1.1f mem %1.1f',bj.batchId,ratio_cpu, ratio_mem)
-            log.info('Watchdog identified job %s to exceed its resources, terminating', bj.batchId)            
+            log.info('Watchdog identified job %s to exceed its sending kill signal', bj.batchId)            
+            try:
+                bj.kill()
+            except Exception as err:
+                log.exception("could not schedule job for removal, reason below\n%s",err)
+            if bj.status == "Failed":
+                my_dict = {'t_id':j['t_id'],'inst_id':j['inst_id'],
+                           'major_status':'Terminated','minor_status':"KilledByWatchDog"}
+                res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
+                res.raise_for_status()
+                res = res.json()
+                if res.get("result", "nok") != "ok":
+                    log.exception(res.get("error"))
+                else:
+                    log.debug("status updated")
     print 'found %i jobs with requirements'%len(jobs)
     log.info("completed cycle")
 if __name__ == '__main__':
