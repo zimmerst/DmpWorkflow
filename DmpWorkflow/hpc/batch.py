@@ -64,9 +64,9 @@ class BatchJob(object):
         return None
 
     def getCPU(self):
-        pass
+        return 0.
     def getMemory(self):
-        pass
+        return 0.
 
     def __run__(self,cmd):
         output, error, rc = run([cmd])
