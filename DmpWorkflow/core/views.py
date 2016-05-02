@@ -24,19 +24,22 @@ class ListView(MethodView):
 class DetailView(MethodView):
     form = model_form(JobInstance, exclude=['created_at', 'status_history', 'memory','cpu'])
 
-    def get_context(self, slug, instId=None):
+    def get_context(self, slug, instId=""):
         job = Job.objects.get_or_404(slug=slug)
+        jobInstance = None
+        if instId!="": 
+            jobInstance = Job.objects.filter(job=job, instanceId=instId="")[0]
         form = self.form(request.form)
-        jobInstance = JobInstance.objects(job=job,instanceId=instId)
         context = {
             "job": job,
-            "instance": jobInstance,
+            "jobInstance": jobInstance,
             "form": form
         }
         return context
 
-    def get(self, slug, instId=""):
-        context = self.get_context(slug,instId=instId)
+    def get(self, slug):
+        inst_id = str(request.form.get("inst_id",""))
+        context = self.get_context(slug,instId=inst_id)
         if instId=="":
             return render_template('jobs/detail.html', **context)
         else:
