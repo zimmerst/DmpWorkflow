@@ -64,7 +64,6 @@ def main(args=None):
                     log.exception(res.get("error"))
                 else:
                     log.debug("status updated")
-    prin
         if (ratio_cpu >= ratio_cpu_max) or (ratio_mem >= ratio_mem_max):
             log.info('%s cpu %1.1f mem %1.1f',bj.batchId,ratio_cpu, ratio_mem)
             log.warning('Watchdog identified job %s to exceed its sending kill signal', bj.batchId)            
@@ -82,7 +81,7 @@ def main(args=None):
                     log.exception(res.get("error"))
                 else:
                     log.debug("status updated")
-    print 'found %i jobs with requirements'%len(jobs)
     log.info("completed cycle")
+    
 if __name__ == '__main__':
     main()
