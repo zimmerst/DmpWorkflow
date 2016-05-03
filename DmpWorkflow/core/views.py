@@ -198,6 +198,7 @@ class SetJobStatus(MethodView):
             if not minor_status is None:
                 logger.debug("updating minor status")
                 jInstance.set("minor_status",minor_status)
+                del arguments['minor_status']
             jInstance.setStatus(major_status)
             for key in ["t_id","inst_id","major_status"]: del arguments[key]
             for key,value in arguments.iteritems():
