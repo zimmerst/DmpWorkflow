@@ -187,14 +187,18 @@ class SetJobStatus(MethodView):
         t_id = arguments["t_id"]
         inst_id = arguments["inst_id"]
         major_status = arguments["major_status"]
+        minor_status = arguments["minor_status"]
         try:
             my_job = Job.objects.filter(id=t_id)
             if not len(my_job): raise Exception("could not find Job")
             my_job = my_job[0]
             jInstance = my_job.getInstance(inst_id)
             oldStatus = jInstance.status
-            if major_status != oldStatus:
-                jInstance.setStatus(major_status)
+            #if major_status != oldStatus:
+            if not minor_status is None:
+                logger.debug("updating minor status")
+                jInstance.set("minor_status",minor_status)
+            jInstance.setStatus(major_status)
             for key in ["t_id","inst_id","major_status"]: del arguments[key]
             for key,value in arguments.iteritems():
                 jInstance.set(key,value)
