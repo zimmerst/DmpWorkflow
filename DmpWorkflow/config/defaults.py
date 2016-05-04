@@ -43,7 +43,7 @@ __myDefaults = {
     "EXEC_DIR_ROOT" : "/tmp",
     "ratio_mem" : "1.0",
     "ratio_cpu" : "1.0",
-    "logfile" : "flask.log"
+    "logfile" : "/tmp/flask.log"
 }
 
 cfg = ConfigParser.SafeConfigParser(defaults=__myDefaults)
