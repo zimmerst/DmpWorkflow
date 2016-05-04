@@ -1,6 +1,6 @@
-import logging.config
-from DmpWorkflow.config.logger import LOGGING
-logging.config.dictConfig(LOGGING)
+#import logging.config
+#from DmpWorkflow.config.logger import LOGGING
+#logging.config.dictConfig(LOGGING)
 
 from DmpWorkflow.config.defaults import cfg
 from flask import Flask
