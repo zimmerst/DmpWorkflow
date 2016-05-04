@@ -1,4 +1,4 @@
-from DmpWorkflow.core.config.logger import LOGGING
+from DmpWorkflow.config.logger import LOGGING
 import logging
 from DmpWorkflow.config.defaults import cfg
 from flask import Flask
