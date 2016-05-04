@@ -25,7 +25,6 @@ if kind == 'server':
 
     register_blueprints(app)
     
-    
     def main():
         app.run()
 
