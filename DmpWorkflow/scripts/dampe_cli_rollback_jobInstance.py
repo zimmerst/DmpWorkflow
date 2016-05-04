@@ -17,7 +17,7 @@ def main(args=None):
     parser.add_argument("--title", dest="title", type=str, default=None, help='name of job, required!', required=True)
     parser.add_argument("--instance", dest="inst", type=int, default=None, 
                         help='to roll back specific instance', required=False)
-    parser.add_argument("--status", dest="stat", type=str, default="Any", 
+    parser.add_argument("--status", dest="stat", type=str, default="Failed", 
                         help='jobs to be picked for roll-back, Any will return all statii!', required=False)
     parser.add_argument("--n_min", dest="n_min", type=int, default=None, help='roll back everything above this number', 
                         required=False)
