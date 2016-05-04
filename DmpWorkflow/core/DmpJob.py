@@ -158,11 +158,12 @@ class DmpJob(object):
 
     def submit(self, **kwargs):
         """ handles the submission part """
-        #print BATCH_DEFAULTS
+        print "batchdefaults: ",BATCH_DEFAULTS
         dry = kwargs['dry'] if 'dry' in kwargs else False
         local = kwargs['local'] if 'local' in kwargs else False
         if not dry: 
             self.createLogFile()
+        
         bj = HPC.BatchJob(name=self.getJobName(), command=self.execCommand, logFile=self.logfile, defaults = BATCH_DEFAULTS)
         if dry:
             print "DRY_COMMAND: %s"%self.execCommand
