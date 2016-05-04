@@ -5,9 +5,10 @@ Created on Mar 15, 2016
 """
 import requests
 import sys
+import logging
 from argparse import ArgumentParser
 from DmpWorkflow.core.DmpJob import DmpJob
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, AppLogger
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
 
 def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
@@ -17,7 +18,7 @@ def main(args=None):
     parser.add_argument("-c", "--chunk", dest="chunk", default=100, type=int, help='number of jobs to process per cycle')
     parser.add_argument("-m", "--maxJobs", dest="maxJobs", default=None, type=int, help='number of jobs that can be in the system')
     opts = parser.parse_args(args)
-    log = AppLogger("dampe-cli-fetch-new-jobs")
+    log = logging.getLogger("scripts")
     batchsite = BATCH_DEFAULTS['name']
     if not opts.maxJobs is None:
         res = requests.get("%s/watchdog/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
@@ -26,9 +27,9 @@ def main(args=None):
         if not res.get("result", "nok") == "ok":
             log.error(res.get("error"))
         jobs = res.get("jobs")
-        print 'found %i jobs in the db'%len(jobs)
+        log.info('found %i jobs running',len(jobs))
         if len(jobs) >= opts.maxJobs:
-            log.info("reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
+            log.warning("reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
             sys.exit();
     res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
     res.raise_for_status()

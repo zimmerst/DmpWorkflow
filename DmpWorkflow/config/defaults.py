@@ -5,21 +5,13 @@ Created on Apr 20, 2016
 @brief: prototype script that handles config parsing etc.
 
 """
+from logging.config import dictConfig
+import logging
 import ConfigParser
 import os
 import sys
 from DmpWorkflow import __path__ as DMPPath
 from DmpWorkflow.utils.tools import exceptionHandler
-
-def AppLogger(name,level="INFO"):
-    import logging
-    log = logging.getLogger(name)
-    log.setLevel(eval("logging.%s"%level.upper()))
-    ch = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    log.addHandler(ch)
-    return log
 
 DAMPE_WORKFLOW_ROOT = os.path.abspath(DMPPath[0])
 
@@ -91,3 +83,41 @@ SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])
 assert BATCH_DEFAULTS['name'] in cfg.get("JobDB","batch_sites"), "Batch site %s not in DB"%BATCH_DEFAULTS['name']
 assert BATCH_DEFAULTS['system'] in ["lsf","sge"], "HPCSystem %s not supported."%BATCH_DEFAULTS["system"]
 
+# add logger
+LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+                        "precise": {
+                                    "format": "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
+                                    'datefmt': '%Y-%m-%d %H:%M:%S'
+                                    }                           
+                       },
+        'handlers': {
+                        'console':     {
+                                        'level': 'DEBUG',
+                                        'class': 'logging.StreamHandler',
+                                        },
+                        'file':         {
+                                         'level': "INFO",
+                                         'formatter': "precise",
+                                         'class': 'logging.handlers.RotatingFileHandler',
+                                         'filename': cfg.get("server","logfile"),
+                                         'maxBytes': "2000000",
+                                         'backupCount': 5
+                                         }
+                    },
+        'loggers': {
+                    'app': {
+                            'handlers': ['console', "file"],
+                            'level': 'INFO'
+                            },
+                    'script':{
+                              'handlers': ['console'],
+                              'level':'INFO'
+                            }
+                            
+                    
+                    }
+               }
+dictConfig(LOGGING)

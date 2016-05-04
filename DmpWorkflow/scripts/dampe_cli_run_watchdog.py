@@ -8,8 +8,9 @@ import requests
 import importlib
 import json
 import copy
+import logging
 from argparse import ArgumentParser
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII, AppLogger, cfg
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII, cfg
 from DmpWorkflow.utils.tools import getSixDigits
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
@@ -20,7 +21,7 @@ def main(args=None):
     parser.add_argument("--site", dest="site", type=str, default=None, help='name of site', required=False)
     parser.add_argument("--dry", dest="dry", action = 'store_true', default=False, help='test-run')
     opts = parser.parse_args(args)
-    log = AppLogger("watchdog")
+    log = logging.getLogger("scripts")
     batchEngine = HPC.BatchEngine()
     batchEngine.update()
     batchsite = BATCH_DEFAULTS['name'] if opts.site is None else opts.site

@@ -7,11 +7,12 @@ Created on Mar 15, 2016
 import requests
 import importlib
 import json
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII, AppLogger
+import logging
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
 def main():
-    log = AppLogger("dampe-cli-update-alive-jobs")
+    log = logging.getLogger("scripts")
     batchEngine = HPC.BatchEngine()
     batchEngine.update()
     for batchId, job_dict in batchEngine.allJobs.iteritems():
