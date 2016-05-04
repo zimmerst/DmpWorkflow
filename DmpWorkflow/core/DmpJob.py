@@ -190,7 +190,7 @@ class DmpJob(object):
             return -1
         else:
             bj.kill()
-            self.updateStatus("Terminated", "ReceivedKillCommand")
+            self.updateStatus("Terminated", msg)
 
     def exportToJSON(self):
         """ return a pickler of itself as JSON format """

@@ -65,9 +65,10 @@ class BatchJob(object):
 
     def getCPU(self):
         return 0.
-    def getMemory(self):
+    def getMemory(self,unit='kB'):
+        print unit
         return 0.
-
+    
     def __run__(self,cmd):
         output, error, rc = run([cmd])
         self.logging.debug("execution with rc: %i",int(rc))
@@ -92,13 +93,15 @@ class BATCH(object):
     kind = "generic"
 
     def __init__(self):
-        self.logging = AppLogger(self.kind)
+        self.logging = logging.getLogger("core")
 
     def update(self):
         return {}
     def getCPUtime(self,job, key = None):
+        print job, key
         return 0.
     def getMemory(self,job, key = None, unit='kB'):
+        print job, key, unit
         return 0.
     
     def addBatchJob(self,job):

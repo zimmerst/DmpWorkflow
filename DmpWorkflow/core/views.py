@@ -4,8 +4,6 @@ import json
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
 from flask.views import MethodView
-
-from DmpWorkflow.core import app
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance
 #from DmpWorkflow.utils.db_helpers import update_status
@@ -196,12 +194,13 @@ class SetJobStatus(MethodView):
             my_job = my_job[0]
             jInstance = my_job.getInstance(inst_id)
             oldStatus = jInstance.status
-            #if major_status != oldStatus:
-            if not minor_status is None:
+            minorOld  = jInstance.minor_status
+            if not minor_status is None and minor_status!=minorOld:
                 logger.debug("updating minor status")
                 jInstance.set("minor_status",minor_status)
                 del arguments['minor_status']
-            jInstance.setStatus(major_status)
+            if major_status != oldStatus:
+                jInstance.setStatus(major_status)
             for key in ["t_id","inst_id","major_status"]: del arguments[key]
             for key,value in arguments.iteritems():
                 jInstance.set(key,value)

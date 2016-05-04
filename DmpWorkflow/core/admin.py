@@ -4,7 +4,7 @@ Created on Mar 10, 2016
 @author: zimmer
 """
 import logging
-from flask import Blueprint, request, redirect, render_template, url_for, current_app
+from flask import Blueprint, request, redirect, render_template, url_for
 from flask.views import MethodView
 
 from flask.ext.mongoengine.wtf import model_form

@@ -5,7 +5,7 @@ import mongoengine
 import logging
 from flask import url_for
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
-from DmpWorkflow.core import db, app
+from DmpWorkflow.core import db
 from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, parseJobXmlToDict
 
 if not cfg.getboolean("site", "traceback"):
@@ -132,7 +132,6 @@ class JobInstance(db.Document):
     log = db.StringField(verbose_name="log", required=False, default="")
 
     def parseBodyXml(self,key="MetaData"):
-        from DmpWorkflow.utils.tools import parseJobXmlToDict
         p = parseJobXmlToDict(self.job.body.read())
         return p[key]
 

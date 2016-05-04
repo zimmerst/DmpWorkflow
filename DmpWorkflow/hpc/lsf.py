@@ -84,8 +84,8 @@ class BatchEngine(BATCH):
         if not jobId in self.allJobs:
             return 0.
         cpu_str = self.allJobs[jobId][key]
-        hr,min,secs = cpu_str.split(":")
-        totalSecs = float(secs)+60*float(min)+3600*float(hr)
+        hr,_min,secs = cpu_str.split(":")
+        totalSecs = float(secs)+60*float(_min)+3600*float(hr)
         return totalSecs
     
     def getMemory(self,jobId, key = "MEM", unit='kB'):
