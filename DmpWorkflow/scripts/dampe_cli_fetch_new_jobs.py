@@ -26,6 +26,7 @@ def main(args=None):
         if not res.get("result", "nok") == "ok":
             log.error(res.get("error"))
         jobs = res.get("jobs")
+        print 'found %i jobs in the db'%len(jobs)
         if len(jobs) >= opts.maxJobs:
             log.info("reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
             sys.exit();

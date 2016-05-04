@@ -18,6 +18,7 @@ def main(args=None):
     description = "run watchdog"
     parser = ArgumentParser(usage=usage, description=description)
     parser.add_argument("--site", dest="site", type=str, default=None, help='name of site', required=False)
+    parser.add_argument("--dry", dest="dry", action = 'store_true', default=False, help='test-run')
     opts = parser.parse_args(args)
     log = AppLogger("watchdog")
     batchEngine = HPC.BatchEngine()
@@ -57,16 +58,18 @@ def main(args=None):
                     log.warning("found a job that should be in non-final state but batch reports it to be failed, updating db")
                 my_dict = {'t_id':j['t_id'],'inst_id':j['inst_id'],
                            'major_status':'Terminated','minor_status':"KilledByBatch"}
-                res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
-                res.raise_for_status()
-                res = res.json()
-                if res.get("result", "nok") != "ok":
-                    log.exception(res.get("error"))
-                else:
-                    log.debug("status updated")
+                if not opts.dry:
+                    res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
+                    res.raise_for_status()
+                    res = res.json()
+                    if res.get("result", "nok") != "ok":
+                        log.exception(res.get("error"))
+                    else:
+                        log.debug("status updated")
         if (ratio_cpu >= ratio_cpu_max) or (ratio_mem >= ratio_mem_max):
             log.info('%s cpu %1.1f mem %1.1f',bj.batchId,ratio_cpu, ratio_mem)
             log.warning('Watchdog identified job %s to exceed its sending kill signal', bj.batchId)            
+            if opts.dry: continue
             try:
                 bj.kill()
             except Exception as err:
