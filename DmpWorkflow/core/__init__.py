@@ -6,6 +6,7 @@ from flask.ext.mongoengine import MongoEngine
 kind = cfg.get("global","installation")
 if kind == 'server':
     app = Flask(__name__)
+    app.config.update(LOGGER_NAME="core")
     app.config['MONGODB_DB'] = cfg.get("database", "name")
     app.config['MONGODB_USERNAME'] = cfg.get("database", "user")
     app.config['MONGODB_PASSWORD'] = cfg.get("database", "password")

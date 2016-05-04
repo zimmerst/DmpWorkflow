@@ -20,6 +20,6 @@ try:
     from DmpWorkflow.config.defaults import DAMPE_LOGFILE
     initLogger(DAMPE_LOGFILE)
 except Exception as err:
-    logging.warning("Log service client was not initialized properly: %s" % str(err))
+    logging.warning("Log service client was not initialized properly: %s", str(err))
 except ImportError:
     pass

@@ -33,7 +33,7 @@ def initLogger(logfile):
                                              }
                         },
             'loggers': {
-                        'app': {
+                        'core': {
                                 'handlers': ['console', "file"],
                                 'level': 'INFO'
                                 },
