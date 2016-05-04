@@ -36,7 +36,7 @@ def main(args=None):
         #    log.error(res.get("error"))
         #jobs = res.get("jobs")
         log.info('found %i jobs running',val)
-        if len(jobs) >= opts.maxJobs:
+        if val >= opts.maxJobs:
             log.warning("reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
             sys.exit();
     res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
