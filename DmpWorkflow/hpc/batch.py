@@ -4,6 +4,7 @@ Created on Mar 22, 2016
 @author: zimmer
 """
 from DmpWorkflow.utils.shell import run
+import logging
 
 BATCH_ID_ENV = "NOT_DEFINED"
 class BatchJob(object):
