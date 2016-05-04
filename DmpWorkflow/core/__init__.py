@@ -1,12 +1,13 @@
-from DmpWorkflow.config.defaults import cfg
+import logging.config
 from DmpWorkflow.config.logger import LOGGING
+logging.config.dictConfig(LOGGING)
+
+from DmpWorkflow.config.defaults import cfg
 from flask import Flask
 from flask.ext.mongoengine import MongoEngine
 
 kind = cfg.get("global","installation")
 if kind == 'server':
-    import logging.config
-    logging.config.dictConfig(LOGGING)
     app = Flask(__name__)
     app.config['MONGODB_DB'] = cfg.get("database", "name")
     app.config['MONGODB_USERNAME'] = cfg.get("database", "user")
