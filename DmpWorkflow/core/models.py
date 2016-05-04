@@ -49,7 +49,7 @@ class Job(db.Document):
 
     def getInstance(self, _id):
         jI = JobInstance.objects.filter(job=self, instanceId=_id)
-        log.info("jobInstances from query: %s",str(jI))
+        log.debug("jobInstances from query: %s",str(jI))
         if len(jI):
             return jI[0]
         # for jI in self.jobInstances:
@@ -105,7 +105,7 @@ class Job(db.Document):
         super(Job, self).save()
 
     def update(self):
-        log.info("calling update on Job")
+        log.debug("calling update on Job")
         super(Job, self).save()
 
     meta = {
@@ -185,7 +185,7 @@ class JobInstance(db.Document):
         sH = {"status": self.status, 
               "update": self.last_update,
               "minor_status": self.minor_status}
-        log.info("statusSet %s",str(sH))
+        log.debug("statusSet %s",str(sH))
         self.status_history.append(sH)
         self.save()
         return
