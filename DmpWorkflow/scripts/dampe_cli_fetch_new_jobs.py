@@ -9,7 +9,7 @@ import logging
 from argparse import ArgumentParser
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
-
+from DmpWorkflow.utils.shell import run
 def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
     parser.add_argument("-d", "--dry", dest="dry", action = 'store_true', default=False, help='if dry, do not try interacting with batch farm')
@@ -21,13 +21,21 @@ def main(args=None):
     log = logging.getLogger("script")
     batchsite = BATCH_DEFAULTS['name']
     if not opts.maxJobs is None:
-        res = requests.get("%s/watchdog/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
-        res.raise_for_status()
-        res = res.json()
-        if not res.get("result", "nok") == "ok":
-            log.error(res.get("error"))
-        jobs = res.get("jobs")
-        log.info('found %i jobs running',len(jobs))
+        
+        #FIXME: this is super ugly!!!
+        out, err, rc = run(["bjobs | grep -c ${USER}"],useLogging=False)
+        if rc:
+            sys.exit()
+        print err
+        while "\n" in out: out = out.replace("\n","") 
+        val  = int(out)
+        #res = requests.get("%s/watchdog/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
+        #res.raise_for_status()
+        #res = res.json()
+        #if not res.get("result", "nok") == "ok":
+        #    log.error(res.get("error"))
+        #jobs = res.get("jobs")
+        log.info('found %i jobs running',val)
         if len(jobs) >= opts.maxJobs:
             log.warning("reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
             sys.exit();
