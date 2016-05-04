@@ -19,10 +19,9 @@ if preVersion:
     buildVersion = "%s pre %s" % ( buildVersion, preVersion )
 
 from utils.logger import initLogger
-from config.defaults import cfg
+from config.defaults import DAMPE_LOGFILE
 try:
-    logfile = cfg.get("global","logfile")
-    initLogger(logfile)
+    initLogger(DAMPE_LOGFILE)
 except Exception:
     logging.warning("Log service client was not initialized properly")
 except ImportError:

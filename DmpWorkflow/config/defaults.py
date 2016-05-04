@@ -81,4 +81,4 @@ SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])
 assert BATCH_DEFAULTS['name'] in cfg.get("JobDB","batch_sites"), "Batch site %s not in DB"%BATCH_DEFAULTS['name']
 assert BATCH_DEFAULTS['system'] in ["lsf","sge"], "HPCSystem %s not supported."%BATCH_DEFAULTS["system"]
 
-
+DAMPE_LOGFILE = cfg.get("global","logfile")
