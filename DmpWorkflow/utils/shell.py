@@ -7,11 +7,12 @@ import logging
 import subprocess
 import os
 
+logger = logging.getLogger("core")
 
 def run(cmd_args, useLogging=True, suppressErrors=False):
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
-    logging.info("attempting to run: %s",str(cmd_args))
+    logger.info("attempting to run: %s",str(cmd_args))
     proc = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
     rc = proc.returncode
@@ -20,7 +21,7 @@ def run(cmd_args, useLogging=True, suppressErrors=False):
             if len(e):
                 if suppressErrors: continue
                 if useLogging:
-                    logging.error(e)
+                    logger.error(e)
                 else:
                     print e
     return out, err, rc

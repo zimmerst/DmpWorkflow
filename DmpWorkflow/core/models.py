@@ -2,6 +2,7 @@
 import datetime
 import sys
 import mongoengine
+import logging
 from flask import url_for
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db, app
@@ -10,7 +11,7 @@ from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, p
 if not cfg.getboolean("site", "traceback"):
     sys.excepthook = exceptionHandler
 
-log = app.logger
+log = logging.getLogger("core")
 
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)

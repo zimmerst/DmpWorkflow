@@ -3,6 +3,7 @@ Created on Mar 10, 2016
 
 @author: zimmer
 """
+import logging
 from flask import Blueprint, request, redirect, render_template, url_for, current_app
 from flask.views import MethodView
 
@@ -12,7 +13,7 @@ from DmpWorkflow.core.auth import requires_auth
 from DmpWorkflow.core.models import Job
 
 admin = Blueprint('admin', __name__, template_folder='templates')
-
+logger = logging.getLogger("core")
 
 class List(MethodView):
     decorators = [requires_auth]
@@ -30,7 +31,7 @@ class Remove(MethodView):
         if slug:
             job = Job.objects.get_or_404(slug=slug)
             job.delete();
-            current_app.logger.info("removing job %s" % slug)
+            logger.info("removing job %s", slug)
         return redirect(url_for('admin.index'))
 
 
@@ -44,10 +45,10 @@ class Detail(MethodView):
             job = Job.objects.get_or_404(slug=slug)
             if request.method == 'POST':
                 form = form_cls(request.form, inital=job._data)
-                current_app.logger.info("POST request from form")
+                logger.info("POST request from form")
             else:
                 form = form_cls(obj=job)
-                current_app.logger.info("other request")
+                logger.info("other request")
         else:
             job = Job()
             form = form_cls(request.form)
@@ -66,7 +67,7 @@ class Detail(MethodView):
     def post(self, slug):
         context = self.get_context(slug)
         form = context.get('form')
-        current_app.logger.info(form.slug.data)
+        logger.info(form.slug.data)
         if form.validate():
             job = context.get('job')
             form.populate_obj(job)

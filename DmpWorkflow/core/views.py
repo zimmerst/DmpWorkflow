@@ -1,3 +1,4 @@
+import logging
 import copy
 import json
 from flask import Blueprint, request, redirect, render_template, url_for
@@ -12,7 +13,7 @@ from DmpWorkflow.utils.tools import parseJobXmlToDict
 
 jobs = Blueprint('jobs', __name__, template_folder='templates')
 
-logger = app.logger
+logger = logging.getLogger("core")
 
 
 class ListView(MethodView):

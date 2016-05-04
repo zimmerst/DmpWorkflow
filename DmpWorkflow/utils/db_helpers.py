@@ -4,11 +4,11 @@ Created on Mar 15, 2016
 @author: zimmer
 """
 import time
-
-from DmpWorkflow.core import db, app
+import logging
+from DmpWorkflow.core import db
 from DmpWorkflow.core.models import Job, MAJOR_STATII
 
-log = app.logger
+log = logging.getLogger("core")
 
 def update_status(JobId, InstanceId, major_status, **kwargs):
     ''' method to connect to db directly, without requests, i.e. should be run from server-side. '''
