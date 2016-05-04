@@ -52,10 +52,12 @@ class DmpJob(object):
                 if key in fi:
                     fi[key] = oPath.expandvars(fi[key])
                     if key in override_keys:
+                        print 'found override key'
                         bkey = key.replace("BATCH_OVERRIDE_","").lower()
                         BATCH_DEFAULTS[bkey]=fi[key]
         environ['DWF_TASKNAME']=self.title
         environ['RELEASE_TAG']=self.release
+        print 'BatchOverride keys', BATCH_DEFAULTS
         return      
 
     def getJobName(self):
