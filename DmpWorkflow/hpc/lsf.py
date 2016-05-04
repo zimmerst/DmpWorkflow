@@ -81,7 +81,7 @@ class BatchEngine(BATCH):
     
     def getCPUtime(self,jobId, key = "CPU_USED"):
         """ format is: 000:00:00.00 """
-        if not jobId in self.allJobs:
+        if jobId not in self.allJobs:
             return 0.
         cpu_str = self.allJobs[jobId][key]
         hr,_min,secs = cpu_str.split(":")
@@ -90,7 +90,7 @@ class BatchEngine(BATCH):
     
     def getMemory(self,jobId, key = "MEM", unit='kB'):
         """ format is kb, i believe."""
-        if not jobId in self.allJobs:
+        if jobId not in self.allJobs:
             return 0.
         mem_str = self.allJobs[jobId][key]
         mem = float(mem_str)

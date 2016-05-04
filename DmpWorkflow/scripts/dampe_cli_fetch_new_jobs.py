@@ -20,7 +20,7 @@ def main(args=None):
     opts = parser.parse_args(args)
     log = logging.getLogger("script")
     batchsite = BATCH_DEFAULTS['name']
-    if not opts.maxJobs is None:
+    if opts.maxJobs is not None:
         
         #FIXME: this is super ugly!!!
         out, err, rc = run(["bjobs | grep -c ${USER}"],useLogging=False)

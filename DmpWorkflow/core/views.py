@@ -195,7 +195,7 @@ class SetJobStatus(MethodView):
             jInstance = my_job.getInstance(inst_id)
             oldStatus = jInstance.status
             minorOld  = jInstance.minor_status
-            if not minor_status is None and minor_status!=minorOld:
+            if minor_status is not None and minor_status!=minorOld:
                 logger.debug("updating minor status")
                 jInstance.set("minor_status",minor_status)
                 del arguments['minor_status']
