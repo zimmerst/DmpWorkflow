@@ -10,7 +10,7 @@ import os
 import sys
 from DmpWorkflow.utils.tools import exceptionHandler
 
-DAMPE_WORKFLOW_ROOT = os.path.abspath(__file__)
+DAMPE_WORKFLOW_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 __myDefaults = {
     "DAMPE_SW_DIR": ".",
