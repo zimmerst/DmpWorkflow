@@ -33,6 +33,10 @@ def initLogger(logfile):
                                              }
                         },
             'loggers': {
+                        'root': {
+                                'handlers': ["file"],
+                                'level': 'INFO'
+                                },
                         'core': {
                                 'handlers': ["file"],
                                 'level': 'INFO'
