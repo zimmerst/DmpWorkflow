@@ -20,7 +20,7 @@ def initLogger(logfile):
                            },
             'handlers': {
                             'console':     {
-                                            'level': 'DEBUG',
+                                            'level': 'INFO',
                                             'class': 'logging.StreamHandler',
                                             },
                             'file':         {
@@ -34,7 +34,7 @@ def initLogger(logfile):
                         },
             'loggers': {
                         'core': {
-                                'handlers': ['console', "file"],
+                                'handlers': ["file"],
                                 'level': 'INFO'
                                 },
                         'script':{
