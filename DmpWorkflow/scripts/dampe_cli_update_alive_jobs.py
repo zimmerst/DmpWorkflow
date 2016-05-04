@@ -12,7 +12,7 @@ from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINA
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
 def main():
-    log = logging.getLogger("scripts")
+    log = logging.getLogger("script")
     batchEngine = HPC.BatchEngine()
     batchEngine.update()
     for batchId, job_dict in batchEngine.allJobs.iteritems():

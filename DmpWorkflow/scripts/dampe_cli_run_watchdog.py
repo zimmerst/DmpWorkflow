@@ -21,7 +21,7 @@ def main(args=None):
     parser.add_argument("--site", dest="site", type=str, default=None, help='name of site', required=False)
     parser.add_argument("--dry", dest="dry", action = 'store_true', default=False, help='test-run')
     opts = parser.parse_args(args)
-    log = logging.getLogger("scripts")
+    log = logging.getLogger("script")
     batchEngine = HPC.BatchEngine()
     batchEngine.update()
     batchsite = BATCH_DEFAULTS['name'] if opts.site is None else opts.site

@@ -4,7 +4,6 @@ Created on Mar 22, 2016
 @author: zimmer
 """
 from DmpWorkflow.utils.shell import run
-from DmpWorkflow.config.defaults import AppLogger
 
 BATCH_ID_ENV = "NOT_DEFINED"
 class BatchJob(object):
@@ -19,7 +18,7 @@ class BatchJob(object):
     defaults = None
     requirements = []
     status = None
-    logging = AppLogger("BatchJob")
+    logging = logging.getLogger("batch")
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)

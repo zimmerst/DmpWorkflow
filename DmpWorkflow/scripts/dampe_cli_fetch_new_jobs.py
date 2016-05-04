@@ -18,7 +18,7 @@ def main(args=None):
     parser.add_argument("-c", "--chunk", dest="chunk", default=100, type=int, help='number of jobs to process per cycle')
     parser.add_argument("-m", "--maxJobs", dest="maxJobs", default=None, type=int, help='number of jobs that can be in the system')
     opts = parser.parse_args(args)
-    log = logging.getLogger("scripts")
+    log = logging.getLogger("script")
     batchsite = BATCH_DEFAULTS['name']
     if not opts.maxJobs is None:
         res = requests.get("%s/watchdog/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})

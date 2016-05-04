@@ -18,7 +18,7 @@ HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 if __name__ == '__main__':
     pwd = os.curdir
     DEBUG_TEST = False
-    log = logging.getLogger("scripts")
+    log = logging.getLogger("script")
     fii = sys.argv[1]
     if os.path.isfile(fii):
         fii = open(fii, 'rb').read()

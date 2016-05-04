@@ -40,6 +40,10 @@ def initLogger(logfile):
                         'script':{
                                   'handlers': ['console'],
                                   'level':'INFO'
+                                },
+                        'batch':{
+                                  'handlers': ['console'],
+                                  'level':'INFO'
                                 }
                                 
                         
