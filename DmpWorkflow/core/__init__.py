@@ -1,4 +1,5 @@
 from DmpWorkflow.config.logger import LOGGING
+from logging.config import dictConfig
 import logging
 from DmpWorkflow.config.defaults import cfg
 from flask import Flask
@@ -12,7 +13,7 @@ if kind == 'server':
     app.config['MONGODB_PASSWORD'] = cfg.get("database", "password")
     app.config['MONGODB_HOST'] = cfg.get("database", "host")
     app.config["SECRET_KEY"] = "KeepThisS3cr3t"
-    logging.config.dictConfig(LOGGING)
+    dictConfig(LOGGING)
     #app.logger.config.dictConfig(LOGGING)
     
     db = MongoEngine(app)
