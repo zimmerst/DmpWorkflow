@@ -59,7 +59,7 @@ class DmpJob(object):
 
         environ['DWF_TASKNAME']=self.title
         environ['RELEASE_TAG']=self.release
-        print 'BatchOverride keys', BATCH_DEFAULTS
+        #print 'BatchOverride keys', BATCH_DEFAULTS
         return      
 
     def getJobName(self):
@@ -162,7 +162,7 @@ class DmpJob(object):
 
     def submit(self, **kwargs):
         """ handles the submission part """
-        print "batchdefaults: ",BATCH_DEFAULTS
+        #print "batchdefaults: ",BATCH_DEFAULTS
         dry = kwargs['dry'] if 'dry' in kwargs else False
         local = kwargs['local'] if 'local' in kwargs else False
         if not dry: 

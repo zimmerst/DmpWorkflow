@@ -28,7 +28,7 @@ def main(args=None):
     for i,job in enumerate(jobs):
         if i < opts.chunk: 
             j = DmpJob.fromJSON(job)
-            j.__updateEnv__()
+            #j.__updateEnv__()
             j.write_script(pythonbin=opts.python,debug=opts.dry)
             try: 
                 ret = j.submit(dry=opts.dry,local=opts.local)

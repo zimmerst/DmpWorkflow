@@ -30,7 +30,7 @@ class BatchJob(HPCBatchJob):
         cmd = "bsub -J {5} -W {6} -q {0} -oo {1} {2} {3} {4}".format(self.queue, self.logFile, req, extra,\
                                                                      self.command, self.name, self.cputime)
         if 'verbose' in kwargs and kwargs['verbose']: print cmd
-        print cmd
+        #print cmd
         output = self.__run__(cmd)
         return self.__regexId__(output)
     def getCPU(self):
