@@ -8,10 +8,9 @@ Created on Apr 20, 2016
 import ConfigParser
 import os
 import sys
-from DmpWorkflow import __path__ as DMPPath
 from DmpWorkflow.utils.tools import exceptionHandler
 
-DAMPE_WORKFLOW_ROOT = os.path.abspath(DMPPath[0])
+DAMPE_WORKFLOW_ROOT = os.path.abspath(__file__)
 
 __myDefaults = {
     "DAMPE_SW_DIR": ".",

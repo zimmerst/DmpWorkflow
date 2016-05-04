@@ -4,8 +4,8 @@ Created on May 4, 2016
 @author: zimmer
 '''
 
-from logging.config import dictConfig
 import logging
+import logging.config
 
 def initLogger(logfile):
     # add logger
@@ -16,7 +16,7 @@ def initLogger(logfile):
                             "precise": {
                                         "format": "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
                                         'datefmt': '%Y-%m-%d %H:%M:%S'
-                                        }                           
+                                        }
                            },
             'handlers': {
                             'console':     {
@@ -45,8 +45,8 @@ def initLogger(logfile):
                                   'handlers': ['console'],
                                   'level':'INFO'
                                 }
-                                
-                        
+
+
                         }
                    }
-    dictConfig(LOGGING)
+    logging.config.dictConfig(LOGGING)
