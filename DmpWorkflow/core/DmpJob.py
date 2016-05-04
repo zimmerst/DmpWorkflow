@@ -47,14 +47,16 @@ class DmpJob(object):
 
     def __updateEnv__(self):
         override_keys = ["BATCH_OVERRIDE_%s"%key.upper() for key in BATCH_DEFAULTS.keys()]
-        for fi in self.InputFiles + self.OutputFiles + self.MetaData:
-            for key in ['value', 'source', 'target']:
-                if key in fi:
-                    fi[key] = oPath.expandvars(fi[key])
-                    if key in override_keys:
-                        print 'found override key'
-                        bkey = key.replace("BATCH_OVERRIDE_","").lower()
-                        BATCH_DEFAULTS[bkey]=fi[key]
+        for var in self.MetaData:
+            if var['name'] in override_keys:
+                bkey = var['name'].replace("BATCH_OVERRIDE_","").lower()
+                BATCH_DEFAULTS[bkey] = var['value']
+            else:
+                environ[var['name']]=var['value']
+        for fil in self.InputFiles + self.OutputFiles:
+            for key in ['source','target']:
+                fil[key]=oPath.expandvars(fil[key])
+
         environ['DWF_TASKNAME']=self.title
         environ['RELEASE_TAG']=self.release
         print 'BatchOverride keys', BATCH_DEFAULTS
