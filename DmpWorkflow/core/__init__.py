@@ -6,7 +6,7 @@ from flask import Flask
 from flask.ext.mongoengine import MongoEngine
 
 kind = cfg.get("global","installation")
-LOG_FILENAME = cfg.get("global","logfile")
+LOG_FILENAME = cfg.get("server","logfile")
 
 
 if kind == 'server':
