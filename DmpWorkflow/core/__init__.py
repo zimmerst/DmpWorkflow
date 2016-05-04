@@ -1,4 +1,5 @@
-from DmpWorkflow.config.defaults import cfg, LOGGING
+from DmpWorkflow.config.defaults import cfg
+from DmpWorkflow.config.logger import LOGGING
 from flask import Flask
 from flask.ext.mongoengine import MongoEngine
 
