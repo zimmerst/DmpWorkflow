@@ -132,6 +132,7 @@ class JobInstanceView(MethodView):
         if len(jobs):
             logger.debug("Found job")
             job = jobs[0]
+            site = job.execution_site
             dout = parseJobXmlToDict(job.body.read())
             if 'type' in dout['atts']:
                 job.type = unicode(dout['atts']['type'])
@@ -140,7 +141,7 @@ class JobInstanceView(MethodView):
             dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
             if ninst:
                 for j in range(ninst):
-                    jI = JobInstance(body=str(dummy_dict))
+                    jI = JobInstance(body=str(dummy_dict), site=site)
                     # if opts.inst and j == 0:
                     #    job.addInstance(jI,inst=opts.inst)
                     # else:
