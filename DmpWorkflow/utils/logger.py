@@ -4,9 +4,10 @@ Created on May 4, 2016
 @author: zimmer
 '''
 
+from logging.config import dictConfig
+import logging
+
 def initLogger(logfile):
-    from logging.config import dictConfig
-    import logging
     # add logger
     LOGGING = {
             'version': 1,
