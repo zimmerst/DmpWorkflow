@@ -275,14 +275,17 @@ class JobResources(MethodView):
         batchsite = unicode(request.form.get("site","local"))
         runningJobs = JobInstance.objects.filter(site=batchsite, status=u"Running")
         logger.info("number of runningJobs = %i", len(runningJobs))
-        allJobs = [{"batchId":j.batchId, "cpu":j.get("cpu"), 
+        try:
+            allJobs = [{"batchId":j.batchId, "cpu":j.get("cpu"), 
                     "memory":j.get("memory"), 
                     "t_id":str(j.job.id), 
                     "inst_id":j.instanceId,
                     "major_status":j.major_status,
                     "meta":j.parseBodyXml()} for j in runningJobs]
-        logger.info("dumping %i jobs",len(allJobs))
-        return json.dumps({"result":"ok", "jobs": allJobs})
+            logger.info("dumping %i jobs",len(allJobs))
+            return json.dumps({"result":"ok", "jobs": allJobs})
+        except Exception as err:
+            return json.dumps({"result":"nok", "error": err})
         
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
