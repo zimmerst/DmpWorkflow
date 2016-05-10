@@ -131,6 +131,14 @@ class JobInstance(db.Document):
     cpu = db.ListField()
     log = db.StringField(verbose_name="log", required=False, default="")
 
+    def checkDependencies(self,check_status=u"Done"):
+        dependent_tasks = self.job.getDependency()
+        isReady = True
+        for task in dependent_tasks:
+            inst = task.getInstance(self.instanceId)
+            if inst.status != check_status: isReady = False
+        return isReady
+
     def parseBodyXml(self,key="MetaData"):
         p = parseJobXmlToDict(self.job.body.read())
         return p[key]
