@@ -266,7 +266,7 @@ class NewJobs(MethodView):
                 dJob = DmpJob(job.id, job.body.read(), title=job.title)
                 for j in newJobs:
                     if j.checkDependencies():
-                        j.getResourcesFromMetadata()
+                        #j.getResourcesFromMetadata()
                         dInstance = copy.deepcopy(dJob)
                         dInstance.setInstanceParameters(j.instanceId, j.body)
                         newJobInstances.append(dInstance.exportToJSON())
