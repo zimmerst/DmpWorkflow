@@ -203,7 +203,7 @@ class JobInstance(db.Document):
             self.__setattr__(key, value)
         log.debug("setting %s : %s",key,value)
         self.__setattr__("last_update", datetime.datetime.now())
-        self.save()
+        self.update()
 
     def setStatus(self, stat):
         log.debug("calling JobInstance.setStatus")
@@ -224,12 +224,23 @@ class JobInstance(db.Document):
               "minor_status": self.minor_status}
         log.debug("statusSet %s",str(sH))
         self.status_history.append(sH)
-        self.save()
+        self.update()
         return
 
     def sixDigit(self, size=6):
         return str(self.instanceId).zfill(size)
 
+    def update(self):
+        log.debug("calling update on JobInstance")
+        super(JobInstance, self).save()
+
+    def save(self):
+        req = JobInstance.objects.filter(instanceId=self.instanceId)
+        if req:
+            raise Exception("instance exists already.")
+        super(JobInstance, self).save()
+
+        
     meta = {
         'allow_inheritance': True,
         'indexes': ['-created_at', 'instanceId', 'site'],
