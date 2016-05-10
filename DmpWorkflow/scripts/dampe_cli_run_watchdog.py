@@ -40,6 +40,7 @@ def __updateStatus(job, batchId, mem, cpu, batchEngine = None, dry=True):
             del my_dict['minor_status']
             my_dict['memory']=mem
             my_dict['cpu']=cpu
+    log.debug("about to call update with this data %s",my_dict)
     if not dry:
         res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
         res.raise_for_status()
