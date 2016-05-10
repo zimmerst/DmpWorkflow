@@ -83,8 +83,8 @@ def main(args=None):
     for j in jobs:
         max_cpu = float(j['max_mem'])
         max_mem = float(j['max_cpu'])
-        if max_cpu == -1: max_cpu = float(convertHHMMtoSec(BATCH_DEFAULTS['cputime']))
-        if max_mem == -1: max_mem = float(BATCH_DEFAULTS['memory'])
+        if max_cpu in [-1., 0.]: max_cpu = float(convertHHMMtoSec(BATCH_DEFAULTS['cputime']))
+        if max_mem in [-1., 0.]: max_mem = float(BATCH_DEFAULTS['memory'])
         bj = HPC.BatchJob(name="%s-%s"%(j['t_id'],getSixDigits(j['inst_id'])),
                           batchId = j['batchId'], defaults=BATCH_DEFAULTS)
         if str(bj.batchId) in batchEngine.allJobs:
