@@ -6,8 +6,6 @@ from flask.ext.mongoengine.wtf import model_form
 from flask.views import MethodView
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance
-#from DmpWorkflow.utils.db_helpers import update_status
-from DmpWorkflow.utils.tools import parseJobXmlToDict
 
 jobs = Blueprint('jobs', __name__, template_folder='templates')
 

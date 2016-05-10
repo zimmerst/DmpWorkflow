@@ -173,7 +173,7 @@ class JobInstance(db.Document):
 
     def get(self,key):
         if key in ['cpu_max','mem_max']:
-            if not key in self._data.keys(): return 0.
+            if key not in self._data.keys(): return 0.
             else:
                 return float(self._data.get(key))                
         elif key == 'cpu':
