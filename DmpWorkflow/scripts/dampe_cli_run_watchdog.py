@@ -87,11 +87,11 @@ def main(args=None):
         if max_mem == -1: max_mem = BATCH_DEFAULTS['memory']
         bj = HPC.BatchJob(name="%s-%s"%(j['t_id'],getSixDigits(j['inst_id'])),
                           batchId = j['batchId'], defaults=BATCH_DEFAULTS)
-        current_cpu = float(j['cpu'])
-        current_mem = float(j['memory'])
-        ratio_cpu = current_cpu/max_cpu
-        ratio_mem = current_mem/max_mem
-        if bj.batchId in batchEngine.allJobs:
+        if str(bj.batchId) in batchEngine.allJobs:
+            current_cpu = batchEngine.getCPUtime(str(bj.batchId))
+            current_mem = batchEngine.getMemory(str(bj.batchId),unit='MB')
+            ratio_cpu = current_cpu/max_cpu
+            ratio_mem = current_mem/max_mem
             __updateStatus(j, bj, current_mem, current_cpu, batchEngine=batchEngine, dry=opts.dry)                
         if (ratio_cpu >= ratio_cpu_max) or (ratio_mem >= ratio_mem_max):
             log.info('%s cpu %1.1f mem %1.1f',bj.batchId,ratio_cpu, ratio_mem)
