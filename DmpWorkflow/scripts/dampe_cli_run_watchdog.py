@@ -33,14 +33,14 @@ def __updateStatus(job, batchId, mem, cpu, batchEngine = None, dry=True):
                'major_status':'Terminated','minor_status':"KilledByBatch"}
     # check current status
     stat = batchEngine.status_map[batchEngine.allJobs[batchId]['STAT']]
-    if stat in FINAL_STATII:
+    if stat == "Running":
+        del my_dict['minor_status']
+        my_dict['memory']=mem
+        my_dict['cpu']=cpu
+    elif stat in FINAL_STATII:
         if job['major_status']!=stat:
             log.warning("found a job that should be in non-final state but batch reports it to be failed or done, updating db")
-        else:
-            del my_dict['minor_status']
-            my_dict['memory']=mem
-            my_dict['cpu']=cpu
-    log.debug("about to call update with this data %s",my_dict)
+    log.info("about to call update with this data %s",my_dict)
     if not dry:
         res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
         res.raise_for_status()
