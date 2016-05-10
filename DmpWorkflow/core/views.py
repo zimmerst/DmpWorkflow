@@ -188,7 +188,7 @@ class SetJobStatus(MethodView):
         t_id = arguments["t_id"]
         inst_id = arguments["inst_id"]
         major_status = arguments["major_status"]
-        minor_status = arguments["minor_status"]
+        minor_status = arguments.get("minor_status",None)
         try:
             my_job = Job.objects.filter(id=t_id)
             if not len(my_job): raise Exception("could not find Job")
