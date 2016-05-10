@@ -255,24 +255,26 @@ class NewJobs(MethodView):
     def get(self):
         logger.debug("request %s",str(request))
         batchsite = unicode(request.form.get("site","local"))
+        limit = int(request.form.get("limit",1000))
         newJobInstances = []
         allJobs = Job.objects.filter(execution_site=batchsite)
         logger.debug("allJobs = %s",str(allJobs))
         for job in allJobs:
             newJobs = JobInstance.objects.filter(job=job, status=u"New")
-            logger.debug("newJobs: %s",str(newJobs))
+            #logger.debug("newJobs: %s",str(newJobs))
             if len(newJobs):
                 logger.debug("found %i new instances for job %s",len(newJobs),str(job.title))
                 dJob = DmpJob(job.id, job.body.read(), title=job.title)
-                for j in newJobs:
-                    if j.checkDependencies():
-                        #j.getResourcesFromMetadata()
-                        dInstance = copy.deepcopy(dJob)
-                        dInstance.setInstanceParameters(j.instanceId, j.body)
-                        newJobInstances.append(dInstance.exportToJSON())
-                    else:
-                        logger.debug("dependencies not fulfilled yet")
-                logger.debug("found %i new jobs after dependencies",len(newJobs))
+                while len(newJobInstances) < limit:
+                    for j in newJobs:
+                        if j.checkDependencies():
+                            #j.getResourcesFromMetadata()
+                            dInstance = copy.deepcopy(dJob)
+                            dInstance.setInstanceParameters(j.instanceId, j.body)
+                            newJobInstances.append(dInstance.exportToJSON())
+                        else:
+                            logger.debug("dependencies not fulfilled yet")
+                    logger.debug("found %i new jobs after dependencies",len(newJobs))
         return json.dumps({"result":"ok", "jobs": newJobInstances})
 
 class JobResources(MethodView):

@@ -41,7 +41,7 @@ def main(args=None):
         if val >= opts.maxJobs:
             log.warning("reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
             sys.exit();
-    res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
+    res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite), "limit":100})
     res.raise_for_status()
     res = res.json()
     if not res.get("result", "nok") == "ok":
