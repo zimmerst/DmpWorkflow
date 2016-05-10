@@ -99,7 +99,7 @@ class JobView(MethodView):
             #job = Job.objects(title=taskname, type=t_type).modify(upsert=True, new=True, title=taskname, type=t_type)
             job.body.put(jobdesc, content_type="application/xml")
             job.save()
-            dout = parseJobXmlToDict(job.body.read())
+            dout = job.getBody()
             if 'type' in dout['atts']:
                 job.type = dout['atts']['type']
             if 'release' in dout['atts']:
@@ -132,7 +132,7 @@ class JobInstanceView(MethodView):
             logger.debug("Found job")
             job = jobs[0]
             site = job.execution_site
-            dout = parseJobXmlToDict(job.body.read())
+            dout = job.getBody()
             if 'type' in dout['atts']:
                 job.type = unicode(dout['atts']['type'])
             if 'release' in dout['atts']:
@@ -286,8 +286,9 @@ class JobResources(MethodView):
                     "memory":j.get("memory"), 
                     "t_id":str(j.job.id), 
                     "inst_id":j.instanceId,
-                    "major_status":j.status} for j in runningJobs]
-                    #"meta":j.parseBodyXml()} for j in runningJobs]
+                    "major_status":j.status,
+                    "max_cpu":j.get("max_cpu"),
+                    "max_mem":j.get("max_mem")} for j in runningJobs]
             logger.info("dumping %i jobs",len(allJobs))
             return json.dumps({"result":"ok", "jobs": allJobs})
         except Exception as err:

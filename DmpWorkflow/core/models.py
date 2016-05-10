@@ -6,7 +6,8 @@ import logging
 from flask import url_for
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
-from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, parseJobXmlToDict
+from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, parseJobXmlToDict, convertHHMMtoSec
+from __builtin__ import None
 
 if not cfg.getboolean("site", "traceback"):
     sys.excepthook = exceptionHandler
@@ -130,6 +131,21 @@ class JobInstance(db.Document):
     memory = db.ListField()
     cpu = db.ListField()
     log = db.StringField(verbose_name="log", required=False, default="")
+    cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)",required=False, default= None)
+    mem_max = db.FloatField(verbose_name="maximal memory (mb)",required=False, default= None)
+
+    def getResourcesFromMetadata(self):
+        metadata = self.job.getBody()
+        if not isinstance(metadata,dict): return None
+        if not 'MetaData' in metadata: return None
+        var_map = {"BATCH_OVERRIDE_CPUTIME":self.cpu_max, "BATCH_OVERRIDE_MEMORY": self.mem_max}
+        for v in metadata['MetaData']:
+            if v['name'] in var_map:
+                val = v['value']
+                if ":" in val:
+                    val = convertHHMMtoSec(val)
+                var_map[v['name']]=float(v['value'])
+        return 
 
     def checkDependencies(self,check_status=u"Done"):
         dependent_tasks = self.job.getDependency()
@@ -139,16 +155,20 @@ class JobInstance(db.Document):
             if inst.status != check_status: isReady = False
         return isReady
 
-    def parseBodyXml(self,key="MetaData"):
-        p = parseJobXmlToDict(self.job.body.read())
-        return p[key]
+#    def parseBodyXml(self,key="MetaData"):
+#        p = parseJobXmlToDict(self.job.body.read())
+#        return p[key]
 
     def getLog(self):
         lines = self.log.split("\n")
         return lines
 
     def get(self,key):
-        if key == 'cpu':
+        if key in ['cpu_max','mem_max']:
+            if not key in self._data.keys(): return 0.
+            else:
+                return self._data.get(key)                
+        elif key == 'cpu':
             # -1 doesn't appear to be a valid key
             if not len(self.cpu): return 0.
             index = len(self.cpu)-1

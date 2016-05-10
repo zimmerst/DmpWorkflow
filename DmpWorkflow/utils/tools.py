@@ -12,6 +12,8 @@ import shlex
 import string
 import subprocess as sub
 import time
+import re
+import datetime
 from StringIO import StringIO
 from xml.dom import minidom as xdom
 
@@ -179,6 +181,16 @@ def random_with_N_digits(n):
     range_end = (10**n)-1
     return random.randint(range_start, range_end)
 
+def convertHHMMtoSec(hhmm):
+    vals = re.split(":",hhmm)
+    if len(vals) == 2:
+        h, m = vals[0], vals[1]
+        s = 0
+    elif len(vals)==3:
+        h, m, s = vals[0], vals[1], vals[2]
+    else:
+        raise Exception("not well formatted time string")
+    return float(datetime.timedelta(hours=int(h),minutes=int(m),seconds=int(s)).total_seconds())
 
 def parseJobXmlToDict(domInstance, parent="Job", setVars=True):
     out = {}
