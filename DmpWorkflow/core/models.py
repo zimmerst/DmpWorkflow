@@ -31,7 +31,7 @@ class Job(db.Document):
 
     def getDependency(self):
         if not len(self.dependencies):
-            return "None"
+            return ()
         else:
             return tuple(self.dependencies)
 
