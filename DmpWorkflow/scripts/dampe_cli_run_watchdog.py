@@ -10,7 +10,7 @@ import json
 from logging import getLogger
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII, cfg
-from DmpWorkflow.utils.tools import getSixDigits
+from DmpWorkflow.utils.tools import getSixDigits, convertHHMMtoSec
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
 
@@ -83,8 +83,8 @@ def main(args=None):
     for j in jobs:
         max_cpu = float(j['max_mem'])
         max_mem = float(j['max_cpu'])
-        if max_cpu == -1: max_cpu = BATCH_DEFAULTS['cputime']
-        if max_mem == -1: max_mem = BATCH_DEFAULTS['memory']
+        if max_cpu == -1: max_cpu = float(convertHHMMtoSec(BATCH_DEFAULTS['cputime']))
+        if max_mem == -1: max_mem = float(BATCH_DEFAULTS['memory'])
         bj = HPC.BatchJob(name="%s-%s"%(j['t_id'],getSixDigits(j['inst_id'])),
                           batchId = j['batchId'], defaults=BATCH_DEFAULTS)
         if str(bj.batchId) in batchEngine.allJobs:
