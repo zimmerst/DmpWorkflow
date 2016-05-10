@@ -41,25 +41,24 @@ def main(args=None):
         if val >= opts.maxJobs:
             log.warning("reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
             sys.exit();
-    res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite), "limit":100})
+    res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite), "limit":opts.chunk})
     res.raise_for_status()
     res = res.json()
     if not res.get("result", "nok") == "ok":
         log.error(res.get("error"))
     jobs = res.get("jobs")
-    log.info('found %i new job instances to deploy',len(jobs))
+    log.info('found %i new job instances to deploy this cycle',len(jobs))
     njobs = 0
-    for i,job in enumerate(jobs):
-        if i < opts.chunk: 
-            j = DmpJob.fromJSON(job)
-            #j.__updateEnv__()
-            j.write_script(pythonbin=opts.python,debug=opts.dry)
-            try: 
-                ret = j.submit(dry=opts.dry,local=opts.local)
-                j.updateStatus("Submitted","WaitingForExecution",batchId=ret)
-                njobs+=1
-            except Exception, e:
-                log.exception(e)
+    for job in jobs:
+        j = DmpJob.fromJSON(job)
+        #j.__updateEnv__()
+        j.write_script(pythonbin=opts.python,debug=opts.dry)
+        try: 
+            ret = j.submit(dry=opts.dry,local=opts.local)
+            j.updateStatus("Submitted","WaitingForExecution",batchId=ret)
+            njobs+=1
+        except Exception, e:
+            log.exception(e)
                 
     log.info("cycle completed, submitted %i new jobs",njobs)
 
