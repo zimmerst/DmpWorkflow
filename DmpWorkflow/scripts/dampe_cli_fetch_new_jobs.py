@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
 from DmpWorkflow.utils.shell import run
-#from DmpWorkflow.scripts.dampe_cli_run_watchdog import __getRunningJobs
+from DmpWorkflow.scripts.dampe_cli_run_watchdog import __getRunningJobs
 
 def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
@@ -23,14 +23,14 @@ def main(args=None):
     log = logging.getLogger("script")
     batchsite = BATCH_DEFAULTS['name']
     if opts.maxJobs is not None:
-        
+        val = len(__getRunningJobs(batchsite))
         #FIXME: this is super ugly!!!
-        out, err, rc = run(["bjobs | grep -c ${USER}"],useLogging=False)
-        if rc:
-            sys.exit()
-        print err
-        while "\n" in out: out = out.replace("\n","") 
-        val  = int(out)
+        #out, err, rc = run(["bjobs | grep -c ${USER}"],useLogging=False)
+        #if rc:
+        #    sys.exit()
+        #print err
+        #while "\n" in out: out = out.replace("\n","") 
+        #val  = int(out)
         #res = requests.get("%s/watchdog/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
         #res.raise_for_status()
         #res = res.json()
