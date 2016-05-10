@@ -280,11 +280,18 @@ class JobResources(MethodView):
         runningJobs = JobInstance.objects.filter(site=batchsite, status=u"Running")
         logger.info("number of runningJobs = %i", len(runningJobs))
         try:
-            allJobs = [{"batchId":j.batchId, "cpu":j.get("cpu"), 
-                    "memory":j.get("memory"), 
-                    "t_id":str(j.job.id), 
-                    "inst_id":j.instanceId,
-                    "major_status":j.major_status} for j in runningJobs]
+            allJobs = []
+            for j in runningJobs:
+                d = {}
+                d["batchId"] = j.batchId
+                d["t_id"] = str(j.job.id)
+                d["inst_id"] = j.instanceId
+                allJobs.append(d)
+            #allJobs = [{"batchId":j.batchId, "cpu":j.get("cpu"), 
+            #        "memory":j.get("memory"), 
+            #        "t_id":str(j.job.id), 
+            #        "inst_id":j.instanceId,
+            #        "major_status":j.major_status} for j in runningJobs]
             #"meta":j.parseBodyXml()} for j in runningJobs]
             logger.info("dumping %i jobs",len(allJobs))
             return json.dumps({"result":"ok", "jobs": allJobs})
