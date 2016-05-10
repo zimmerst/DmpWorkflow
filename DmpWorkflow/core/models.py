@@ -129,8 +129,8 @@ class JobInstance(db.Document):
     memory = db.ListField()
     cpu = db.ListField()
     log = db.StringField(verbose_name="log", required=False, default="")
-    cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)",required=False, default= 0.)
-    mem_max = db.FloatField(verbose_name="maximal memory (mb)",required=False, default= 0.)
+    cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)",required=False, default= -1.)
+    mem_max = db.FloatField(verbose_name="maximal memory (mb)",required=False, default= -1.)
 
     def getResourcesFromMetadata(self):
         metadata = self.job.getBody()
@@ -143,6 +143,7 @@ class JobInstance(db.Document):
                 if ":" in val:
                     val = convertHHMMtoSec(val)
                 var_map[v['name']]=float(val)
+        self.update()
         return 
 
     def checkDependencies(self,check_status=u"Done"):
