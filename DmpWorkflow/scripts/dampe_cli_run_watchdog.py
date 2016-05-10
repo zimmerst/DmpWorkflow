@@ -35,6 +35,7 @@ def __updateStatus(job, batchId, mem, cpu, batchEngine = None, dry=True):
     stat = batchEngine.status_map[batchEngine.allJobs[batchId]['STAT']]
     if stat == "Running":
         del my_dict['minor_status']
+        my_dict['major_status']=stat
         my_dict['memory']=mem
         my_dict['cpu']=cpu
     elif stat in FINAL_STATII:
