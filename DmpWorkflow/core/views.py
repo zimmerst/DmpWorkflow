@@ -265,13 +265,13 @@ class NewJobs(MethodView):
                 logger.debug("found %i new instances for job %s",len(newJobs),str(job.title))
                 dJob = DmpJob(job.id, job.body.read(), title=job.title)
                 for j in newJobs:
-                    if j.checkDependencies():
+                    #if j.checkDependencies():
                         #j.getResourcesFromMetadata()
-                        dInstance = copy.deepcopy(dJob)
-                        dInstance.setInstanceParameters(j.instanceId, j.body)
-                        newJobInstances.append(dInstance.exportToJSON())
-                    else:
-                        logger.debug("dependencies not fulfilled yet")
+                    dInstance = copy.deepcopy(dJob)
+                    dInstance.setInstanceParameters(j.instanceId, j.body)
+                    newJobInstances.append(dInstance.exportToJSON())
+                    #else:
+                    #    logger.debug("dependencies not fulfilled yet")
                 logger.debgug("found %i new jobs after dependencies",len(newJobs))
         return json.dumps({"result":"ok", "jobs": newJobInstances})
 
