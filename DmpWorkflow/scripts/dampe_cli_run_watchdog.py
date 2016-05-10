@@ -15,6 +15,7 @@ HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
 
 def __getRunningJobs(batchsite):
+    """ internal method to get running jobs """    
     log = getLogger("script")
     res = requests.get("%s/watchdog/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
     res.raise_for_status()
@@ -26,6 +27,7 @@ def __getRunningJobs(batchsite):
     return jobs
 
 def __updateStatus(job, bj, mem, cpu, batchEngine = None, dry=True):
+    """ internal method which reports jobStatus of running jobs to DB """
     log = getLogger("script")
     my_dict = {'t_id':job['t_id'],'inst_id':job['inst_id'],
                'major_status':'Terminated','minor_status':"KilledByBatch"}
@@ -48,6 +50,7 @@ def __updateStatus(job, bj, mem, cpu, batchEngine = None, dry=True):
                 log.debug("status updated")
 
 def __reportKilledJob(j):
+    """ internal method reports when a job was killed """
     log = getLogger("script")
     my_dict = {'t_id':j['t_id'],'inst_id':j['inst_id'],
                 'major_status':'Terminated','minor_status':"KilledByWatchDog"}
@@ -83,7 +86,7 @@ def main(args=None):
         if max_cpu == -1: max_cpu = BATCH_DEFAULTS['cputime']
         if max_mem == -1: max_mem = BATCH_DEFAULTS['memory']
         bj = HPC.BatchJob(name="%s-%s"%(j['t_id'],getSixDigits(j['inst_id'])),
-                          batchId = j['batchId'])
+                          batchId = j['batchId'], defaults=BATCH_DEFAULTS)
         current_cpu = float(j['cpu'])
         current_mem = float(j['memory'])
         ratio_cpu = current_cpu/max_cpu

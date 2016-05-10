@@ -10,6 +10,8 @@ from argparse import ArgumentParser
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
 from DmpWorkflow.utils.shell import run
+#from DmpWorkflow.scripts.dampe_cli_run_watchdog import __getRunningJobs
+
 def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
     parser.add_argument("-d", "--dry", dest="dry", action = 'store_true', default=False, help='if dry, do not try interacting with batch farm')
