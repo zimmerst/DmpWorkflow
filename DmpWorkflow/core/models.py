@@ -143,7 +143,7 @@ class JobInstance(db.Document):
                 if ":" in val:
                     val = convertHHMMtoSec(val)
                 var_map[v['name']]=float(val)
-        self.update()
+        self.save()
         return 
 
     def checkDependencies(self,check_status=u"Done"):
