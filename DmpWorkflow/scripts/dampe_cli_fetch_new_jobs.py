@@ -24,19 +24,6 @@ def main(args=None):
     batchsite = BATCH_DEFAULTS['name']
     if opts.maxJobs is not None:
         val = len(__getRunningJobs(batchsite))
-        #FIXME: this is super ugly!!!
-        #out, err, rc = run(["bjobs | grep -c ${USER}"],useLogging=False)
-        #if rc:
-        #    sys.exit()
-        #print err
-        #while "\n" in out: out = out.replace("\n","") 
-        #val  = int(out)
-        #res = requests.get("%s/watchdog/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
-        #res.raise_for_status()
-        #res = res.json()
-        #if not res.get("result", "nok") == "ok":
-        #    log.error(res.get("error"))
-        #jobs = res.get("jobs")
         log.info('found %i jobs running',val)
         if val >= opts.maxJobs:
             log.warning("reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
