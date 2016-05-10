@@ -255,12 +255,12 @@ class NewJobs(MethodView):
     def get(self):
         logger.debug("request %s",str(request))
         batchsite = unicode(request.form.get("site","local"))
-        limit = int(request.form.get("limit",1000))
+        _limit = int(request.form.get("limit",1000))
         newJobInstances = []
-        allJobs = Job.objects.filter(execution_site=batchsite).limit(limit)
+        allJobs = Job.objects.filter(execution_site=batchsite)
         logger.debug("allJobs = %s",str(allJobs))
         for job in allJobs:
-            newJobs = JobInstance.objects.filter(job=job, status=u"New")
+            newJobs = JobInstance.objects.filter(job=job, status=u"New").limit(int(_limit))
             #logger.debug("newJobs: %s",str(newJobs))
             if len(newJobs):
                 logger.debug("found %i new instances for job %s",len(newJobs),str(job.title))
