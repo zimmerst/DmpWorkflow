@@ -42,7 +42,7 @@ def __updateStatus(job, batchId, mem, cpu, batchEngine = None, dry=True):
         if job['major_status']!=stat:
             log.warning("found a job that should be in non-final state but batch reports it to be failed or done, updating db")
     else: return
-    log.info("about to call update with this data %s",my_dict)
+    log.debug("about to call update with this data %s",my_dict)
     if not dry:
         res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
         res.raise_for_status()
