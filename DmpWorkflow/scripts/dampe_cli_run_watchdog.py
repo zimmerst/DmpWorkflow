@@ -93,16 +93,16 @@ def main(args=None):
             ratio_cpu = current_cpu/max_cpu
             ratio_mem = current_mem/max_mem
             __updateStatus(j, bj, current_mem, current_cpu, batchEngine=batchEngine, dry=opts.dry)                
-        if (ratio_cpu >= ratio_cpu_max) or (ratio_mem >= ratio_mem_max):
-            log.info('%s cpu %1.1f mem %1.1f',bj.batchId,ratio_cpu, ratio_mem)
-            log.warning('Watchdog identified job %s to exceed its sending kill signal', bj.batchId)            
-            if opts.dry: continue
-            try:
-                bj.kill()
-            except Exception as err:
-                log.exception("could not schedule job for removal, reason below\n%s",err)
-            if bj.status == "Failed":
-                __reportKilledJob(j)
+            if (ratio_cpu >= ratio_cpu_max) or (ratio_mem >= ratio_mem_max):
+                log.info('%s cpu %1.1f mem %1.1f',bj.batchId,ratio_cpu, ratio_mem)
+                log.warning('Watchdog identified job %s to exceed its sending kill signal', bj.batchId)            
+                if opts.dry: continue
+                try:
+                    bj.kill()
+                except Exception as err:
+                    log.exception("could not schedule job for removal, reason below\n%s",err)
+                if bj.status == "Failed":
+                    __reportKilledJob(j)
     log.info("completed cycle")
     
 if __name__ == '__main__':
