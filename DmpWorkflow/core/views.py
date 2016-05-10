@@ -286,9 +286,9 @@ class JobResources(MethodView):
                     "memory":j.get("memory"), 
                     "t_id":str(j.job.id), 
                     "inst_id":j.instanceId,
-                    "major_status":j.status} for j in runningJobs]
-#                    "max_cpu":j.get("max_cpu"),
-#                    "max_mem":j.get("max_mem")} for j in runningJobs]
+                    "major_status":j.status,
+                    "max_cpu":j.get("max_cpu"),
+                    "max_mem":j.get("max_mem")} for j in runningJobs]
             logger.info("dumping %i jobs",len(allJobs))
             return json.dumps({"result":"ok", "jobs": allJobs})
         except Exception as err:
