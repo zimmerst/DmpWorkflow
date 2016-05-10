@@ -81,8 +81,8 @@ def main(args=None):
     jobs = __getRunningJobs(batchsite)
     log.info("watchdog settings: max_cpu %1.2f max_mem %1.2f (ratio with respect to max. allocated)",ratio_cpu_max,ratio_mem_max)    
     for j in jobs:
-        max_cpu = float(j['cpu_max'])
-        max_mem = float(j['mem_max'])
+        max_cpu = float(j['max_mem'])
+        max_mem = float(j['max_cpu'])
         if max_cpu == -1: max_cpu = BATCH_DEFAULTS['cputime']
         if max_mem == -1: max_mem = BATCH_DEFAULTS['memory']
         bj = HPC.BatchJob(name="%s-%s"%(j['t_id'],getSixDigits(j['inst_id'])),
