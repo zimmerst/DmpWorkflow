@@ -3,6 +3,7 @@ import datetime
 import sys
 import mongoengine
 import logging
+import json
 from flask import url_for
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
@@ -75,6 +76,7 @@ class Job(db.Document):
             sH = {"status": jInst.status, "update": jInst.last_update, "minor_status": jInst.minor_status}
             jInst.status_history.append(sH)
         jInst.job = self # add self reference?
+        jInst.getResourcesFromMetadata()
         jInst.save()
         self.jobInstances.append(jInst)
 
@@ -133,17 +135,24 @@ class JobInstance(db.Document):
     mem_max = db.FloatField(verbose_name="maximal memory (mb)",required=False, default= -1.)
 
     def getResourcesFromMetadata(self):
+        md = []
+        res = {"BATCH_OVERRIDE_CPUTIME":self.cpu_max, "BATCH_OVERRIDE_MEMORY": self.mem_max}
+        var_map = {"BATCH_OVERRIDE_CPUTIME":"cpu_max", "BATCH_OVERRIDE_MEMORY": "mem_max"}
         metadata = self.job.getBody()
-        if not isinstance(metadata,dict): return None
-        if not 'MetaData' in metadata: return None
-        var_map = {"BATCH_OVERRIDE_CPUTIME":self.cpu_max, "BATCH_OVERRIDE_MEMORY": self.mem_max}
-        for v in metadata['MetaData']:
+        if isinstance(metadata,dict): 
+            if 'MetaData' in metadata: md = metadata['MetaData']
+        if self.body != "":
+            instance_dict = json.loads(self.body)[0]
+            if 'MetaData' in instance_dict:
+                md+=instance_dict['MetaData'] 
+        # next, set the values
+        for v in md:
             if v['name'] in var_map:
                 val = v['value']
-                if ":" in val:
-                    val = convertHHMMtoSec(val)
-                var_map[v['name']]=float(val)
-        self.save()
+                if ":" in val: val = convertHHMMtoSec(val)
+                res[v['name']]=float(val)
+        for k,v in var_map.iteritems():
+            self.set(v,res[k])            
         return 
 
     def checkDependencies(self,check_status=u"Done"):
@@ -188,6 +197,8 @@ class JobInstance(db.Document):
             self.cpu.append({"time":datetime.datetime.now(),"value":value})
         elif key == 'memory':
             self.memory.append({"time":datetime.datetime.now(),"value":value})
+        elif key in ['cpu_max','mem_max']:
+            self._data.__setitem__(key,value)
         else:
             self.__setattr__(key, value)
         log.debug("setting %s : %s",key,value)

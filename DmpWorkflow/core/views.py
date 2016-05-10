@@ -125,8 +125,10 @@ class JobInstanceView(MethodView):
 
     def post(self):
         logger.debug("request %s",str(request))
+        dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         taskName = request.form.get("taskname",None)
         ninst = int(request.form.get("n_instances","0"))
+        override_dict = request.form.get("override_dict",dummy_dict)
         jobs = Job.objects.filter(title=taskName)
         if len(jobs):
             logger.debug("Found job")
@@ -137,10 +139,9 @@ class JobInstanceView(MethodView):
                 job.type = unicode(dout['atts']['type'])
             if 'release' in dout['atts']:
                 job.release = dout['atts']['release']
-            dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
             if ninst:
                 for j in range(ninst):
-                    jI = JobInstance(body=str(dummy_dict), site=site)
+                    jI = JobInstance(body=json.dumps(override_dict), site=site)
                     # if opts.inst and j == 0:
                     #    job.addInstance(jI,inst=opts.inst)
                     # else:
