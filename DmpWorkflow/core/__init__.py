@@ -1,9 +1,9 @@
 from DmpWorkflow.config.defaults import cfg
-from flask import Flask
-from flask.ext.mongoengine import MongoEngine
-
 kind = cfg.get("global","installation")
+
 if kind == 'server':
+    from flask import Flask
+    from flask.ext.mongoengine import MongoEngine
     app = Flask(__name__)
     app.config.update(LOGGER_NAME="core")
     app.config['MONGODB_DB'] = cfg.get("database", "name")
