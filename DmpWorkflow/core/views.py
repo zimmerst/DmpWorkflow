@@ -275,6 +275,7 @@ class NewJobs(MethodView):
 
 class JobResources(MethodView):
     def get(self):
+        logger.debug("request %s",str(request))
         batchsite = unicode(request.form.get("site","local"))
         runningJobs = JobInstance.objects.filter(site=batchsite, status=u"Running")
         logger.info("number of runningJobs = %i", len(runningJobs))
@@ -297,5 +298,5 @@ jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "P
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET","POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
-jobs.add_url_rule("/watchdog/",view_func=JobResources.as_view("watchdog"), methods=["GET"])
+jobs.add_url_rule("/watchdog/",view_func=JobResources.as_view('watchdog'), methods=["GET"])
 #jobs.add_url_rule('/InstanceDetail', view_func=InstanceView.as_view('instancedetail'), methods=['GET'])
