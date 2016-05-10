@@ -40,14 +40,14 @@ def __updateStatus(job, batchId, mem, cpu, batchEngine = None, dry=True):
             del my_dict['minor_status']
             my_dict['memory']=mem
             my_dict['cpu']=cpu
-        if not dry:
-            res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
-            res.raise_for_status()
-            res = res.json()
-            if res.get("result", "nok") != "ok":
-                log.exception(res.get("error"))
-            else:
-                log.debug("status updated")
+    if not dry:
+        res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
+        res.raise_for_status()
+        res = res.json()
+        if res.get("result", "nok") != "ok":
+            log.exception(res.get("error"))
+        else:
+            log.debug("status updated")
 
 def __reportKilledJob(j):
     """ internal method reports when a job was killed """
