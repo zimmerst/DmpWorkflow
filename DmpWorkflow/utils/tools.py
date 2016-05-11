@@ -54,6 +54,7 @@ def query_yes_no(question):
 def exceptionHandler(exception_type, exception, traceback):
     # All your trace are belong to us!
     # your format
+    del traceback
     print "%s: %s" % (exception_type.__name__, exception)
 
 
