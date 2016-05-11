@@ -192,52 +192,66 @@ def convertHHMMtoSec(hhmm):
         raise Exception("not well formatted time string")
     return float(datetime.timedelta(hours=int(h),minutes=int(m),seconds=int(s)).total_seconds())
 
-def parseJobXmlToDict(domInstance, parent="Job", setVars=True):
-    out = {}
-    elems = xdom.parse(StringIO(domInstance)).getElementsByTagName(parent)
-    if len(elems) > 1:
-        print 'found multiple job instances in xml, will ignore everything but last.'
-    if not len(elems):
-        raise Exception('found no Job element in xml.')
-    datt = dict(zip(elems[-1].attributes.keys(), [v.value for v in elems[-1].attributes.values()]))
-    if setVars:
-        for k, v in datt.iteritems():
-            os.environ[k] = v
-    nodes = [node for node in elems[-1].childNodes if isinstance(node, xdom.Element)]
-    for node in nodes:
-        name = str(node.localName)
-        if name == "JobWrapper":
-            out['executable'] = node.getAttribute("executable")
-            out['script'] = node.firstChild.data
-        else:
-            if name in ["InputFiles", "OutputFiles"]:
-                my_key = "File"
+class JobXmlParser(object):
+    def __init__(self,domInstance,parent="Job",setVars=True):
+        self.setVars = setVars
+        self.out = {}
+        elems = xdom.parse(StringIO(domInstance)).getElementsByTagName(parent)
+        if len(elems) > 1:
+            print 'found multiple job instances in xml, will ignore everything but last.'
+        if not len(elems):
+            raise Exception('found no Job element in xml.')
+        self.datt = dict(zip(elems[-1].attributes.keys(), [v.value for v in elems[-1].attributes.values()]))
+        if setVars:
+            for k, v in self.datt.iteritems():
+                os.environ[k] = v
+        self.nodes = [node for node in elems[-1].childNodes if isinstance(node, xdom.Element)]
+    def __extractNodes__(self):
+        """ private method, do not use """
+        for node in self.nodes:
+            name = str(node.localName)
+            if name == "JobWrapper":
+                self.out['executable'] = node.getAttribute("executable")
+                self.out['script'] = node.firstChild.data
             else:
-                my_key = "Var"
-            section = []
-            for elem in node.getElementsByTagName(my_key):
-                section.append(dict(zip(elem.attributes.keys(), [v.value for v in elem.attributes.values()])))
-            out[str(name)] = section
-            del section
-    if setVars:
-        for var in out['MetaData']:
-            key = var['name']
-            value = var['value']
-            if "$" in value:
-                value = os.path.expandvars(value)
-            os.environ[key] = value
-            var['value'] = value
-            # expand vars
-    out['atts'] = datt
-    if 'type' in datt:
-        os.environ["DWF_TYPE"] = datt["type"]
-    del datt
-    del elems
-    del nodes
-    for var in out['InputFiles'] + out['OutputFiles']:
-        if '$' in var['source']:
-            var['source'] = os.path.expandvars(var['source'])
-        if '$' in var['target']:
-            var['target'] = os.path.expandvars(var['target'])
-        # print var['source'],"->",var['target']
+                if name in ["InputFiles", "OutputFiles"]:
+                    my_key = "File"
+                else:
+                    my_key = "Var"
+                section = []
+                for elem in node.getElementsByTagName(my_key):
+                    section.append(dict(zip(elem.attributes.keys(), [v.value for v in elem.attributes.values()])))
+                self.out[str(name)] = section
+                del section
+        return self.out
+    def __setVars__(self):
+        """ private method, do not use """
+        if self.setVars:
+            for var in self.out['MetaData']:
+                key = var['name']
+                value = var['value']
+                if "$" in value:
+                    value = os.path.expandvars(value)
+                os.environ[key] = value
+                var['value'] = value
+                # expand vars
+        self.out['atts'] = self.datt
+        if 'type' in self.datt:
+            os.environ["DWF_TYPE"] = self.datt["type"]
+        for var in self.out['InputFiles'] + self.out['OutputFiles']:
+            if '$' in var['source']:
+                var['source'] = os.path.expandvars(var['source'])
+            if '$' in var['target']:
+                var['target'] = os.path.expandvars(var['target'])
+            # print var['source'],"->",var['target']
+        return self.out
+    def getResult(self):
+        out = self.out
+        out.update(self.__extractNodes__())
+        out.update(self.__setVars__())
+        return out
+
+def parseJobXmlToDict(domInstance, parent="Job", setVars=True):
+    xp = JobXmlParser(domInstance,parent=parent,setVars=setVars)
+    out = xp.getResult()
     return out

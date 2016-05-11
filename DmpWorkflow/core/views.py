@@ -1,6 +1,6 @@
 import logging
-import copy
-import json
+from copy import deepcopy
+from json import loads, dumps
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
 from flask.views import MethodView
@@ -111,11 +111,11 @@ class JobView(MethodView):
                     logger.debug("added instance %i to job %s",(j+1),job.id)
             # print len(job.jobInstances)
             job.update()
-            return json.dumps({"result": "ok", "jobID": str(job.id)})
+            return dumps({"result": "ok", "jobID": str(job.id)})
         except Exception as err:
             logger.info("request dict: %s",str(request.form))
             logger.exception(err)
-            return json.dumps({"result": "nok", "jobID": "None", "error":str(err)})
+            return dumps({"result": "nok", "jobID": "None", "error":str(err)})
 
 class JobInstanceView(MethodView):
     def get(self):
@@ -139,7 +139,7 @@ class JobInstanceView(MethodView):
                 job.release = dout['atts']['release']
             if ninst:
                 for j in range(ninst):
-                    jI = JobInstance(body=json.dumps(override_dict), site=site)
+                    jI = JobInstance(body=dumps(override_dict), site=site)
                     # if opts.inst and j == 0:
                     #    job.addInstance(jI,inst=opts.inst)
                     # else:
@@ -147,10 +147,10 @@ class JobInstanceView(MethodView):
                     logger.debug("added instance %i to job %s",(j+1),job.id)
             # print len(job.jobInstances)
             job.update()
-            return json.dumps({"result": "ok"})
+            return dumps({"result": "ok"})
         else:
             logger.error("Cannot find job")
-            return json.dumps({"result": "nok", "error": 'Could not find job %s' % taskName})
+            return dumps({"result": "nok", "error": 'Could not find job %s' % taskName})
 
 
 #class RefreshJobAlive(MethodView):
@@ -177,7 +177,7 @@ class JobInstanceView(MethodView):
 
 class SetJobStatus(MethodView):
     def post(self):
-        arguments = json.loads(request.form.get("args","{}"))
+        arguments = loads(request.form.get("args","{}"))
         if not isinstance(arguments,dict):      logger.exception("arguments MUST be dictionary.")        
         if 't_id' not in arguments:         logger.exception("couldn't find t_id in arguments")
         if 'inst_id' not in arguments:      logger.exception("couldn't find inst_id in arguments")
@@ -206,8 +206,8 @@ class SetJobStatus(MethodView):
             #update_status(t_id,inst_id,major_status, **arguments)
         except Exception as err:
             logger.exception(err)
-            return json.dumps({"result": "nok", "error": str(err)})
-        return json.dumps({"result": "ok"})
+            return dumps({"result": "nok", "error": str(err)})
+        return dumps({"result": "ok"})
 
     def get(self):
         logger.debug("request %s",str(request))
@@ -246,8 +246,8 @@ class SetJobStatus(MethodView):
                 logger.debug("example query instance %s",queried_instances[-1])
         else:
             logger.exception("could not find job")
-            return json.dumps({"result":"nok","error": "could not find job"})
-        return json.dumps({"result":"ok", "jobs": queried_instances})
+            return dumps({"result":"nok","error": "could not find job"})
+        return dumps({"result":"ok", "jobs": queried_instances})
 
 class NewJobs(MethodView):
     def get(self):
@@ -266,13 +266,13 @@ class NewJobs(MethodView):
                 for j in newJobs:
                     #if j.checkDependencies():
                     #j.getResourcesFromMetadata()
-                    dInstance = copy.deepcopy(dJob)
+                    dInstance = deepcopy(dJob)
                     dInstance.setInstanceParameters(j.instanceId, j.body)
                     newJobInstances.append(dInstance.exportToJSON())
                     #else:
                     #    logger.debug("dependencies not fulfilled yet")
                 logger.debug("found %i new jobs after dependencies",len(newJobs))
-        return json.dumps({"result":"ok", "jobs": newJobInstances})
+        return dumps({"result":"ok", "jobs": newJobInstances})
 
 class JobResources(MethodView):
     def get(self):
@@ -291,9 +291,9 @@ class JobResources(MethodView):
                     "max_cpu":j.get("max_cpu"),
                     "max_mem":j.get("max_mem")} for j in runningJobs]
             logger.info("dumping %i jobs",len(allJobs))
-            return json.dumps({"result":"ok", "jobs": allJobs})
+            return dumps({"result":"ok", "jobs": allJobs})
         except Exception as err:
-            return json.dumps({"result":"nok", "error": err})
+            return dumps({"result":"nok", "error": err})
         
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))

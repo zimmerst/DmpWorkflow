@@ -58,10 +58,10 @@ class BatchJob(object):
         if key in self.__dict__:
             self.__dict__[key] = value
 
-    def get(self, key, callable=str):
-        if key in self.__dict__:
-            return callable(self.__dict__[key])
-        return None
+    #def get(self, key, callable=str):
+    #    if key in self.__dict__:
+    #        return callable(self.__dict__[key])
+    #    return None
 
     def getCPU(self):
         return 0.
@@ -116,7 +116,7 @@ class BATCH(object):
             self.logging.error("could not extract key, allowed keys %s", str(self.keys))
             raise Exception
 
-    def getJob(self, jobID, key="STAT", callable=str):
+    def getJob(self, jobID, key="STAT"):
         if jobID not in self.allJobs:
             self.logging.error("could not find job %s", jobID)
         self.__checkKeys__(key)

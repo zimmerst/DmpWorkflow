@@ -100,9 +100,9 @@ class Job(db.Document):
         return self.title
 
     def save(self):
-        req = Job.objects.filter(title=self.title)
+        req = Job.objects.filter(title=self.title, type=self.type)
         if req:
-            raise Exception("a task with the specified name exists already.")
+            raise Exception("a task with the specified name & type exists already.")
         super(Job, self).save()
 
     def update(self):
