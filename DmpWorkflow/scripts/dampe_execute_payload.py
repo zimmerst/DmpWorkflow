@@ -38,9 +38,9 @@ def __prepare(job, log):
     return 0
 
 def __runPayload(job, log):
-    with open('payload', 'w') as foo: 
-        foo.write(job.exec_wrapper)
-        foo.close()
+    with open('payload', 'w') as foop: 
+        foop.write(job.exec_wrapper)
+        foop.close()
     log.info("about to run payload")
     CMD = "%s payload" % job.executable
     log.info("CMD: %s", CMD)
