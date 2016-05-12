@@ -5,7 +5,7 @@ Created on Mar 15, 2016
 """
 import logging
 from requests import get
-from sys import exit
+from sys import exit as sys_exit
 from argparse import ArgumentParser
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
@@ -26,7 +26,7 @@ def main(args=None):
         log.info('found %i jobs running',val)
         if val >= opts.maxJobs:
             log.warning("reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
-            exit();
+            sys_exit();
     res = get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite), "limit":opts.chunk})
     res.raise_for_status()
     res = res.json()

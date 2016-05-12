@@ -8,7 +8,7 @@ Created on Apr 20, 2016
 from ConfigParser import SafeConfigParser
 from os import environ, getenv
 from os.path import dirname, abspath, join as oPjoin
-from sys import excepthook
+import sys.excepthook as sys_excepthook
 from DmpWorkflow.utils.tools import exceptionHandler
 
 DAMPE_WORKFLOW_ROOT = dirname(dirname(abspath(__file__)))
@@ -53,7 +53,7 @@ environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
 #source_bash(cfg.get("site", "ExternalsScript"))
 
 dbg = cfg.getboolean("global", "traceback")
-if not dbg: excepthook = exceptionHandler
+if not dbg: sys_excepthook = exceptionHandler
 
 DAMPE_WORKFLOW_URL = cfg.get("server", "url")
 DAMPE_WORKFLOW_DIR = cfg.get("site","workdir")

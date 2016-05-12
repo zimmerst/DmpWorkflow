@@ -5,7 +5,7 @@ Created on Mar 15, 2016
 """
 from requests import get as Rget, post
 from json import dumps
-from sys import exit
+from sys import exit as sys_exit
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 from DmpWorkflow.utils.tools import query_yes_no
@@ -29,7 +29,7 @@ def main(args=None):
                         \nThis query may take a while to be completed, are you sure?"%opts.title)
         if not q:
             print 'rollback aborted'
-            exit()
+            sys_exit()
     if not (opts.n_min is None and opts.n_max is None):
         _range = opts.n_max - opts.n_min
         if _range > 100: print 'WARNING: you are querying more than 100 jobs, this may take a while to complete'
@@ -60,10 +60,10 @@ def main(args=None):
             print 'rolled back %i instances'%len(jobs)
         else:
             print 'rollback aborted'
-            exit()
+            sys_exit()
     else:
         print 'could not find any jobs satisfying the query.'
-        exit()
+        sys_exit()
 
 if __name__ == '__main__':
     main()

@@ -9,7 +9,7 @@ from os.path import expandvars, abspath, dirname, isdir, isfile, join as oPjoin
 from os import curdir, environ, listdir, chdir, getenv
 from importlib import import_module
 from socket import gethostname
-from sys import exit, argv
+from sys import exit as sys_exit, argv
 from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm, ResourceMonitor
@@ -75,7 +75,7 @@ def __postRun(job, log, resources=None):
             try:
                 job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e), resources=resources)
             except Exception as err: log.exception(err)
-            if not DEBUG_TEST: exit(6)
+            if not DEBUG_TEST: sys_exit(6)
     log.info("successfully completed staging.")
 
 
@@ -105,11 +105,11 @@ if __name__ == '__main__':
     #    job.sourceSetupScript()
     rc = 0
     rc += __prepare(job, log, resources=RM)
-    if rc: exit(rc)
+    if rc: sys_exit(rc)
     rc += __runPayload(job, log, resources=RM)
-    if rc: exit(rc)
+    if rc: sys_exit(rc)
     rc += __postRun(job,log, resources=RM)
-    if rc: exit(rc)
+    if rc: sys_exit(rc)
     # finally, compile output file.
     log.info("job complete, cleaning up working directory")
     chdir(pwd)
