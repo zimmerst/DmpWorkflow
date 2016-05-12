@@ -12,7 +12,7 @@ import json
 import importlib
 
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
-from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits
+from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits, ResourceMonitor
 from DmpWorkflow.utils.shell import run, make_executable#, source_bash
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 PYTHONBIN = ""
@@ -140,6 +140,14 @@ class DmpJob(object):
         """ passes status """
         my_dict = {"t_id": self.jobId, "inst_id": self.instanceId, "major_status": majorStatus,
                    "minor_status": minorStatus}
+        if 'resources' in kwargs:
+            if kwargs['resources']:
+                RM = kwargs['resources']
+                if not isinstance(RM,ResourceMonitor):
+                    raise Exception("resource must be of type resource monitor")
+                my_dict['memory'] = RM.getMemory(unit='Mb')
+                my_dict['cpu'] = RM.getCpuTime()
+                del kwargs['resources']
         my_dict.update(kwargs)
         #print '*DEBUG* my_dict: %s'%str(my_dict)
         res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})

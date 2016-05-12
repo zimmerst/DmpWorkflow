@@ -3,7 +3,7 @@ Created on Mar 23, 2016
 
 @author: zimmer
 """
-import re
+from re import findall
 from DmpWorkflow.hpc.batch import BATCH, BatchJob as HPCBatchJob
 from DmpWorkflow.utils.shell import run
 
@@ -55,7 +55,7 @@ class BatchJob(HPCBatchJob):
         """ returns the batch Id using some regular expression, lsf specific """
         # default: Job <32110807> is submitted to queue <dampe>.
         bk = -1
-        res = re.findall("\d+",_str)
+        res = findall("\d+",_str)
         if len(res):
             bk = int(res[0])
         return bk

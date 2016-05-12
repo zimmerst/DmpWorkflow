@@ -11,13 +11,13 @@ import socket
 import logging
 from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS
 from DmpWorkflow.core.DmpJob import DmpJob
-from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm
+from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm, ResourceMonitor
 from DmpWorkflow.utils.shell import run
 HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
-def __prepare(job, log):
+def __prepare(job, log, resources=None):
     try:
-        job.updateStatus("Running", "PreparingInputData", hostname=socket.gethostname(), batchId=batchId)
+        job.updateStatus("Running", "PreparingInputData", hostname=socket.gethostname(), batchId=batchId, resources=resources)
     except Exception as err: log.exception(err)
     # first, set all variables
     for var in job.MetaData: os.environ[var['name']] = os.path.expandvars(var['value'])
@@ -30,21 +30,21 @@ def __prepare(job, log):
             safe_copy(src, tg, attempts=4, sleep='4s')
         except IOError, e:
             try:
-                job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e))
+                job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e), resources=resources)
             except Exception as err: log.exception(err)
             if not DEBUG_TEST: return 4
     log.info("content of current working directory %s: %s",os.path.abspath(os.curdir),str(os.listdir(os.curdir)))
     log.info("successfully completed staging.")
     return 0
 
-def __runPayload(job, log):
+def __runPayload(job, log, resources=None):
     with open('payload', 'w') as foop: 
         foop.write(job.exec_wrapper)
         foop.close()
     log.info("about to run payload")
     CMD = "%s payload" % job.executable
     log.info("CMD: %s", CMD)
-    job.updateStatus("Running", "ExecutingApplication")
+    job.updateStatus("Running", "ExecutingApplication", resources=resources)
     output, error, rc = run([CMD])
     for o in output.split("\n"): print o
     if rc:
@@ -52,15 +52,15 @@ def __runPayload(job, log):
         for e in error.split("\n"):
             if len(e): log.error(e)
         try:
-            job.updateStatus("Running" if DEBUG_TEST else "Failed", "ApplicationExitCode%i" % rc)
+            job.updateStatus("Running" if DEBUG_TEST else "Failed", "ApplicationExitCode%i" % rc, resources=resources)
         except Exception as err: log.exception(err)
         if not DEBUG_TEST: return 5
     log.info("successfully completed running application")
     log.info("content of current working directory %s: %s",os.path.abspath(os.curdir),str(os.listdir(os.curdir)))
     return 0
 
-def __postRun(job, log):
-    job.updateStatus("Running", "PreparingOutputData")
+def __postRun(job, log, resources=None):
+    job.updateStatus("Running", "PreparingOutputData", resources= resources)
     for fi in job.OutputFiles:
         src = os.path.expandvars(fi['source'])
         tg = os.path.expandvars(fi['target'])
@@ -72,13 +72,14 @@ def __postRun(job, log):
             safe_copy(src, tg, attempts=4, sleep='4s')
         except IOError, e:
             try:
-                job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e))
+                job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e), resources=resources)
             except Exception as err: log.exception(err)
             if not DEBUG_TEST: exit(6)
     log.info("successfully completed staging.")
 
 
 if __name__ == '__main__':
+    RM = ResourceMonitor()
     pwd = os.curdir
     DEBUG_TEST = False
     log = logging.getLogger("script")
@@ -102,18 +103,18 @@ if __name__ == '__main__':
     #    log.info("trying to re-source setup script.")
     #    job.sourceSetupScript()
     rc = 0
-    rc += __prepare(job, log)
+    rc += __prepare(job, log, resources=RM)
     if rc: exit(rc)
-    rc += __runPayload(job, log)
+    rc += __runPayload(job, log, resources=RM)
     if rc: exit(rc)
-    rc += __postRun(job,log)
+    rc += __postRun(job,log, resources=RM)
     if rc: exit(rc)
     # finally, compile output file.
     log.info("job complete, cleaning up working directory")
     os.chdir(pwd)
     rm(my_exec_dir)
     try:
-        job.updateStatus("Done", "ApplicationComplete")
+        job.updateStatus("Done", "ApplicationComplete", resources=resources)
     except Exception as err:
         log.exception(err)
         

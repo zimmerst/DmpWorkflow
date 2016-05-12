@@ -7,10 +7,11 @@ import json
 from flask import url_for
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
-from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, parseJobXmlToDict, convertHHMMtoSec
-if not cfg.getboolean("site", "traceback"):
-    sys.excepthook = exceptionHandler
+from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler
+from DmpWorkflow.utils.tools import parseJobXmlToDict, convertHHMMtoSec, sortTimeStampList
 
+
+if not cfg.getboolean("site", "traceback"): sys.excepthook = exceptionHandler
 log = logging.getLogger("core")
 
 class Job(db.Document):
@@ -23,11 +24,13 @@ class Job(db.Document):
     dependencies = db.ListField(db.ReferenceField("Job"))
     execution_site = db.StringField(max_length=255, required=True, default="local", choices=SITES)
     jobInstances = db.ListField(db.ReferenceField("JobInstance"))
-
+    archived = db.BooleanField(verbose_name="task closed", required=False, default=False)
     def addDependency(self, job):
         if not isinstance(job, Job):
             raise Exception("Must be job to be added")
         self.dependencies.append(job)
+    def archiveJob(self):
+        self.archived = True
 
     def getDependency(self):
         if not len(self.dependencies):
@@ -59,6 +62,8 @@ class Job(db.Document):
         return None
 
     def addInstance(self, jInst, inst=None):
+        if self.archived:
+            raise Exception("cannot append new instances to job that is archived, must unlock first.")
         if len(self.jobInstances)>=1000000:
             raise Exception("reached maximum of job instances, consider cloning this job instead.")
         if not isinstance(jInst, JobInstance):
@@ -154,7 +159,50 @@ class JobInstance(db.Document):
         for k,v in var_map.iteritems():
             self.set(v,res[k])            
         return 
+    
+    def getWallTime(self,unit='sec'):
+        if self.status not in FINAL_STATII:
+            log.warning("job not find in final status, CPU time may not be accurate")
+        dt1 = self.status_history[0]['update']
+        dt2 = self.status_history[1]['update']
+        total_sec = (dt2 - dt1).total_seconds()
+        if unit == "min": return float(total_sec)/60.
+        elif unit == "hrs": return float(total_sec)/3600.
+        else: 
+            if unit != "s":
+                log.warning("unsupported unit, returning seconds")
+            return total_sec
 
+    def getCpuTime(self,unit='sec'):
+        if self.status not in FINAL_STATII:
+            log.warning("job not find in final status, CPU time may not be accurate")
+        total_sec = self.cpu[-1]['value']
+        if unit == "min": return float(total_sec)/60.
+        elif unit == "hrs": return float(total_sec)/3600.
+        else: 
+            if unit != "s":
+                log.warning("unsupported unit, returning seconds")
+            return total_sec
+        
+    def getEfficiency(self):
+        cpt = self.getCpuTime()
+        wct = self.getWallTime()
+        eff = cpt/wct    
+        return eff
+    
+    def getMemory(self,method='average'):
+        """ get memory of job in Mb """
+        if self.status not in FINAL_STATII: 
+            log.warning("job not find in final status, result may not be accurate")
+        assert method in ['average','min','max'], "method not supported"
+        all_memory = [float(v["value"]) for v in self.memory]
+        if method == 'min':
+            return min(all_memory)
+        elif method == 'max':
+            return max(all_memory)
+        else:
+            return sum(all_memory)/float(len(all_memory))
+        
     def checkDependencies(self,check_status=u"Done"):
         dependent_tasks = self.job.getDependency()
         isReady = True
@@ -224,8 +272,19 @@ class JobInstance(db.Document):
               "minor_status": self.minor_status}
         log.debug("statusSet %s",str(sH))
         self.status_history.append(sH)
+        if curr_status in FINAL_STATII: self.__sortTimeStampedLists()
         self.update()
         return
+
+    def __sortTimeStampedLists(self):
+        # final step - sort time-stamped lists to be chronological
+        if len(self.status_history)>1:
+            self.status_history = sortTimeStampList(self.status_history, timestamp = "update")
+        if len(self.cpu)>1:
+            self.cpu = sortTimeStampList(self.cpu)
+        if len(self.memory)>1:
+            self.memory = sortTimeStampList(self.memory)
+        return 
 
     def sixDigit(self, size=6):
         return str(self.instanceId).zfill(size)

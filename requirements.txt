@@ -9,3 +9,5 @@ WTForms
 jsonpickle
 requests
 importlib
+resource
+re
