@@ -45,7 +45,7 @@ def __updateStatus(args, batchEngine = None, dry=True):
         my_dict['cpu']=cpu
     elif stat in FINAL_STATII:
         if job['major_status']!=stat:
-            log.warning("found a job that should be in non-final state but batch reports it to be failed or done, updating db")
+            log.warning("%s found a job that should be in non-final state but batch reports it to be failed or done, updating db",batchId)
     else: return
     log.debug("about to call update with this data %s",my_dict)
     if not dry:
