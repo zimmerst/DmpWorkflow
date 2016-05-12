@@ -73,7 +73,10 @@ class BatchEngine(BATCH):
     
     def aggregateStatii(self, asDict=True, command=None):
         """ get status of all jobs in all queues """
+        coll = htcondor.Collector()
+        del coll
         jobs = []
+        
         if asDict: pass
         if command is not None: pass
         return jobs
