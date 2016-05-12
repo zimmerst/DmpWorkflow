@@ -33,6 +33,9 @@ class Job(db.Document):
     def archiveJob(self):
         self.archived = True
 
+    def getData(self):
+        return self._data
+
     def getDependency(self):
         if not len(self.dependencies):
             return ()

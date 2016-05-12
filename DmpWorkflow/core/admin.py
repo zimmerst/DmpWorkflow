@@ -42,7 +42,7 @@ class Detail(MethodView):
         if slug:
             job = Job.objects.get_or_404(slug=slug)
             if request.method == 'POST':
-                form = form_cls(request.form, inital=job._data)
+                form = form_cls(request.form, inital=job.getData())
                 logger.info("POST request from form")
             else:
                 form = form_cls(obj=job)
