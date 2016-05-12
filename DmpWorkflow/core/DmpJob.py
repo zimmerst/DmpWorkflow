@@ -1,4 +1,3 @@
-# pylint: disable=R0401
 """
 Created on Mar 15, 2016
 @author: zimmer
