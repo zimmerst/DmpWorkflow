@@ -4,7 +4,8 @@ Created on Mar 15, 2016
 @author: zimmer
 """
 from DmpWorkflow.config.defaults import os, sys, DAMPE_WORKFLOW_URL
-from DmpWorkflow.core import db, models
+from DmpWorkflow.core.system import db
+from DmpWorkflow.core.models import Job
 from DmpWorkflow.core.DmpJob import DmpJob
 from random import randint, choice
 from copy import deepcopy
@@ -24,7 +25,7 @@ if __name__ == "__main__":
     maxCount = 100
     newJobInstances = []
     db.connect()  # connect to DB
-    for job in models.Job.objects:
+    for job in Job.objects:
         os.environ["DWF_JOBNAME"] = job.title
         if counter < maxCount:
             newJobs = [j for j in job.jobInstances if j.status == 'New']
@@ -53,7 +54,7 @@ if __name__ == "__main__":
     ## okay - can do bulk submission or something like that
     sys.exit()
     print 'updating submitted jobs'
-    for job in models.Job.objects:
+    for job in Job.objects:
         newJobs = [j for j in job.jobInstances if j.status == 'Submitted']
         if len(newJobs):
             dJob = DmpJob(job)

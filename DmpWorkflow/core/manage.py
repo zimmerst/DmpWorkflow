@@ -3,10 +3,12 @@ from os.path import abspath, join as oPjoin, dirname
 from sys import path as sys_path
 sys_path.append(abspath(oPjoin(dirname(__file__), '..')))
 from flask.ext.script import Manager, Server, Shell
-from DmpWorkflow.core import app, db, cfg, models
+import DmpWorkflow.core.models as DmpWorkflowModels
+from DmpWorkflow.core.system import app, db
+from DmpWorkflow.config.defaults import cfg
 
 def _make_context():
-    return dict(app=app, db=db, models=models)
+    return dict(app=app, db=db, models=DmpWorkflowModels)
 
 
 manager = Manager(app)
