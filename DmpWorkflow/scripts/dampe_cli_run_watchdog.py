@@ -26,8 +26,12 @@ def __getRunningJobs(batchsite):
     jobs = res.get("jobs")
     return jobs
 
-def __updateStatus(job, batchId, mem, cpu, batchEngine = None, dry=True):
+def __updateStatus(args, batchEngine = None, dry=True):
     """ internal method which reports jobStatus of running jobs to DB """
+    job = args[0]
+    batchId = args[1]
+    mem = args[2]
+    cpu = args[3]
     log = getLogger("script")
     my_dict = {'t_id':job['t_id'],'inst_id':job['inst_id'],
                'major_status':'Terminated','minor_status':"KilledByBatch"}
@@ -96,7 +100,7 @@ def main(args=None):
             current_mem = batchEngine.getMemory(bid,unit='MB')
             ratio_cpu = current_cpu/max_cpu
             ratio_mem = current_mem/max_mem
-            __updateStatus(j, bid, current_mem, current_cpu, batchEngine=batchEngine, dry=opts.dry)                
+            __updateStatus([j, bid, current_mem, current_cpu], batchEngine=batchEngine, dry=opts.dry)                
             if (ratio_cpu >= ratio_cpu_max) or (ratio_mem >= ratio_mem_max):
                 log.info('%s cpu %1.1f mem %1.1f',bid,ratio_cpu, ratio_mem)
                 log.warning('Watchdog identified job %s to exceed its sending kill signal',bid)            

@@ -104,6 +104,10 @@ class BATCH(object):
         print job, key, unit
         return 0.
     
+    def getRunningJobs(self,pending=False):
+        """ should be implemented by subclass """
+        return []
+    
     def addBatchJob(self,job):
         if not isinstance(job,BatchJob):
             self.logging.error("must be BatchJob instance")

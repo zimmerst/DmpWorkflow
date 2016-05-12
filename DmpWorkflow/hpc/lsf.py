@@ -50,7 +50,7 @@ class BatchJob(HPCBatchJob):
             if unit == 'GB':
                 kret/=1024.
         return kret
-
+    
     def __regexId__(self,_str):
         """ returns the batch Id using some regular expression, lsf specific """
         # default: Job <32110807> is submitted to queue <dampe>.
@@ -99,8 +99,13 @@ class BatchEngine(BATCH):
             if unit == 'GB':
                 mem/=1024.
         return mem
-        
-        
+
+    def getRunningJobs(self,pending=False):
+        self.update()
+        running = [j for j in self.allJobs if j['STAT']=="RUN"]
+        pending = [j for j in self.allJobs if j['STAT']=="PEND"]
+        return running + pending
+    
     def aggregateStatii(self, asDict=True, command=None):
         #print self.keys
         if command is None:

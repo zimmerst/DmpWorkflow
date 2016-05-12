@@ -9,7 +9,9 @@ from sys import exit as sys_exit
 from argparse import ArgumentParser
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
-from DmpWorkflow.scripts.dampe_cli_run_watchdog import __getRunningJobs
+from importlib import import_module
+HPC = import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
+#from DmpWorkflow.scripts.dampe_cli_run_watchdog import __getRunningJobs
 
 def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
@@ -21,9 +23,10 @@ def main(args=None):
     opts = parser.parse_args(args)
     log = logging.getLogger("script")
     batchsite = BATCH_DEFAULTS['name']
+    BEngine = HPC.BatchEngine()
     if opts.maxJobs is not None:
-        val = len(__getRunningJobs(batchsite))
-        log.info('found %i jobs running',val)
+        val = len(BEngine.getRunningJobs(pending=True))
+        log.info('found %i jobs running or pending',val)
         if val >= opts.maxJobs:
             log.warning("reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
             sys_exit();
