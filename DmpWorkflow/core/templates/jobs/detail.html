@@ -13,6 +13,8 @@
   <strong> Number of Events on File: </strong> {{ job.getNevents() }} 
   <strong> Dependencies on other Jobs: </strong> {{ job.getDependency() }} 
   </br>
+  <strong> Comment: </strong> {{ job.comment }}
+  </br>
   {% set job_body = job.getBody() %}
 
   {% set cat="MetaData" %}

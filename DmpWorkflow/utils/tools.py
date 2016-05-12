@@ -10,7 +10,7 @@ from random import choice, randint
 from shlex import split as shlex_split
 from string import ascii_letters, digits
 import subprocess as sub
-from time import sleep
+from time import sleep as time_sleep
 from re import split as re_split
 from datetime import timedelta
 from copy import deepcopy
@@ -143,7 +143,7 @@ def safe_copy(infile, outfile, sleep=10, attempts=10, debug=False):
             return status
         else:
             print "%i - Copy failed; sleep %ss" % (i, sleep)
-            sleep(sleep)
+            time_sleep(sleep)
         i += 1
     raise IOError("Failed to copy file")
 
@@ -178,7 +178,7 @@ def parse_sleep(sleep):
 
 
 def sleep(sleep):
-    return sleep(parse_sleep(sleep))
+    return time_sleep(parse_sleep(sleep))
 
 
 class ResourceMonitor(object):
