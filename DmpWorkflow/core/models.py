@@ -1,7 +1,7 @@
 # pylint: disable=E1002
 import logging
 from datetime import datetime
-import sys.excepthook as sys_excepthook
+import sys
 from mongoengine import CASCADE
 from json import loads
 from flask import url_for
@@ -11,7 +11,7 @@ from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler
 from DmpWorkflow.utils.tools import parseJobXmlToDict, convertHHMMtoSec, sortTimeStampList
 
 
-if not cfg.getboolean("site", "traceback"): sys_excepthook = exceptionHandler
+if not cfg.getboolean("site", "traceback"): sys.excepthook = exceptionHandler
 log = logging.getLogger("core")
 
 class Job(db.Document):
