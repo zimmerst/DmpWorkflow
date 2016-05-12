@@ -25,6 +25,7 @@ class Job(db.Document):
     execution_site = db.StringField(max_length=255, required=True, default="local", choices=SITES)
     jobInstances = db.ListField(db.ReferenceField("JobInstance"))
     archived = db.BooleanField(verbose_name="task closed", required=False, default=False)
+    comment = db.StringField(max_length=1024, required=False)
     def addDependency(self, job):
         if not isinstance(job, Job):
             raise Exception("Must be job to be added")

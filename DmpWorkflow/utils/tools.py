@@ -16,7 +16,6 @@ from datetime import timedelta
 from copy import deepcopy
 from StringIO import StringIO
 from xml.dom import minidom as xdom
-from __builtin__ import None
 
 def sortTimeStampList(my_list,timestamp='time', reverse=False):
     my_list = deepcopy(my_list)

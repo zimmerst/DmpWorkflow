@@ -114,7 +114,7 @@ if __name__ == '__main__':
     os.chdir(pwd)
     rm(my_exec_dir)
     try:
-        job.updateStatus("Done", "ApplicationComplete", resources=resources)
+        job.updateStatus("Done", "ApplicationComplete", resources=RM)
     except Exception as err:
         log.exception(err)
         
