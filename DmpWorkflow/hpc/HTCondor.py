@@ -5,7 +5,6 @@ Created on May 12, 2016
 @brief: interface to Condor API
 '''
 from DmpWorkflow.hpc.batch import BATCH, BatchJob as HPCBatchJob
-from DmpWorkflow.utils.shell import run
 from importlib import import_module
 classad = import_module("classad")
 htcondor= import_module("htcondor")
@@ -36,13 +35,6 @@ class BatchJob(HPCBatchJob):
                 kret/=1024.
         return kret
     
-    def __regexId__(self,_str):
-        """ returns the batch Id using some regular expression, lsf specific """
-        # default: Job <32110807> is submitted to queue <dampe>.
-        bk = -1
-        return bk
-
-
     def kill(self):
         """ likewise, it should implement its own batch-specific removal command """
         self.update("status","Failed")
