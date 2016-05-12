@@ -49,7 +49,7 @@ def getSixDigits(number,asPath=False):
                 value, rest = divmod(rest,b)
                 #print b, value, rest
                 if value:
-                    padding = "".join(["x" for i in range(len(str(b))-1)])
+                    padding = "".ljust(len(str(b))-1,"x")
                     my_path.append("%i%s"%(value,padding))
                     rest = rest
             my_path.append(str(rest).zfill(2))
