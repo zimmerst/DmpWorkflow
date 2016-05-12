@@ -1,3 +1,4 @@
+# pylint: disable=R0914
 """
 Created on Mar 15, 2016
 
@@ -77,28 +78,32 @@ def main(args=None):
     parser.add_argument("--dry", dest="dry", action = 'store_true', default=False, help='test-run')
     opts = parser.parse_args(args)
 
-    ratios_max = [float(cfg.get("watchdog","ratio_cpu")), float(cfg.get("watchdog","ratio_mem"))]
+    ratio_cpu_max = float(cfg.get("watchdog","ratio_cpu"))
+    ratio_mem_max = float(cfg.get("watchdog","ratio_mem"))
+
     log = getLogger("script")
     batchEngine = HPC.BatchEngine()
     batchEngine.update()
     batchsite = BATCH_DEFAULTS['name'] if opts.site is None else opts.site
     # first, get running jobs.
-    log.info("watchdog settings: max_cpu %1.2f max_mem %1.2f (ratio with respect to max. allocated)",ratios_max[0], ratios_max[1])    
-    for j in __getRunningJobs(batchsite):
-        max_vals = [float(j['max_mem']),float(j['max_cpu'])]
-        for i,max_val in enumerate(max_vals):
-            if max_val in [-1.,0.]:
-                if i == 0: max_val = float(convertHHMMtoSec(BATCH_DEFAULTS['cputime']))
-                else: max_val = float(BATCH_DEFAULTS['memory'])
+    jobs = __getRunningJobs(batchsite)
+    log.info("watchdog settings: max_cpu %1.2f max_mem %1.2f (ratio with respect to max. allocated)",ratio_cpu_max,ratio_mem_max)    
+    for j in jobs:
+        max_cpu = float(j['max_mem'])
+        max_mem = float(j['max_cpu'])
+        if max_cpu in [-1., 0.]: max_cpu = float(convertHHMMtoSec(BATCH_DEFAULTS['cputime']))
+        if max_mem in [-1., 0.]: max_mem = float(BATCH_DEFAULTS['memory'])
         bj = HPC.BatchJob(name="%s-%s"%(j['t_id'],getSixDigits(j['inst_id'])),
                           batchId = j['batchId'], defaults=BATCH_DEFAULTS)
         bid = str(bj.batchId)
         if bid in batchEngine.allJobs:
-            current_val = [batchEngine.getCPUtime(bid), batchEngine.getMemory(bid,unit='MB')]
-            ratios = [float(current_val[i])/float(max_vals[i]) for i in range(current_val)]
-            __updateStatus([j, bid, current_val[0], current_val[1]], batchEngine=batchEngine, dry=opts.dry)                
-            if (ratios[0] >= ratios_max[0]) or (ratios[1] >= ratios_max[1]):
-                log.info('%s cpu %1.1f mem %1.1f',bid,ratios[0], ratios[1])
+            current_cpu = batchEngine.getCPUtime(bid)
+            current_mem = batchEngine.getMemory(bid,unit='MB')
+            ratio_cpu = current_cpu/max_cpu
+            ratio_mem = current_mem/max_mem
+            __updateStatus([j, bid, current_mem, current_cpu], batchEngine=batchEngine, dry=opts.dry)                
+            if (ratio_cpu >= ratio_cpu_max) or (ratio_mem >= ratio_mem_max):
+                log.info('%s cpu %1.1f mem %1.1f',bid,ratio_cpu, ratio_mem)
                 log.warning('Watchdog identified job %s to exceed its sending kill signal',bid)            
                 if opts.dry: continue
                 try:

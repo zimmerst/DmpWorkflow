@@ -106,6 +106,7 @@ class BATCH(object):
     
     def getRunningJobs(self,pending=False):
         """ should be implemented by subclass """
+        if pending: print 'including pending jobs'
         return []
     
     def addBatchJob(self,job):
