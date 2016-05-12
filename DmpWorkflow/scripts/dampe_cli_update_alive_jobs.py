@@ -4,12 +4,12 @@ Created on Mar 15, 2016
 @author: zimmer
 @todo: add watchdog triggers.
 """
-import requests
-import importlib
-import json
 import logging
+from requests import post
+from importlib import import_module
+from json import dumps
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII
-HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
+HPC = import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
 def main():
     log = logging.getLogger("script")
@@ -30,7 +30,7 @@ def main():
         mem = float(batchEngine.getMemory(batchId,unit='MB'))
         my_dict = {"t_id": JobId, "inst_id": InstanceId, "hostname": hostname, "major_status": status, "cpu":cpu, "memory":mem}
         log.debug("%s : %s",batchId,my_dict)
-        res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args":json.dumps(my_dict)})
+        res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args":dumps(my_dict)})
         res.raise_for_status()
         res = res.json()
         if not res.get("result", "nok") == "ok":

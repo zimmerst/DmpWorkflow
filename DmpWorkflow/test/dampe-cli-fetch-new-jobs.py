@@ -6,8 +6,9 @@ Created on Mar 15, 2016
 from DmpWorkflow.config.defaults import os, sys, DAMPE_WORKFLOW_URL
 from DmpWorkflow.core import db, models
 from DmpWorkflow.core.DmpJob import DmpJob
-
-import random, time, copy
+from random import randint, choice
+from copy import deepcopy
+from time import ctime
 
 hostnames = ['fell', 'bullet', 'iris', 'hequ']
 
@@ -15,7 +16,7 @@ hostnames = ['fell', 'bullet', 'iris', 'hequ']
 def random_with_N_digits(n):
     range_start = 10 ** (n - 1)
     range_end = (10 ** n) - 1
-    return random.randint(range_start, range_end)
+    return randint(range_start, range_end)
 
 
 if __name__ == "__main__":
@@ -32,12 +33,12 @@ if __name__ == "__main__":
                     newJobs = newJobs[:maxCount]
                 dJob = DmpJob(job)
                 for j in newJobs:
-                    dInstance = copy.deepcopy(dJob)
+                    dInstance = deepcopy(dJob)
                     dInstance.instanceId = j.instanceId
                     dInstance.jobId = job.id
                     dInstance.setInstanceParameters(j)
                     dInstance.write_script()
-                    tstatus = random.choice(["Submitted", "New", "New", "New"])
+                    tstatus = choice(["Submitted", "New", "New", "New"])
                     if tstatus == "Submitted":
                         # print 'found status other than new'
                         j.batchId = random_with_N_digits(8)
@@ -57,22 +58,22 @@ if __name__ == "__main__":
         if len(newJobs):
             dJob = DmpJob(job)
             for j in newJobs:
-                dInstance = copy.deepcopy(dJob)
+                dInstance = deepcopy(dJob)
                 dInstance.instanceId = j.instanceId
                 dInstance.jobId = job.id
                 dInstance.setInstanceParameters(j)
                 j.batchId = random_with_N_digits(8)
-                j.last_update = time.ctime()
-                j.hostname = "%s-%i" % (random.choice(hostnames), random_with_N_digits(2))
-                tstatus = random.choice(["Submitted", "Running", "Failed", "Done", "Submitted", "Submitted", "Running"])
+                j.last_update = ctime()
+                j.hostname = "%s-%i" % (choice(hostnames), random_with_N_digits(2))
+                tstatus = choice(["Submitted", "Running", "Failed", "Done", "Submitted", "Submitted", "Running"])
                 if tstatus == "Submitted":
                     j.minor_status = "JobPending"
                 elif tstatus == "Running":
-                    j.minor_status = random.choice(
+                    j.minor_status = choice(
                         ["RunningExecutionWrapper", "CopyingInputFiles", "AssemblingOutputFiles"])
                 elif tstatus == "Done":
                     j.minor_status = "ExecutionCompleted"
                 else:
-                    j.minor_status = "FailedWithCode:%i" % random.choice([1, 2, 3, 4, 5, 6])
+                    j.minor_status = "FailedWithCode:%i" % choice([1, 2, 3, 4, 5, 6])
                 j.setStatus(tstatus)
         job.update()

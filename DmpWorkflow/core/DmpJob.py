@@ -6,15 +6,14 @@ Created on Mar 15, 2016
 
 import os.path as oPath
 from os import environ
-import requests
-import jsonpickle
-import json
-import importlib
-
+from jsonpickle import encode as Jencode, decode as Jdecode
+from json import dumps
+from requests import post as Rpost
+from importlib import import_module
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits, ResourceMonitor
 from DmpWorkflow.utils.shell import run, make_executable#, source_bash
-HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
+HPC = import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 PYTHONBIN = ""
 ExtScript = cfg.get("site","ExternalsScript")
 
@@ -150,7 +149,7 @@ class DmpJob(object):
                 del kwargs['resources']
         my_dict.update(kwargs)
         #print '*DEBUG* my_dict: %s'%str(my_dict)
-        res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
+        res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
         res.raise_for_status()
         if not res.json().get("result", "nok") == "ok":
             raise Exception(res.json().get("error","ErrorMissing"))
@@ -202,13 +201,13 @@ class DmpJob(object):
 
     def exportToJSON(self):
         """ return a pickler of itself as JSON format """
-        return jsonpickle.encode(self)
+        return Jencode(self)
 
     def getSixDigits(self, asPath=False):
         return getSixDigits(self.instanceId, asPath=asPath)
 
     @classmethod
     def fromJSON(cls, jsonstr):
-        kc = jsonpickle.decode(jsonstr)
+        kc = Jdecode(jsonstr)
         kc.__updateEnv__()
         return kc

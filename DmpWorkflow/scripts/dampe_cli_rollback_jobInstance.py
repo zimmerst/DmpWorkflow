@@ -3,9 +3,9 @@ Created on Mar 15, 2016
 
 @author: zimmer
 """
-import requests
-import json
-import sys
+from requests import get as Rget, post
+from json import dumps
+from sys import exit
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 from DmpWorkflow.utils.tools import query_yes_no
@@ -29,7 +29,7 @@ def main(args=None):
                         \nThis query may take a while to be completed, are you sure?"%opts.title)
         if not q:
             print 'rollback aborted'
-            sys.exit()
+            exit()
     if not (opts.n_min is None and opts.n_max is None):
         _range = opts.n_max - opts.n_min
         if _range > 100: print 'WARNING: you are querying more than 100 jobs, this may take a while to complete'
@@ -38,7 +38,7 @@ def main(args=None):
         if opts.__dict__[key] is not None:
             my_dict[key] = opts.__dict__[key]
     # get all jobs to roll back.
-    res = requests.get("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data=my_dict)
+    res = Rget("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data=my_dict)
     res.raise_for_status()
     res = res.json()
     if res.get("result","nok") != "ok":
@@ -52,7 +52,7 @@ def main(args=None):
                            "major_status": "New", "minor_status":"AwaitingBatchSubmission", "hostname":None,
                            "batchId":None, "status_history":[], 
                            "log": "", "cpu":[], "memory":[], "created_at":"Now"}
-                res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
+                res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
                 res.raise_for_status()
                 res = res.json()
                 if not res.get("result", "nok") == "ok":
@@ -60,10 +60,10 @@ def main(args=None):
             print 'rolled back %i instances'%len(jobs)
         else:
             print 'rollback aborted'
-            sys.exit()
+            exit()
     else:
         print 'could not find any jobs satisfying the query.'
-        sys.exit()
+        exit()
 
 if __name__ == '__main__':
     main()

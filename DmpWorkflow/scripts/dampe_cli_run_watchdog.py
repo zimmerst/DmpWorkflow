@@ -4,20 +4,20 @@ Created on Mar 15, 2016
 @author: zimmer
 @brief: watchdog that kills the job if needed.
 """
-import requests
-import importlib
-import json
+from requests import get as Rget, post
+from importlib import import_module
+from json import dumps
 from logging import getLogger
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII, cfg
 from DmpWorkflow.utils.tools import getSixDigits, convertHHMMtoSec
-HPC = importlib.import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
+HPC = import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
 
 def __getRunningJobs(batchsite):
     """ internal method to get running jobs """    
     log = getLogger("script")
-    res = requests.get("%s/watchdog/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
+    res = Rget("%s/watchdog/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite)})
     res.raise_for_status()
     res = res.json()
     if not res.get("result", "nok") == "ok":
@@ -44,7 +44,7 @@ def __updateStatus(job, batchId, mem, cpu, batchEngine = None, dry=True):
     else: return
     log.debug("about to call update with this data %s",my_dict)
     if not dry:
-        res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
+        res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
         res.raise_for_status()
         res = res.json()
         if res.get("result", "nok") != "ok":
@@ -57,7 +57,7 @@ def __reportKilledJob(j):
     log = getLogger("script")
     my_dict = {'t_id':j['t_id'],'inst_id':j['inst_id'],
                 'major_status':'Terminated','minor_status':"KilledByWatchDog"}
-    res = requests.post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": json.dumps(my_dict)})
+    res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
     res.raise_for_status()
     res = res.json()
     if res.get("result", "nok") != "ok":

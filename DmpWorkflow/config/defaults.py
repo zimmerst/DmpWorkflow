@@ -5,12 +5,13 @@ Created on Apr 20, 2016
 @brief: prototype script that handles config parsing etc.
 
 """
-import ConfigParser
-import os
-import sys
+from ConfigParser import SafeConfigParser
+from os import environ, getenv
+from os.path import dirname, abspath, join as oPjoin
+from sys import excepthook
 from DmpWorkflow.utils.tools import exceptionHandler
 
-DAMPE_WORKFLOW_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DAMPE_WORKFLOW_ROOT = dirname(dirname(abspath(__file__)))
 
 __myDefaults = {
     "DAMPE_SW_DIR": ".",
@@ -38,34 +39,33 @@ __myDefaults = {
 
 
 
-cfg = ConfigParser.SafeConfigParser(defaults=__myDefaults)
+cfg = SafeConfigParser(defaults=__myDefaults)
 
-cfg.read(os.path.join(DAMPE_WORKFLOW_ROOT, "config/settings.cfg"))
+cfg.read(oPjoin(DAMPE_WORKFLOW_ROOT, "config/settings.cfg"))
 
 assert cfg.get("global","installation") in ['server','client'], "installation must be server or client!"
 
-os.environ["DAMPE_SW_DIR"] = cfg.get("site", "DAMPE_SW_DIR")
-os.environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
+environ["DAMPE_SW_DIR"] = cfg.get("site", "DAMPE_SW_DIR")
+environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
 
-#os.environ["DAMPE_URL"] = cfg.get("server","url")
+#environ["DAMPE_URL"] = cfg.get("server","url")
 # print "setting up externals"
 #source_bash(cfg.get("site", "ExternalsScript"))
 
 dbg = cfg.getboolean("global", "traceback")
-if not dbg:
-    sys.excepthook = exceptionHandler
+if not dbg: excepthook = exceptionHandler
 
 DAMPE_WORKFLOW_URL = cfg.get("server", "url")
 DAMPE_WORKFLOW_DIR = cfg.get("site","workdir")
 EXEC_DIR_ROOT = cfg.get("site","EXEC_DIR_ROOT")
 
-os.environ["BATCH_SYSTEM"] = cfg.get("site","HPCsystem")
-os.environ["BATCH_REQUIREMENTS"] = cfg.get("site","HPCrequirements")
-os.environ["BATCH_EXTRA"] = cfg.get("site","HPCextra")
-os.environ["BATCH_QUEUE"] = cfg.get("site","HPCqueue")
-os.environ["EXEC_DIR_ROOT"] = EXEC_DIR_ROOT
+environ["BATCH_SYSTEM"] = cfg.get("site","HPCsystem")
+environ["BATCH_REQUIREMENTS"] = cfg.get("site","HPCrequirements")
+environ["BATCH_EXTRA"] = cfg.get("site","HPCextra")
+environ["BATCH_QUEUE"] = cfg.get("site","HPCqueue")
+environ["EXEC_DIR_ROOT"] = EXEC_DIR_ROOT
 
-BATCH_DEFAULTS = {key:os.getenv("BATCH_%s"%key.upper()) for key in ['system','requirements','extra','queue']}
+BATCH_DEFAULTS = {key:getenv("BATCH_%s"%key.upper()) for key in ['system','requirements','extra','queue']}
 BATCH_DEFAULTS['memory']=cfg.get("site","HPCmemory")
 BATCH_DEFAULTS['cputime']=cfg.get("site","HPCcputime")
 BATCH_DEFAULTS['name']=cfg.get("site","name")

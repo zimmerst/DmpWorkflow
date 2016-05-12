@@ -1,9 +1,9 @@
 # pylint: disable=E1002
-import datetime
-import sys
-import mongoengine
 import logging
-import json
+from datetime import datetime
+from sys import excepthook
+from mongoengine import CASCADE
+from json import loads
 from flask import url_for
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
@@ -11,11 +11,11 @@ from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler
 from DmpWorkflow.utils.tools import parseJobXmlToDict, convertHHMMtoSec, sortTimeStampList
 
 
-if not cfg.getboolean("site", "traceback"): sys.excepthook = exceptionHandler
+if not cfg.getboolean("site", "traceback"): excepthook = exceptionHandler
 log = logging.getLogger("core")
 
 class Job(db.Document):
-    created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
+    created_at = db.DateTimeField(default=datetime.now, required=True)
     slug = db.StringField(verbose_name="slug", required=True, default=random_string_generator)
     title = db.StringField(max_length=255, required=True)
     body = db.FileField()
@@ -123,12 +123,12 @@ class Job(db.Document):
 
 class JobInstance(db.Document):
     instanceId = db.LongField(verbose_name="instanceId", required=False, default=None)
-    created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
+    created_at = db.DateTimeField(default=datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
-    last_update = db.DateTimeField(default=datetime.datetime.now, required=True)
+    last_update = db.DateTimeField(default=datetime.now, required=True)
     batchId = db.LongField(verbose_name="batchId", required=False, default=None)
     Nevents = db.LongField(verbose_name="Nevents", required=False, default=0)
-    job = db.ReferenceField("Job", reverse_delete_rule=mongoengine.CASCADE)
+    job = db.ReferenceField("Job", reverse_delete_rule=CASCADE)
     site = db.StringField(verbose_name="site", required=False, choices=SITES)
     hostname = db.StringField(verbose_name="hostname", required=False, default=None)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
@@ -148,7 +148,7 @@ class JobInstance(db.Document):
         if isinstance(metadata,dict): 
             if 'MetaData' in metadata: md = metadata['MetaData']
         if self.body != "":
-            instance_dict = json.loads(self.body)[0]
+            instance_dict = loads(self.body)[0]
             if 'MetaData' in instance_dict:
                 md+=instance_dict['MetaData'] 
         # next, set the values
@@ -241,17 +241,17 @@ class JobInstance(db.Document):
         
     def set(self, key, value):
         if key == "created_at" and value == "Now": 
-            value = datetime.datetime.now()
+            value = datetime.now()
         elif key == 'cpu':
-            self.cpu.append({"time":datetime.datetime.now(),"value":value})
+            self.cpu.append({"time":datetime.now(),"value":value})
         elif key == 'memory':
-            self.memory.append({"time":datetime.datetime.now(),"value":value})
+            self.memory.append({"time":datetime.now(),"value":value})
         elif key in ['cpu_max','mem_max']:
             self._data.__setitem__(key,value)
         else:
             self.__setattr__(key, value)
         log.debug("setting %s : %s",key,value)
-        self.__setattr__("last_update", datetime.datetime.now())
+        self.__setattr__("last_update", datetime.now())
         self.update()
 
     def setStatus(self, stat):
@@ -259,7 +259,7 @@ class JobInstance(db.Document):
         if stat not in MAJOR_STATII:
             raise Exception("status not found in supported list of statii: %s", stat)
         curr_status = self.status
-        curr_time = datetime.datetime.now()
+        curr_time = datetime.now()
         self.last_update = curr_time
         if curr_status == stat and self.minor_status == self.status_history[-1]['minor_status']:
             return

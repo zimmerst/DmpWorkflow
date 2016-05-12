@@ -3,8 +3,8 @@ Created on Mar 15, 2016
 
 @author: zimmer
 """
-import time
 import logging
+from time import ctime
 from DmpWorkflow.core import db
 from DmpWorkflow.core.models import Job, MAJOR_STATII
 
@@ -22,7 +22,7 @@ def update_status(JobId, InstanceId, major_status, **kwargs):
     assert major_status in MAJOR_STATII
     jInstance = my_job.getInstance(InstanceId)
     # print jInstance
-    my_dict = {"last_update": time.ctime()}
+    my_dict = {"last_update": ctime()}
     my_dict.update(kwargs)
     for key, value in my_dict.iteritems():
         jInstance.__setattr__(key, value)

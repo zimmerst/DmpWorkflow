@@ -4,8 +4,9 @@ Created on Mar 22, 2016
 @author: zimmer
 """
 import logging
-import subprocess
-import os
+from subprocess import PIPE, Popen
+from os import chmod, stat, environ, remove
+from os.path import expandvars
 
 logger = logging.getLogger("core")
 
@@ -13,7 +14,7 @@ def run(cmd_args, useLogging=True, suppressErrors=False):
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
     logger.info("attempting to run: %s",str(cmd_args))
-    proc = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    proc = Popen(cmd_args, stdout=PIPE, stderr=PIPE, shell=True)
     (out, err) = proc.communicate()
     rc = proc.returncode
     if rc:
@@ -27,15 +28,15 @@ def run(cmd_args, useLogging=True, suppressErrors=False):
     return out, err, rc
 
 def make_executable(path):
-    mode = os.stat(path).st_mode
+    mode = stat(path).st_mode
     mode |= (mode & 0o444) >> 2    # copy R bits to X
-    os.chmod(path, mode)
+    chmod(path, mode)
 
 def source_bash(setup_script):
     foop = open("tmp.sh", "w")
     foop.write("#/bin/bash\nsource $1\nenv|sort")
     foop.close()
-    out, err, rc = run(["bash tmp.sh %s" % os.path.expandvars(setup_script)], useLogging=False, suppressErrors=True)
+    out, err, rc = run(["bash tmp.sh %s" % expandvars(setup_script)], useLogging=False, suppressErrors=True)
     if rc:
         print 'source encountered error, returning that one'
         return err
@@ -50,6 +51,6 @@ def source_bash(setup_script):
                 continue
             keys.append(tl[0])
             values.append(tl[1])
-    os.environ.update(dict(zip(keys, values)))
-    os.remove("tmp.sh")
+    environ.update(dict(zip(keys, values)))
+    remove("tmp.sh")
     return

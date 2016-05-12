@@ -4,7 +4,7 @@ Created on Mar 30, 2016
 @author: zimmer
 @brief: prototype script to create a new job from the jobXml
 """
-import requests
+from requests import post
 from os.path import isfile
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, TYPES, SITES
@@ -32,7 +32,7 @@ def main(args=None):
     t_type = unicode(atts['type'])
     site = unicode(atts['site'])
     print atts        
-    res = requests.post("%s/job/" % DAMPE_WORKFLOW_URL,
+    res = post("%s/job/" % DAMPE_WORKFLOW_URL,
                         data={"taskname": taskName, "t_type": t_type, "n_instances": n_instances, "site" : site},
                         files={"file":open(xmlFile, "rb")})
     res.raise_for_status()

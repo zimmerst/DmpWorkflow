@@ -5,8 +5,8 @@ Created on Apr 25, 2016
 @brief: convenience script to modify configuration parameters from an existing file.
 @todo: add verification of configuration file, pre-parsing etc.
 '''
-import os
-import DmpWorkflow
+from os.path import join as oPjoin, dirname, abspath
+from DmpWorkflow import __file__ as DmpFile
 from DmpWorkflow.utils.tools import safe_copy
 from argparse import ArgumentParser
 
@@ -16,8 +16,8 @@ def main(args=None):
     opts = parser.parse_args(args)
     if opts.file is not None:
         src = opts.file
-        dmpROOT = os.path.dirname(os.path.abspath(DmpWorkflow.__file__))
-        tg  = os.path.join(dmpROOT,"config/settings.cfg")
+        dmpROOT = dirname(abspath(DmpFile))
+        tg  = oPjoin(dmpROOT,"config/settings.cfg")
         safe_copy(src, tg, sleep='3s', attempts = 3, debug=True)
         return 
     

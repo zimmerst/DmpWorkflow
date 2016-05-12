@@ -4,7 +4,6 @@ Created on Mar 10, 2016
 @author: zimmer
 """
 from DmpWorkflow.config.defaults import cfg
-
 from functools import wraps
 from flask import request, Response
 

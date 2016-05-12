@@ -4,10 +4,9 @@ Created on Mar 30, 2016
 @author: zimmer
 @brief: prototype script to create a new job from the jobXml
 """
-import requests
+from requests import post
 from argparse import ArgumentParser
-import os
-
+from os import environ
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 
 
@@ -19,9 +18,9 @@ def main(args=None):
     parser.add_argument("-i", "--instances", help="number of instances", dest="inst", type=int)
     opts = parser.parse_args(args)
     taskName = opts.name
-    os.environ['DWF_JOBNAME'] = taskName
+    environ['DWF_JOBNAME'] = taskName
     ninst = opts.inst
-    res = requests.post("%s/jobInstances/" % DAMPE_WORKFLOW_URL,
+    res = post("%s/jobInstances/" % DAMPE_WORKFLOW_URL,
                         data={"taskname": taskName, "n_instances": ninst})
     res.raise_for_status()
     res = res.json()

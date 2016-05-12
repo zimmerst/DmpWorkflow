@@ -3,9 +3,9 @@ Created on Mar 15, 2016
 
 @author: zimmer
 """
-import requests
-import sys
 import logging
+from requests import get
+from sys import exit
 from argparse import ArgumentParser
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
@@ -26,8 +26,8 @@ def main(args=None):
         log.info('found %i jobs running',val)
         if val >= opts.maxJobs:
             log.warning("reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
-            sys.exit();
-    res = requests.get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite), "limit":opts.chunk})
+            exit();
+    res = get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite), "limit":opts.chunk})
     res.raise_for_status()
     res = res.json()
     if not res.get("result", "nok") == "ok":
@@ -41,7 +41,7 @@ def main(args=None):
         j.write_script(pythonbin=opts.python,debug=opts.dry)
         try: 
             ret = j.submit(dry=opts.dry,local=opts.local)
-            j.updateStatus("Submitted","WaitingForExecution",batchId=ret)
+            j.updateStatus("Submitted","WaitingForExecution",batchId=ret,cpu=0., memory=0.)
             njobs+=1
         except Exception, e:
             log.exception(e)
