@@ -5,7 +5,7 @@ from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
 from flask.views import MethodView
 from DmpWorkflow.core.DmpJob import DmpJob
-from DmpWorkflow.core.models import Job, JobInstance
+from DmpWorkflow.core.models import Job, JobInstance, HeartBeat
 
 jobs = Blueprint('jobs', __name__, template_folder='templates')
 
@@ -294,6 +294,31 @@ class JobResources(MethodView):
             return dumps({"result":"ok", "jobs": allJobs})
         except Exception as err:
             return dumps({"result":"nok", "error": err})
+
+class TestView(MethodView):
+    def post(self):
+        hostname = str(request.form.get("hostname",None))
+        timestamp= str(request.form.get("timestamp",None))
+        if (hostname is None) or (timestamp is None): 
+            logger.debug("request empty")
+            return dumps({"result":"nok","error":"request empty"})
+        try:
+            HB = HeartBeat(hostname=hostname, timestamp=timestamp)
+            HB.save()
+        except Exception as ex:
+            logger.error("failure during HeartBeat POST test. \n%s",ex)
+            return dumps({"result":"nok","error":ex})
+        return dumps({"result": "ok", "docId": str(HB.id)})
+
+    def get(self):
+        limit = int(request.form.get("limit",1000))
+        try:
+            beats = HeartBeat.objects.all().limit(limit)
+        except Exception as ex:
+            logger.error("failure during HeartBeat GET test. \n%s",ex)
+            return dumps({"result":"nok","error":ex})
+        return dumps({"result":"ok","beats":beats})
+
         
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
@@ -303,4 +328,6 @@ jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstan
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET","POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
 jobs.add_url_rule("/watchdog/",view_func=JobResources.as_view('watchdog'), methods=["GET"])
+jobs.add_url_rule("/testDB/", view_func=TestView.as_view('testDB'), methods=["GET","POST"])
+
 #jobs.add_url_rule('/InstanceDetail', view_func=InstanceView.as_view('instancedetail'), methods=['GET'])

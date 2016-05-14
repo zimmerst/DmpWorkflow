@@ -14,6 +14,17 @@ from DmpWorkflow.utils.tools import parseJobXmlToDict, convertHHMMtoSec, sortTim
 if not cfg.getboolean("site", "traceback"): sys.excepthook = exceptionHandler
 log = logging.getLogger("core")
 
+class HeartBeat(db.Document):
+    ''' dummy class to test DB connection from remote workers '''    
+    created_at = db.DateTimeField(default=datetime.now, required=True)
+    timestamp = db.DateTimeField("timestamp",required=True)
+    hostname = db.StringField(max_length=255, required=False)
+    meta = {
+        'allow_inheritance': True,
+        'indexes': ['-created_at', 'hostname'],
+        'ordering': ['-created_at']
+    }    
+
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.now, required=True)
     slug = db.StringField(verbose_name="slug", required=True, default=random_string_generator)
