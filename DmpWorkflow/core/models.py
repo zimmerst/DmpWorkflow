@@ -17,7 +17,7 @@ log = logging.getLogger("core")
 class HeartBeat(db.Document):
     ''' dummy class to test DB connection from remote workers '''    
     created_at = db.DateTimeField(default=datetime.now, required=True)
-    timestamp = db.DateTimeField("timestamp",required=True)
+    timestamp = db.DateTimeField(verbose_name="timestamp",required=True)
     hostname = db.StringField(max_length=255, required=False)
     meta = {
         'allow_inheritance': True,
