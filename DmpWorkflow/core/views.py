@@ -299,7 +299,7 @@ class TestView(MethodView):
     def post(self):
         hostname = str(request.form.get("hostname",None))
         timestamp= str(request.form.get("timestamp",None))
-        if (hostname is None) or (timestamp is None): 
+        if (hostname == "None") or (timestamp == "None"): 
             logger.debug("request empty")
             return dumps({"result":"nok","error":"request empty"})
         try:
