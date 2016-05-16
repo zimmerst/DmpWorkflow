@@ -298,10 +298,10 @@ class JobResources(MethodView):
 
 class TestView(MethodView):
     def post(self):
-        logger.info("TestView: request form %s",str(request.form))
+        logger.debug("TestView: request form %s",str(request.form))
         hostname = str(request.form.get("hostname","None"))
         timestamp= str(request.form.get("timestamp","None"))
-        logger.info("TestView: hostname: %s timestamp: %s ",hostname,timestamp)
+        logger.debug("TestView: hostname: %s timestamp: %s ",hostname,timestamp)
         if (hostname == "None") or (timestamp == "None"): 
             logger.debug("request empty")
             return dumps({"result":"nok","error":"request empty"})
@@ -317,6 +317,7 @@ class TestView(MethodView):
         limit = int(request.form.get("limit",1000))
         try:
             beats = HeartBeat.objects.all().limit(limit)
+            logger.info("found %i heartbeats",len(beats))
         except Exception as ex:
             logger.error("failure during HeartBeat GET test. \n%s",ex)
             return dumps({"result":"nok","error":ex})
