@@ -4,7 +4,7 @@ Created on Mar 15, 2016
 @author: zimmer
 """
 from DmpWorkflow.config.defaults import os, sys, DAMPE_WORKFLOW_URL
-from DmpWorkflow.core.system import db
+from DmpWorkflow.core import db
 from DmpWorkflow.core.models import Job
 from DmpWorkflow.core.DmpJob import DmpJob
 from random import randint, choice

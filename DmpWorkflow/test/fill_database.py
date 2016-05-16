@@ -5,7 +5,7 @@ Created on Mar 25, 2016
 '''
 from DmpWorkflow.config.defaults import cfg
 from DmpWorkflow.core.models import Job, JobInstance, TYPES
-from DmpWorkflow.core.system import db
+from DmpWorkflow.core import db
 from random import choice, randrange
 
 jobs = 10
