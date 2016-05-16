@@ -315,6 +315,7 @@ class TestView(MethodView):
 
     def get(self):
         limit = int(request.form.get("limit",1000))
+        beats = []
         try:
             beats = HeartBeat.objects.all().limit(limit)
             logger.info("found %i heartbeats",len(beats))
