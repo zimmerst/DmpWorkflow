@@ -306,7 +306,7 @@ class TestView(MethodView):
             logger.debug("request empty")
             return dumps({"result":"nok","error":"request empty"})
         try:
-            HB = HeartBeat(hostname=hostname, timestamp=datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S"))
+            HB = HeartBeat(hostname=hostname, timestamp=datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f"))
             HB.save()
         except Exception as ex:
             logger.error("failure during HeartBeat POST test. \n%s",ex)
