@@ -298,8 +298,10 @@ class JobResources(MethodView):
 
 class TestView(MethodView):
     def post(self):
+        logger.info("TestView: request form %s",str(request.form))
         hostname = str(request.form.get("hostname","None"))
         timestamp= str(request.form.get("timestamp","None"))
+        logger.info("TestView: hostname: %s timestamp: %s ",hostname,timestamp)
         if (hostname == "None") or (timestamp == "None"): 
             logger.debug("request empty")
             return dumps({"result":"nok","error":"request empty"})
