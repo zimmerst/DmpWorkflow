@@ -318,7 +318,7 @@ class TestView(MethodView):
         beats = []
         try:
             beats = HeartBeat.objects.all().limit(limit)
-            logger.info("found %i heartbeats",len(beats))
+            logger.debug("found %i heartbeats",len(beats))
         except Exception as ex:
             logger.error("failure during HeartBeat GET test. \n%s",ex)
             return dumps({"result":"nok","error":ex})
