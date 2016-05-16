@@ -107,7 +107,7 @@ class DmpJob(object):
             setup_script = setup_script.replace("/","")
         cmds = ["#!/bin/bash","echo \"batch wrapper executing on $(date)\"",\
                 "source %s"%oPath.expandvars(ExtScript),\
-                "unset DMPSWSYS"
+                "unset $DMPSWSYS"
                 "cd %s"%rel_path,\
                 "source %s"%setup_script,\
                 "cd %s"%self.wd,\
