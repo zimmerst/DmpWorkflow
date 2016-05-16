@@ -18,6 +18,7 @@ from StringIO import StringIO
 from xml.dom import minidom as xdom
 
 def sortTimeStampList(my_list,timestamp='time', reverse=False):
+    if not len(my_list): return []
     my_list = deepcopy(my_list)
     keys = sorted([v[timestamp] for v in my_list])
     if reverse: keys = reversed(keys)
