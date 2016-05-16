@@ -23,7 +23,7 @@ def __prepare(job, log, resources=None):
     # first, set all variables
     for var in job.MetaData: environ[var['name']] = expandvars(var['value'])
     log.info("current environment settings")
-    log.info("\n".join(["%s: %s"%(key,value) for key, value in sorted(environ.iteritems())]))    
+    #log.info("\n".join(["%s: %s"%(key,value) for key, value in sorted(environ.iteritems())]))    
     for fi in job.InputFiles:
         src = expandvars(fi['source'])
         tg = expandvars(fi['target'])
@@ -75,9 +75,9 @@ def __postRun(job, log, resources=None):
             try:
                 job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e), resources=resources)
             except Exception as err: log.exception(err)
-            if not DEBUG_TEST: sys_exit(6)
+            if not DEBUG_TEST: return 6
     log.info("successfully completed staging.")
-
+    return 0
 
 if __name__ == '__main__':
     RM = ResourceMonitor()
