@@ -322,7 +322,7 @@ class TestView(MethodView):
         except Exception as ex:
             logger.error("failure during HeartBeat GET test. \n%s",ex)
             return dumps({"result":"nok","error":ex})
-        return dumps({"result":"ok","beats":beats})
+        return dumps({"result":"ok","beats":[b.hostname for b in beats]})
 
         
 # Register the urls
