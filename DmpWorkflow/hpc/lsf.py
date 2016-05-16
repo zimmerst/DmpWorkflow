@@ -102,8 +102,8 @@ class BatchEngine(BATCH):
 
     def getRunningJobs(self,pending=False):
         self.update()
-        running = [j for j in self.allJobs if j['STAT']=="RUN"]
-        pending = [j for j in self.allJobs if j['STAT']=="PEND"]
+        running = [j for j in self.allJobs if self.allJobs[j]['STAT']=="RUN"]
+        pending = [j for j in self.allJobs if self.allJobs[j]['STAT']=="PEND"]
         return running + pending
     
     def aggregateStatii(self, asDict=True, command=None):
