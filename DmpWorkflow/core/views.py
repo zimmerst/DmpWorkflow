@@ -3,6 +3,7 @@ from copy import deepcopy
 from json import loads, dumps
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
+from datetime import datetime
 from flask.views import MethodView
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance, HeartBeat
@@ -297,13 +298,13 @@ class JobResources(MethodView):
 
 class TestView(MethodView):
     def post(self):
-        hostname = str(request.form.get("hostname",None))
-        timestamp= str(request.form.get("timestamp",None))
+        hostname = str(request.form.get("hostname","None"))
+        timestamp= str(request.form.get("timestamp","None"))
         if (hostname == "None") or (timestamp == "None"): 
             logger.debug("request empty")
             return dumps({"result":"nok","error":"request empty"})
         try:
-            HB = HeartBeat(hostname=hostname, timestamp=timestamp)
+            HB = HeartBeat(hostname=hostname, timestamp=datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S"))
             HB.save()
         except Exception as ex:
             logger.error("failure during HeartBeat POST test. \n%s",ex)
