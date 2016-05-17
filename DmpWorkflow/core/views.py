@@ -146,7 +146,10 @@ class JobInstanceView(MethodView):
             logger.info("Found job")
             job = jobs[0]
             site = job.execution_site
-            dout = job.getBody()
+            try:
+                dout = job.getBody()
+            except Exception as err:
+                return dumps({"result":"nok", "error":err})
             if 'type' in dout['atts']:
                 job.type = unicode(dout['atts']['type'])
             if 'release' in dout['atts']:
