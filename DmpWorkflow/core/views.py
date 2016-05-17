@@ -143,7 +143,7 @@ class JobInstanceView(MethodView):
             return dumps({"result":"nok","error":"query got empty taskname & type"})
         jobs = Job.objects.filter(title=taskName, type=tasktype)
         if len(jobs):
-            logger.debug("Found job")
+            logger.info("Found job")
             job = jobs[0]
             site = job.execution_site
             dout = job.getBody()
@@ -158,7 +158,7 @@ class JobInstanceView(MethodView):
                     #    job.addInstance(jI,inst=opts.inst)
                     # else:
                     job.addInstance(jI)
-                    logger.debug("added instance %i to job %s",(j+1),job.id)
+                    logger.info("added instance %i to job %s",(j+1),job.id)
             # print len(job.jobInstances)
             job.update()
             return dumps({"result": "ok"})
