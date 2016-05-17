@@ -149,6 +149,7 @@ class JobInstanceView(MethodView):
             try:
                 dout = job.getBody()
             except Exception as err:
+                logger.error(err)
                 return dumps({"result":"nok", "error":err})
             if 'type' in dout['atts']:
                 job.type = unicode(dout['atts']['type'])
@@ -165,6 +166,7 @@ class JobInstanceView(MethodView):
                         # else:
                         job.addInstance(jI)
                     except Exception as err:
+                        logger.error(err)
                         return dumps({"result":"nok", "error":err})
                     logger.info("added instance %i to job %s",(j+1),job.id)
             # print len(job.jobInstances)
