@@ -154,14 +154,17 @@ class JobInstanceView(MethodView):
                 job.type = unicode(dout['atts']['type'])
             if 'release' in dout['atts']:
                 job.release = dout['atts']['release']
-            logger.info('extracted body %s',dout)
+            #logger.info('extracted body %s',dout)
             if ninst:
                 for j in range(ninst):
-                    jI = JobInstance(body=dumps(override_dict), site=site)
-                    # if opts.inst and j == 0:
-                    #    job.addInstance(jI,inst=opts.inst)
-                    # else:
-                    job.addInstance(jI)
+                    try:
+                        jI = JobInstance(body=dumps(override_dict), site=site)
+                        # if opts.inst and j == 0:
+                        #    job.addInstance(jI,inst=opts.inst)
+                        # else:
+                        job.addInstance(jI)
+                    except Exception as err:
+                        return dumps({"result":"nok", "error":err})
                     logger.info("added instance %i to job %s",(j+1),job.id)
             # print len(job.jobInstances)
             job.update()
