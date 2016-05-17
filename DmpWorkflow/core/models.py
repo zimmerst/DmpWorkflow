@@ -75,11 +75,14 @@ class Job(db.Document):
     def getData(self):
         return self._data
 
-    def getDependency(self):
+    def getDependency(self, pretty=False):
         if not len(self.dependencies):
             return ()
         else:
-            return tuple(self.dependencies)
+            if pretty:
+                return tuple([d.slug for d in self.dependencies])
+            else: 
+                return tuple(self.dependencies) 
 
     def getNevents(self):
         #log.warning("FIXME: need to implement fast query")
