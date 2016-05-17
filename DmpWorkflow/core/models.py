@@ -70,6 +70,7 @@ class Job(db.Document):
         bdy_file = StringIO(deepcopy(bdy))
         self.body.delete()
         self.body.put(bdy_file,content_type="application/xml")
+        self.update()
         return parseJobXmlToDict(bdy)
 
     def getInstance(self, _id):
