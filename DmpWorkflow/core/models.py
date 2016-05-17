@@ -66,7 +66,7 @@ class Job(db.Document):
 
     def getBody(self):
         # os.environ["DWF_JOBNAME"] = self.title
-        bdy = self.body.read()
+        bdy = self.body.get().read()
         bdy_file = StringIO(deepcopy(bdy))
         self.body.delete()
         self.body.put(bdy_file,content_type="application/xml")
