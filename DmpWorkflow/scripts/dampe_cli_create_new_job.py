@@ -18,6 +18,7 @@ def main(args=None):
     parser.add_argument("-i", "--input", dest="xml", help="Path to job XML", required=True)
     parser.add_argument("-n", '--name', help="task Name", dest="name")
     parser.add_argument("-s", '--site', help="site to run at", dest="site", default='local', choices=SITES)
+    parser.add_argument("-d", '--depends', help="depending tasks, separate by comma", dest="depends", default="")
     opts = parser.parse_args(args)
     xmlFile = unicode(opts.xml)
     assert isfile(opts.xml), "must be an accessible file."
@@ -32,8 +33,11 @@ def main(args=None):
     t_type = unicode(atts['type'])
     site = unicode(atts['site'])
     print atts        
+    dependent_tasks = opts.depends.split(",")
     res = post("%s/job/" % DAMPE_WORKFLOW_URL,
-                        data={"taskname": taskName, "t_type": t_type, "n_instances": n_instances, "site" : site},
+                        data={"taskname": taskName, "t_type": t_type, 
+                              "n_instances": n_instances, "site" : site,
+                              "depends":dependent_tasks},            
                         files={"file":open(xmlFile, "rb")})
     res.raise_for_status()
     if res.json().get("result", "nok") == "ok":

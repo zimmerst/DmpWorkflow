@@ -40,10 +40,12 @@ class Job(db.Document):
     jobInstances = db.ListField(db.ReferenceField("JobInstance"))
     archived = db.BooleanField(verbose_name="task closed", required=False, default=False)
     comment = db.StringField(max_length=1024, required=False, default="N/A")
+
     def addDependency(self, job):
         if not isinstance(job, Job):
             raise Exception("Must be job to be added")
         self.dependencies.append(job)
+    
     def archiveJob(self):
         self.archived = True
 

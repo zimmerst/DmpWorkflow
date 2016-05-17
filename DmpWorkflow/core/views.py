@@ -1,5 +1,6 @@
 import logging
 from copy import deepcopy
+from os.path import basename
 from json import loads, dumps
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
@@ -90,6 +91,7 @@ class JobView(MethodView):
             jobdesc = request.files.get("file",None)
             t_type = request.form.get("t_type",None)
             site = request.form.get("site","local")
+            depends = request.form.get("depends","None")
             n_instances = int(request.form.get("n_instances","0"))
             if taskname is None:
                 logger.exception("task name must be defined.")
@@ -111,6 +113,14 @@ class JobView(MethodView):
                     job.addInstance(jI)
                     logger.debug("added instance %i to job %s",(j+1),job.id)
             # print len(job.jobInstances)
+            if depends!="None": 
+                depends = depends.split(",")
+                for d in depends:
+                    dependent_job = Job.objects.filter(slug=unicode(d))
+                    if len(dependent_job):
+                        job.addDependency(dependent_job[0])
+                    else:
+                        logger.warning("could not find job dependency %s for job %s",d,job.slug)
             job.update()
             return dumps({"result": "ok", "jobID": str(job.id)})
         except Exception as err:
@@ -259,19 +269,24 @@ class NewJobs(MethodView):
         allJobs = Job.objects.filter(execution_site=batchsite)
         logger.debug("allJobs = %s",str(allJobs))
         for job in allJobs:
+            dependent_tasks = job.getDependency()
             newJobs = JobInstance.objects.filter(job=job, status=u"New").limit(int(_limit))
             #logger.debug("newJobs: %s",str(newJobs))
             if len(newJobs):
                 logger.debug("found %i new instances for job %s",len(newJobs),str(job.title))
-                dJob = DmpJob(job.id, job.body.read(), title=job.title)
+                dJob = DmpJob(job.id, body=None, title=job.title)
+                for dt in dependent_tasks:
+                    dJob.InputFiles+= [{"source":fil, "target":basename(fil)} for fil in dt.getOutputFiles()]
+                    dJob.MetaData+=[{"name":k, "value":v, "type":"string"} for k, v in dt.getMetaDataVariables().iteritems()]
+                dJob.setBodyFromDict(job.getBody())
                 for j in newJobs:
-                    #if j.checkDependencies():
-                    #j.getResourcesFromMetadata()
-                    dInstance = deepcopy(dJob)
-                    dInstance.setInstanceParameters(j.instanceId, j.body)
-                    newJobInstances.append(dInstance.exportToJSON())
-                    #else:
-                    #    logger.debug("dependencies not fulfilled yet")
+                    if j.checkDependencies():
+                        j.getResourcesFromMetadata()
+                        dInstance = deepcopy(dJob)
+                        dInstance.setInstanceParameters(j.instanceId, j.body)
+                        newJobInstances.append(dInstance.exportToJSON())
+                    else:
+                        logger.debug("dependencies not fulfilled yet")
                 logger.debug("found %i new jobs after dependencies",len(newJobs))
         return dumps({"result":"ok", "jobs": newJobInstances})
 
