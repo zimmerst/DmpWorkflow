@@ -151,6 +151,7 @@ class JobInstanceView(MethodView):
                 job.type = unicode(dout['atts']['type'])
             if 'release' in dout['atts']:
                 job.release = dout['atts']['release']
+            logger.info('extracted body %s',dout)
             if ninst:
                 for j in range(ninst):
                     jI = JobInstance(body=dumps(override_dict), site=site)
