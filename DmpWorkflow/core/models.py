@@ -4,8 +4,10 @@ from datetime import datetime
 import sys
 from mongoengine import CASCADE
 from json import loads
+from copy import deepcopy
 from flask import url_for
 from ast import literal_eval
+from StringIO import StringIO
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
 from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler
@@ -64,7 +66,10 @@ class Job(db.Document):
 
     def getBody(self):
         # os.environ["DWF_JOBNAME"] = self.title
-        return parseJobXmlToDict(self.body.read())
+        bdy = self.body.read()
+        bdy_file = StringIO(deepcopy(bdy))
+        self.body.put(bdy_file,content_type="application/xml")
+        return parseJobXmlToDict(bdy)
 
     def getInstance(self, _id):
         jI = JobInstance.objects.filter(job=self, instanceId=_id)
