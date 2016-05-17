@@ -156,6 +156,7 @@ class JobInstanceView(MethodView):
                 job.release = dout['atts']['release']
             #logger.info('extracted body %s',dout)
             if ninst:
+                logger.info("adding $i instances",ninst)
                 for j in range(ninst):
                     try:
                         jI = JobInstance(body=dumps(override_dict), site=site)
