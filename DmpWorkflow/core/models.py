@@ -190,7 +190,7 @@ class JobInstance(db.Document):
     def __evalBody(self,includeParent=False):
         evalKeys = ['InputFiles','OutputFiles','MetaData']
         meta = {}
-        if includeParent: meta.update(self.job.__evalBody())
+        if includeParent: meta.update(self.job._Job__evalBody())
         inst_body = literal_eval(self.body)
         if not isinstance(inst_body, dict):
             raise Exception("Error in parsing body of JobInstance, not of type DICT")
