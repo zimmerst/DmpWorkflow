@@ -71,11 +71,11 @@ class DmpJob(object):
         self.setBodyFromDict(el)
 
     def setBodyFromDict(self,el):
-        self.InputFiles = el['InputFiles']
-        self.OutputFiles = el['OutputFiles']
-        self.MetaData = el['MetaData']
+        self.InputFiles  += el['InputFiles']
+        self.OutputFiles += el['OutputFiles']
+        self.MetaData    += el['MetaData']
         self.exec_wrapper = el['script']
-        self.executable = el['executable']
+        self.executable   = el['executable']
         self.__dict__.update(el['atts'])
         
     def setInstanceParameters(self, instance_id, JobInstance_body):

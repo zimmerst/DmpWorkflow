@@ -224,7 +224,7 @@ class JobInstance(db.Document):
         if isinstance(metadata,dict): 
             if 'MetaData' in metadata: md = metadata['MetaData']
         if self.body != "":
-            instance_dict = loads(self.body)[0]
+            instance_dict = literal_eval(self.body)
             if 'MetaData' in instance_dict:
                 md+=instance_dict['MetaData'] 
         # next, set the values
