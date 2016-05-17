@@ -71,3 +71,7 @@ Note that there are a few reserved metadata variables:
   * BATCH\_OVERRIDE\_QUEUE - the queue to be used, overrides BATCH_QUEUE
   * BATCH\_OVERRIDE\_SYSTEM	- shouldn't be used.
 These variables can be used to control the submission behavior for each batch job.
+
+Hierarchy of variable resolution:
+---------------------------------
+first comes JobInstance, overrides anything that is defined at Job level. if neither instance nor job provide variables, top level variables are inherited from depedent parent task (if defined)

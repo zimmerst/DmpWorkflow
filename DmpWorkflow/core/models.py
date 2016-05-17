@@ -47,6 +47,31 @@ class Job(db.Document):
     def archiveJob(self):
         self.archived = True
 
+    def __evalBody(self):
+        evalKeys = ['InputFiles','OutputFiles','MetaData']
+        meta = {}
+        jobBody = self.getBody()
+        for k in evalKeys:  
+            assert k in jobBody.keys(), "error, missing key %s in job body"%k
+            meta[k]=jobBody[k]
+        return meta
+    
+    def getOutputFiles(self,includeJob=True):
+        m = self.__evalBody()
+        out = [v['target'] for v in m['OutputFiles']]
+        return out
+    
+    def getInputFiles(self,includeJob=True):
+        m = self.__evalBody()
+        out = [v['source'] for v in m['InputFiles']]
+        return out
+
+    def getMetaDataVariables(self,includeJob=True):
+        m = self.__evalBody()
+        out = {}
+        for v in m['MetaData']: out.update({v['name']:v['value']})
+        return out
+
     def getData(self):
         return self._data
 
@@ -165,11 +190,7 @@ class JobInstance(db.Document):
     def __evalBody(self,includeParent=False):
         evalKeys = ['InputFiles','OutputFiles','MetaData']
         meta = {}
-        if includeParent:
-            jobBody = self.job.getBody()
-            for k in evalKeys: 
-                assert k in jobBody.keys(), "error, missing key %s in job body"%k
-                meta[k]=jobBody[k]
+        if includeParent: meta.update(self.job.__evalBody())
         inst_body = literal_eval(self.body)
         if not isinstance(inst_body, dict):
             raise Exception("Error in parsing body of JobInstance, not of type DICT")
@@ -264,7 +285,7 @@ class JobInstance(db.Document):
         isReady = True
         for task in dependent_tasks:
             inst = task.getInstance(self.instanceId)
-            if inst.status != check_status: isReady = False
+            if inst.status != check_status: isReady = False        
         return isReady
 
 #    def parseBodyXml(self,key="MetaData"):

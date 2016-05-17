@@ -66,14 +66,18 @@ class DmpJob(object):
 
     def extract_xml_metadata(self, xmldoc):
         """ given the structured job definition, read out and set variables """
+        if xmldoc is None: return
         el = parseJobXmlToDict(xmldoc)
+        self.setBodyFromDict(el)
+
+    def setBodyFromDict(self,el):
         self.InputFiles = el['InputFiles']
         self.OutputFiles = el['OutputFiles']
         self.MetaData = el['MetaData']
         self.exec_wrapper = el['script']
         self.executable = el['executable']
         self.__dict__.update(el['atts'])
-
+        
     def setInstanceParameters(self, instance_id, JobInstance_body):
         """ extract jobInstanceParameters to fully define job """
         body = JobInstance_body
