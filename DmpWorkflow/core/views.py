@@ -136,9 +136,12 @@ class JobInstanceView(MethodView):
         logger.debug("request %s",str(request))
         dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         taskName = request.form.get("taskname",None)
+        tasktype = request.form.get("tasktype",None)
         ninst = int(request.form.get("n_instances","0"))
         override_dict = request.form.get("override_dict",dummy_dict)
-        jobs = Job.objects.filter(title=taskName)
+        if taskName is None and tasktype is None:
+            return dumps({"result":"nok","error":"query got empty taskname & type"})
+        jobs = Job.objects.filter(title=taskName, type=tasktype)
         if len(jobs):
             logger.debug("Found job")
             job = jobs[0]

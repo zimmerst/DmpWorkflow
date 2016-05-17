@@ -15,13 +15,14 @@ def main(args=None):
     description = "create new instances for job in DB"
     parser = ArgumentParser(usage=usage, description=description)
     parser.add_argument("-n", "--name", help="task name", dest="name")
+    parser.add_argument("-t", "--type", help="task type", dest="tasktype")
     parser.add_argument("-i", "--instances", help="number of instances", dest="inst", type=int)
     opts = parser.parse_args(args)
     taskName = opts.name
     environ['DWF_JOBNAME'] = taskName
     ninst = opts.inst
     res = post("%s/jobInstances/" % DAMPE_WORKFLOW_URL,
-                        data={"taskname": taskName, "n_instances": ninst})
+                        data={"taskname": taskName, "tasktype": opts.tasktype, "n_instances": ninst})
     res.raise_for_status()
     res = res.json()
     if res.get("result", "nok") == "ok":
