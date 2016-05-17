@@ -68,6 +68,7 @@ class Job(db.Document):
         # os.environ["DWF_JOBNAME"] = self.title
         bdy = self.body.read()
         bdy_file = StringIO(deepcopy(bdy))
+        self.body.delete()
         self.body.put(bdy_file,content_type="application/xml")
         return parseJobXmlToDict(bdy)
 
