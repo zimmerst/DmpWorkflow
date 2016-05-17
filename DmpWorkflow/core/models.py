@@ -5,6 +5,7 @@ import sys
 from mongoengine import CASCADE
 from json import loads
 from flask import url_for
+from ast import literal_eval
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
 from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler
@@ -153,6 +154,39 @@ class JobInstance(db.Document):
     log = db.StringField(verbose_name="log", required=False, default="")
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)",required=False, default= -1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)",required=False, default= -1.)
+    
+    def __evalBody(self,includeParent=False):
+        evalKeys = ['InputFiles','OutputFiles','MetaData']
+        meta = {}
+        if includeParent:
+            jobBody = self.job.getBody()
+            for k in evalKeys: 
+                assert k in jobBody.keys(), "error, missing key %s in job body"%k
+                meta[k]=jobBody[k]
+        inst_body = literal_eval(self.body)
+        if not isinstance(inst_body, dict):
+            raise Exception("Error in parsing body of JobInstance, not of type DICT")
+        for k in evalKeys:
+            assert k in inst_body.keys(), "error, missing key %s in instance body"%k 
+            if len(inst_body[k]):
+                meta[k]+=inst_body[k]
+        return meta
+    
+    def getOutputFiles(self,includeJob=True):
+        m = self.__evalBody(includeParent=includeJob)
+        out = [v['target'] for v in m['OutputFiles']]
+        return out
+    
+    def getInputFiles(self,includeJob=True):
+        m = self.__evalBody(includeParent=includeJob)
+        out = [v['source'] for v in m['InputFiles']]
+        return out
+
+    def getMetaDataVariables(self,includeJob=True):
+        m = self.__evalBody(includeParent=includeJob)
+        out = {}
+        for v in m['MetaData']: out.update({v['name']:v['value']})
+        return out
 
     def getResourcesFromMetadata(self):
         md = []
