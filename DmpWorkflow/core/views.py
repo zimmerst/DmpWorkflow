@@ -280,8 +280,9 @@ class NewJobs(MethodView):
         _limit = int(request.form.get("limit",1000))
         newJobInstances = []
         allJobs = Job.objects.filter(execution_site=batchsite)
-        logger.debug("allJobs = %s",str(allJobs))
+        logger.info("allJobs = %s",str(allJobs))
         for job in allJobs:
+            logger.info("processing job %s",job.slug)
             dependent_tasks = job.getDependency()
             logger.info("dependent tasks: ",dependent_tasks)
             newJobs = JobInstance.objects.filter(job=job, status=u"New").limit(int(_limit))
