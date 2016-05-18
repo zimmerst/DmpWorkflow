@@ -28,7 +28,7 @@ def __prepare(job, log, resources=None):
         src = expandvars(fi['source'])
         tg = expandvars(fi['target'])
         try:
-            safe_copy(src, tg, attempts=4, sleep='4s')
+            safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
         except IOError, e:
             try:
                 job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e), resources=resources)
@@ -70,12 +70,14 @@ def __postRun(job, log, resources=None):
             log.info("creating output directory %s",_dir)
             mkdir(_dir)
         try:
-            safe_copy(src, tg, attempts=4, sleep='4s')
+            safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
+            job.registerDS(filename=tg)
         except IOError, e:
             try:
                 job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e), resources=resources)
             except Exception as err: log.exception(err)
             if not DEBUG_TEST: return 6
+        ## add registerDS
     log.info("successfully completed staging.")
     return 0
 

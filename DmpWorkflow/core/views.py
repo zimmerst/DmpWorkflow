@@ -7,7 +7,7 @@ from flask.ext.mongoengine.wtf import model_form
 from datetime import datetime
 from flask.views import MethodView
 from DmpWorkflow.core.DmpJob import DmpJob
-from DmpWorkflow.core.models import Job, JobInstance, HeartBeat
+from DmpWorkflow.core.models import Job, JobInstance, HeartBeat, DataFile
 
 jobs = Blueprint('jobs', __name__, template_folder='templates')
 
@@ -352,7 +352,50 @@ class TestView(MethodView):
             return dumps({"result":"nok","error":ex})
         return dumps({"result":"ok","beats":[b.hostname for b in beats]})
 
+class DataCatalog(MethodView):
+    def post(self):
+        logger.debug("DataCatalog: request form %s",str(request.form))
+        filename = str(request.form.get("filename","None"))
+        site = str(request.form.get("site","None"))
+        action= str(request.form.get("action",'register'))
+        status= str(request.form.get("status","New"))
+        filetype= str(request.form.get("filetype","root"))
+        if action not in ['register','setStatus','delete']:
+            logger.error("action not supported")
+            return dumps({"result":"nok","error":"action not supported"})
+        if site == "None" and filename == "None":
+            logger.info("request empty")
+            return dumps({"result":"nok","error":"request empty"})
+        try:
+            df = None
+            if action == 'register':
+                df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
+            else:
+                df = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
+                if action == 'setStatus':
+                    df.setStatus(status)
+                else:
+                    logger.info("requested removal!")
+                    df.delete()                    
+        except Exception as ex:
+            logger.error("failure during DataCatalog POST. \n%s",ex)
+            return dumps({"result":"nok","error":ex})
+        return dumps({"result": "ok", "docId": str(df.id)})
         
+    def get(self):
+        limit = int(request.form.get("limit",1000))
+        site = str(request.form.get("site","None"))
+        status= str(request.form.get("status","New"))
+        filetype=str(request.form.get("filetype","root"))
+        filetype=
+        try:
+            dfs = DataFile.objects.filter(site=site, status=status, filetype=filetype).limit(limit)
+            logger.debug("found %i files matching query",len(dfs))
+        except Exception as ex:
+            logger.error("failure during DataCatalog GET. \n%s",ex)
+            return dumps({"result":"nok","error":ex})
+        return dumps({"result":"ok","files":[f.filename for f in dfs]})
+
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
 jobs.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
@@ -362,5 +405,6 @@ jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), me
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
 jobs.add_url_rule("/watchdog/",view_func=JobResources.as_view('watchdog'), methods=["GET"])
 jobs.add_url_rule("/testDB/", view_func=TestView.as_view('testDB'), methods=["GET","POST"])
+jobs.add_url_rule("/datacat/", view_func=DataCatalog.as_view('datacat'), methods=["GET","POST"])
 
 #jobs.add_url_rule('/InstanceDetail', view_func=InstanceView.as_view('instancedetail'), methods=['GET'])

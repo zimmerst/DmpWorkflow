@@ -16,6 +16,35 @@ from DmpWorkflow.utils.tools import parseJobXmlToDict, convertHHMMtoSec, sortTim
 if not cfg.getboolean("site", "traceback"): sys.excepthook = exceptionHandler
 log = logging.getLogger("core")
 
+class DataFile(db.Document):
+    my_choices = ("New","Copied","Orphaned")
+    created_at = db.DateTimeField(default=datetime.now, required=True)
+    filename = db.StringField(max_length=1024, required=True)
+    site = db.StringField(max_length=24, required=True)
+    filetype = db.StringField(max_length=16, required=False, default="root")
+    status = db.StringField(max_length=16, default="New")
+
+    def setStatus(self,stat):
+        if not stat in self.my_choices:
+            raise Exception("status not supported in DB")
+        self.status = stat
+
+    def save(self):
+        req = DataFile.objects.filter(filename=self.filename, site=self.site, id=self.id)
+        if req:
+            raise Exception("a file with the specified properties exists already, should never happen")
+        super(DataFile, self).save()
+
+    def update(self):
+        log.debug("calling update on DataFile")
+        super(DataFile, self).save()
+
+    meta = {
+            'allow_inheritance': True,
+            'indexes': ['-created_at', 'hostname'],
+            'ordering': ['-created_at']
+            }
+
 class HeartBeat(db.Document):
     ''' dummy class to test DB connection from remote workers '''    
     created_at = db.DateTimeField(default=datetime.now, required=True)

@@ -16,6 +16,7 @@ from datetime import timedelta
 from copy import deepcopy
 from StringIO import StringIO
 from xml.dom import minidom as xdom
+from hashlib import md5
 
 def sortTimeStampList(my_list,timestamp='time', reverse=False):
     if not len(my_list): return []
@@ -122,7 +123,8 @@ def Ndigits(val, size=6):
     return _sixDigit.zfill(size)
 
 
-def safe_copy(infile, outfile, sleep=10, attempts=10, debug=False):
+def safe_copy(infile, outfile, sleep=10, attempts=10, debug=False, checksum=False):
+    xrootd=False
     if debug:
         print 'cp %s -> %s' % (infile, outfile)
     infile = infile.replace("@", "") if infile.startswith("@") else infile
@@ -131,17 +133,24 @@ def safe_copy(infile, outfile, sleep=10, attempts=10, debug=False):
     if infile.startswith("root:"):
         print 'file is on xrootd - switching to XRD library'
         cmnd = "xrdcp %s %s" % (infile, outfile)
+        xrootd=True
     else:
-        if "$" in infile: infile = expandvars(infile)
-        if "$" in outfile: outfile = expandvars(outfile)
+        infile = expandvars(infile)
+        outfile = expandvars(outfile)
         cmnd = "cp %s %s" % (infile, outfile)
+    md5in = md5out = None
+    if checksum and not xrootd: md5in=md5sum(infile, blocksize=4096)
     i = 1
     while i < attempts:
         if (debug and i > 0):             
             print "Attempting to copy file..."
         status = sub.call(shlex_split(cmnd))
         if status == 0:
-            return status
+            if checksum and not xrootd: md5out=md5sum(outfile,blocksize=4096)
+            if md5in == md5out: return status
+            else: 
+                print '%i - copy successful but checksum does not match, try again in 5s'
+                time_sleep(5)
         else:
             print "%i - Copy failed; sleep %ss" % (i, sleep)
             time_sleep(sleep)
@@ -226,6 +235,13 @@ class ResourceMonitor(object):
         mem = self.memory
         return "usertime=%s systime=%s mem %s Mb"%(user,sys,mem)
 
+def md5sum(filename, blocksize=65536):
+    hash = md5()
+    with open(filename, "rb") as f:
+        for block in iter(lambda: f.read(blocksize), b""):
+            hash.update(block)
+    dig = hash.hexdigest()
+    return dig
 
 def camelize(myStr):
     d = "".join(x for x in str(myStr).title() if not x.isspace())

@@ -39,6 +39,19 @@ class DmpJob(object):
         self.extract_xml_metadata(body)
         self.__updateEnv__()
     
+    def registerDS(self,filename=None):
+        site = cfg.get("site","name")
+        if filename is None: 
+            files = [fi['target'] for fi in self.OutputFiles]
+        else:
+            files = [filename]
+        for fi in files:
+            tg = oPath.expandvars(fi)     
+            res = Rpost("%s/datacat/" % DAMPE_WORKFLOW_URL, data = {"filename":tg, "site":site , "action":"register"})
+            res.raise_for_status()
+            if not res.json().get("result", "nok") == "ok":
+                raise Exception(res.json().get("error","No error provided."))
+            
     def getWorkDir(self):
         wdROOT = cfg.get("site","workdir")
         wd = oPath.join(wdROOT,str(self.title),self.getSixDigits(asPath=True))
