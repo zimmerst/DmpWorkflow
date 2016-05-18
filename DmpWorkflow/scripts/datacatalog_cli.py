@@ -46,7 +46,7 @@ def main(args=None):
                                                                   "limit":opts.limit})
         else:
             dd = {"site":opts.site, "action":action,"filetype": filetype, 
-                  "status":'New' if action == 'register' else status, 'filename':abspath(filename)}
+                  "status":'New' if action == 'register' else status, 'filename':filename}
             res = post("%s/datacat/" % DAMPE_WORKFLOW_URL, data = dd)
         if res is None: return
         res.raise_for_status()
