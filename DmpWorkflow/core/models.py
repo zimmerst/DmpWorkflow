@@ -376,7 +376,7 @@ class JobInstance(db.Document):
         super(JobInstance, self).save()
 
     def save(self):
-        req = JobInstance.objects.filter(instanceId=self.instanceId)
+        req = JobInstance.objects.filter(job=self.job,instanceId=self.instanceId)
         if req:
             raise Exception("instance exists already.")
         super(JobInstance, self).save()

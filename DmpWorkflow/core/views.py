@@ -157,7 +157,7 @@ class JobInstanceView(MethodView):
                 job.release = dout['atts']['release']
             #logger.info('extracted body %s',dout)
             if ninst:
-                logger.info("adding $i instances",ninst)
+                logger.info("adding %i instances",ninst)
                 for j in range(ninst):
                     try:
                         jI = JobInstance(body=dumps(override_dict), site=site)
@@ -167,7 +167,7 @@ class JobInstanceView(MethodView):
                         job.addInstance(jI)
                     except Exception as err:
                         logger.error(err)
-                        return dumps({"result":"nok", "error":err})
+                        return dumps({"result":"nok", "error":str(err)})
                     logger.info("added instance %i to job %s",(j+1),job.id)
             # print len(job.jobInstances)
             job.update()
