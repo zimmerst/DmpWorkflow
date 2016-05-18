@@ -283,24 +283,29 @@ class NewJobs(MethodView):
         logger.debug("allJobs = %s",str(allJobs))
         for job in allJobs:
             dependent_tasks = job.getDependency()
+            logger.info("dependent tasks: ",dependent_tasks)
             newJobs = JobInstance.objects.filter(job=job, status=u"New").limit(int(_limit))
-            #logger.debug("newJobs: %s",str(newJobs))
+            logger.info("#newJobs: %i",len(newJobs))
             if len(newJobs):
                 logger.debug("found %i new instances for job %s",len(newJobs),str(job.title))
                 dJob = DmpJob(job.id, body=None, title=job.title)
                 for dt in dependent_tasks:
                     dJob.InputFiles+= [{"source":fil, "target":basename(fil)} for fil in dt.getOutputFiles()]
                     dJob.MetaData+=[{"name":k, "value":v, "type":"string"} for k, v in dt.getMetaDataVariables().iteritems()]
+                    logger.info("processed dependencies for job %s",dt)
                 dJob.setBodyFromDict(job.getBody())
+                logger.info("setBodyFromDict")
                 for j in newJobs:
                     if j.checkDependencies():
+                        logger.info("depedency satisfied")
                         j.getResourcesFromMetadata()
+                        logger.info("resources read out")
                         dInstance = deepcopy(dJob)
                         dInstance.setInstanceParameters(j.instanceId, j.body)
                         newJobInstances.append(dInstance.exportToJSON())
                     else:
-                        logger.debug("dependencies not fulfilled yet")
-                logger.debug("found %i new jobs after dependencies",len(newJobs))
+                        logger.info("dependencies not fulfilled yet")
+                logger.info("found %i new jobs after dependencies",len(newJobs))
         return dumps({"result":"ok", "jobs": newJobInstances})
 
 class JobResources(MethodView):
