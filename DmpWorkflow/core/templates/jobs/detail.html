@@ -10,9 +10,9 @@
   <h1>{{ job.title }}</h1> 
   <strong> type:</strong> {{ job.type }} 
   <strong> Release Tag:</strong> {{ job.release }} 
-  <strong> Number of Events on File: </strong> {{ job.getNevents() }} 
-  <strong> Dependencies on other Jobs: </strong> {{ job.getDependency(pretty=True) }} 
-  <strong> slug: </strong> {{ job.slug }} 
+  <strong> Number of Events on File: </strong> {{ job.getNevents() }}  
+  <strong> slug: </strong> {{ job.slug }} </br>
+  <strong> Dependencies on other Jobs: </strong> {{ job.getDependency(pretty=True) }}
   </br>
   <strong> Comment: </strong> {{ job.comment }}
   </br>
