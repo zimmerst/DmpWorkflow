@@ -184,6 +184,13 @@ class Job(db.Document):
 
     def __unicode__(self):
         return self.title
+    
+    def delete(self):
+        instances = JobInstance.objects.filter(job=self)
+        self.body.delete()
+        if len(instances):
+            [ji.delete() for ji in instances]
+        super(Job,self).delete()
 
     def save(self):
         req = Job.objects.filter(title=self.title, type=self.type)
