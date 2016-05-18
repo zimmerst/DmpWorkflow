@@ -369,27 +369,34 @@ class DataCatalog(MethodView):
             return dumps({"result":"nok","error":"request empty"})
         try:
             df = None
-            if action == 'register':
-                logger.debug("request a new file to be registered")
-                df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
-                df.save()
-            else:
-                fileQuery = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
-                if len(fileQuery):
-                    df = fileQuery[0]
-                    if action == 'setStatus':
-                        df.setStatus(status)
-                        df.update()
-                    else:
-                        logger.info("requested removal!")
-                        df.delete()
+            files = [filename]
+            if "," in filename:
+                files = filename.split(",")
+            touched_files = []
+            for f in files:
+                if action == 'register':
+                    logger.debug("request a new file to be registered")
+                    df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
+                    df.save()
                 else:
-                    logger.debug("cannot find queried input file")
-                    return dumps({"result":"nok", "error": "cannot find file in DB"})           
+                    fileQuery = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
+                    if len(fileQuery):
+                        df = fileQuery[0]
+                        if action == 'setStatus':
+                            df.setStatus(status)
+                            df.update()
+                        else:
+                            logger.info("requested removal!")
+                            df.delete()
+                    else:
+                        logger.debug("cannot find queried input file")
+                        return dumps({"result":"nok", "error": "cannot find file in DB"})           
+                if df is not None: touched_files.append(df)
         except Exception as ex:
             logger.error("failure during DataCatalog POST. \n%s",ex)
             return dumps({"result":"nok","error":str(ex)})
-        return dumps({"result": "ok", "docId": filename if action== 'delete' else str(df.id)})
+        return dumps({"result": "ok", 
+                      "docId": [d.filename if action== 'delete' else str(d.id) for d in touched_files]})
         
     def get(self):
         limit = int(request.form.get("limit",1000))
