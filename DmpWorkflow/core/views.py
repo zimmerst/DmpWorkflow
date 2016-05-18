@@ -360,6 +360,7 @@ class DataCatalog(MethodView):
         action= str(request.form.get("action",'register'))
         status= str(request.form.get("status","New"))
         filetype= str(request.form.get("filetype","root"))
+        logger.info("filename %s status %s",filename, status)
         if action not in ['register','setStatus','delete']:
             logger.error("action not supported")
             return dumps({"result":"nok","error":"action not supported"})
@@ -373,22 +374,22 @@ class DataCatalog(MethodView):
                 df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
                 df.save()
             else:
-                df = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
-                if len(df):
-                    
+                fileQuery = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
+                if len(fileQuery):
+                    df = fileQuery[0]
                     if action == 'setStatus':
-                        df[0].setStatus(status)
-                        df[0].update()
+                        df.setStatus(status)
+                        df.update()
                     else:
                         logger.info("requested removal!")
-                        df[0].delete()
+                        df.delete()
                 else:
                     logger.debug("cannot find queried input file")
-                    dumps({"result":"nok", "error": "cannot find file in DB"})           
+                    return dumps({"result":"nok", "error": "cannot find file in DB"})           
         except Exception as ex:
             logger.error("failure during DataCatalog POST. \n%s",ex)
-            return dumps({"result":"nok","error":ex})
-        return dumps({"result": "ok", "docId": str(df.id)})
+            return dumps({"result":"nok","error":str(ex)})
+        return dumps({"result": "ok", "docId": filename if action== 'delete' else str(df.id)})
         
     def get(self):
         limit = int(request.form.get("limit",1000))
@@ -400,7 +401,7 @@ class DataCatalog(MethodView):
             logger.debug("found %i files matching query",len(dfs))
         except Exception as ex:
             logger.error("failure during DataCatalog GET. \n%s",ex)
-            return dumps({"result":"nok","error":ex})
+            return dumps({"result":"nok","error":str(ex)})
         return dumps({"result":"ok","files":[f.filename for f in dfs]})
 
 # Register the urls

@@ -36,10 +36,8 @@ def main(args=None):
                                                                   "filetype":filetype,
                                                                   "limit":opts.limit})
         else:
-            dd = {"site":opts.site, "action":action,"filetype": filetype, "status":status}
-            if action == 'register': 
-                dd['filename']=abspath(filename)
-                dd['status']='New'
+            dd = {"site":opts.site, "action":action,"filetype": filetype, 
+                  "status":'New' if action == 'register' else status, 'filename':abspath(filename)}
             res = post("%s/datacat/" % DAMPE_WORKFLOW_URL, data = dd)
         if res is None: return
         res.raise_for_status()
@@ -50,7 +48,8 @@ def main(args=None):
                 print 'found %i files'%len(files)
                 for f in files: print f
             else: print "POST %s %s"%(action,result.get("docId","NONE"))
-                
+        else:
+            raise Exception(result.get("error","Not provided"))
     except Exception as err:
         print 'ERROR: %s'%err          
 
