@@ -46,6 +46,7 @@ def main(args=None):
         if res.json().get("result", "nok") == "ok":
             if action == 'list':
                 files = res.json().get("files")
+                print 'found %i files'%len(files)
                 for f in files: print f
     except Exception as err:
         print 'ERROR: %s'%err          
