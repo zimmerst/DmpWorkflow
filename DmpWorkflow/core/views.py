@@ -369,6 +369,7 @@ class DataCatalog(MethodView):
         try:
             df = None
             if action == 'register':
+                logger.debug("request a new file to be registered")
                 df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
                 df.save()
             else:

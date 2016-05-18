@@ -43,11 +43,14 @@ def main(args=None):
             res = post("%s/datacat/" % DAMPE_WORKFLOW_URL, data = dd)
         if res is None: return
         res.raise_for_status()
-        if res.json().get("result", "nok") == "ok":
+        result = res.json()
+        if result.get("result", "nok") == "ok":
             if action == 'list':
-                files = res.json().get("files")
+                files = result.get("files",[])
                 print 'found %i files'%len(files)
                 for f in files: print f
+            else: print "POST %s %s"%(action,result.get("docId","NONE"))
+                
     except Exception as err:
         print 'ERROR: %s'%err          
 
