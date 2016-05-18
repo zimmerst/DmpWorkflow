@@ -4,6 +4,7 @@ Created on May 18, 2016
 @author: zimmer
 @brief: datacatalog script
 '''
+from glob import glob
 from requests import post, get
 from os.path import expandvars, abspath
 from argparse import ArgumentParser
@@ -26,6 +27,12 @@ def main(args=None):
     action   = opts.action
     site     = opts.site
     filename = expandvars(opts.filename) if opts.expandVars else opts.filename   
+    files = [opts.filename]
+    if "*" in opts.filename: files = glob(opts.filename)
+    if opts.expandVars:
+        files = [expandvars(f) for f in files]
+    if len(files)>1:
+        filename = ",".join(files)
     filetype = opts.filetype
     status   = opts.status 
     try:
