@@ -387,7 +387,6 @@ class DataCatalog(MethodView):
         site = str(request.form.get("site","None"))
         status= str(request.form.get("status","New"))
         filetype=str(request.form.get("filetype","root"))
-        filetype=
         try:
             dfs = DataFile.objects.filter(site=site, status=status, filetype=filetype).limit(limit)
             logger.debug("found %i files matching query",len(dfs))
