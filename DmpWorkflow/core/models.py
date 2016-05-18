@@ -25,7 +25,7 @@ class DataFile(db.Document):
     status = db.StringField(max_length=16, default="New")
 
     def setStatus(self,stat):
-        if not stat in self.my_choices:
+        if stat not in self.my_choices:
             raise Exception("status not supported in DB")
         self.status = stat
 
