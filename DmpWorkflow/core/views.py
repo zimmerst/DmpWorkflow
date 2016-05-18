@@ -374,12 +374,17 @@ class DataCatalog(MethodView):
                 df.save()
             else:
                 df = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
-                if action == 'setStatus':
-                    df.setStatus(status)
-                    df.update()
+                if len(df):
+                    
+                    if action == 'setStatus':
+                        df[0].setStatus(status)
+                        df[0].update()
+                    else:
+                        logger.info("requested removal!")
+                        df[0].delete()
                 else:
-                    logger.info("requested removal!")
-                    df.delete()                    
+                    logger.debug("cannot find queried input file")
+                    dumps({"result":"nok", "error": "cannot find file in DB"})           
         except Exception as ex:
             logger.error("failure during DataCatalog POST. \n%s",ex)
             return dumps({"result":"nok","error":ex})
