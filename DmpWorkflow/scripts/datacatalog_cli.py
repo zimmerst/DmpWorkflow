@@ -5,7 +5,7 @@ Created on May 18, 2016
 @brief: datacatalog script
 '''
 from requests import post, get
-from os.path import expandvars
+from os.path import expandvars, abspath
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 
@@ -38,7 +38,7 @@ def main(args=None):
         else:
             dd = {"site":opts.site, "action":action,"filetype": filetype, "status":status}
             if action == 'register': 
-                dd['filename']=filename
+                dd['filename']=abspath(filename)
                 dd['status']='New'
             res = post("%s/datacat/" % DAMPE_WORKFLOW_URL, data = dd)
         if res is None: return
