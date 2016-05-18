@@ -69,8 +69,10 @@ class DmpJob(object):
             for key in ['source','target']:
                 fil[key]=oPath.expandvars(fil[key])
 
-        environ['DWF_TASKNAME']=self.title
-        environ['RELEASE_TAG']=self.release
+        if self.title is not None:
+            environ['DWF_TASKNAME']=self.title
+        if self.release is not None:
+            environ['RELEASE_TAG']=self.release
         #print 'BatchOverride keys', BATCH_DEFAULTS
         return      
 
