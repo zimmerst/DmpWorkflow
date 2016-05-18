@@ -1,3 +1,5 @@
+{% from DmpWorkflow.config.defaults import cfg %}
+{% set dbhost = cfg.get("database", "host")    %}
 {% extends "base.html" %}
 
  {%- block topbar -%}
@@ -15,7 +17,7 @@
 		<li><script language="JavaScript">
 			document.write('<a href="https://' + window.location.hostname + ':12321" >Webmin Interface</a> ' );</script></li>  
 		<li><script language="JavaScript">
-			document.write('<a href="https://' + window.location.hostname + ':443" >DB Interface</a> ' );</script></li>  
+			document.write('<a href="https://'+ {{ dbhost }} +'" >DB Interface</a> ' );</script></li>  
 	  </ul>
     </div><!-- /.nav-collapse -->
   </div><!-- /.container -->
