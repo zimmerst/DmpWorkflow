@@ -26,13 +26,14 @@ def main(args=None):
     assert opts.action in ['register','setStatus','delete','list'], "action not supported"
     action   = opts.action
     site     = opts.site
-    filename = expandvars(opts.filename) if opts.expandVars else opts.filename   
+    filename = expandvars(abspath(opts.filename)) if opts.expandVars else abspath(opts.filename)   
     files = [opts.filename]
     if "*" in opts.filename: files = glob(opts.filename)
     if opts.expandVars:
-        files = [expandvars(f) for f in files]
+        files = [abspath(expandvars(f)) for f in files]
     if len(files)>1:
         filename = ",".join(files)
+        print 'bulk request, may take a while, found %i files to process'%len(files)
     filetype = opts.filetype
     status   = opts.status 
     try:

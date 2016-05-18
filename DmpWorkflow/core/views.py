@@ -372,8 +372,9 @@ class DataCatalog(MethodView):
             files = [filename]
             if "," in filename:
                 files = filename.split(",")
+                logger.info("bulk request, found %i files",len(files))
             touched_files = []
-            for f in files:
+            for filename in files:
                 if action == 'register':
                     logger.debug("request a new file to be registered")
                     df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
