@@ -280,34 +280,34 @@ class NewJobs(MethodView):
         _limit = int(request.form.get("limit",1000))
         newJobInstances = []
         allJobs = Job.objects.filter(execution_site=batchsite)
-        logger.info("allJobs = %s",str(allJobs))
+        logger.debug("allJobs = %s",str(allJobs))
         for job in allJobs:
-            logger.info("processing job %s",job.slug)
+            logger.debug("processing job %s",job.slug)
             dependent_tasks = job.getDependency()
-            logger.info("dependent tasks: %s",dependent_tasks)
+            logger.debug("dependent tasks: %s",dependent_tasks)
             newJobs = JobInstance.objects.filter(job=job, status=u"New").limit(int(_limit))
-            logger.info("#newJobs: %i",len(newJobs))
+            logger.debug("#newJobs: %i",len(newJobs))
             if len(newJobs):
-                logger.info("found %i new instances for job %s",len(newJobs),str(job.title))
+                logger.debug("found %i new instances for job %s",len(newJobs),str(job.title))
                 dJob = DmpJob(job.id, body=None, title=job.title)
-                logger.info("DmpJob instantiation.")
+                logger.debug("DmpJob instantiation.")
                 for dt in dependent_tasks:
-                    logger.info("processing dependencies for job %s",dt)
+                    logger.debug("processing dependencies for job %s",dt)
                     dJob.InputFiles+= [{"source":fil, "target":basename(fil)} for fil in dt.getOutputFiles()]
                     dJob.MetaData+=[{"name":k, "value":v, "type":"string"} for k, v in dt.getMetaDataVariables().iteritems()]
-                logger.info("setBodyFromDict")
+                logger.debug("setBodyFromDict")
                 dJob.setBodyFromDict(job.getBody())
                 for j in newJobs:
                     if j.checkDependencies():
-                        logger.info("depedency satisfied")
+                        logger.debug("depedency satisfied")
                         j.getResourcesFromMetadata()
-                        logger.info("resources read out")
+                        logger.debug("resources read out")
                         dInstance = deepcopy(dJob)
                         dInstance.setInstanceParameters(j.instanceId, j.body)
                         newJobInstances.append(dInstance.exportToJSON())
                     else:
                         logger.info("dependencies not fulfilled yet")
-                logger.info("found %i new jobs after dependencies",len(newJobs))
+                logger.debug("found %i new jobs after dependencies",len(newJobs))
         return dumps({"result":"ok", "jobs": newJobInstances})
 
 class JobResources(MethodView):
