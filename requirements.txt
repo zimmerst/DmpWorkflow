@@ -11,4 +11,3 @@ requests
 importlib
 resource
 progressbar
-hashlib
