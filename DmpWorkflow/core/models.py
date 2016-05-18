@@ -41,7 +41,7 @@ class DataFile(db.Document):
 
     meta = {
             'allow_inheritance': True,
-            'indexes': ['-created_at', 'hostname'],
+            'indexes': ['-created_at', 'filename', 'site'],
             'ordering': ['-created_at']
             }
 
