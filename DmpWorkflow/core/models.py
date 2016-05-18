@@ -30,9 +30,9 @@ class DataFile(db.Document):
         self.status = stat
 
     def save(self):
-        req = DataFile.objects.filter(filename=self.filename, site=self.site, id=self.id)
+        req = DataFile.objects.filter(filename=self.filename, site=self.site)
         if req:
-            raise Exception("a file with the specified properties exists already, should never happen")
+            raise Exception("a file with the specified properties exists already, consider updating instead!")
         super(DataFile, self).save()
 
     def update(self):

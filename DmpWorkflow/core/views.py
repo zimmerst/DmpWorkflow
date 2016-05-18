@@ -370,10 +370,12 @@ class DataCatalog(MethodView):
             df = None
             if action == 'register':
                 df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
+                df.save()
             else:
                 df = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
                 if action == 'setStatus':
                     df.setStatus(status)
+                    df.update()
                 else:
                     logger.info("requested removal!")
                     df.delete()                    
