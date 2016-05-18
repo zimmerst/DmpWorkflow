@@ -199,26 +199,30 @@ class JobInstance(db.Document):
         inst_body = literal_eval(self.body)
         if not isinstance(inst_body, dict):
             raise Exception("Error in parsing body of JobInstance, not of type DICT")
-        for k in evalKeys:
-            assert k in inst_body.keys(), "error, missing key %s in instance body"%k 
-            if len(inst_body[k]):
-                meta[k]+=inst_body[k]
+        if len(inst_body):
+            for k in evalKeys:
+                assert k in inst_body.keys(), "error, missing key %s in instance body"%k 
+                if len(inst_body[k]):
+                    meta[k]+=inst_body[k]
         return meta
     
     def getOutputFiles(self,includeJob=True):
         m = self.__evalBody(includeParent=includeJob)
-        out = [v['target'] for v in m['OutputFiles']]
+        out = []
+        if len(m): out = [v['target'] for v in m['OutputFiles']]
         return out
     
     def getInputFiles(self,includeJob=True):
         m = self.__evalBody(includeParent=includeJob)
-        out = [v['source'] for v in m['InputFiles']]
+        out = []
+        if len(m): out = [v['source'] for v in m['InputFiles']]
         return out
 
     def getMetaDataVariables(self,includeJob=True):
         m = self.__evalBody(includeParent=includeJob)
         out = {}
-        for v in m['MetaData']: out.update({v['name']:v['value']})
+        if len(m): 
+            for v in m['MetaData']: out.update({v['name']:v['value']})
         return out
 
     def getResourcesFromMetadata(self):
