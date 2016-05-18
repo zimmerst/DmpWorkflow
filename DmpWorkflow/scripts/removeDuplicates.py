@@ -2,7 +2,7 @@
 Created on May 18, 2016
 
 @author: zimmer
-@brief: server-side script to remove duplicates.
+@brief: server-side script to remove duplicate jobInstances.
 '''
 import progressbar
 from DmpWorkflow.core.models import JobInstance
