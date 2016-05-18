@@ -20,6 +20,7 @@ def main(args=None):
     parser.add_argument("-S", "--setStatus", dest="status", type = str, default="New", help='site where the file is registered')
     
     parser.add_argument("-x", "--expandVars", dest="expandVars", action = 'store_true', default=False, help='if true, store absolute paths')
+    parser.add_argument("-q", "--quiet", dest="quiet", action = 'store_true', default=False, help='if true, keep only essential information')
     parser.add_argument("-l", "--limit", dest="limit", type= int , default=100, help='limit list of entries returned')
 
     opts = parser.parse_args(args)
@@ -53,9 +54,10 @@ def main(args=None):
         if result.get("result", "nok") == "ok":
             if action == 'list':
                 files = result.get("files",[])
-                print 'found %i files'%len(files)
+                if not opts.quiet: print 'found %i files'%len(files)
                 for f in files: print f
-            else: print "POST %s %s"%(action,result.get("docId","NONE"))
+            else: 
+                if not opts.quiet: print "POST %s %s"%(action,result.get("docId","NONE"))
         else:
             raise Exception(result.get("error","Not provided"))
     except Exception as err:
