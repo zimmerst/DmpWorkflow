@@ -290,6 +290,7 @@ class NewJobs(MethodView):
             if len(newJobs):
                 logger.info("found %i new instances for job %s",len(newJobs),str(job.title))
                 dJob = DmpJob(job.id, body=None, title=job.title)
+                logger.info("DmpJob instantiation.")
                 for dt in dependent_tasks:
                     logger.info("processing dependencies for job %s",dt)
                     dJob.InputFiles+= [{"source":fil, "target":basename(fil)} for fil in dt.getOutputFiles()]
