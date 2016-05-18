@@ -284,7 +284,7 @@ class NewJobs(MethodView):
         for job in allJobs:
             logger.info("processing job %s",job.slug)
             dependent_tasks = job.getDependency()
-            logger.info("dependent tasks: ",dependent_tasks)
+            logger.info("dependent tasks: %s",dependent_tasks)
             newJobs = JobInstance.objects.filter(job=job, status=u"New").limit(int(_limit))
             logger.info("#newJobs: %i",len(newJobs))
             if len(newJobs):
