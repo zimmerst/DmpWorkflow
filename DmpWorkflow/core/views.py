@@ -143,7 +143,7 @@ class JobInstanceView(MethodView):
             return dumps({"result":"nok","error":"query got empty taskname & type"})
         jobs = Job.objects.filter(title=taskName, type=tasktype)
         if len(jobs):
-            logger.info("Found job")
+            logger.debug("Found job")
             job = jobs[0]
             site = job.execution_site
             try:
@@ -157,7 +157,7 @@ class JobInstanceView(MethodView):
                 job.release = dout['atts']['release']
             #logger.info('extracted body %s',dout)
             if ninst:
-                logger.info("adding %i instances",ninst)
+                logger.debug("adding %i instances",ninst)
                 for j in range(ninst):
                     try:
                         jI = JobInstance(body=dumps(override_dict), site=site)
@@ -168,7 +168,7 @@ class JobInstanceView(MethodView):
                     except Exception as err:
                         logger.error(err)
                         return dumps({"result":"nok", "error":str(err)})
-                    logger.info("added instance %i to job %s",(j+1),job.id)
+                    logger.debug("added instance %i to job %s",(j+1),job.id)
             # print len(job.jobInstances)
             job.update()
             return dumps({"result": "ok"})
@@ -308,7 +308,7 @@ class JobResources(MethodView):
         logger.debug("request %s",str(request))
         batchsite = unicode(request.form.get("site","local"))
         runningJobs = JobInstance.objects.filter(site=batchsite, status=u"Running")
-        logger.info("number of runningJobs = %i", len(runningJobs))
+        logger.debug("number of runningJobs = %i", len(runningJobs))
         try:
             allJobs = []
             for j in runningJobs:
@@ -319,7 +319,7 @@ class JobResources(MethodView):
                     "major_status":j.status,
                     "max_cpu":j.get("max_cpu"),
                     "max_mem":j.get("max_mem")} for j in runningJobs]
-            logger.info("dumping %i jobs",len(allJobs))
+            logger.debug("dumping %i jobs",len(allJobs))
             return dumps({"result":"ok", "jobs": allJobs})
         except Exception as err:
             return dumps({"result":"nok", "error": err})
@@ -360,7 +360,7 @@ class DataCatalog(MethodView):
         action= str(request.form.get("action",'register'))
         status= str(request.form.get("status","New"))
         filetype= str(request.form.get("filetype","root"))
-        logger.info("filename %s status %s",filename, status)
+        logger.debug("filename %s status %s",filename, status)
         if action not in ['register','setStatus','delete']:
             logger.error("action not supported")
             return dumps({"result":"nok","error":"action not supported"})
