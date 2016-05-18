@@ -3,7 +3,6 @@ import logging
 from datetime import datetime
 import sys
 from mongoengine import CASCADE
-from json import loads
 from copy import deepcopy
 from flask import url_for
 from ast import literal_eval
@@ -58,17 +57,17 @@ class Job(db.Document):
             meta[k]=jobBody[k]
         return meta
     
-    def getOutputFiles(self,includeJob=True):
+    def getOutputFiles(self):
         m = self.__evalBody()
         out = [v['target'] for v in m['OutputFiles']]
         return out
     
-    def getInputFiles(self,includeJob=True):
+    def getInputFiles(self):
         m = self.__evalBody()
         out = [v['source'] for v in m['InputFiles']]
         return out
 
-    def getMetaDataVariables(self,includeJob=True):
+    def getMetaDataVariables(self):
         m = self.__evalBody()
         out = {}
         for v in m['MetaData']: out.update({v['name']:v['value']})
@@ -192,10 +191,15 @@ class JobInstance(db.Document):
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)",required=False, default= -1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)",required=False, default= -1.)
     
+    def __getJob(self):
+        return self.job
+    
     def __evalBody(self,includeParent=False):
         evalKeys = ['InputFiles','OutputFiles','MetaData']
         meta = {}
-        if includeParent: meta.update(self.job._Job__evalBody())
+        if includeParent: 
+            job = self.__getJob()
+            meta.update(job.__evalBody())
         inst_body = literal_eval(self.body)
         if not isinstance(inst_body, dict):
             raise Exception("Error in parsing body of JobInstance, not of type DICT")

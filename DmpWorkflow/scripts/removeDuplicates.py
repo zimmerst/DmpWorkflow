@@ -14,6 +14,7 @@ def main():
     except Exception as err:
         import sys
         print 'could not import DB, is this configuration a server setup?'
+        print 'ERROR: %s'%err
         sys.exit(0)
     instances = JobInstance.objects.all()
     print 'found %i instances'%len(instances)
