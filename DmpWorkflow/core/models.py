@@ -48,7 +48,7 @@ class Job(db.Document):
     def archiveJob(self):
         self.archived = True
 
-    def __evalBody(self):
+    def _evalBody_(self):
         evalKeys = ['InputFiles','OutputFiles','MetaData']
         meta = {}
         jobBody = self.getBody()
@@ -58,17 +58,17 @@ class Job(db.Document):
         return meta
     
     def getOutputFiles(self):
-        m = self.__evalBody()
+        m = self._evalBody_()
         out = [v['target'] for v in m['OutputFiles']]
         return out
     
     def getInputFiles(self):
-        m = self.__evalBody()
+        m = self._evalBody_()
         out = [v['source'] for v in m['InputFiles']]
         return out
 
     def getMetaDataVariables(self):
-        m = self.__evalBody()
+        m = self._evalBody_()
         out = {}
         for v in m['MetaData']: out.update({v['name']:v['value']})
         return out
@@ -199,7 +199,7 @@ class JobInstance(db.Document):
         meta = {}
         if includeParent: 
             job = self.__getJob()
-            meta.update(job.__evalBody())
+            meta.update(job._evalBody_())
         inst_body = literal_eval(self.body)
         if not isinstance(inst_body, dict):
             raise Exception("Error in parsing body of JobInstance, not of type DICT")
