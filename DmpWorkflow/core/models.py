@@ -179,6 +179,17 @@ class Job(db.Document):
         else:
             return ret
 
+    def aggregateStatiiFast(self, asdict=False):
+        """ will return an aggregated summary of all instances in all statuses """
+        vals = [len(JobInstance.objects.filter(job=self,status=stat)) for stat in MAJOR_STATII]
+        counting_dict = dict(zip(MAJOR_STATII,vals))
+        ret = [(k, counting_dict[k]) for k in MAJOR_STATII]
+        if asdict: 
+            return {v[0]:v[1] for v in ret} 
+        else:
+            return ret
+
+
     def get_absolute_url(self):
         return url_for('job', kwargs={"slug": self.slug})
 
