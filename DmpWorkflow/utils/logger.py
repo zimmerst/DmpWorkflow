@@ -43,7 +43,7 @@ def initLogger(logfile):
                                 },
                         'script':{
                                   'handlers': ['console'],
-                                  'level':'INFO'
+                                  'level':'DEBUG'
                                 },
                         'batch':{
                                   'handlers': ['console'],
