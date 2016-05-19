@@ -168,11 +168,8 @@ class Job(db.Document):
 
     def aggregateStatii(self, asdict=False):
         """ will return an aggregated summary of all instances in all statuses """
-        counting_dict = dict(zip(MAJOR_STATII, [0 for _ in MAJOR_STATII]))
-        for jI in self.jobInstances:
-            if jI.status not in MAJOR_STATII:
-                raise Exception("Instance found in status not known to system")
-            counting_dict[jI.status] += 1
+        vals = [len(JobInstance.objects.filter(job=self.job, status=stat)) for stat in MAJOR_STATII]
+        counting_dict = dict(zip(MAJOR_STATII, vals))
         ret = [(k, counting_dict[k]) for k in MAJOR_STATII]
         if asdict: 
             return {v[0]:v[1] for v in ret} 
