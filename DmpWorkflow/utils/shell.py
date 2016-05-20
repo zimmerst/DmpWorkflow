@@ -9,7 +9,8 @@ from os import chmod, stat, environ, remove
 from os.path import expandvars
 
 logger = logging.getLogger("core")
-#FIXME: change to commands module & getstatusoutput
+#FIXME: change to interleave stdout & stderr
+# http://stackoverflow.com/questions/6809590/merging-a-python-scripts-subprocess-stdout-and-stderr-while-keeping-them-disti
 def run(cmd_args, useLogging=True, suppressErrors=False):
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
