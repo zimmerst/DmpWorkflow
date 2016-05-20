@@ -9,7 +9,7 @@ from os import chmod, stat, environ, remove
 from os.path import expandvars
 
 logger = logging.getLogger("core")
-
+#FIXME: change to commands module & getstatusoutput
 def run(cmd_args, useLogging=True, suppressErrors=False):
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
