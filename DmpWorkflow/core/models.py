@@ -199,7 +199,7 @@ class Job(db.Document):
         instances = JobInstance.objects.filter(job=self)
         self.body.delete()
         if len(instances):
-            [ji.delete() for ji in instances]
+            for ji in instances: ji.delete()
         super(Job,self).delete()
 
     def save(self):
