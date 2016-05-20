@@ -12,7 +12,6 @@ from DmpWorkflow.core import db
 from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler
 from DmpWorkflow.utils.tools import parseJobXmlToDict, convertHHMMtoSec, sortTimeStampList
 
-
 if not cfg.getboolean("site", "traceback"): sys.excepthook = exceptionHandler
 log = logging.getLogger("core")
 
@@ -200,7 +199,7 @@ class Job(db.Document):
         instances = JobInstance.objects.filter(job=self)
         self.body.delete()
         if len(instances):
-            [ji.delete() for ji in instances]
+            for ji in instances: ji.delete()
         super(Job,self).delete()
 
     def save(self):

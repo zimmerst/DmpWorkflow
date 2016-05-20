@@ -368,6 +368,7 @@ class DataCatalog(MethodView):
         action= str(request.form.get("action",'register'))
         status= str(request.form.get("status","New"))
         filetype= str(request.form.get("filetype","root"))
+        force = bool(request.form.get("overwrite","False"))
         logger.debug("filename %s status %s",filename, status)
         if action not in ['register','setStatus','delete']:
             logger.error("action not supported")
@@ -383,12 +384,18 @@ class DataCatalog(MethodView):
                 logger.info("bulk request, found %i files",len(files))
             touched_files = []
             for filename in files:
+                fileQuery = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
                 if action == 'register':
                     logger.debug("request a new file to be registered")
-                    df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
-                    df.save()
+                    if len(fileQuery):
+                        if force:
+                            for f in fileQuery: f.delete()
+                        else:
+                            return dumps({"result":"nok","error":"called register but file apparently exists already"})
+                    else:
+                        df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
+                        df.save()
                 else:
-                    fileQuery = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
                     if len(fileQuery):
                         df = fileQuery[0]
                         if action == 'setStatus':

@@ -21,6 +21,7 @@ def main(args=None):
     
     parser.add_argument("-x", "--expandVars", dest="expandVars", action = 'store_true', default=False, help='if true, store absolute paths')
     parser.add_argument("-q", "--quiet", dest="quiet", action = 'store_true', default=False, help='if true, keep only essential information')
+    parser.add_argument("-F", "--force", dest="force", action = 'store_true', default=False, help='if true, force overwriting existing file')
     parser.add_argument("-l", "--limit", dest="limit", type= int , default=100, help='limit list of entries returned')
 
     opts = parser.parse_args(args)
@@ -37,6 +38,7 @@ def main(args=None):
         print 'bulk request, may take a while, found %i files to process'%len(files)
     filetype = opts.filetype
     status   = opts.status 
+    overwrite = opts.force
     try:
         res = None
         if opts.action == 'list':
@@ -45,7 +47,7 @@ def main(args=None):
                                                                   "filetype":filetype,
                                                                   "limit":opts.limit})
         else:
-            dd = {"site":opts.site, "action":action,"filetype": filetype, 
+            dd = {"site":opts.site, "action":action,"filetype": filetype, "overwrite":overwrite,
                   "status":'New' if action == 'register' else status, 'filename':filename}
             res = post("%s/datacat/" % DAMPE_WORKFLOW_URL, data = dd)
         if res is None: return

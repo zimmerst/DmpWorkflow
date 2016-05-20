@@ -75,8 +75,8 @@ def __postRun(job, resources=None):
             mkdir(_dir)
         try:
             safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
-            job.registerDS(filename=tg)
-        except IOError, e:
+            job.registerDS(filename=tg, overwrite=True)
+        except Exception, e:
             try:
                 job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e), resources=resources)
             except Exception as err: logThis("EXCEPTION: %s",err)
