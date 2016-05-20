@@ -236,11 +236,12 @@ class SetJobStatus(MethodView):
     def get(self):
         logger.debug("request %s",str(request))
         title = unicode(request.form.get("title",None))
+        jtype = unicode(request.form.get("type","Generation"))
         stat  = unicode(request.form.get("stat","Any"))
         instId = int(request.form.get("inst",-1))
         n_min = int(request.form.get("n_min",-1))
         n_max = int(request.form.get("n_max",-1))
-        jobs = Job.objects.filter(title=title)
+        jobs = Job.objects.filter(title=title, type=jtype)
         queried_instances = []
         if len(jobs):
             logger.debug("get: found jobs matching query %s",jobs)

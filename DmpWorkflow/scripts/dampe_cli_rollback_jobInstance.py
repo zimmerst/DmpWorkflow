@@ -15,6 +15,7 @@ def main(args=None):
     description = "roll-back Jobs in DB"
     parser = ArgumentParser(usage=usage, description=description)
     parser.add_argument("--title", dest="title", type=str, default=None, help='name of job, required!', required=True)
+    parser.add_argument("--type", dest="type", type=str, default="Generation", help='type of job, required!', required=False)
     parser.add_argument("--instance", dest="inst", type=int, default=None, 
                         help='to roll back specific instance', required=False)
     parser.add_argument("--status", dest="stat", type=str, default="Failed", 
