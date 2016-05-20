@@ -5,7 +5,7 @@ Created on May 20, 2016
 @brief: profile applications
 '''
 
-def main(args):
+def main(args=None):
     from werkzeug.contrib.profiler import ProfilerMiddleware
     from DmpWorkflow.core import app
     app.config['PROFILE'] = True
