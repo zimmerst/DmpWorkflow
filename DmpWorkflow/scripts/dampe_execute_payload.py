@@ -76,7 +76,7 @@ def __postRun(job, resources=None):
         try:
             safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
             job.registerDS(filename=tg, overwrite=True)
-        except IOError, e:
+        except Exception, e:
             try:
                 job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e), resources=resources)
             except Exception as err: logThis("EXCEPTION: %s",err)
