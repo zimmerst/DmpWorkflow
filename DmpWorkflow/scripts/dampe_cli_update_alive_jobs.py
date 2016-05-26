@@ -17,13 +17,16 @@ def main():
     batchEngine.update()
     for batchId, job_dict in batchEngine.allJobs.iteritems():
         #print batchId, job_dict
+        hostname = job_dict.get("EXEC_HOST","None")
+        JobId = "None"
+        InstanceId = "None"
         try:
             JobId, InstanceId = job_dict['JOB_NAME'].split("-")
         except Exception as err:
-            log.error("trapped exception for job %s (%s)",str(batchId),str(job_dict['JOB_NAME']))
-            log.debug(err)
-            continue
-        hostname = job_dict["EXEC_HOST"]
+            if hostname == "None":
+                log.error("trapped exception for job %s (%s)",str(batchId),str(job_dict['JOB_NAME']))
+                log.debug(err)
+                continue
         status = batchEngine.status_map[job_dict['STAT']] 
         if status in FINAL_STATII: continue
         cpu = float(batchEngine.getCPUtime(batchId))
