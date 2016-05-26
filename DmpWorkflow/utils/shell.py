@@ -31,7 +31,7 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True):
                     line = tsk.stdout.readline()
                     if len(line) > 0:
                         if useLogging: logger.info(line[:-1])
-                        output.append("INFO: %s"%str(line[:-1]))
+                        output.append(str(line[:-1]))
                 if rfd == tsk.stderr.fileno():
                     line = tsk.stderr.readline()
                     if len(line) > 0:
