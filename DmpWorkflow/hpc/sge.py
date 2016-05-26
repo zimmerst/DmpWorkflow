@@ -91,6 +91,9 @@ class BatchEngine(BATCH):
         if not asDict:
             return output
         else:
+            i = 0
+            while not output.startswith("<"): 
+                output = output[i:-1]; i+=1
             output = xml2dict.parse(output)
             data = output.get("Data","None")
             if "None": 
