@@ -30,6 +30,7 @@ __myDefaults = {
     "HPCqueue" : "",
     "HPCcputime" : "24:00",
     "HPCmemory": "1000.",
+    "HPCusername": "dampeprod",
     "EXEC_DIR_ROOT" : "/tmp",
     "ratio_mem" : "1.0",
     "ratio_cpu" : "1.0",

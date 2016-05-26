@@ -91,6 +91,7 @@ class BATCH(object):
     status_map = {}
     parameter_map = {}
     kind = "generic"
+    user = None
 
     def __init__(self):
         self.logging = logging.getLogger("core")
@@ -120,6 +121,12 @@ class BATCH(object):
         if key not in self.keys:
             self.logging.error("could not extract key, allowed keys %s", str(self.keys))
             raise Exception
+
+    def setUser(self,user):
+        self.user = user
+
+    def getUser(self): 
+        return self.user
 
     def getJob(self, jobID, key="STAT"):
         if jobID not in self.allJobs:

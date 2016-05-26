@@ -42,12 +42,11 @@ class BatchJob(HPCBatchJob):
         self.__run__(cmd)
         self.update("status","Failed")
 
-
 class BatchEngine(BATCH):
     kind = "sge"
     status_map = {"r": "Running", "qw": "Submitted", "s": "Suspended",
                   "EXIT": "e"}
-
+            
     def update(self):
         self.allJobs.update(self.aggregateStatii())
     
@@ -74,11 +73,12 @@ class BatchEngine(BATCH):
 
     def getRunningJobs(self,pending=False):
         self.update()
-        running = [j for j in self.allJobs if self.allJobs[j]['STAT']=="RUN"]
-        pending = [j for j in self.allJobs if self.allJobs[j]['STAT']=="PEND"]
+        running = [j for j in self.allJobs if self.allJobs[j]['STAT']=="r"]
+        pending = [j for j in self.allJobs if self.allJobs[j]['STAT']=="qw"]
         return running + pending
     
     def aggregateStatii(self, asDict=True, command=None):
+        checkUser = self.getUser()
         if command is None:
             command = "qstat"
         jobs = {}
@@ -94,9 +94,6 @@ class BatchEngine(BATCH):
         if not asDict:
             return output
         else:
-            i = 0
-            #while not output.startswith("<"): output = output[i:-1]; i+=1
-            #if not output.endswith(">"): output+=">"
             output = xml2dict.parse(output)
             data = output.get("Data","None")
             if "None": 
@@ -107,7 +104,9 @@ class BatchEngine(BATCH):
                 for j in sge_jobs:
                     usr = j.get("Job_Owner","None")
                     if "@" in usr: usr = usr.rsplit("@")[0]
-                    stat= j.get("job_state","U") # unknown
+                    if not checkUser is None: 
+                        if not usr == checkUser: continue 
+                    stat= j.get("job_state","U").lower() # unknown
                     if stat.lower() not in self.status_map.keys(): stat = 'u'
                     cpu = None
                     mem = None
