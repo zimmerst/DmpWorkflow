@@ -8,7 +8,6 @@ from DmpWorkflow.hpc.batch import BATCH, BatchJob as HPCBatchJob
 from DmpWorkflow.utils.shell import run
 from DmpWorkflow.utils.tools import rm
 from importlib import import_module
-from __builtin__ import None
 xml2dict= import_module("xmltodict")
 # LSF-specific stuff
 
