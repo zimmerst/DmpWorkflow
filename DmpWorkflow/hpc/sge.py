@@ -117,4 +117,4 @@ class BatchEngine(BATCH):
                         cpu = res.get("cput","00:00:00.000")
                     this_job = {"USER":usr, "MEM":mem, "CPU_USED":cpu, "STAT": stat, "EXEC_HOST": j.get("exec_host")}
                     jobs[j.get("Job_Id","None").split(".")[0]]=this_job
-            
+            return jobs
