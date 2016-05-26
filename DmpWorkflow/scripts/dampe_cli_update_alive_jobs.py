@@ -13,6 +13,7 @@ HPC = import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 
 def main():
     log = logging.getLogger("script")
+    site = BATCH_DEFAULTS['name']
     batchEngine = HPC.BatchEngine()
     batchEngine.update()
     for batchId, job_dict in batchEngine.allJobs.iteritems():
@@ -27,11 +28,14 @@ def main():
                 log.error("trapped exception for job %s (%s)",str(batchId),str(job_dict['JOB_NAME']))
                 log.debug(err)
                 continue
-        status = batchEngine.status_map[job_dict['STAT']] 
+        status = "Unknown"
+        if job_dict['STAT'] in batchEngine.status_map:
+            status = batchEngine.status_map[job_dict['STAT']] 
         if status in FINAL_STATII: continue
         cpu = float(batchEngine.getCPUtime(batchId))
         mem = float(batchEngine.getMemory(batchId,unit='MB'))
-        my_dict = {"t_id": JobId, "inst_id": InstanceId, "hostname": hostname, "major_status": status, "cpu":cpu, "memory":mem}
+        my_dict = {"t_id": JobId, "inst_id": InstanceId, "hostname": hostname, 
+                   "major_status": status, "cpu":cpu, "memory":mem, "site":site}
         log.debug("%s : %s",batchId,my_dict)
         res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args":dumps(my_dict)})
         res.raise_for_status()

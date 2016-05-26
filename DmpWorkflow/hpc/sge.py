@@ -6,7 +6,10 @@ Created on Mar 23, 2016
 import re
 from DmpWorkflow.hpc.batch import BATCH, BatchJob as HPCBatchJob
 from DmpWorkflow.utils.shell import run
-
+from DmpWorkflow.utils.tools import rm
+from importlib import import_module
+from __builtin__ import None
+xml2dict= import_module("xmltodict")
 # LSF-specific stuff
 
 #raise ImportError("SGE class not supported")
@@ -44,19 +47,44 @@ class BatchJob(HPCBatchJob):
 
 class BatchEngine(BATCH):
     kind = "sge"
-    keys = "USER,STAT,QUEUE,FROM_HOST,EXEC_HOST,JOB_NAME,"
-    keys += "SUBMIT_TIME,PROJ_NAME,CPU_USED,MEM,SWAP,PIDS,START_TIME,FINISH_TIME,SLOTS"
-    keys = keys.split(",")
-    status_map = {"RUN": "Running", "PEND": "Submitted", "SSUSP": "Suspended",
-                  "EXIT": "Failed", "DONE": "Completed"}
+    status_map = {"r": "Running", "qw": "Submitted", "s": "Suspended",
+                  "EXIT": "e"}
 
     def update(self):
         self.allJobs.update(self.aggregateStatii())
+    
+    def getCPUtime(self,jobId, key = "CPU_USED"):
+        """ format is: 000:00:00.00 """
+        if jobId not in self.allJobs:
+            return 0.
+        cpu_str = self.allJobs[jobId][key]
+        hr,_min,secs = cpu_str.split(":")
+        totalSecs = float(secs)+60*float(_min)+3600*float(hr)
+        return totalSecs
+    
+    def getMemory(self,jobId, key = "MEM", unit='kB'):
+        """ format is kb, i believe."""
+        if jobId not in self.allJobs:
+            return 0.
+        mem_str = self.allJobs[jobId][key]
+        mem = float(mem_str)
+        if unit in ['MB','GB']:
+            mem/=1024.
+            if unit == 'GB':
+                mem/=1024.
+        return mem
 
+    def getRunningJobs(self,pending=False):
+        self.update()
+        running = [j for j in self.allJobs if self.allJobs[j]['STAT']=="RUN"]
+        pending = [j for j in self.allJobs if self.allJobs[j]['STAT']=="PEND"]
+        return running + pending
+    
     def aggregateStatii(self, asDict=True, command=None):
         if command is None:
-            command = ["bjobs -Wa"]
+            command = ["qstat"]
         jobs = {}
+        if asDict: command[-1]+=" -x -e > /tmp/qstat.xml"
         output, error, rc = run(command)
         self.logging.debug("rc: %i",int(rc))
         if error is not None:
@@ -64,13 +92,25 @@ class BatchEngine(BATCH):
         if not asDict:
             return output
         else:
-            for i, line in enumerate(output.split("\n")):
-                if i > 0:
-                    this_line = line.split(" ")
-                    jobID = this_line[0]
-                    this_line.remove(this_line[0])
-                    while "" in this_line: this_line.remove("")
-                    this_job = dict(zip(self.keys, this_line))
-                    if len(this_job):
-                        jobs[jobID] = this_job
-            return jobs
+            output = xml2dict.parse(open("/tmp/qstat.xml","r"))
+            rm("/tmp/qstat.xml")
+            data = output.get("Data","None")
+            if "None": 
+                self.logging.error("could not get data content from qstat, check SGE")
+            sge_jobs = data.get("Job","None")
+            if sge_jobs == "None": sge_jobs = []
+            if len(sge_jobs):
+                for j in sge_jobs:
+                    usr = j.get("Job_Owner","None")
+                    if "@" in usr: usr = usr.rsplit("@")[0]
+                    stat= j.get("job_state","U") # unknown
+                    if stat.lower() not in self.status_map.keys(): stat = 'u'
+                    cpu = None
+                    mem = None
+                    res = j.get("resources_used","None")
+                    if res != "None":
+                        mem = float(res.get("mem","0kb").rsplit("kb")[0])
+                        cpu = res.get("cput","00:00:00.000")
+                    this_job = {"USER":usr, "MEM":mem, "CPU_USED":cpu, "STAT": stat, "EXEC_HOST": j.get("exec_host")}
+                    jobs[j.get("Job_Id","None").split(".")[0]]=this_job
+            

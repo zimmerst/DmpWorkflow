@@ -71,7 +71,7 @@ BATCH_DEFAULTS['cputime']=cfg.get("site","HPCcputime")
 BATCH_DEFAULTS['name']=cfg.get("site","name")
 
 # JobDB specifics
-MAJOR_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_major_statii").split(",")])
+MAJOR_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_major_statii").split(",")]+["Unknown"]) # adding unknown
 FINAL_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_final_statii").split(",")])
 TYPES = tuple([unicode(t) for t in cfg.get("JobDB", "task_types").split(",")])
 SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])

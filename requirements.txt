@@ -11,3 +11,4 @@ requests
 importlib
 resource
 progressbar
+xmltodict

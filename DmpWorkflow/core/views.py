@@ -207,7 +207,7 @@ class SetJobStatus(MethodView):
         logger.debug("request arguments %s", str(arguments))
         t_id = arguments.get("t_id","None")
         bId  = arguments.get("batchId","None")
-        host = arguments.get("hostname","None")
+        site = str(arguments.get("site","None"))
         inst_id = arguments.get("inst_id","None")
         major_status = arguments["major_status"]
         minor_status = arguments.get("minor_status",None)
@@ -219,8 +219,8 @@ class SetJobStatus(MethodView):
                 my_job = my_job[0]
                 jInstance = my_job.getInstance(inst_id)
             else:
-                if bId != "None" and host != "None":
-                    jInstance = JobInstance.objects.filter(batchId=bId, hostname=host)
+                if bId != "None" and site != "None":
+                    jInstance = JobInstance.objects.filter(batchId=bId, site=site)
                     if not len(jInstance): raise Exception("could not find JobInstance")
                     jInstance = jInstance[0]
             if jInstance is not None:
