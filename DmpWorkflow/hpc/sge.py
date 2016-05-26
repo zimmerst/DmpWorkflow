@@ -16,14 +16,12 @@ BATCH_ID_ENV = ""
 class BatchJob(HPCBatchJob):
     def submit(self, **kwargs):
         ''' each class MUST implement its own submission command '''
-        extra = "%s" % self.extra if isinstance(self.extra, str) else None
-        if isinstance(self.extra, dict):
-            self.extra.update(kwargs)
-            extra = "-%s %s".join([(k, v) for (k, v) in self.extra.iteritems()])
-
-        cmd = "qsub -q %s -eo %s -R \"%s\" %s %s" % (self.queue, self.logFile,
-                                                     "&&".join(self.requirements),
-                                                     extra, self.command)
+        extra = "%s" % self.extra if isinstance(self.extra, str) else ""
+        cmd = "qsub -m n -o %s -j y -V -l ct=%s -l vmem=%s %s %s" % (self.logFile,
+                                                                     self.cputime,
+                                                                     self.memory,
+                                                                     extra,
+                                                                     self.command)
         output = self.__run__(cmd)
         return self.__regexId__(output)
     
@@ -44,8 +42,8 @@ class BatchJob(HPCBatchJob):
 
 class BatchEngine(BATCH):
     kind = "sge"
-    status_map = {"r": "Running", "qw": "Submitted", "s": "Suspended",
-                  "EXIT": "e"}
+    status_map = {"r": "Running", "qw": "Submitted", "s": "Suspended", 
+                  "c":"Suspended", "t":"Terminated", "e":"Failed"}
             
     def update(self):
         self.allJobs.update(self.aggregateStatii())
