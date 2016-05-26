@@ -203,30 +203,38 @@ class SetJobStatus(MethodView):
     def post(self):
         arguments = loads(request.form.get("args","{}"))
         if not isinstance(arguments,dict):      logger.exception("arguments MUST be dictionary.")        
-        if 't_id' not in arguments:         logger.exception("couldn't find t_id in arguments")
-        if 'inst_id' not in arguments:      logger.exception("couldn't find inst_id in arguments")
         if 'major_status' not in arguments: logger.exception("couldn't find major_status in arguments")
         logger.debug("request arguments %s", str(arguments))
-        t_id = arguments["t_id"]
-        inst_id = arguments["inst_id"]
+        t_id = arguments.get("t_id","None")
+        bId  = arguments.get("batchId","None")
+        host = arguments.get("hostname","None")
+        inst_id = arguments.get("inst_id","None")
         major_status = arguments["major_status"]
         minor_status = arguments.get("minor_status",None)
         try:
-            my_job = Job.objects.filter(id=t_id)
-            if not len(my_job): raise Exception("could not find Job")
-            my_job = my_job[0]
-            jInstance = my_job.getInstance(inst_id)
-            oldStatus = jInstance.status
-            minorOld  = jInstance.minor_status
-            if minor_status is not None and minor_status!=minorOld:
-                logger.debug("updating minor status")
-                jInstance.set("minor_status",minor_status)
-                del arguments['minor_status']
-            if major_status != oldStatus:
-                jInstance.setStatus(major_status)
-            for key in ["t_id","inst_id","major_status"]: del arguments[key]
-            for key,value in arguments.iteritems():
-                jInstance.set(key,value)
+            jInstance = None
+            if t_id != "None" and inst_id != "None":
+                my_job = Job.objects.filter(id=t_id)
+                if not len(my_job): raise Exception("could not find Job")
+                my_job = my_job[0]
+                jInstance = my_job.getInstance(inst_id)
+            else:
+                if bId != "None" and host != "None":
+                    jInstance = JobInstance.objects.filter(batchId=bId, hostname=host)
+                    if not len(jInstance): raise Exception("could not find JobInstance")
+                    jInstance = jInstance[0]
+            if jInstance is not None:
+                oldStatus = jInstance.status
+                minorOld  = jInstance.minor_status
+                if minor_status is not None and minor_status!=minorOld:
+                    logger.debug("updating minor status")
+                    jInstance.set("minor_status",minor_status)
+                    del arguments['minor_status']
+                if major_status != oldStatus:
+                    jInstance.setStatus(major_status)
+                for key in ["t_id","inst_id","major_status"]: del arguments[key]
+                for key,value in arguments.iteritems():
+                    jInstance.set(key,value)
             #update_status(t_id,inst_id,major_status, **arguments)
         except Exception as err:
             logger.exception(err)
