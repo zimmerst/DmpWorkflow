@@ -11,7 +11,7 @@ xml2dict= import_module("xmltodict")
 # LSF-specific stuff
 
 #raise ImportError("SGE class not supported")
-BATCH_ID_ENV = ""
+BATCH_ID_ENV = "JOB_ID"
 
 class BatchJob(HPCBatchJob):
     def submit(self, **kwargs):
@@ -112,6 +112,7 @@ class BatchEngine(BATCH):
                     if res != "None":
                         mem = float(res.get("mem","0kb").rsplit("kb")[0])
                         cpu = res.get("cput","00:00:00.000")
-                    this_job = {"USER":usr, "MEM":mem, "CPU_USED":cpu, "STAT": stat, "EXEC_HOST": j.get("exec_host")}
+                    this_job = {"USER":usr, "MEM":mem, "CPU_USED":cpu, "JOB_NAME":"None-None",
+                                "STAT": stat, "EXEC_HOST": j.get("exec_host")}
                     jobs[j.get("Job_Id","None").split(".")[0]]=this_job
             return jobs
