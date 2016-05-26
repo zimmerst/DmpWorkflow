@@ -82,8 +82,11 @@ class BatchEngine(BATCH):
         if command is None:
             command = "qstat"
         jobs = {}
-        if asDict: command+=" -x -e"
-        output, error, rc = run(command.split())
+        uL = iL = True
+        if asDict: 
+            uL = iL = False
+            command+=" -x -e"
+        output, error, rc = run(command.split(), useLogging=uL, interleaved=iL)
         self.logging.debug("rc: %i",int(rc))
         if rc: raise Exception("error during execution")
         if error is not None:
@@ -92,8 +95,7 @@ class BatchEngine(BATCH):
             return output
         else:
             i = 0
-            while not output.startswith("<"): 
-                output = output[i:-1]; i+=1
+            while not output.startswith("<"): output = output[i:-1]; i+=1
             if not output.endswith(">"): output+=">"
             output = xml2dict.parse(output)
             data = output.get("Data","None")
