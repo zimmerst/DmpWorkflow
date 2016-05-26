@@ -6,7 +6,6 @@ Created on Mar 23, 2016
 import re
 from DmpWorkflow.hpc.batch import BATCH, BatchJob as HPCBatchJob
 from DmpWorkflow.utils.shell import run
-from DmpWorkflow.utils.tools import rm
 from importlib import import_module
 xml2dict= import_module("xmltodict")
 # LSF-specific stuff
@@ -81,18 +80,18 @@ class BatchEngine(BATCH):
     
     def aggregateStatii(self, asDict=True, command=None):
         if command is None:
-            command = ["qstat"]
+            command = "qstat"
         jobs = {}
-        if asDict: command[-1]+=" -x -e > /tmp/qstat.xml"
-        output, error, rc = run(command)
+        if asDict: command+=" -x -e"
+        output, error, rc = run(command.split())
         self.logging.debug("rc: %i",int(rc))
+        if rc: raise Exception("error during execution")
         if error is not None:
             for e in error.split("\n"): self.logging.error(e)
         if not asDict:
             return output
         else:
-            output = xml2dict.parse(open("/tmp/qstat.xml","r"))
-            rm("/tmp/qstat.xml")
+            output = xml2dict.parse(output)
             data = output.get("Data","None")
             if "None": 
                 self.logging.error("could not get data content from qstat, check SGE")
