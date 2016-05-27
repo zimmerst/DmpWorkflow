@@ -369,6 +369,33 @@ class TestView(MethodView):
         return dumps({"result":"ok","beats":[b.hostname for b in beats]})
 
 class DataCatalog(MethodView):
+
+    def __register__(self,args):
+        query    = args[0]
+        filename = args[1]
+        site     = args[2]
+        filetype = args[3]
+        force    = args[4]
+        if len(query):
+            if force:
+                for f in query: f.delete()
+            else:
+                return dumps({"result":"nok","error":"called register but file apparently exists already"})
+        else:
+            df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
+            df.save()
+            return None
+    def __update_or_remove__(self,df,status=None,action="setStatus"):       
+        if status is None: 
+            return dumps({"result":"nok","error":"status is None"})
+        if action == 'setStatus':
+            df.setStatus(status)
+            df.update()
+        else:
+            logger.info("requested removal!")
+            df.delete()
+        return None
+        
     def post(self):
         logger.debug("DataCatalog: request form %s",str(request.form))
         filename = str(request.form.get("filename","None"))
@@ -395,23 +422,13 @@ class DataCatalog(MethodView):
                 fileQuery = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
                 if action == 'register':
                     logger.debug("request a new file to be registered")
-                    if len(fileQuery):
-                        if force:
-                            for f in fileQuery: f.delete()
-                        else:
-                            return dumps({"result":"nok","error":"called register but file apparently exists already"})
-                    else:
-                        df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
-                        df.save()
+                    res = self.__register__([fileQuery,filename,site,filetype,force])
+                    if res is not None: return res
                 else:
                     if len(fileQuery):
                         df = fileQuery[0]
-                        if action == 'setStatus':
-                            df.setStatus(status)
-                            df.update()
-                        else:
-                            logger.info("requested removal!")
-                            df.delete()
+                        res = self.__update_or_remove__(df, status=status, action=action)
+                        if res is not None: return res
                     else:
                         logger.debug("cannot find queried input file")
                         return dumps({"result":"nok", "error": "cannot find file in DB"})           

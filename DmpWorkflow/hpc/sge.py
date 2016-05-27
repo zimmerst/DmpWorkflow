@@ -88,7 +88,7 @@ class BatchEngine(BATCH):
             for j in sge_jobs:
                 usr = j.get("Job_Owner","None")
                 if "@" in usr: usr = usr.rsplit("@")[0]
-                if not filterUser is None: 
+                if filterUser is not None: 
                     if not usr == filterUser: continue 
                 stat= j.get("job_state","U").lower() # unknown
                 if stat.lower() not in self.status_map.keys(): stat = 'u'
