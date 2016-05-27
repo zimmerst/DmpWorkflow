@@ -74,12 +74,40 @@ class BatchEngine(BATCH):
         running = [j for j in self.allJobs if self.allJobs[j]['STAT']=="r"]
         pending = [j for j in self.allJobs if self.allJobs[j]['STAT']=="qw"]
         return running + pending
+
+    def __parseOutputAsXml__(self,xmloutput,filterUser):
+        """ returns job dictionary """
+        jobs = {}
+        output = xml2dict.parse(xmloutput)
+        data = output.get("Data","None")
+        if "None": 
+            self.logging.error("could not get data content from qstat, check SGE")
+        sge_jobs = data.get("Job","None")
+        if sge_jobs == "None": sge_jobs = []
+        if len(sge_jobs):
+            for j in sge_jobs:
+                usr = j.get("Job_Owner","None")
+                if "@" in usr: usr = usr.rsplit("@")[0]
+                if not filterUser is None: 
+                    if not usr == filterUser: continue 
+                stat= j.get("job_state","U").lower() # unknown
+                if stat.lower() not in self.status_map.keys(): stat = 'u'
+                cpu = None
+                mem = None
+                res = j.get("resources_used","None")
+                if res != "None":
+                    mem = float(res.get("mem","0kb").rsplit("kb")[0])
+                    cpu = res.get("cput","00:00:00.000")
+                this_job = {"USER":usr, "MEM":mem, "CPU_USED":cpu, "JOB_NAME":"None-None",
+                            "STAT": stat, "EXEC_HOST": j.get("exec_host")}
+                jobs[j.get("Job_Id","None").split(".")[0]]=this_job
+        return jobs
+
     
     def aggregateStatii(self, asDict=True, command=None):
         checkUser = self.getUser()
         if command is None:
             command = "qstat"
-        jobs = {}
         uL = iL = True
         if asDict: 
             uL = iL = False
@@ -92,27 +120,4 @@ class BatchEngine(BATCH):
         if not asDict:
             return output
         else:
-            output = xml2dict.parse(output)
-            data = output.get("Data","None")
-            if "None": 
-                self.logging.error("could not get data content from qstat, check SGE")
-            sge_jobs = data.get("Job","None")
-            if sge_jobs == "None": sge_jobs = []
-            if len(sge_jobs):
-                for j in sge_jobs:
-                    usr = j.get("Job_Owner","None")
-                    if "@" in usr: usr = usr.rsplit("@")[0]
-                    if not checkUser is None: 
-                        if not usr == checkUser: continue 
-                    stat= j.get("job_state","U").lower() # unknown
-                    if stat.lower() not in self.status_map.keys(): stat = 'u'
-                    cpu = None
-                    mem = None
-                    res = j.get("resources_used","None")
-                    if res != "None":
-                        mem = float(res.get("mem","0kb").rsplit("kb")[0])
-                        cpu = res.get("cput","00:00:00.000")
-                    this_job = {"USER":usr, "MEM":mem, "CPU_USED":cpu, "JOB_NAME":"None-None",
-                                "STAT": stat, "EXEC_HOST": j.get("exec_host")}
-                    jobs[j.get("Job_Id","None").split(".")[0]]=this_job
-            return jobs
+            return self.__parseOutputAsXml__(output, checkUser)
