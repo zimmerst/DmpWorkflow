@@ -4,17 +4,15 @@ Created on Apr 19, 2016
 @author: zimmer
 @brief: payload script
 """
-from importlib import import_module
-from os import curdir, environ, listdir, chdir, getenv
 from os.path import expandvars, abspath, dirname, isdir, isfile, join as oPjoin
+from os import curdir, environ, listdir, chdir, getenv
+from importlib import import_module
 from socket import gethostname
 from sys import exit as sys_exit, argv
-
 from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS
-from DmpWorkflow.job.DmpJob import DmpJob
-from DmpWorkflow.utils.shell import run
+from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm, ResourceMonitor
-
+from DmpWorkflow.utils.shell import run
 HPC = import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 from time import ctime
 

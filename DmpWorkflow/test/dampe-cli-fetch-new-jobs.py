@@ -3,14 +3,13 @@ Created on Mar 15, 2016
 
 @author: zimmer
 """
-from copy import deepcopy
-from random import randint, choice
-from time import ctime
-
-from DmpWorkflow.config.defaults import os, sys
+from DmpWorkflow.config.defaults import os, sys, DAMPE_WORKFLOW_URL
 from DmpWorkflow.core import db
 from DmpWorkflow.core.models import Job
-from DmpWorkflow.job.DmpJob import DmpJob
+from DmpWorkflow.core.DmpJob import DmpJob
+from random import randint, choice
+from copy import deepcopy
+from time import ctime
 
 hostnames = ['fell', 'bullet', 'iris', 'hequ']
 

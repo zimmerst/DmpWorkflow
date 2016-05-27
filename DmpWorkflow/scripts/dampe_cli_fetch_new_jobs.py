@@ -4,15 +4,12 @@ Created on Mar 15, 2016
 @author: zimmer
 """
 import logging
-from argparse import ArgumentParser
-from importlib import import_module
-from sys import exit as sys_exit
-
 from requests import get
-
+from sys import exit as sys_exit
+from argparse import ArgumentParser
+from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
-from DmpWorkflow.job.DmpJob import DmpJob
-
+from importlib import import_module
 HPC = import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 #from DmpWorkflow.scripts.dampe_cli_run_watchdog import __getRunningJobs
 
