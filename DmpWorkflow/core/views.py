@@ -257,13 +257,16 @@ class SetJobStatus(MethodView):
                     queried_instances = JobInstance.objects.filter(job=job,status=str(stat))
                 logger.info("query returned %i queried_instances",queried_instances.count())
                 filtered_instances = []
+                logger.info("filtered: %i queried: %i",queried_instances.count(), len(filtered_instances))
                 for inst in queried_instances:
                     keep = True
                     logger.info(inst, inst.instanceId)
                     instId = inst.instanceId   
                     if n_min != -1 and instId <= n_min: keep = False
                     if n_max != -1 and instId  > n_max: keep = False
-                    if keep: filtered_instances.append(inst)
+                    if not keep: continue
+                    filtered_instances.append(inst)
+                logger.info("filtered: %i queried: %i",queried_instances.count(), len(filtered_instances))
                 queried_instances = filtered_instances
             else:
                 queried_instances = JobInstance.objects.filter(job=job, instanceId = instId)
