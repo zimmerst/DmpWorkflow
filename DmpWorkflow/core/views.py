@@ -267,7 +267,11 @@ class SetJobStatus(MethodView):
             else:
                 queried_instances = JobInstance.objects.filter(job=job, instanceId = instId)
             logger.info("query returned %i instances",queried_instances.count())
-            queried_instances = [{"instanceId":q.instanceId, "jobId":str(q.job.id)} for q in queried_instances]
+            try:
+                queried_instances = [{"instanceId":q.instanceId, "jobId":str(q.job.id)} for q in queried_instances]
+            except Exception as err:
+                logger.error(err)
+                raise Exception("error occurred when forming final output")
             if queried_instances.count(): 
                 logger.info("example query instance %s",queried_instances.first())
         else:
