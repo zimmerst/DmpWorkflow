@@ -242,22 +242,22 @@ class SetJobStatus(MethodView):
         n_min = int(request.form.get("n_min",-1))
         n_max = int(request.form.get("n_max",-1))
         jobs = Job.objects.filter(title=title, type=jtype)
-        logger.info("jobs found %s",str(jobs))
+        logger.debug("jobs found %s",str(jobs))
         queried_instances = []
         if jobs.count():
-            logger.info("get: found jobs matching query %s",jobs)
+            logger.debug("get: found jobs matching query %s",jobs)
             if jobs.count()!=1:
                 logger.error("found multiple jobs matching query, that shouldn't happen!")
             job = jobs.first()
             if instId == -1:
-                logger.info("Q: job=%s status=%s",job,stat)
+                logger.debug("Q: job=%s status=%s",job,stat)
                 if stat == "Any":
                     queried_instances = JobInstance.objects.filter(job=job)
                 else:
                     queried_instances = JobInstance.objects.filter(job=job,status=str(stat))
-                logger.info("query returned %i queried_instances",queried_instances.count())
+                logger.debug("query returned %i queried_instances",queried_instances.count())
                 filtered_instances = []
-                logger.info("filtered: %i queried: %i",queried_instances.count(), len(filtered_instances))
+                logger.debug("queried: %i filtered: %i",queried_instances.count(), len(filtered_instances))
                 for inst in queried_instances:
                     keep = True
                     logger.info(inst, inst.instanceId)
@@ -266,18 +266,18 @@ class SetJobStatus(MethodView):
                     if n_max != -1 and instId  > n_max: keep = False
                     if not keep: continue
                     filtered_instances.append(inst)
-                logger.info("filtered: %i queried: %i",queried_instances.count(), len(filtered_instances))
+                logger.debug("queried: %i filtered: %i",queried_instances.count(), len(filtered_instances))
                 queried_instances = filtered_instances
             else:
                 queried_instances = JobInstance.objects.filter(job=job, instanceId = instId)
-            logger.info("query returned %i instances",queried_instances.count())
+            logger.debug("query returned %i instances",queried_instances.count())
             try:
                 queried_instances = [{"instanceId":q.instanceId, "jobId":str(q.job.id)} for q in queried_instances]
             except Exception as err:
                 logger.error(err)
                 return dumps({"result":"nok","error": "error occurred when forming final output"})
-            if queried_instances.count(): 
-                logger.info("example query instance %s",queried_instances.first())
+            if len(queried_instances): 
+                logger.info("example query instance %s",queried_instances[-1])
         else:
             logger.exception("could not find job")
             return dumps({"result":"nok","error": "could not find job"})
