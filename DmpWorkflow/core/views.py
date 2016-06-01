@@ -266,7 +266,7 @@ class SetJobStatus(MethodView):
                 queried_instances = filtered_instances
             else:
                 queried_instances = JobInstance.objects.filter(job=job, instanceId = instId)
-            logger.debug("query returned %i instances",queried_instances.count())
+            logger.info("query returned %i instances",queried_instances.count())
             queried_instances = [{"instanceId":q.instanceId, "jobId":str(q.job.id)} for q in queried_instances]
             if queried_instances.count(): 
                 logger.debug("example query instance %s",queried_instances[-1])
