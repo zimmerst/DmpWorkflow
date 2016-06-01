@@ -31,7 +31,7 @@ class BatchJob(HPCBatchJob):
                                                                      self.command, self.name, self.cputime)
         if 'verbose' in kwargs and kwargs['verbose']: print cmd
         #print cmd
-        output = self.__run__(cmd)
+        output = self.__run__(cmd.split())
         return self.__regexId__(output)
     def getCPU(self):
         """ format is 00:00 """
@@ -64,7 +64,7 @@ class BatchJob(HPCBatchJob):
     def kill(self):
         """ likewise, it should implement its own batch-specific removal command """
         cmd = "bkill %s" % self.batchId
-        self.__run__(cmd)
+        self.__run__(cmd.split())
         self.update("status","Failed")
 
 
