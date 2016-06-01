@@ -259,7 +259,11 @@ class SetJobStatus(MethodView):
                 filtered_instances = []
                 for inst in queried_instances:
                     keep = True
-                    instId = inst.instanceId
+                    try:
+                        instId = inst.instanceId
+                    except Exception as err:
+                        logger.critical("job %s instance %s id %s: error: ",job, inst.instanceId, inst.id)
+                        return dumps({"result":"nok","error": err})   
                     if n_min != -1 and instId <= n_min: keep = False
                     if n_max != -1 and instId  > n_max: keep = False
                     if keep: filtered_instances.append(inst)
@@ -271,7 +275,7 @@ class SetJobStatus(MethodView):
                 queried_instances = [{"instanceId":q.instanceId, "jobId":str(q.job.id)} for q in queried_instances]
             except Exception as err:
                 logger.error(err)
-                raise Exception("error occurred when forming final output")
+                return dumps({"result":"nok","error": "error occurred when forming final output"})
             if queried_instances.count(): 
                 logger.info("example query instance %s",queried_instances.first())
         else:
