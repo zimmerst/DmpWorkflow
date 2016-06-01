@@ -137,11 +137,7 @@ class Job(db.Document):
     def getInstance(self, _id):
         jI = JobInstance.objects.filter(job=self, instanceId=_id)
         log.debug("jobInstances from query: %s",str(jI))
-        if jI.count():
-            return jI[0]
-        # for jI in self.jobInstances:
-        #    if long(jI.instanceId) == long(_id):
-        #         return jI
+        if jI.count(): return jI.first()
         log.exception("could not find matching id")             
         return None
 
@@ -185,13 +181,10 @@ class Job(db.Document):
 
     def aggregateStatiiFast(self, asdict=False):
         """ will return an aggregated summary of all instances in all statuses """
-        vals = [JobInstance.objects.filter(job=self,status=stat).count() for stat in MAJOR_STATII]
-        counting_dict = dict(zip(MAJOR_STATII,vals))
-        ret = [(k, counting_dict[k]) for k in MAJOR_STATII]
-        if asdict: 
-            return {v[0]:v[1] for v in ret} 
-        else:
-            return ret
+        counting_dict = {unicode(key):0 for key in MAJOR_STATII}
+        counting_dict.update(JobInstance.objects.filter(job=self).item_frequencies("status"))
+        if asdict: return counting_dict
+        else: return [(key, value) for key, value in counting_dict.iteritems()]
 
     def countInstances(self):
         return JobInstance.objects.filter(job=self).count()
