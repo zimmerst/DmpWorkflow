@@ -30,7 +30,7 @@ class DetailView(MethodView):
         context = {
             "job": job,
             "form": form,
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": unicode(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
             "instances":JobInstance.objects.filter(job=job)
         }
         return context
