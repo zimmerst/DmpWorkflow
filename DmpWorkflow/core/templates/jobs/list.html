@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% from time import ctime %}
 {% block content %}
 <h2> Job Summary </h2>
 {% set MAJOR_STATII = ['New','Submitted','Running','Suspended','Done','Failed','Terminated'] %}
@@ -33,5 +32,5 @@
 {% endblock %}
 
 <div>
-<strong> Last Update: </strong> {{ ctime() }}
-</div> 
+<strong> Last Update: </strong> {{ timestamp }}
+</div>
