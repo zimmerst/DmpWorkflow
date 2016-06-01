@@ -27,10 +27,13 @@ class DetailView(MethodView):
     def get_context(self, slug):
         job = Job.objects.get_or_404(slug=slug)
         form = self.form(request.form)
+        aux_data = {'timestamp':unicode(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                    'n_jobs':Job.objects.all().count(),
+                    'n_instance':JobInstance.objects.all().count()}
         context = {
             "job": job,
             "form": form,
-            "timestamp": unicode(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+            "stat": aux_data,
             "instances":JobInstance.objects.filter(job=job)
         }
         return context
