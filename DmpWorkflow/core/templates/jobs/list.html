@@ -16,13 +16,17 @@
 		<td>{{ job.type }}</td>
 		<td>{{ job.release }}</td>
 		<td>{{ job.getNevents() }}</td>
-		{% set statdict = job.aggregateStatii(asdict=True) %}
+		{% set statdict = job.aggregateStatiiFast(asdict=True) %}
 		{% for key in MAJOR_STATII %}
 		{% set value = statdict[key] %}
 		<td>{{ value }}</td>
 		{% endfor %}
-		<td>{{job.jobInstances|length}}</td>
+		<td>{{job.countInstances()}}</td>
 	</tr>	
 	{% endfor %}
 </table>
+
+<div>
+<strong> Total Number of Jobs: </strong>{{ Job.objects.all().count() }}<strong>JobInstances :</strong> {{ JobInstance.objects.all().count() }} </strong>
+</div>
 {% endblock %}

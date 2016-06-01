@@ -117,7 +117,7 @@ class JobView(MethodView):
                 depends = depends.split(",")
                 for d in depends:
                     dependent_job = Job.objects.filter(slug=unicode(d))
-                    if len(dependent_job):
+                    if dependent_job.count():
                         job.addDependency(dependent_job[0])
                     else:
                         logger.warning("could not find job dependency %s for job %s",d,job.slug)
@@ -142,7 +142,7 @@ class JobInstanceView(MethodView):
         if taskName is None and tasktype is None:
             return dumps({"result":"nok","error":"query got empty taskname & type"})
         jobs = Job.objects.filter(title=taskName, type=tasktype)
-        if len(jobs):
+        if jobs.count():
             logger.debug("Found job")
             job = jobs[0]
             site = job.execution_site
@@ -213,7 +213,7 @@ class SetJobStatus(MethodView):
         minor_status = arguments.get("minor_status",None)
         try:
             my_job = Job.objects.filter(id=t_id)
-            if not len(my_job): raise Exception("could not find Job")
+            if not my_job.count(): raise Exception("could not find Job")
             my_job = my_job[0]
             jInstance = my_job.getInstance(inst_id)
             oldStatus = jInstance.status
@@ -243,9 +243,9 @@ class SetJobStatus(MethodView):
         n_max = int(request.form.get("n_max",-1))
         jobs = Job.objects.filter(title=title, type=jtype)
         queried_instances = []
-        if len(jobs):
+        if jobs.count():
             logger.debug("get: found jobs matching query %s",jobs)
-            if len(jobs)!=1:
+            if jobs.count()!=1:
                 logger.error("found multiple jobs matching query, that shouldn't happen!")
             job = jobs[0]
             if instId == -1:
@@ -254,7 +254,7 @@ class SetJobStatus(MethodView):
                     queried_instances = JobInstance.objects.filter(job=job)
                 else:
                     queried_instances = JobInstance.objects.filter(job=job,status=str(stat))
-                logger.debug("query returned %i queried_instances",len(queried_instances))
+                logger.debug("query returned %i queried_instances",queried_instances.count())
                 filtered_instances = []
                 for inst in queried_instances:
                     keep = True
@@ -265,9 +265,9 @@ class SetJobStatus(MethodView):
                 queried_instances = filtered_instances
             else:
                 queried_instances = JobInstance.objects.filter(job=job, instanceId = instId)
-            logger.debug("query returned %i instances",len(queried_instances))
+            logger.debug("query returned %i instances",queried_instances.count())
             queried_instances = [{"instanceId":q.instanceId, "jobId":str(q.job.id)} for q in queried_instances]
-            if len(queried_instances): 
+            if queried_instances.count(): 
                 logger.debug("example query instance %s",queried_instances[-1])
         else:
             logger.exception("could not find job")
@@ -287,9 +287,9 @@ class NewJobs(MethodView):
             dependent_tasks = job.getDependency()
             logger.debug("dependent tasks: %s",dependent_tasks)
             newJobs = JobInstance.objects.filter(job=job, status=u"New").limit(int(_limit))
-            logger.debug("#newJobs: %i",len(newJobs))
-            if len(newJobs):
-                logger.debug("found %i new instances for job %s",len(newJobs),str(job.title))
+            logger.debug("#newJobs: %i",newJobs.count())
+            if newJobs.count():
+                logger.debug("found %i new instances for job %s",newJobs.count(),str(job.title))
                 dJob = DmpJob(job.id, body=None, title=job.title)
                 logger.debug("DmpJob instantiation.")
                 for dt in dependent_tasks:
@@ -308,7 +308,7 @@ class NewJobs(MethodView):
                         newJobInstances.append(dInstance.exportToJSON())
                     else:
                         logger.info("dependencies not fulfilled yet")
-                logger.debug("found %i new jobs after dependencies",len(newJobs))
+                logger.debug("found %i new jobs after dependencies",len(newJobInstances))
         return dumps({"result":"ok", "jobs": newJobInstances})
 
 class JobResources(MethodView):
@@ -316,7 +316,7 @@ class JobResources(MethodView):
         logger.debug("request %s",str(request))
         batchsite = unicode(request.form.get("site","local"))
         runningJobs = JobInstance.objects.filter(site=batchsite, status=u"Running")
-        logger.debug("number of runningJobs = %i", len(runningJobs))
+        logger.debug("number of runningJobs = %i", runningJobs.count())
         try:
             allJobs = []
             for j in runningJobs:
@@ -327,7 +327,7 @@ class JobResources(MethodView):
                     "major_status":j.status,
                     "max_cpu":j.get("max_cpu"),
                     "max_mem":j.get("max_mem")} for j in runningJobs]
-            logger.debug("dumping %i jobs",len(allJobs))
+            logger.debug("dumping %i jobs",allJobs.count())
             return dumps({"result":"ok", "jobs": allJobs})
         except Exception as err:
             return dumps({"result":"nok", "error": err})
@@ -354,7 +354,7 @@ class TestView(MethodView):
         beats = []
         try:
             beats = HeartBeat.objects.all().limit(limit)
-            logger.debug("found %i heartbeats",len(beats))
+            logger.debug("found %i heartbeats",beats.count())
         except Exception as ex:
             logger.error("failure during HeartBeat GET test. \n%s",ex)
             return dumps({"result":"nok","error":ex})
@@ -387,7 +387,7 @@ class DataCatalog(MethodView):
                 fileQuery = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
                 if action == 'register':
                     logger.debug("request a new file to be registered")
-                    if len(fileQuery):
+                    if fileQuery.count():
                         if force:
                             for f in fileQuery: f.delete()
                         else:
@@ -396,7 +396,7 @@ class DataCatalog(MethodView):
                         df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
                         df.save()
                 else:
-                    if len(fileQuery):
+                    if fileQuery.count():
                         df = fileQuery[0]
                         if action == 'setStatus':
                             df.setStatus(status)
@@ -421,7 +421,7 @@ class DataCatalog(MethodView):
         filetype=str(request.form.get("filetype","root"))
         try:
             dfs = DataFile.objects.filter(site=site, status=status, filetype=filetype).limit(limit)
-            logger.debug("found %i files matching query",len(dfs))
+            logger.debug("found %i files matching query",dfs.count())
         except Exception as ex:
             logger.error("failure during DataCatalog GET. \n%s",ex)
             return dumps({"result":"nok","error":str(ex)})
