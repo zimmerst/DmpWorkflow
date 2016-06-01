@@ -109,7 +109,7 @@ class BatchEngine(BATCH):
     def aggregateStatii(self, asDict=True, command=None):
         #print self.keys
         if command is None:
-            command = ["bjobs -Wa"]
+            command = ["bjobs","-Wa"]
         jobs = {}
         output, error, rc = run(command)
         self.logging.debug("rc: %i",int(rc))
