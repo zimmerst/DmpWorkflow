@@ -3,11 +3,13 @@ Created on May 18, 2016
 
 @author: zimmer
 @brief: server-side script to remove duplicate jobInstances.
+@fixme: need to implement atomic queries.
 '''
 import progressbar
 from DmpWorkflow.core.models import JobInstance
 
 def main():
+    print Warning("This script is very slow, consider using alternatives")
     try:
         from DmpWorkflow.core import db
         db.connect()

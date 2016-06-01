@@ -6,7 +6,7 @@ from mongoengine import CASCADE
 from copy import deepcopy
 from flask import url_for
 from ast import literal_eval
-from StringIO import StringIO
+#from StringIO import StringIO
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
 from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler
@@ -114,30 +114,25 @@ class Job(db.Document):
                 return tuple(self.dependencies) 
 
     def getNevents(self):
-        #log.warning("FIXME: need to implement fast query")
-        jIs = JobInstance.objects.filter(job=self)
-        envs = [j.Nevents for j in jIs]
-        while None in envs:
-            envs.remove(None)
-        return sum(envs)
+        return self.getNeventsFast()
+
+    def getNeventsFast(self):
+        return JobInstance.objects.filter(job=self).aggregate_sum("Nevents")
 
     def getBody(self):
         # os.environ["DWF_JOBNAME"] = self.title
-        bdy = self.body.get().read()
-        bdy_file = StringIO(deepcopy(bdy))
-        self.body.delete()
-        self.body.put(bdy_file,content_type="application/xml")
-        self.update()
+        bdy = deepcopy(self.body.get().read())
+        self.body.get().seek(0)
+        #bdy_file = StringIO(deepcopy(bdy))
+        #self.body.delete()
+        #self.body.put(bdy_file,content_type="application/xml")
+        #self.update()
         return parseJobXmlToDict(bdy)
 
     def getInstance(self, _id):
         jI = JobInstance.objects.filter(job=self, instanceId=_id)
         log.debug("jobInstances from query: %s",str(jI))
-        if len(jI):
-            return jI[0]
-        # for jI in self.jobInstances:
-        #    if long(jI.instanceId) == long(_id):
-        #         return jI
+        if jI.count(): return jI.first()
         log.exception("could not find matching id")             
         return None
 
@@ -166,28 +161,19 @@ class Job(db.Document):
         self.jobInstances.append(jInst)
 
     def aggregateStatii(self, asdict=False):
+        # just an alias
         """ will return an aggregated summary of all instances in all statuses """
-        counting_dict = dict(zip(MAJOR_STATII, [0 for _ in MAJOR_STATII]))
-        for jI in self.jobInstances:
-            if jI.status not in MAJOR_STATII:
-                raise Exception("Instance found in status not known to system")
-            counting_dict[jI.status] += 1
-        ret = [(k, counting_dict[k]) for k in MAJOR_STATII]
-        if asdict: 
-            return {v[0]:v[1] for v in ret} 
-        else:
-            return ret
+        return self.aggregateStatiiFast(asdict=asdict)
 
     def aggregateStatiiFast(self, asdict=False):
         """ will return an aggregated summary of all instances in all statuses """
-        vals = [len(JobInstance.objects.filter(job=self,status=stat)) for stat in MAJOR_STATII]
-        counting_dict = dict(zip(MAJOR_STATII,vals))
-        ret = [(k, counting_dict[k]) for k in MAJOR_STATII]
-        if asdict: 
-            return {v[0]:v[1] for v in ret} 
-        else:
-            return ret
+        counting_dict = {unicode(key):0 for key in MAJOR_STATII}
+        counting_dict.update(JobInstance.objects.filter(job=self).item_frequencies("status"))
+        if asdict: return counting_dict
+        else: return [(key, value) for key, value in counting_dict.iteritems()]
 
+    def countInstances(self):
+        return JobInstance.objects.filter(job=self).count()
 
     def get_absolute_url(self):
         return url_for('job', kwargs={"slug": self.slug})
@@ -230,9 +216,9 @@ class JobInstance(db.Document):
     hostname = db.StringField(verbose_name="hostname", required=False, default=None)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
-    status_history = db.ListField()
-    memory = db.ListField()
-    cpu = db.ListField()
+    status_history = db.ListField(db.DictField())
+    memory = db.ListField(db.DictField())
+    cpu = db.ListField(db.DictField())
     log = db.StringField(verbose_name="log", required=False, default="")
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)",required=False, default= -1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)",required=False, default= -1.)

@@ -5,8 +5,7 @@ Created on Mar 15, 2016
 """
 import logging
 from time import ctime
-from DmpWorkflow.core import db
-from DmpWorkflow.core.models import Job, MAJOR_STATII
+from DmpWorkflow.core.models import Job, MAJOR_STATII, db
 
 log = logging.getLogger("core")
 
