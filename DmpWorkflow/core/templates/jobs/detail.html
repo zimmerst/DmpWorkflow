@@ -68,7 +68,7 @@
   {% endfor %}
   </code>
   <hr>
-  <h2>Job Instances ({{instances.count()}} total)</h2>
+  <h2>Job Instances ({{job.jobInstances|length}} total)</h2>
   {% set columns = ["id","batchId", "created at", "last sign of life", "status", "minor_status","host"]%}
   {#, "CPU", "MEM"]#}
 <table class="table">
@@ -76,8 +76,8 @@
 	{% for col in columns %}  	
 	<th> {{ col }} </th>
   	{% endfor %}
-  	{% if instances.count() %}  	
-    {% for jobInstance in instances %}
+  	{% if job.jobInstances %}  	
+    {% for jobInstance in job.jobInstances %}
 	<tr>
 {#		<td><a href="/InstanceDetail?slug={{job.slug}}&inst_id={{jobInstance.instanceId}}">{{ jobInstance.sixDigit() }}</a></td> #}
 		<td> {{ jobInstance.sixDigit() }} </td>
