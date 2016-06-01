@@ -250,7 +250,7 @@ class SetJobStatus(MethodView):
                 logger.error("found multiple jobs matching query, that shouldn't happen!")
             job = jobs.first()
             if instId == -1:
-                logger.debug("Q: job=%s status=%s",job,stat)
+                logger.info("Q: job=%s status=%s",job,stat)
                 if stat == "Any":
                     queried_instances = JobInstance.objects.filter(job=job)
                 else:
@@ -269,7 +269,7 @@ class SetJobStatus(MethodView):
             logger.info("query returned %i instances",queried_instances.count())
             queried_instances = [{"instanceId":q.instanceId, "jobId":str(q.job.id)} for q in queried_instances]
             if queried_instances.count(): 
-                logger.debug("example query instance %s",queried_instances[-1])
+                logger.info("example query instance %s",queried_instances.first())
         else:
             logger.exception("could not find job")
             return dumps({"result":"nok","error": "could not find job"})
