@@ -259,11 +259,8 @@ class SetJobStatus(MethodView):
                 filtered_instances = []
                 for inst in queried_instances:
                     keep = True
-                    try:
-                        instId = inst.instanceId
-                    except Exception as err:
-                        logger.critical(err)#"job %s instance %s id %s: error: ",job, inst.instanceId, inst.id)
-                        return dumps({"result":"nok","error": err})   
+                    logger.info(inst, inst.instanceId)
+                    instId = inst.instanceId   
                     if n_min != -1 and instId <= n_min: keep = False
                     if n_max != -1 and instId  > n_max: keep = False
                     if keep: filtered_instances.append(inst)
