@@ -260,7 +260,6 @@ class SetJobStatus(MethodView):
                 logger.debug("queried: %i filtered: %i",queried_instances.count(), len(filtered_instances))
                 for inst in queried_instances:
                     keep = True
-                    logger.info(inst, inst.instanceId)
                     instId = inst.instanceId   
                     if n_min != -1 and instId <= n_min: keep = False
                     if n_max != -1 and instId  > n_max: keep = False
