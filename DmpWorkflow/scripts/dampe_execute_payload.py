@@ -50,7 +50,7 @@ def __runPayload(job, resources=None):
     CMD = "%s payload" % job.executable
     logThis("CMD: %s", CMD)
     job.updateStatus("Running", "ExecutingApplication", resources=resources)
-    output, error, rc = run([CMD])
+    output, error, rc = run(CMD.split())
     for o in output.split("\n"): print o
     if rc:
         logThis("ERROR: Payload returned exit code %i, see below for more details.", rc)
