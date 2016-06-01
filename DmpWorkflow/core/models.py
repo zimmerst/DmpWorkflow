@@ -114,12 +114,7 @@ class Job(db.Document):
                 return tuple(self.dependencies) 
 
     def getNevents(self):
-        log.warning("FIXME: need to implement fast query")
-        jIs = JobInstance.objects.filter(job=self)
-        envs = [j.Nevents for j in jIs]
-        while None in envs:
-            envs.remove(None)
-        return sum(envs)
+        return self.getNeventsFast()
 
     def getNeventsFast(self):
         return JobInstance.objects.filter(job=self).aggregate_sum("Nevents")
