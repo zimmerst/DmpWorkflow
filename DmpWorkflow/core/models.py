@@ -114,7 +114,7 @@ class Job(db.Document):
                 return tuple(self.dependencies) 
 
     def getNevents(self):
-        raise DeprecationWarning("FIXME: need to implement fast query")
+        log.warning("FIXME: need to implement fast query")
         jIs = JobInstance.objects.filter(job=self)
         envs = [j.Nevents for j in jIs]
         while None in envs:
@@ -171,7 +171,7 @@ class Job(db.Document):
 
     def aggregateStatii(self, asdict=False):
         """ will return an aggregated summary of all instances in all statuses """
-        raise DeprecationWarning("consider using aggregateStatiiFast instead.")
+        log.warning("consider using aggregateStatiiFast instead.")
         counting_dict = dict(zip(MAJOR_STATII, [0 for _ in MAJOR_STATII]))
         for jI in self.jobInstances:
             if jI.status not in MAJOR_STATII:

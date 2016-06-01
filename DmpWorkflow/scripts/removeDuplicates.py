@@ -9,7 +9,7 @@ import progressbar
 from DmpWorkflow.core.models import JobInstance
 
 def main():
-    raise Warning("This script is very slow, consider using alternatives")
+    print Warning("This script is very slow, consider using alternatives")
     try:
         from DmpWorkflow.core import db
         db.connect()
