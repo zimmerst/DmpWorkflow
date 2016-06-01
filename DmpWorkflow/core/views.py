@@ -262,7 +262,7 @@ class SetJobStatus(MethodView):
                     try:
                         instId = inst.instanceId
                     except Exception as err:
-                        logger.critical("job %s instance %s id %s: error: ",job, inst.instanceId, inst.id)
+                        logger.critical(err)#"job %s instance %s id %s: error: ",job, inst.instanceId, inst.id)
                         return dumps({"result":"nok","error": err})   
                     if n_min != -1 and instId <= n_min: keep = False
                     if n_max != -1 and instId  > n_max: keep = False
