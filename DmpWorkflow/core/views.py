@@ -270,7 +270,7 @@ class SetJobStatus(MethodView):
                 queried_instances = filtered_instances
             else:
                 queried_instances = JobInstance.objects.filter(job=job, instanceId = instId)
-            logger.debug("query returned %i instances",queried_instances.count())
+            logger.debug("query returned %i instances",len(queried_instances))
             try:
                 queried_instances = [{"instanceId":q.instanceId, "jobId":str(q.job.id)} for q in queried_instances]
             except Exception as err:
