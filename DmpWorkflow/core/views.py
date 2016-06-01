@@ -29,7 +29,8 @@ class DetailView(MethodView):
         form = self.form(request.form)
         context = {
             "job": job,
-            "form": form
+            "form": form,
+            "instances":JobInstance.objects.filter(job=job)
         }
         return context
 
