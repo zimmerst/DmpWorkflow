@@ -336,7 +336,7 @@ class JobResources(MethodView):
                     "major_status":j.status,
                     "max_cpu":j.get("max_cpu"),
                     "max_mem":j.get("max_mem")} for j in runningJobs]
-            logger.debug("dumping %i jobs",allJobs.count())
+            logger.debug("dumping %i jobs",len(allJobs))
             return dumps({"result":"ok", "jobs": allJobs})
         except Exception as err:
             return dumps({"result":"nok", "error": err})
