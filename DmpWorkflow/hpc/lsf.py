@@ -111,7 +111,7 @@ class BatchEngine(BATCH):
         if command is None:
             command = ["bjobs","-Wa"]
         jobs = {}
-        output, error, rc = run(command)
+        output, error, rc = run(command,useLogging=False,interleaved=False)
         self.logging.debug("rc: %i",int(rc))
         if error is not None:
             #print error.split("\n")
