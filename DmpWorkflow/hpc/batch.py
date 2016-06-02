@@ -71,7 +71,7 @@ class BatchJob(object):
     
     def __run__(self,cmd):
         if not isinstance(cmd,list): cmd = cmd.split()
-        output, error, rc = run(cmd,useLogging=False,interleaved=False)
+        output, error, rc = run(cmd,useLogging=False,interleaved=False, supressLevel=True)
         self.logging.debug("execution with rc: %i",int(rc))
         if error:
             for e in error.split("\n"):

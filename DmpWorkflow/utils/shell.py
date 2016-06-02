@@ -11,7 +11,7 @@ from os import chmod, stat, environ, remove
 from os.path import expandvars
 
 logger = logging.getLogger("core")
-def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True):
+def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppressLevel=False):
     # inspired from http://tinyurl.com/hslhjfe (StackOverflow)
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
@@ -31,13 +31,16 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True):
                     line = tsk.stdout.readline()
                     if len(line) > 0:
                         if useLogging: logger.info(line[:-1])
-                        output.append("INFO: %s"%str(line[:-1]))
+                        val = str(line[:-1])
+                        output.append(val if suppressLevel else "INFO: %s"%val)
                 if rfd == tsk.stderr.fileno():
                     line = tsk.stderr.readline()
                     if len(line) > 0:
                         if suppressErrors: continue
                         errors.append(line[:-1])
-                        if interleaved: output.append(errors[-1])
+                        val = errors[-1]
+                        if interleaved: 
+                            output.append(val if suppressLevel else "*ERROR*: %s"%errors[-1])
                         if useLogging: logger.error(errors[-1])
             if event & POLLHUP:
                 poll.unregister(rfd)
