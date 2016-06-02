@@ -35,7 +35,7 @@ class BatchJob(object):
 
     def __execWithUpdate__(self, cmd, key, value=None):
         """ execute command cmd & update key with output from running """
-        output, error, rc = run([cmd])
+        output, error, rc = run(cmd.split(),suppressLevel=True,interleaved=False,useLogging=False)
         self.logging.debug("execution with rc: %i",int(rc))
         if error:
             for e in error.split("\n"):
@@ -71,7 +71,7 @@ class BatchJob(object):
     
     def __run__(self,cmd):
         if not isinstance(cmd,list): cmd = cmd.split()
-        output, error, rc = run(cmd,useLogging=False,interleaved=False, supressLevel=True)
+        output, error, rc = run(cmd,useLogging=False,interleaved=False, suppressLevel=True)
         self.logging.debug("execution with rc: %i",int(rc))
         if error:
             for e in error.split("\n"):
