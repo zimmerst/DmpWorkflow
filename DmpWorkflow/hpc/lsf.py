@@ -72,7 +72,7 @@ class BatchEngine(BATCH):
     kind = "lsf"
     keys = ["USER","STAT","QUEUE","FROM_HOST","EXEC_HOST","JOB_NAME","SUBMIT_TIME","PROJ_NAME","CPU_USED",\
                 "MEM","SWAP","PIDS","START_TIME","FINISH_TIME","SLOTS"]
-    status_map = {"RUN": "Running", "PEND": "Submitted", "SSUSP": "Suspended",
+    status_map = {"RUN": "Running", "PEND": "Submitted", "SSUSP": "Suspended", "USUSP": "Suspended",
                        "EXIT": "Failed", "DONE": "Done", "UNKWN": "Failed"}
     parameter_map = {"mem":"MEM","cpu":"CPU_USED"}
 
