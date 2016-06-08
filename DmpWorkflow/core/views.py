@@ -20,7 +20,12 @@ class ListView(MethodView):
         jobs = Job.objects.all()
         return render_template('jobs/list.html', jobs=jobs)
 
-
+class StatsView(MethodView):
+    def get(self):
+        logger.debug("request %s",str(request))
+        jobs = Job.objects.all()
+        return render_template('stats/siteSummary.html', jobs=jobs)
+    
 class DetailView(MethodView):
     form = model_form(JobInstance, exclude=['created_at', 'status_history', 'memory','cpu'])
 
@@ -468,6 +473,7 @@ class DataCatalog(MethodView):
 
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
+jobs.add_url_rule('/stats/siteSummary', view_func=StatsView.as_view('siteSummary'))
 jobs.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
 jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
