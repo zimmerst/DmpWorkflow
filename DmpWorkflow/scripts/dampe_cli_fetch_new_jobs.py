@@ -20,10 +20,12 @@ def main(args=None):
     parser.add_argument("-p", "--pythonbin", dest="python", default=None, type=str, help='the python executable if non standard is chosen')
     parser.add_argument("-c", "--chunk", dest="chunk", default=100, type=int, help='number of jobs to process per cycle')
     parser.add_argument("-m", "--maxJobs", dest="maxJobs", default=None, type=int, help='number of jobs that can be in the system')
+    parser.add_argument("-u", "--user", dest="user", default=None, type=str, help='name of user that submits jobs')
     opts = parser.parse_args(args)
     log = logging.getLogger("script")
     batchsite = BATCH_DEFAULTS['name']
     BEngine = HPC.BatchEngine()
+    if opts.user is not None: BEngine.setUser(opts.user)
     if opts.maxJobs is not None:
         val = len(BEngine.getRunningJobs(pending=True))
         log.info('found %i jobs running or pending',val)
