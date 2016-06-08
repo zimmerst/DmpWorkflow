@@ -17,9 +17,9 @@ class BatchJob(HPCBatchJob):
     def submit(self, **kwargs):
         ''' each class MUST implement its own submission command '''
         extra = "%s" % self.extra if isinstance(self.extra, str) else ""
-        mem = "-l ".join(["%s=%s"%(k,v) for k,v in {key:self.memory 
+        mem = " -l ".join(["%s=%s"%(k,v) for k,v in {key:self.memory 
                                                     for key in ['mem','vmem','pvmem','pmem']}.iteritems()])        
-        cmd = "qsub -m n -o %s -j oe -V -l cput=%s %s -m n -r n %s %s" % (self.logFile,
+        cmd = "qsub -m n -r n -o %s -j oe -V -l cput=%s %s %s %s" % (self.logFile,
                                                                      self.cputime,
                                                                      mem,
                                                                      extra,
