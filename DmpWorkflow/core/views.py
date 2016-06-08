@@ -298,6 +298,7 @@ class SetJobStatus(MethodView):
 class NewJobs(MethodView):
     def get(self):
         logger.debug("request %s",str(request))
+        jstatus = unicode(request.form.get("status",u"New"))
         batchsite = unicode(request.form.get("site","local"))
         _limit = int(request.form.get("limit",1000))
         newJobInstances = []
@@ -307,7 +308,7 @@ class NewJobs(MethodView):
             logger.debug("processing job %s",job.slug)
             dependent_tasks = job.getDependency()
             logger.debug("dependent tasks: %s",dependent_tasks)
-            newJobs = JobInstance.objects.filter(job=job, status=u"New").limit(int(_limit))
+            newJobs = JobInstance.objects.filter(job=job, status=jstatus).limit(int(_limit))
             logger.debug("#newJobs: %i",newJobs.count())
             if newJobs.count():
                 logger.debug("found %i new instances for job %s",newJobs.count(),str(job.title))

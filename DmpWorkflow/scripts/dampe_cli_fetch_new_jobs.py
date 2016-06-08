@@ -21,6 +21,7 @@ def main(args=None):
     parser.add_argument("-c", "--chunk", dest="chunk", default=100, type=int, help='number of jobs to process per cycle')
     parser.add_argument("-m", "--maxJobs", dest="maxJobs", default=None, type=int, help='number of jobs that can be in the system')
     parser.add_argument("-u", "--user", dest="user", default=None, type=str, help='name of user that submits jobs')
+    parser.add_argument("-s", "--skipDBcheck", dest="skipDBcheck", action='store_true', default='false',help='if set to true, skip DB check for jobs already submitted')
     opts = parser.parse_args(args)
     log = logging.getLogger("script")
     batchsite = BATCH_DEFAULTS['name']
@@ -28,6 +29,15 @@ def main(args=None):
     if opts.user is not None: BEngine.setUser(opts.user)
     if opts.maxJobs is not None:
         val = len(BEngine.getRunningJobs(pending=True))
+        if not val:
+            if not opts.skipDBcheck:
+                for stat in ['Running','Submitted','Suspended']:
+                    res = get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite), "limit":opts.chunk, "status":stat})
+                    res.raise_for_status()
+                    res = res.json()
+                    if not res.get("result", "nok") == "ok":
+                        log.error(res.get("error"))
+                    val+= len(res.get("jobs"))            
         log.info('found %i jobs running or pending',val)
         if val >= opts.maxJobs:
             log.warning("reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
