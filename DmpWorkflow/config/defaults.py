@@ -16,6 +16,7 @@ DAMPE_WORKFLOW_ROOT = dirname(dirname(abspath(__file__)))
 __myDefaults = {
     "DAMPE_SW_DIR": ".",
     "installation": "server",
+    "setup": "Production",
     "ExternalsScript": "${DAMPE_SW_DIR}/setup/setup.sh",
     "use_debugger": "true",
     "use_reloader": "true",

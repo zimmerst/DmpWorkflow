@@ -6,6 +6,7 @@ from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
 from datetime import datetime
 from flask.views import MethodView
+from DmpWorkflow.config.defaults import cfg
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance, HeartBeat, DataFile
 
@@ -29,11 +30,12 @@ class DetailView(MethodView):
         form = self.form(request.form)
         aux_data = {'timestamp':unicode(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
                     'n_jobs':Job.objects.all().count(),
-                    'n_instance':JobInstance.objects.all().count()}
+                    'n_instance':JobInstance.objects.all().count(),
+                    'setup':cfg.get("global","setup")}
         context = {
             "job": job,
             "form": form,
-            "stat": aux_data,
+            "aux_data": aux_data,
             "instances":JobInstance.objects.filter(job=job)
         }
         return context
