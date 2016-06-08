@@ -30,8 +30,7 @@ class DetailView(MethodView):
         form = self.form(request.form)
         aux_data = {'timestamp':unicode(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
                     'n_jobs':Job.objects.all().count(),
-                    'n_instance':JobInstance.objects.all().count(),
-                    'setup':cfg.get("global","setup")}
+                    'n_instance':JobInstance.objects.all().count()}
         context = {
             "job": job,
             "form": form,
