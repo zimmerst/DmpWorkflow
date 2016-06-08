@@ -112,7 +112,7 @@ class BatchEngine(BATCH):
         if asDict: 
             uL = iL = False
             command+=" -x -e"
-        output, error, rc = run(command.split(), useLogging=uL, interleaved=iL)
+        output, error, rc = run(command.split(), useLogging=uL, interleaved=iL, suppressLevel=True)
         self.logging.debug("rc: %i",int(rc))
         if rc: raise Exception("error during execution")
         if error is not None:
