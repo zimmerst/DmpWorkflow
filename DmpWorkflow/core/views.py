@@ -33,7 +33,7 @@ class DetailView(MethodView):
         context = {
             "job": job,
             "form": form,
-            "stat": aux_data,
+            "aux_data": aux_data,
             "instances":JobInstance.objects.filter(job=job)
         }
         return context

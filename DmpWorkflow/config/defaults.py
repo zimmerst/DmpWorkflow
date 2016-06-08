@@ -16,6 +16,7 @@ DAMPE_WORKFLOW_ROOT = dirname(dirname(abspath(__file__)))
 __myDefaults = {
     "DAMPE_SW_DIR": ".",
     "installation": "server",
+    "setup": "Production",
     "ExternalsScript": "${DAMPE_SW_DIR}/setup/setup.sh",
     "use_debugger": "true",
     "use_reloader": "true",
@@ -79,6 +80,6 @@ SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])
 
 # verify that the site configuration is okay.
 assert BATCH_DEFAULTS['name'] in cfg.get("JobDB","batch_sites"), "Batch site %s not in DB"%BATCH_DEFAULTS['name']
-assert BATCH_DEFAULTS['system'] in ["lsf","sge"], "HPCSystem %s not supported."%BATCH_DEFAULTS["system"]
+assert BATCH_DEFAULTS['system'] in ["lsf","sge","pbs"], "HPCSystem %s not supported."%BATCH_DEFAULTS["system"]
 
 DAMPE_LOGFILE = cfg.get("global","logfile")
