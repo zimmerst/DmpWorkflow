@@ -208,30 +208,38 @@ class SetJobStatus(MethodView):
     def post(self):
         arguments = loads(request.form.get("args","{}"))
         if not isinstance(arguments,dict):      logger.exception("arguments MUST be dictionary.")        
-        if 't_id' not in arguments:         logger.exception("couldn't find t_id in arguments")
-        if 'inst_id' not in arguments:      logger.exception("couldn't find inst_id in arguments")
         if 'major_status' not in arguments: logger.exception("couldn't find major_status in arguments")
         logger.debug("request arguments %s", str(arguments))
-        t_id = arguments["t_id"]
-        inst_id = arguments["inst_id"]
+        t_id = arguments.get("t_id","None")
+        bId  = arguments.get("batchId","None")
+        site = str(arguments.get("site","None"))
+        inst_id = arguments.get("inst_id","None")
         major_status = arguments["major_status"]
         minor_status = arguments.get("minor_status",None)
         try:
-            my_job = Job.objects.filter(id=t_id)
-            if not my_job.count(): raise Exception("could not find Job")
-            my_job = my_job[0]
-            jInstance = my_job.getInstance(inst_id)
-            oldStatus = jInstance.status
-            minorOld  = jInstance.minor_status
-            if minor_status is not None and minor_status!=minorOld:
-                logger.debug("updating minor status")
-                jInstance.set("minor_status",minor_status)
-                del arguments['minor_status']
-            if major_status != oldStatus:
-                jInstance.setStatus(major_status)
-            for key in ["t_id","inst_id","major_status"]: del arguments[key]
-            for key,value in arguments.iteritems():
-                jInstance.set(key,value)
+            jInstance = None
+            if t_id != "None" and inst_id != "None":
+                my_job = Job.objects.filter(id=t_id)
+                if not my_job.count(): raise Exception("could not find Job")
+                my_job = my_job.first()
+                jInstance = my_job.getInstance(inst_id)
+            else:
+                if bId != "None" and site != "None":
+                    jInstance = JobInstance.objects.filter(batchId=bId, site=site)
+                    if not jInstance.count(): raise Exception("could not find JobInstance")
+                    jInstance = jInstance.first()
+            if jInstance is not None:
+                oldStatus = jInstance.status
+                minorOld  = jInstance.minor_status
+                if minor_status is not None and minor_status!=minorOld:
+                    logger.debug("updating minor status")
+                    jInstance.set("minor_status",minor_status)
+                    del arguments['minor_status']
+                if major_status != oldStatus:
+                    jInstance.setStatus(major_status)
+                for key in ["t_id","inst_id","major_status"]: del arguments[key]
+                for key,value in arguments.iteritems():
+                    jInstance.set(key,value)
             #update_status(t_id,inst_id,major_status, **arguments)
         except Exception as err:
             logger.exception(err)
@@ -374,6 +382,33 @@ class TestView(MethodView):
         return dumps({"result":"ok","beats":[b.hostname for b in beats]})
 
 class DataCatalog(MethodView):
+
+    def __register__(self,args):
+        query    = args[0]
+        filename = args[1]
+        site     = args[2]
+        filetype = args[3]
+        force    = args[4]
+        if len(query):
+            if force:
+                for f in query: f.delete()
+            else:
+                return dumps({"result":"nok","error":"called register but file apparently exists already"})
+        else:
+            df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
+            df.save()
+            return None
+    def __update_or_remove__(self,df,status=None,action="setStatus"):       
+        if status is None: 
+            return dumps({"result":"nok","error":"status is None"})
+        if action == 'setStatus':
+            df.setStatus(status)
+            df.update()
+        else:
+            logger.info("requested removal!")
+            df.delete()
+        return None
+        
     def post(self):
         logger.debug("DataCatalog: request form %s",str(request.form))
         filename = str(request.form.get("filename","None"))
@@ -400,23 +435,13 @@ class DataCatalog(MethodView):
                 fileQuery = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
                 if action == 'register':
                     logger.debug("request a new file to be registered")
-                    if fileQuery.count():
-                        if force:
-                            for f in fileQuery: f.delete()
-                        else:
-                            return dumps({"result":"nok","error":"called register but file apparently exists already"})
-                    else:
-                        df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
-                        df.save()
+                    res = self.__register__([fileQuery,filename,site,filetype,force])
+                    if res is not None: return res
                 else:
                     if fileQuery.count():
                         df = fileQuery[0]
-                        if action == 'setStatus':
-                            df.setStatus(status)
-                            df.update()
-                        else:
-                            logger.info("requested removal!")
-                            df.delete()
+                        res = self.__update_or_remove__(df, status=status, action=action)
+                        if res is not None: return res
                     else:
                         logger.debug("cannot find queried input file")
                         return dumps({"result":"nok", "error": "cannot find file in DB"})           

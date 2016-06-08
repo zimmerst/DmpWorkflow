@@ -30,6 +30,7 @@ __myDefaults = {
     "HPCqueue" : "",
     "HPCcputime" : "24:00",
     "HPCmemory": "1000.",
+    "HPCusername": "dampeprod",
     "EXEC_DIR_ROOT" : "/tmp",
     "ratio_mem" : "1.0",
     "ratio_cpu" : "1.0",
@@ -71,7 +72,7 @@ BATCH_DEFAULTS['cputime']=cfg.get("site","HPCcputime")
 BATCH_DEFAULTS['name']=cfg.get("site","name")
 
 # JobDB specifics
-MAJOR_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_major_statii").split(",")])
+MAJOR_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_major_statii").split(",")]+["Unknown"]) # adding unknown
 FINAL_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_final_statii").split(",")])
 TYPES = tuple([unicode(t) for t in cfg.get("JobDB", "task_types").split(",")])
 SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])
