@@ -28,9 +28,14 @@ def main(args=None):
     BEngine = HPC.BatchEngine()
     if opts.user is not None: BEngine.setUser(opts.user)
     if opts.maxJobs is not None:
-        val = len(BEngine.getRunningJobs(pending=True))
-        if not val:
-            if not opts.skipDBcheck:
+        try:
+            val = len(BEngine.getRunningJobs(pending=True))
+        except Exception as err:
+            print 'EXCEPTION during getRunningJobs, falling back to DB check, reason follows: %s'%str(err)
+            val = 0
+            if opts.skipDBcheck:
+                print 'skipping DB check, assume no jobs to be in the system'
+            else:
                 for stat in ['Running','Submitted','Suspended']:
                     res = get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data = {"site":str(batchsite), "limit":opts.chunk, "status":stat})
                     res.raise_for_status()
