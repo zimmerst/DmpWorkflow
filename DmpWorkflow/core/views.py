@@ -6,7 +6,6 @@ from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
 from datetime import datetime
 from flask.views import MethodView
-from DmpWorkflow.config.defaults import cfg
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance, HeartBeat, DataFile
 
