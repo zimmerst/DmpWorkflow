@@ -27,9 +27,13 @@ class DetailView(MethodView):
     def get_context(self, slug):
         job = Job.objects.get_or_404(slug=slug)
         form = self.form(request.form)
+        aux_data = {'timestamp':unicode(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                    'n_jobs':Job.objects.all().count(),
+                    'n_instance':JobInstance.objects.all().count()}
         context = {
             "job": job,
             "form": form,
+            "stat": aux_data,
             "instances":JobInstance.objects.filter(job=job)
         }
         return context
@@ -344,7 +348,7 @@ class JobResources(MethodView):
                     "major_status":j.status,
                     "max_cpu":j.get("max_cpu"),
                     "max_mem":j.get("max_mem")} for j in runningJobs]
-            logger.debug("dumping %i jobs",allJobs.count())
+            logger.debug("dumping %i jobs",len(allJobs))
             return dumps({"result":"ok", "jobs": allJobs})
         except Exception as err:
             return dumps({"result":"nok", "error": err})

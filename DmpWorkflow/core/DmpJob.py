@@ -202,7 +202,7 @@ class DmpJob(object):
             print "DRY_COMMAND: %s"%self.execCommand
             return -1
         if local: 
-            run(["%s &> %s"%(self.execCommand,self.logfile)])
+            run("%s &> %s"%(self.execCommand,self.logfile).split())
             self.batchId = -1
         else:
             self.batchId = bj.submit(**kwargs)
