@@ -16,6 +16,7 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppr
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
     logger.info("attempting to run: %s",str(cmd_args))
+    args = [[],[]] # first is output, second is errors
     errors = []
     output = []
     tsk = Popen(cmd_args,stdout=PIPE,stderr=PIPE)
@@ -30,24 +31,23 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppr
                 if rfd == tsk.stdout.fileno():
                     line = tsk.stdout.readline()
                     if len(line) > 0:
-                        if useLogging: logger.info(line[:-1])
                         val = str(line[:-1])
-                        output.append(val if suppressLevel else "INFO: %s"%val)
+                        if useLogging: logger.info(val)
+                        args[0].append(val if suppressLevel else "INFO: %s"%val)
                 if rfd == tsk.stderr.fileno():
                     line = tsk.stderr.readline()
                     if len(line) > 0:
                         if suppressErrors: continue
-                        errors.append(line[:-1])
-                        val = errors[-1]
+                        args[1].append(line[:-1])
+                        val = args[1][-1]
+                        if useLogging: logger.error(val)
                         if interleaved: 
-                            output.append(val if suppressLevel else "*ERROR*: %s"%errors[-1])
-                        if useLogging: logger.error(errors[-1])
+                            args[0].append(val if suppressLevel else "*ERROR*: %s"%val)
             if event & POLLHUP:
                 poll.unregister(rfd)
                 pollc = pollc - 1
             if pollc > 0: events = poll.poll()
-    rc=tsk.wait()
-    return "\n".join(output), "\n".join(errors), rc
+    return "\n".join(args[0]), "\n".join(args[1]), tsk.wait()
 
 def make_executable(path):
     mode = stat(path).st_mode

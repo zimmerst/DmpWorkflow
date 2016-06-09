@@ -21,7 +21,7 @@ def main(args=None):
     parser.add_argument("-c", "--chunk", dest="chunk", default=100, type=int, help='number of jobs to process per cycle')
     parser.add_argument("-m", "--maxJobs", dest="maxJobs", default=None, type=int, help='number of jobs that can be in the system')
     parser.add_argument("-u", "--user", dest="user", default=None, type=str, help='name of user that submits jobs')
-    parser.add_argument("-s", "--skipDBcheck", dest="skipDBcheck", action='store_true', default=False,help='if set to true, skip DB check for jobs already submitted')
+    parser.add_argument("-s", "--skipDBcheck", dest="skipDBcheck", action='store_true', default=False,help='skip DB check for jobs')
     opts = parser.parse_args(args)
     log = logging.getLogger("script")
     batchsite = BATCH_DEFAULTS['name']
