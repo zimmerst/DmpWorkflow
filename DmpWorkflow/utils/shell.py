@@ -17,8 +17,6 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppr
         raise RuntimeError('must be list to be called')
     logger.info("attempting to run: %s",str(cmd_args))
     args = [[],[]] # first is output, second is errors
-    errors = []
-    output = []
     tsk = Popen(cmd_args,stdout=PIPE,stderr=PIPE)
     poll = spoll()
     poll.register(tsk.stdout,POLLIN | POLLHUP)
