@@ -26,7 +26,7 @@ def main(args=None):
         status_dict = {key:0 for key in statii}
         stats = JobInstance.objects.filter(site=site).item_frequencies("status")
         status_dict.update(stats)
-        out[site].append({"time":ts,"statii":status_dict})
+        out[site].append({"time":ts.isoformat(),"statii":status_dict})
     fout.write(dumps(out))
     fout.close()
     
