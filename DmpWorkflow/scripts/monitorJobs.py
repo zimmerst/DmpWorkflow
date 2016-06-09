@@ -19,8 +19,7 @@ def main(args=None):
     out = {site:[] for site in batchSites}
     if isfile(opts.output):
         out = loads(open(opts.output,'r').read())
-    else:
-        fout = open(opts.output,'w')
+    fout = open(opts.output,'w')
     ts = datetime.now()
     for site in batchSites:
         status_dict = {key:0 for key in statii}
