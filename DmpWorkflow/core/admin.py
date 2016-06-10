@@ -4,11 +4,12 @@ Created on Mar 10, 2016
 @author: zimmer
 """
 import logging
-from flask import Blueprint, request, redirect, render_template, url_for
+from flask import Blueprint, request, redirect, render_template, url_for, send_file
 from flask.views import MethodView
 from flask.ext.mongoengine.wtf import model_form
 from DmpWorkflow.core.auth import requires_auth
 from DmpWorkflow.core.models import Job
+from StringIO import StringIO
 
 admin = Blueprint('admin', __name__, template_folder='templates')
 logger = logging.getLogger("core")
@@ -32,7 +33,18 @@ class Remove(MethodView):
             logger.info("removing job %s", slug)
         return redirect(url_for('admin.index'))
 
+class Export(MethodView):
+    decorators = [requires_auth]
 
+    def get(self, slug=None):
+        if slug:
+            job = Job.objects.get_or_404(slug=slug)
+            body = job.body.read()
+            job.body.seek(0)
+            fo = StringIO(body)
+            logger.info("exporting body %s", slug)
+        return send_file(fo,attachment_filename="%s.xml"%job.title)
+    
 class Detail(MethodView):
     decorators = [requires_auth]
 
@@ -80,3 +92,5 @@ admin.add_url_rule('/admin/', view_func=List.as_view('index'))
 admin.add_url_rule('/admin/create/', defaults={'slug': None}, view_func=Detail.as_view('create'))
 admin.add_url_rule('/admin/edit/<slug>/', view_func=Detail.as_view('edit'))
 admin.add_url_rule('/admin/remove/<slug>/', view_func=Remove.as_view('remove'))
+admin.add_url_rule('/admin/export/<slug>/', view_func=Export.as_view('remove'))
+
