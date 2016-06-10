@@ -209,7 +209,7 @@ class JobInstance(db.Document):
     created_at = db.DateTimeField(default=datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
     last_update = db.DateTimeField(default=datetime.now, required=True)
-    batchId = db.StringField(verbose_name="batchId", required=False, default=None)
+    batchId = db.LongField(verbose_name="batchId", required=False, default=None)
     Nevents = db.LongField(verbose_name="Nevents", required=False, default=0)
     job = db.ReferenceField("Job", reverse_delete_rule=CASCADE)
     site = db.StringField(verbose_name="site", required=False, choices=SITES)
