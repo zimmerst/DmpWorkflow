@@ -93,6 +93,6 @@ class Detail(MethodView):
 admin.add_url_rule('/admin/', view_func=List.as_view('index'))
 admin.add_url_rule('/admin/create/', defaults={'slug': None}, view_func=Detail.as_view('create'))
 admin.add_url_rule('/admin/edit/<slug>/', view_func=Detail.as_view('edit'))
-admin.add_url_rule('/admin/remove/<slug>/', view_func=Remove.as_view('remove'))
 admin.add_url_rule('/admin/export/<slug>/', view_func=Export.as_view('export'))
+admin.add_url_rule('/admin/remove/<slug>/', view_func=Remove.as_view('remove'))
 
