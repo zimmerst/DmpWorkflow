@@ -16,8 +16,8 @@
 			<td>{{job.countInstances()}}</td>
 	        <td>
 	        <a href="{{ url_for("admin.export", slug=job.slug) }}" class="btn primary">Export</a> 
-	        <a href="{{ url_for("admin.edit", slug=job.slug) }}" class="btn primary">Edit</a> 
 	        <a href="{{ url_for("admin.remove", slug=job.slug) }}" class="btn primary">Remove</a>
+{#	        <a href="{{ url_for("admin.clone", slug=job.slug) }}" class="btn primary">Clone</a> #}
 	        </td>
 		</tr>	
 		{% endfor %}
