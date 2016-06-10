@@ -16,8 +16,18 @@
 			<td>{{job.countInstances()}}</td>
 	        <td>
 	        <a href="{{ url_for("admin.export", slug=job.slug) }}" class="btn primary">Export</a> 
-	        <a href="{{ url_for("admin.remove", slug=job.slug) }}" class="btn primary">Remove</a>
 {#	        <a href="{{ url_for("admin.clone", slug=job.slug) }}" class="btn primary">Clone</a> #}
+			<form action="{{ url_for("admin.remove", slug=job.slug, confirm=True) }}" method="POST">
+    			<p>Are you sure?</p>
+    			<ul>
+        			{% for object in objects %}
+        			<li>{{ object }}</li>
+        			<input type="hidden" name="objects" id="objects" value="{{ object.id }}" />
+        			{% endfor %}
+    			</ul>
+    			<button type="submit">Do it!</button>
+			</form>
+{#	        <a href="{{ url_for("admin.remove", slug=job.slug) }}" class="btn primary">Remove</a> #}
 	        </td>
 		</tr>	
 		{% endfor %}

@@ -25,7 +25,7 @@ class List(MethodView):
 
 class Remove(MethodView):
     decorators = [requires_auth]
-
+    confirm = True
     def get(self, slug=None):
         if slug:
             job = Job.objects.get_or_404(slug=slug)
