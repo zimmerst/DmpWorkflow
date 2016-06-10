@@ -37,13 +37,15 @@ class Export(MethodView):
     decorators = [requires_auth]
 
     def get(self, slug=None):
-        if slug:
-            job = Job.objects.get_or_404(slug=slug)
-            body = job.body.read()
-            job.body.seek(0)
-            fo = StringIO(body)
-            logger.info("exporting body %s", slug)
-        return send_file(fo,attachment_filename="%s.xml"%job.title)
+        if slug is None: raise Exception("must be called with slug")
+        job = Job.objects.get_or_404(slug=slug)
+        body = job.body.read()
+        job.body.seek(0)
+        outfile = StringIO()
+        outfile.write(body)
+        outfile.seek(0)
+        logger.info("exporting body %s", slug)
+        return send_file(outfile,attachment_filename="%s.xml"%job.title, as_attachment=True)
     
 class Detail(MethodView):
     decorators = [requires_auth]
