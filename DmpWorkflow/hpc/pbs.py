@@ -20,8 +20,7 @@ class BatchJob(HPCBatchJob):
         if self.queue is not None: extra+=" -q %s"%self.queue
         mem = " -l ".join(["%s=%s"%(k,v) for k,v in {key:self.memory 
                                                     for key in ['mem','vmem','pvmem','pmem']}.iteritems()])        
-        cmd = "qsub -m n -r n -o %s -N %s -j oe -V -l cput=%s -l %s %s %s" % (self.logFile,
-                                                                           self.name,
+        cmd = "qsub -m n -r n -o %s -j oe -V -l cput=%s -l %s %s %s" % (self.logFile,
                                                                            self.cputime,
                                                                            mem,
                                                                            extra,

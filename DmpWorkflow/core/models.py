@@ -128,6 +128,10 @@ class Job(db.Document):
         #self.body.put(bdy_file,content_type="application/xml")
         #self.update()
         return parseJobXmlToDict(bdy)
+    
+    def resetBody(self,body,content_type="application/xml"):
+        self.body.replace(open(body,"rb"), content_type=content_type)
+        self.update()                        
 
     def getInstance(self, _id):
         jI = JobInstance.objects.filter(job=self, instanceId=_id)
