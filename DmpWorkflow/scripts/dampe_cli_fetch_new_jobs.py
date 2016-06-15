@@ -29,7 +29,7 @@ def main(args=None):
     if opts.user is not None: BEngine.setUser(opts.user)
     if opts.maxJobs is not None:
         try:
-            val = len(BEngine.getRunningJobs(pending=True))
+            val = BEngine.checkJobsFast(pending=True)
         except Exception as err:
             print 'EXCEPTION during getRunningJobs, falling back to DB check, reason follows: %s'%str(err)
             val = 0

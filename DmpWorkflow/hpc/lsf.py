@@ -102,9 +102,24 @@ class BatchEngine(BATCH):
 
     def getRunningJobs(self,pending=False):
         self.update()
+        njobs_fast = self.checkJobsFast()
         running = [j for j in self.allJobs if self.allJobs[j]['STAT']=="RUN"]
         pending = [j for j in self.allJobs if self.allJobs[j]['STAT']=="PEND"]
         return running + pending
+
+    def checkJobsFast(self,pending=True):
+        out = {"PEND":0,"RUN":0,"SUSP":0}
+        output, error, rc = run(["bqueues","dampe"],useLogging=False,interleaved=False, suppressLevel=True)
+        if rc: 
+            print error
+            return out
+        
+        keys, values = output.split("\n"); keys = keys.split(); values=values.split();
+        data = dict(zip(keys.split(),values.split()))
+        for key in out:
+            if key in data: out[key]=int(data[key])
+        if pending: return sum(out.values())
+        else: return sum(out['RUN'])
     
     def aggregateStatii(self, asDict=True, command=None):
         #print self.keys

@@ -111,6 +111,9 @@ class BATCH(object):
         if pending: print 'including pending jobs'
         return []
     
+    def checkJobsFast(self,pending=True):
+        return len(self.getRunningJobs(pending=pending))
+
     def addBatchJob(self,job):
         if not isinstance(job,BatchJob):
             self.logging.error("must be BatchJob instance")
