@@ -117,9 +117,10 @@ class BatchEngine(BATCH):
         keys, values = output.split("\n")
         data = dict(zip(keys.split(),values.split()))
         for key in out:
+            if data[key]=='-': data[key]=0
             if key in data: out[key]=int(data[key])
         if pending: return sum(out.values())
-        else: return sum(out['RUN'])
+        else: return out['RUN']
     
     def aggregateStatii(self, asDict=True, command=None):
         #print self.keys
