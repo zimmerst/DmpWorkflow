@@ -119,7 +119,7 @@ class JobView(MethodView):
             dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
             if n_instances:
                 for j in range(n_instances):
-                    jI = JobInstance(body=str(dummy_dict))
+                    jI = JobInstance(body=str(dummy_dict), site=site)
                     job.addInstance(jI)
                     logger.debug("added instance %i to job %s",(j+1),job.id)
             # print len(job.jobInstances)

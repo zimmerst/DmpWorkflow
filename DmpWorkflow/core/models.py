@@ -212,7 +212,7 @@ class JobInstance(db.Document):
     batchId = db.LongField(verbose_name="batchId", required=False, default=None)
     Nevents = db.LongField(verbose_name="Nevents", required=False, default=0)
     job = db.ReferenceField("Job", reverse_delete_rule=CASCADE)
-    site = db.StringField(verbose_name="site", required=False, choices=SITES)
+    site = db.StringField(verbose_name="site", required=True, choices=SITES)
     hostname = db.StringField(verbose_name="hostname", required=False, default=None)
     status = db.StringField(verbose_name="status", required=False, default="New", choices=MAJOR_STATII)
     minor_status = db.StringField(verbose_name="minor_status", required=False, default="AwaitingBatchSubmission")
