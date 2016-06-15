@@ -114,7 +114,7 @@ class BatchEngine(BATCH):
             print error
             return out
         
-        keys, values = output.split("\n"); keys = keys.split(); values=values.split();
+        keys, values = output.split("\n")
         data = dict(zip(keys.split(),values.split()))
         for key in out:
             if key in data: out[key]=int(data[key])
