@@ -24,6 +24,7 @@ def main(args=None):
                         required=False)
     parser.add_argument("--n_max", dest="n_max", type=int, default=None, help='roll back everything below this number', 
                         required=False)
+    parser.add_argument("--set-var",dest="set_var", type=str, default=None, help="set variables for streams, format is key1=value1;key2=value2, separate by ;")
     opts = parser.parse_args(args)
     if opts.n_min is None and opts.n_max is None and opts.inst is None and opts.stat == "Any":
         q = query_yes_no("WARNING: you are requesting to roll back all instances of job %s.\
@@ -34,6 +35,9 @@ def main(args=None):
     if not (opts.n_min is None and opts.n_max is None):
         _range = opts.n_max - opts.n_min
         if _range > 100: print 'WARNING: you are querying more than 100 jobs, this may take a while to complete'
+    vars = {}
+    if opts.set_var is not None:
+        vars = dict({tuple(val.split("=")) for val in opts.set_var.split(";")})
     my_dict = {}
     for key in opts.__dict__:
         if opts.__dict__[key] is not None:
@@ -51,7 +55,7 @@ def main(args=None):
             for j in jobs:
                 my_dict = {"t_id": j['jobId'], "inst_id": j['instanceId'], 
                            "major_status": "New", "minor_status":"AwaitingBatchSubmission", "hostname":None,
-                           "batchId":None, "status_history":[], 
+                           "batchId":None, "status_history":[], "MetaData":vars,
                            "log": "", "cpu":[], "memory":[], "created_at":"Now"}
                 res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
                 res.raise_for_status()

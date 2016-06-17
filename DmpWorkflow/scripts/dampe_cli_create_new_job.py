@@ -19,7 +19,12 @@ def main(args=None):
     parser.add_argument("-n", '--name', help="task Name", dest="name")
     parser.add_argument("-s", '--site', help="site to run at", dest="site", default='local', choices=SITES)
     parser.add_argument("-d", '--depends', help="depending tasks, separate by comma", dest="depends", default="")
+    parser.add_argument("--set-var",dest="set_var", type=str, default=None, help="set variables for streams, format is key1=value1;key2=value2, separate by ;")
     opts = parser.parse_args(args)
+    override_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
+    if opts.set_var is not None:
+        var_dict = dict({tuple(val.split("=")) for val in opts.set_var.split(";")})
+        override_dict['MetaData']=[{"name":k,"value":v,"type":str} for k,v in var_dict.iteritems()]
     xmlFile = unicode(opts.xml)
     assert isfile(opts.xml), "must be an accessible file."
     n_instances = int(opts.Ninstances)
@@ -35,7 +40,7 @@ def main(args=None):
     print atts        
     dependent_tasks = opts.depends.split(",")
     res = post("%s/job/" % DAMPE_WORKFLOW_URL,
-                        data={"taskname": taskName, "t_type": t_type, 
+                        data={"taskname": taskName, "t_type": t_type, "override_dict": override_dict,
                               "n_instances": n_instances, "site" : site,
                               "depends":dependent_tasks},            
                         files={"file":open(xmlFile, "rb")})

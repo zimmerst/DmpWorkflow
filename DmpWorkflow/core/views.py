@@ -96,12 +96,14 @@ class JobView(MethodView):
 
     def post(self):
         try:    
+            dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
             logger.debug("request %s",str(request)) 
             taskname = request.form.get("taskname",None)
             jobdesc = request.files.get("file",None)
             t_type = request.form.get("t_type",None)
             site = request.form.get("site","local")
             depends = request.form.get("depends","None")
+            override_dict = request.form.get("override_dict",dummy_dict)
             n_instances = int(request.form.get("n_instances","0"))
             if taskname is None:
                 logger.exception("task name must be defined.")
@@ -116,10 +118,9 @@ class JobView(MethodView):
             if 'release' in dout['atts']:
                 job.release = dout['atts']['release']
             if t_type is not None: job.type = t_type
-            dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
             if n_instances:
                 for j in range(n_instances):
-                    jI = JobInstance(body=str(dummy_dict), site=site)
+                    jI = JobInstance(body=str(override_dict), site=site)
                     job.addInstance(jI)
                     logger.debug("added instance %i to job %s",(j+1),job.id)
             # print len(job.jobInstances)
@@ -219,6 +220,7 @@ class SetJobStatus(MethodView):
         bId  = arguments.get("batchId","None")
         site = str(arguments.get("site","None"))
         inst_id = arguments.get("inst_id","None")
+        vars = dict(arguments.get("MetaData",{}))
         major_status = arguments["major_status"]
         minor_status = arguments.get("minor_status",None)
         try:
@@ -242,6 +244,9 @@ class SetJobStatus(MethodView):
                     del arguments['minor_status']
                 if major_status != oldStatus:
                     jInstance.setStatus(major_status)
+                if len(vars): 
+                    jInstance.setMetaDataVariablesFromDict(vars)
+                    del arguments['MetaData']
                 for key in ["t_id","inst_id","major_status"]: del arguments[key]
                 for key,value in arguments.iteritems():
                     jInstance.set(key,value)
