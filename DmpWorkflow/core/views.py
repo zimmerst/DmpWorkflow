@@ -103,7 +103,7 @@ class JobView(MethodView):
             t_type = request.form.get("t_type",None)
             site = request.form.get("site","local")
             depends = request.form.get("depends","None")
-            override_dict = request.form.get("override_dict",dummy_dict)
+            override_dict = loads(request.form.get("override_dict",dumps(dummy_dict)))
             n_instances = int(request.form.get("n_instances","0"))
             if taskname is None:
                 logger.exception("task name must be defined.")
@@ -149,7 +149,8 @@ class JobInstanceView(MethodView):
         taskName = request.form.get("taskname",None)
         tasktype = request.form.get("tasktype",None)
         ninst = int(request.form.get("n_instances","0"))
-        override_dict = request.form.get("override_dict",dummy_dict)
+        override_dict = loads(request.form.get("override_dict",dumps(dummy_dict)))
+        logger.info("override_dict: %s ; type %s",override_dict,type(override_dict))
         if taskName is None and tasktype is None:
             return dumps({"result":"nok","error":"query got empty taskname & type"})
         jobs = Job.objects.filter(title=taskName, type=tasktype)
@@ -220,7 +221,7 @@ class SetJobStatus(MethodView):
         bId  = arguments.get("batchId","None")
         site = str(arguments.get("site","None"))
         inst_id = arguments.get("inst_id","None")
-        vars = dict(arguments.get("MetaData",{}))
+        vars = arguments.get("MetaData",{})
         major_status = arguments["major_status"]
         minor_status = arguments.get("minor_status",None)
         try:
