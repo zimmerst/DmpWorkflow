@@ -22,7 +22,7 @@ def main(args=None):
     override_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
     if opts.set_var is not None:
         var_dict = dict({tuple(val.split("=")) for val in opts.set_var.split(";")})
-        override_dict['MetaData']=[{"name":k,"value":v,"type":str} for k,v in var_dict.iteritems()]
+        override_dict['MetaData']=[{"name":k,"value":v,"type":"str"} for k,v in var_dict.iteritems()]
     taskName = opts.name
     environ['DWF_JOBNAME'] = taskName
     ninst = opts.inst
