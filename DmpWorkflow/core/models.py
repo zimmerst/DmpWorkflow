@@ -131,7 +131,7 @@ class Job(db.Document):
     
     def resetBody(self,body,content_type="application/xml"):
         self.body.replace(open(body,"rb"), content_type=content_type)
-        self.update()                        
+        self.save()                        
 
     def getInstance(self, _id):
         jI = JobInstance.objects.filter(job=self, instanceId=_id)
@@ -192,14 +192,14 @@ class Job(db.Document):
             for ji in instances: ji.delete()
         super(Job,self).delete()
 
-    def save(self):
-        req = Job.objects.filter(title=self.title, type=self.type)
-        if req:
-            raise Exception("a task with the specified name & type exists already.")
-        super(Job, self).save()
+    #    def save(self):
+    #        req = Job.objects.filter(title=self.title, type=self.type)
+    #        if req:
+    #            raise Exception("a task with the specified name & type exists already.")
+    #        super(Job, self).save()
 
     def update(self):
-        log.debug("calling update on Job")
+        log.warning("deprecated method, use save")
         super(Job, self).save()
 
     meta = {

@@ -109,7 +109,9 @@ class JobView(MethodView):
             if taskname is None:
                 logger.exception("task name must be defined.")
                 raise Exception("task name must be defined")
-            job = Job(title=taskname, type=t_type, execution_site=site)
+            job = Job.objects.filter(title=taskname, type=t_type, execution_site=site)
+            if job.counts(): raise Exception("job exists already")
+            job = Job.objects(title=taskname, type=t_type, execution_site=site).modify(upsert=True, new=True)
             #job = Job.objects(title=taskname, type=t_type).modify(upsert=True, new=True, title=taskname, type=t_type)
             job.body.put(jobdesc, content_type="application/xml")
             job.save()
@@ -133,7 +135,7 @@ class JobView(MethodView):
                         job.addDependency(dependent_job[0])
                     else:
                         logger.warning("could not find job dependency %s for job %s",d,job.slug)
-            job.update()
+            job.save()
             return dumps({"result": "ok", "jobID": str(job.id)})
         except Exception as err:
             logger.info("request dict: %s",str(request.form))
@@ -183,7 +185,7 @@ class JobInstanceView(MethodView):
                         return dumps({"result":"nok", "error":str(err)})
                     logger.debug("added instance %i to job %s",(j+1),job.id)
             # print len(job.jobInstances)
-            job.update()
+            job.save()
             return dumps({"result": "ok"})
         else:
             logger.error("Cannot find job")
