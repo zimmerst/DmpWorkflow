@@ -43,7 +43,7 @@ def main(args=None):
     for key in opts.__dict__:
         if opts.__dict__[key] is not None:
             my_dict[key] = opts.__dict__[key]
-    del my_dict['set_var']
+    if 'set_var' in my_dict: del my_dict['set_var']
     # get all jobs to roll back.
     res = Rget("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data=my_dict)
     res.raise_for_status()
