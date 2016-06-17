@@ -35,9 +35,10 @@ def main(args=None):
     if not (opts.n_min is None and opts.n_max is None):
         _range = opts.n_max - opts.n_min
         if _range > 100: print 'WARNING: you are querying more than 100 jobs, this may take a while to complete'
-    vars = {}
+    override_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
     if opts.set_var is not None:
-        vars = dict({tuple(val.split("=")) for val in opts.set_var.split(";")})
+        var_dict = dict({tuple(val.split("=")) for val in opts.set_var.split(";")})
+        override_dict['MetaData']=[{"name":k,"value":v,"type":"str"} for k,v in var_dict.iteritems()]
     my_dict = {}
     for key in opts.__dict__:
         if opts.__dict__[key] is not None:
@@ -55,7 +56,7 @@ def main(args=None):
             for j in jobs:
                 my_dict = {"t_id": j['jobId'], "inst_id": j['instanceId'], 
                            "major_status": "New", "minor_status":"AwaitingBatchSubmission", "hostname":None,
-                           "batchId":None, "status_history":[], "MetaData":vars,
+                           "batchId":None, "status_history":[], "body":override_dict,
                            "log": "", "cpu":[], "memory":[], "created_at":"Now"}
                 res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
                 res.raise_for_status()

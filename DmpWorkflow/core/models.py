@@ -227,6 +227,10 @@ class JobInstance(db.Document):
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)",required=False, default= -1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)",required=False, default= -1.)
     
+    def setBody(self,bdy):
+        self.body = str(bdy)
+        self.update()
+
     def __evalBody(self,includeParent=False):
         evalKeys = ['InputFiles','OutputFiles','MetaData']
         meta = {}
