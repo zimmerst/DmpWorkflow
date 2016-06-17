@@ -6,6 +6,7 @@ from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
 from datetime import datetime
 from flask.views import MethodView
+from ast import literal_eval
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance, HeartBeat, DataFile
 
@@ -103,7 +104,7 @@ class JobView(MethodView):
             t_type = request.form.get("t_type",None)
             site = request.form.get("site","local")
             depends = request.form.get("depends","None")
-            override_dict = loads(request.form.get("override_dict",dumps(dummy_dict)))
+            override_dict = literal_eval(request.form.get("override_dict",str(dummy_dict)))
             n_instances = int(request.form.get("n_instances","0"))
             if taskname is None:
                 logger.exception("task name must be defined.")
@@ -150,7 +151,7 @@ class JobInstanceView(MethodView):
         taskName = request.form.get("taskname",None)
         tasktype = request.form.get("tasktype",None)
         ninst = int(request.form.get("n_instances","0"))
-        override_dict = loads(request.form.get("override_dict",dumps(dummy_dict)))
+        override_dict = literal_eval(request.form.get("override_dict",str(dummy_dict)))
         if taskName is None and tasktype is None:
             return dumps({"result":"nok","error":"query got empty taskname & type"})
         jobs = Job.objects.filter(title=taskName, type=tasktype)
