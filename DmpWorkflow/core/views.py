@@ -226,6 +226,7 @@ class SetJobStatus(MethodView):
         bdy = literal_eval(arguments.get("body",str(dummy_dict)))
         major_status = arguments["major_status"]
         minor_status = arguments.get("minor_status",None)
+        logger.info("BODY: %s (type %s)",bdy,type(bdy))
         if 'body' in arguments: del arguments['body']
         try:
             jInstance = None

@@ -57,7 +57,7 @@ def main(args=None):
             for j in jobs:
                 my_dict = {"t_id": j['jobId'], "inst_id": j['instanceId'], 
                            "major_status": "New", "minor_status":"AwaitingBatchSubmission", "hostname":None,
-                           "batchId":None, "status_history":[], "body":override_dict,
+                           "batchId":None, "status_history":[], "body":str(override_dict),
                            "log": "", "cpu":[], "memory":[], "created_at":"Now"}
                 res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
                 res.raise_for_status()
