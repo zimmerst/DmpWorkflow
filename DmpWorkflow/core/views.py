@@ -222,9 +222,10 @@ class SetJobStatus(MethodView):
         bId  = arguments.get("batchId","None")
         site = str(arguments.get("site","None"))
         inst_id = arguments.get("inst_id","None")
-        vars = arguments.get("MetaData",{})
+        md = arguments.get("MetaData",{})
         major_status = arguments["major_status"]
         minor_status = arguments.get("minor_status",None)
+        logger.info("found MetaData : %s",md)
         try:
             jInstance = None
             if t_id != "None" and inst_id != "None":
@@ -246,8 +247,8 @@ class SetJobStatus(MethodView):
                     del arguments['minor_status']
                 if major_status != oldStatus:
                     jInstance.setStatus(major_status)
-                if len(vars): 
-                    jInstance.setMetaDataVariablesFromDict(vars)
+                if len(md): 
+                    jInstance.setMetaDataVariablesFromDict(md)
                     del arguments['MetaData']
                 for key in ["t_id","inst_id","major_status"]: del arguments[key]
                 for key,value in arguments.iteritems():
