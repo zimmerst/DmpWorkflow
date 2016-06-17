@@ -41,7 +41,7 @@ def main(args=None):
     print atts        
     dependent_tasks = opts.depends.split(",")
     res = post("%s/job/" % DAMPE_WORKFLOW_URL,
-                        data={"taskname": taskName, "t_type": t_type, "override_dict": override_dict,
+                        data={"taskname": taskName, "t_type": t_type, "override_dict": str(override_dict),
                               "n_instances": n_instances, "site" : site,
                               "depends":dependent_tasks},            
                         files={"file":open(xmlFile, "rb")})
