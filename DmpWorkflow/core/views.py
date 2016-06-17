@@ -145,6 +145,7 @@ class JobInstanceView(MethodView):
 
     def post(self):
         logger.debug("request %s",str(request))
+        logger.info("request form dict %s",request.form)
         dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         taskName = request.form.get("taskname",None)
         tasktype = request.form.get("tasktype",None)
