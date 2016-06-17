@@ -247,7 +247,7 @@ class SetJobStatus(MethodView):
                     del arguments['minor_status']
                 if major_status != oldStatus:
                     jInstance.setStatus(major_status)
-                    jInstance.setBody(bdy)
+                    #jInstance.setBody(bdy)
                     del arguments['body']
                 for key in ["t_id","inst_id","major_status"]: del arguments[key]
                 for key,value in arguments.iteritems():
