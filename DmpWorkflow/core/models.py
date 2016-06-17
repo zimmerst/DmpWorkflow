@@ -6,7 +6,6 @@ from mongoengine import CASCADE
 from copy import deepcopy
 from flask import url_for
 from ast import literal_eval
-from json import dumps as j_dumps
 #from StringIO import StringIO
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
@@ -265,8 +264,8 @@ class JobInstance(db.Document):
     def setMetaDataVariablesFromDict(self,_dict):
         if not isinstance(_dict,dict): raise Exception("Must be a dictionary!")
         bdy = literal_eval(self.body)
-        for k, v in _dict.iteritems(): bdy['MetaData'].append({'value':v, 'name':k, 'type':str})
-        self.set("body",j_dumps(bdy))
+        for k, v in _dict.iteritems(): bdy['MetaData'].append({'value':v, 'name':k, 'type':'str'})
+        self.set("body",str(bdy))
     
     def getResourcesFromMetadata(self):
         md = []
