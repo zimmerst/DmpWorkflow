@@ -31,6 +31,7 @@ def main(args=None):
     xdict = parseJobXmlToDict(open(opts.xml,"r").read())
     atts = xdict['atts']
     for key, value in vars(opts).iteritems(): 
+        if key == 'set_var': continue
         if key == 't_type': key = "type"
         atts.setdefault(key,value)
     assert atts['site'] in SITES, "site not supported in DB %s"%atts['site']
