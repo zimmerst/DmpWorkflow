@@ -43,6 +43,7 @@ def main(args=None):
     for key in opts.__dict__:
         if opts.__dict__[key] is not None:
             my_dict[key] = opts.__dict__[key]
+    del my_dict['set_var']
     # get all jobs to roll back.
     res = Rget("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data=my_dict)
     res.raise_for_status()
@@ -56,7 +57,7 @@ def main(args=None):
             for j in jobs:
                 my_dict = {"t_id": j['jobId'], "inst_id": j['instanceId'], 
                            "major_status": "New", "minor_status":"AwaitingBatchSubmission", "hostname":None,
-                           "batchId":None, "status_history":[], "body":override_dict,
+                           "batchId":None, "status_history":[], #"body":override_dict,
                            "log": "", "cpu":[], "memory":[], "created_at":"Now"}
                 res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
                 res.raise_for_status()

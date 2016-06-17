@@ -223,7 +223,7 @@ class SetJobStatus(MethodView):
         bId  = arguments.get("batchId","None")
         site = str(arguments.get("site","None"))
         inst_id = arguments.get("inst_id","None")
-        bdy = literal_eval(arguments.get("body",dummy_dict))
+        #bdy = literal_eval(arguments.get("body",dummy_dict))
         major_status = arguments["major_status"]
         minor_status = arguments.get("minor_status",None)
         try:
