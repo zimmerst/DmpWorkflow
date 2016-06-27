@@ -52,7 +52,7 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppr
                     if len(line) > 0:
                         if suppressErrors: continue
                         chunk_err.append(line[:-1])
-                        val = args[1][-1]
+                        val = chunk_err[-1] if len(chunk_err) else args[1][-1]
                         if useLogging: logger.error(val)
                         if interleaved: 
                             chunk.append(val if suppressLevel else "*ERROR*: %s"%val)
