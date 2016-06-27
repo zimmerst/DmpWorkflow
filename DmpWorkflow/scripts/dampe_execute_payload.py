@@ -43,6 +43,11 @@ def __prepare(job, resources=None):
     return 0
 
 def __runPayload(job, resources=None):
+    def __file_cleanup(file1, file2):
+        file1.close()
+        file2.close()
+        rm(file1.name)
+        rm(file2.name)
     with open('payload', 'w') as foop: 
         foop.write(job.exec_wrapper)
         foop.close()
@@ -59,13 +64,11 @@ def __runPayload(job, resources=None):
         try:
             job.updateStatus("Running" if DEBUG_TEST else "Failed", "ApplicationExitCode%i" % rc, resources=resources)
         except Exception as err: logThis("EXCEPTION: %s",err)
-        rm(output.name)
-        rm(error.name)
+        __file_cleanup(output, error)
         if not DEBUG_TEST: return 5
     logThis("successfully completed running application")
     logThis("content of current working directory %s: %s",abspath(curdir),str(listdir(curdir)))
-    rm(output.name)
-    rm(error.name)
+    __file_cleanup(output, error)
     return 0
 
 def __postRun(job, resources=None):
