@@ -228,7 +228,7 @@ class SetJobStatus(MethodView):
         bdy = literal_eval(arguments.get("body",str(dummy_dict)))
         major_status = arguments["major_status"]
         minor_status = arguments.get("minor_status",None)
-        logger.info("BODY: %s (type %s)",bdy,type(bdy))
+        logger.debug("BODY: %s (type %s)",bdy,type(bdy))
         if 'body' in arguments: del arguments['body']
         try:
             jInstance = None
@@ -252,7 +252,7 @@ class SetJobStatus(MethodView):
                 if major_status != oldStatus:
                     jInstance.setStatus(major_status)
                     #jInstance.setBody(bdy)
-                    del arguments['body']
+                    if 'body' in arguments: del arguments['body']
                 for key in ["t_id","inst_id","major_status"]: del arguments[key]
                 for key,value in arguments.iteritems():
                     jInstance.set(key,value)
