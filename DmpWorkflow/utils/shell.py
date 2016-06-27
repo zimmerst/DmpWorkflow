@@ -6,12 +6,12 @@ Created on Mar 22, 2016
 import logging
 from subprocess import PIPE, Popen
 from select import poll as spoll, POLLIN, POLLHUP
-
+from tempfile import NamedTemporaryFile
 from os import chmod, stat, environ, remove
 from os.path import expandvars
 
 logger = logging.getLogger("core")
-def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppressLevel=False):
+def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppressLevel=False, cache=False, chunksize=36):
     # inspired from http://tinyurl.com/hslhjfe (StackOverflow)
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
@@ -23,7 +23,22 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppr
     poll.register(tsk.stderr,POLLIN | POLLHUP)
     pollc = 2
     events = poll.poll()
+    tmp_out = NamedTemporaryFile(dir="/tmp", delete=False)
+    tmp_err = NamedTemporaryFile(dir="/tmp", delete=False)
+    chunk = []
+    chunk_err = []
     while pollc > 0 and len(events) > 0:
+        if len(chunk)>chunksize: 
+            if cache:
+                tmp_out.write("\n".join(chunk))
+                tmp_err.write("\n".join(chunk_err))
+                tmp_err.flush()
+                tmp_out.flush()
+            else:
+                args[0]+=chunk
+                args[1]+=chunk_err
+            chunk = []
+            chunk_err = []
         for rfd, event in events:
             if event & POLLIN:
                 if rfd == tsk.stdout.fileno():
@@ -31,21 +46,24 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppr
                     if len(line) > 0:
                         val = str(line[:-1])
                         if useLogging: logger.info(val)
-                        args[0].append(val if suppressLevel else "INFO: %s"%val)
+                        chunk.append(val if suppressLevel else "INFO: %s"%val)
                 if rfd == tsk.stderr.fileno():
                     line = tsk.stderr.readline()
                     if len(line) > 0:
                         if suppressErrors: continue
-                        args[1].append(line[:-1])
+                        chunk_err.append(line[:-1])
                         val = args[1][-1]
                         if useLogging: logger.error(val)
                         if interleaved: 
-                            args[0].append(val if suppressLevel else "*ERROR*: %s"%val)
+                            chunk.append(val if suppressLevel else "*ERROR*: %s"%val)
             if event & POLLHUP:
                 poll.unregister(rfd)
                 pollc = pollc - 1
             if pollc > 0: events = poll.poll()
-    return "\n".join(args[0]), "\n".join(args[1]), tsk.wait()
+    if cache:
+        return tmp_out, tmp_err, tsk.wait()
+    else:
+        return "\n".join(args[0]), "\n".join(args[1]), tsk.wait()
 
 def make_executable(path):
     mode = stat(path).st_mode
