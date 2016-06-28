@@ -111,7 +111,10 @@ class JobView(MethodView):
                 raise Exception("task name must be defined")
             job = Job.objects.filter(title=taskname, type=t_type, execution_site=site)
             if job.count(): raise Exception("job exists already")
-            job = Job.objects(title=taskname, type=t_type, execution_site=site).modify(upsert=True, new=True)
+            try:
+                job = Job.objects.get(title=taskname, type=t_type, execution_site=site)
+            except Job.DoesNotExist:
+                job = Job(title=taskname, type=t_type, execution_site=site)
             #job = Job.objects(title=taskname, type=t_type).modify(upsert=True, new=True, title=taskname, type=t_type)
             job.body.put(jobdesc, content_type="application/xml")
             job.save()
