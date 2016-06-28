@@ -1,6 +1,7 @@
 import logging
 from copy import deepcopy
 from os.path import basename
+from re import findall
 from json import loads, dumps
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
@@ -226,6 +227,8 @@ class SetJobStatus(MethodView):
         logger.debug("request arguments %s", str(arguments))
         t_id = arguments.get("t_id","None")
         bId  = arguments.get("batchId","None")
+        res = findall("\d+",bId)
+        if len(res): bId = int(res[0])
         site = str(arguments.get("site","None"))
         inst_id = arguments.get("inst_id","None")
         bdy = literal_eval(arguments.get("body",str(dummy_dict)))
