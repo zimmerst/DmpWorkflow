@@ -1,7 +1,6 @@
 import logging
 from copy import deepcopy
 from os.path import basename
-from re import findall
 from json import loads, dumps
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
@@ -48,7 +47,7 @@ class DetailView(MethodView):
     def get(self, slug):
         logger.debug("request %s",str(request))
         context = self.get_context(slug)
-        logger.info("redering jobs/detail.html for %s",context.get("job","NotAJob"))
+        logger.debug("redering jobs/detail.html")
         return render_template('jobs/detail.html', **context)
 
     def post(self, slug):
@@ -226,9 +225,7 @@ class SetJobStatus(MethodView):
         if 'major_status' not in arguments: logger.exception("couldn't find major_status in arguments")
         logger.debug("request arguments %s", str(arguments))
         t_id = arguments.get("t_id","None")
-        bId  = arguments.get("batchId","-1")
-        res = findall("\d+",bId)
-        if len(res): bId = int(res[0])
+        bId  = arguments.get("batchId","None")
         site = str(arguments.get("site","None"))
         inst_id = arguments.get("inst_id","None")
         bdy = literal_eval(arguments.get("body",str(dummy_dict)))
