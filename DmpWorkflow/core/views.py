@@ -47,7 +47,7 @@ class DetailView(MethodView):
     def get(self, slug):
         logger.debug("request %s",str(request))
         context = self.get_context(slug)
-        logger.debug("redering jobs/detail.html")
+        logger.info("redering jobs/detail.html for %s",context.get("job","NotAJob"))
         return render_template('jobs/detail.html', **context)
 
     def post(self, slug):
