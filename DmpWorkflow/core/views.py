@@ -226,7 +226,7 @@ class SetJobStatus(MethodView):
         if 'major_status' not in arguments: logger.exception("couldn't find major_status in arguments")
         logger.debug("request arguments %s", str(arguments))
         t_id = arguments.get("t_id","None")
-        bId  = arguments.get("batchId","None")
+        bId  = arguments.get("batchId","-1")
         res = findall("\d+",bId)
         if len(res): bId = int(res[0])
         site = str(arguments.get("site","None"))
