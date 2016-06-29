@@ -227,7 +227,7 @@ class SetJobStatus(MethodView):
         logger.info("request arguments %s", str(arguments))
         t_id = arguments.get("t_id","None")
         bId  = arguments.get("batchId",None)
-        logger.info("batchId passed to DB %s",bId)
+        logger.debug("batchId passed to DB %s",bId)
         if bId is not None: 
             res = findall("\d+",bId)
             if len(res): bId = int(res[0])
@@ -236,8 +236,8 @@ class SetJobStatus(MethodView):
         bdy = literal_eval(arguments.get("body",str(dummy_dict)))
         major_status = arguments["major_status"]
         minor_status = arguments.get("minor_status",None)
-        logger.info("BODY: %s (type %s)",bdy,type(bdy))
-        logger.info("batchId: %s",bId)
+        logger.debug("BODY: %s (type %s)",bdy,type(bdy))
+        logger.debug("batchId: %s",bId)
         if 'body' in arguments: del arguments['body']
         try:
             jInstance = None

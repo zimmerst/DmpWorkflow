@@ -13,6 +13,7 @@ from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm, ResourceMonitor
 from DmpWorkflow.utils.shell import run
+from re import findall
 HPC = import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 from time import ctime
 
@@ -103,7 +104,14 @@ if __name__ == '__main__':
     job = DmpJob.fromJSON(fii)
     environ["DWF_SIXDIGIT"] = job.getSixDigits()
     batchId = getenv(HPC.BATCH_ID_ENV, "-1")
-    my_exec_dir = oPjoin(EXEC_DIR_ROOT,job.getSixDigits(),"local" if batchId == "-1" else batchId)
+    if "." in batchId:
+        res = findall("\d+",batchId)
+        if len(res):
+            batchId = int(res[0])
+    print 'batchId : %s'%str(batchId)
+    print 'EXEC_DIR_ROOT: %s'%EXEC_DIR_ROOT
+    print 'instanceId : %s'%str(job.getSixDigits())
+    my_exec_dir = oPjoin(EXEC_DIR_ROOT,job.getSixDigits(),"local" if batchId == "-1" else str(batchId))
     mkdir(my_exec_dir)
     chdir(my_exec_dir)
     logThis("execution directory %s",my_exec_dir)
