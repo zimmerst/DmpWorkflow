@@ -142,7 +142,7 @@ class JobView(MethodView):
             job.save()
             return dumps({"result": "ok", "jobID": str(job.id)})
         except Exception as err:
-            logger.info("request dict: %s",str(request.form))
+            logger.error("request dict: %s",str(request.form))
             logger.exception(err)
             return dumps({"result": "nok", "jobID": "None", "error":str(err)})
 
@@ -152,7 +152,7 @@ class JobInstanceView(MethodView):
 
     def post(self):
         logger.debug("request %s",str(request))
-        logger.info("request form dict %s",request.form)
+        logger.debug("request form dict %s",request.form)
         dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         taskName = request.form.get("taskname",None)
         tasktype = request.form.get("tasktype",None)
@@ -318,7 +318,7 @@ class SetJobStatus(MethodView):
                 logger.error(err)
                 return dumps({"result":"nok","error": "error occurred when forming final output"})
             if len(queried_instances): 
-                logger.info("example query instance %s",queried_instances[-1])
+                logger.debug("example query instance %s",queried_instances[-1])
         else:
             logger.exception("could not find job")
             return dumps({"result":"nok","error": "could not find job"})
@@ -452,7 +452,7 @@ class DataCatalog(MethodView):
             logger.error("action not supported")
             return dumps({"result":"nok","error":"action not supported"})
         if site == "None" and filename == "None":
-            logger.info("request empty")
+            logger.error("request empty")
             return dumps({"result":"nok","error":"request empty"})
         try:
             df = None
