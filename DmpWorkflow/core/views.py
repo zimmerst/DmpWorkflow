@@ -226,9 +226,9 @@ class SetJobStatus(MethodView):
         if 'major_status' not in arguments: logger.exception("couldn't find major_status in arguments")
         logger.info("request arguments %s", str(arguments))
         t_id = arguments.get("t_id","None")
-        bId  = arguments.get("batchId","None")
+        bId  = arguments.get("batchId",None)
         logger.info("batchId passed to DB %s",bId)
-        if bId != "None": 
+        if bId is not None: 
             res = findall("\d+",bId)
             if len(res): bId = int(res[0])
         site = str(arguments.get("site","None"))
@@ -247,7 +247,7 @@ class SetJobStatus(MethodView):
                 my_job = my_job.first()
                 jInstance = my_job.getInstance(inst_id)
             else:
-                if bId != "None" and site != "None":
+                if bId is not None and site != "None":
                     jInstance = JobInstance.objects.filter(batchId=bId, site=site)
                     if not jInstance.count(): raise Exception("could not find JobInstance")
                     jInstance = jInstance.first()
@@ -264,6 +264,7 @@ class SetJobStatus(MethodView):
                     if 'body' in arguments: del arguments['body']
                 for key in ["t_id","inst_id","major_status"]: del arguments[key]
                 for key,value in arguments.iteritems():
+                    if key == 'batchId' and value is None: value = "None"
                     jInstance.set(key,value)
             #update_status(t_id,inst_id,major_status, **arguments)
         except Exception as err:
