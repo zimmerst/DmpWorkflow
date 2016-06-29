@@ -229,7 +229,7 @@ class SetJobStatus(MethodView):
         bId  = arguments.get("batchId",None)
         logger.debug("batchId passed to DB %s",bId)
         if bId is not None: 
-            res = findall("\d+",bId)
+            res = findall("\d+",str(bId))
             if len(res): bId = int(res[0])
         site = str(arguments.get("site","None"))
         inst_id = arguments.get("inst_id","None")
