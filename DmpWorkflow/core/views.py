@@ -222,15 +222,18 @@ class SetJobStatus(MethodView):
     def post(self):
         dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         arguments = loads(request.form.get("args","{}"))
+        logger.debug("request arguments %s", str(arguments))
         if not isinstance(arguments,dict):      logger.exception("arguments MUST be dictionary.")        
         if 'major_status' not in arguments: logger.exception("couldn't find major_status in arguments")
-        logger.info("request arguments %s", str(arguments))
         t_id = arguments.get("t_id","None")
         bId  = arguments.get("batchId",None)
         logger.debug("batchId passed to DB %s",bId)
-        if bId is not None: 
-            res = findall("\d+",str(bId))
-            if len(res): bId = int(res[0])
+        try:
+            if bId is not None: 
+                res = findall("\d+",str(bId))
+                if len(res): bId = int(res[0])
+        except Exception as err:
+            return dumps({"result": "nok", "error": "Error parsing batchId, message below \n%s"%str(err)})
         site = str(arguments.get("site","None"))
         inst_id = arguments.get("inst_id","None")
         bdy = literal_eval(arguments.get("body",str(dummy_dict)))
