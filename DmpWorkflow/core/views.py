@@ -224,9 +224,10 @@ class SetJobStatus(MethodView):
         arguments = loads(request.form.get("args","{}"))
         if not isinstance(arguments,dict):      logger.exception("arguments MUST be dictionary.")        
         if 'major_status' not in arguments: logger.exception("couldn't find major_status in arguments")
-        logger.debug("request arguments %s", str(arguments))
+        logger.info("request arguments %s", str(arguments))
         t_id = arguments.get("t_id","None")
         bId  = arguments.get("batchId","None")
+        logger.info("batchId passed to DB %s",bId)
         if bId != "None": 
             res = findall("\d+",bId)
             if len(res): bId = int(res[0])
