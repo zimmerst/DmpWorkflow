@@ -7,6 +7,7 @@ from flask.ext.mongoengine.wtf import model_form
 from datetime import datetime
 from flask.views import MethodView
 from ast import literal_eval
+from re import findall
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance, HeartBeat, DataFile
 
@@ -226,12 +227,16 @@ class SetJobStatus(MethodView):
         logger.debug("request arguments %s", str(arguments))
         t_id = arguments.get("t_id","None")
         bId  = arguments.get("batchId","None")
+        if bId != "None": 
+            res = findall("\d+",bId)
+            if len(res): bId = int(res[0])
         site = str(arguments.get("site","None"))
         inst_id = arguments.get("inst_id","None")
         bdy = literal_eval(arguments.get("body",str(dummy_dict)))
         major_status = arguments["major_status"]
         minor_status = arguments.get("minor_status",None)
-        logger.debug("BODY: %s (type %s)",bdy,type(bdy))
+        logger.info("BODY: %s (type %s)",bdy,type(bdy))
+        logger.info("batchId: %s",bId)
         if 'body' in arguments: del arguments['body']
         try:
             jInstance = None
