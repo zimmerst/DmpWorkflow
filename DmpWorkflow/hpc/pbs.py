@@ -76,7 +76,7 @@ class BatchEngine(BATCH):
         self.update()
         running = [j for j in self.allJobs if self.allJobs[j]['STAT']=="r"]
         pending = [j for j in self.allJobs if self.allJobs[j]['STAT']=="qw"]
-        return running + pending
+        return running + pending if pending else running
 
     def __parseOutputAsXml__(self,xmloutput,filterUser):
         """ returns job dictionary """
