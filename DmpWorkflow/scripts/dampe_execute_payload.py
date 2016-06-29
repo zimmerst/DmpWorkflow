@@ -12,7 +12,7 @@ from sys import exit as sys_exit, argv
 from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm, ResourceMonitor
-from DmpWorkflow.utils.shell import run
+from DmpWorkflow.utils.shell import run, run_cached
 from re import findall
 HPC = import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 from time import ctime
@@ -56,7 +56,7 @@ def __runPayload(job, resources=None):
     CMD = "%s payload" % job.executable
     logThis("CMD: %s", CMD)
     job.updateStatus("Running", "ExecutingApplication", resources=resources)
-    output, error, rc = run(CMD.split(),suppressLevel=True, cache=True, chunksize=36) # use caching to file!
+    output, error, rc = run_cached(CMD.split(), chunksize=36) # use caching to file!
     for o in output: print o
     if rc:
         logThis("ERROR: Payload returned exit code %i, see below for more details.", rc)
