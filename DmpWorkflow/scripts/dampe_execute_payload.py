@@ -12,7 +12,7 @@ from sys import exit as sys_exit, argv
 from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm, ResourceMonitor
-from DmpWorkflow.utils.shell import run, run_cached
+from DmpWorkflow.utils.shell import run_cached
 from re import findall
 HPC = import_module("DmpWorkflow.hpc.%s"%BATCH_DEFAULTS['system'])
 from time import ctime
