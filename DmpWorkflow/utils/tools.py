@@ -3,8 +3,9 @@ Created on Mar 25, 2016
 
 @author: zimmer
 """
+import logging
 import shutil
-from os import makedirs, environ, system, utime
+from os import makedirs, environ, utime
 from os.path import exists, expandvars
 from sys import stdout
 from random import choice, randint
@@ -21,7 +22,8 @@ from hashlib import md5
 
 
 def sortTimeStampList(my_list, timestamp='time', reverse=False):
-    if not len(my_list): return []
+    if not len(my_list):
+        return []
     my_list = list(deepcopy(my_list))
     keys = sorted([v[timestamp] for v in my_list])
     if reverse: keys = reversed(keys)
@@ -64,7 +66,6 @@ def getSixDigits(number, asPath=False):
 
 def query_yes_no(question):
     print question + " [yes/no]"
-    ret = False
     yes = {'yes', 'y', 'ye', ''}
     no = {'no', 'n'}
     choice = raw_input().lower()
@@ -110,8 +111,8 @@ def mkdir(Dir):
 def rm(pwd):
     try:
         shutil.rmtree(pwd)
-    except:
-        pass
+    except Exception as err:
+        logging.exception(err)
 
 
 def mkscratch():
