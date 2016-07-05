@@ -8,8 +8,9 @@ import logging
 import logging.config
 from logging import Formatter, StreamHandler
 from logging.handlers import RotatingFileHandler
+from DmpWorkflow.config.defaults import DAMPE_LOGFILE
 
-log_path = None
+log_path = DAMPE_LOGFILE
 
 logger_core = logging.getLogger("core")
 handler_file = RotatingFileHandler(maxBytes=2000000, filename=log_path, backupCount=5)
