@@ -9,7 +9,8 @@ from flask.views import MethodView
 from ast import literal_eval
 from re import findall
 from DmpWorkflow.core.DmpJob import DmpJob
-from DmpWorkflow.core.models import Job, JobInstance, HeartBeat, DataFile
+from DmpWorkflow.core.models import Job, JobInstance, HeartBeat
+from DmpWorkflow.core.datacat import DataFile
 
 jobs = Blueprint('jobs', __name__, template_folder='templates')
 
@@ -411,8 +412,8 @@ class TestView(MethodView):
             return dumps({"result":"nok","error":ex})
         return dumps({"result":"ok","beats":[b.hostname for b in beats]})
 
+# data catalog main interface.
 class DataCatalog(MethodView):
-
     def __register__(self,args):
         query    = args[0]
         filename = args[1]
@@ -505,6 +506,7 @@ jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), me
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
 jobs.add_url_rule("/watchdog/",view_func=JobResources.as_view('watchdog'), methods=["GET"])
 jobs.add_url_rule("/testDB/", view_func=TestView.as_view('testDB'), methods=["GET","POST"])
+# datacatalog rules.
 jobs.add_url_rule("/datacat/", view_func=DataCatalog.as_view('datacat'), methods=["GET","POST"])
 
 #jobs.add_url_rule('/InstanceDetail', view_func=InstanceView.as_view('instancedetail'), methods=['GET'])
