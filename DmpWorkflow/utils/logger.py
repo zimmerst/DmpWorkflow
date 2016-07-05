@@ -1,8 +1,8 @@
-'''
+"""
 Created on May 4, 2016
 
 @author: zimmer
-'''
+"""
 
 import logging
 import logging.config
@@ -31,7 +31,7 @@ logger_batch.setLevel(logging.INFO)
 
 def initLogger(logfile):
     # add logger
-    LOGGING = {
+    cfg = {
         'version': 1,
         'disable_existing_loggers': False,
         'formatters': {
@@ -74,4 +74,4 @@ def initLogger(logfile):
 
         }
     }
-    logging.config.dictConfig(LOGGING)
+    logging.config.dictConfig(cfg)
