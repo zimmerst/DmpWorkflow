@@ -1,5 +1,5 @@
 from DmpWorkflow.config.defaults import cfg
-kind = cfg.get("global","installation")
+kind = cfg.get("global", "installation")
 
 if kind == 'server':    
     from flask import Flask
@@ -26,7 +26,9 @@ if kind == 'server':
     
     def main():
         app.run()
-
+else:
+    def main():
+        pass
 
 if __name__ == '__main__':
     if kind == 'server':
