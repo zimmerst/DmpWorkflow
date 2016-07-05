@@ -22,18 +22,24 @@ from DmpWorkflow.utils.tools import parseJobXmlToDict, convertHHMMtoSec, sortTim
 if not cfg.getboolean("site", "traceback"): sys.excepthook = exceptionHandler
 log = logging.getLogger("core")
 
-class DataFile(db.Document):
-    my_choices = ("New","Copied","Orphaned")
-    created_at = db.DateTimeField(default=datetime.now, required=True)
-    filename = db.StringField(max_length=1024, required=True)
-    site = db.StringField(max_length=24, required=True)
-    filetype = db.StringField(max_length=16, required=False, default="root")
+class DataReplica(db.Document):
+    site   = db.StringField(max_length=24, required=True)
     status = db.StringField(max_length=16, default="New")
+    filename= db.StringField(max_length=1024, required=True)
+    DataFile= db.ReferenceField("DataFile", reverse_delete_rule=CASCADE)
 
     def setStatus(self,stat):
         if stat not in self.my_choices:
             raise Exception("status not supported in DB")
         self.status = stat
+
+class DataFile(db.Document):
+    my_choices = ("New","Copied","Orphaned")
+    created_at = db.DateTimeField(default=datetime.now, required=True)
+    replicas   = db.ListField(db.ReferenceField("DataReplica")) 
+    filetype = db.StringField(max_length=16, required=False, default="root")
+    tstart = db.DateTimeField(required=False)
+    tstop  = db.DateTimeField(required=False)
 
     def save(self):
         req = DataFile.objects.filter(filename=self.filename, site=self.site)
