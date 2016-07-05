@@ -19,5 +19,6 @@ import logging
 try:
     from DmpWorkflow.config.defaults import DAMPE_LOGFILE
     initLogger(DAMPE_LOGFILE)
+    from DmpWorkflow.utils.logger import logger_batch, logger_script, logger_core
 except Exception as err:
     logging.warning("Log service client was not initialized properly: %s", str(err))
