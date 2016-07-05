@@ -7,6 +7,8 @@ from DmpWorkflow.utils.shell import run
 import logging
 
 BATCH_ID_ENV = "NOT_DEFINED"
+
+
 class BatchJob(object):
     """ generic batch job which can be expanded by classes inheriting from this class """
     name = None
@@ -35,11 +37,12 @@ class BatchJob(object):
 
     def __execWithUpdate__(self, cmd, key, value=None):
         """ execute command cmd & update key with output from running """
-        output, error, rc = run(cmd.split(),suppressLevel=True,interleaved=False,useLogging=False)
-        self.logging.debug("execution with rc: %i",int(rc))
+        output, error, rc = run(cmd.split(), suppressLevel=True, interleaved=False, useLogging=False)
+        self.logging.debug("execution with rc: %i", int(rc))
         if error:
             for e in error.split("\n"):
-                if len(e): self.logging.error(e)
+                if len(e):
+                    self.logging.error(e)
 
         if value is None:
             self.update(key, output)
@@ -58,24 +61,27 @@ class BatchJob(object):
         if key in self.__dict__:
             self.__dict__[key] = value
 
-    #def get(self, key, callable=str):
+    # def get(self, key, callable=str):
     #    if key in self.__dict__:
     #        return callable(self.__dict__[key])
     #    return None
 
     def getCPU(self):
         return 0.
-    def getMemory(self,unit='kB'):
+
+    def getMemory(self, unit='kB'):
         print unit
         return 0.
-    
-    def __run__(self,cmd):
-        if not isinstance(cmd,list): cmd = cmd.split()
-        output, error, rc = run(cmd,useLogging=False,interleaved=False, suppressLevel=True)
-        self.logging.debug("execution with rc: %i",int(rc))
+
+    def __run__(self, cmd):
+        if not isinstance(cmd, list):
+            cmd = cmd.split()
+        output, error, rc = run(cmd, useLogging=False, interleaved=False, suppressLevel=True)
+        self.logging.debug("execution with rc: %i", int(rc))
         if error:
             for e in error.split("\n"):
-                if len(e): self.logging.error(e)
+                if len(e):
+                    self.logging.error(e)
         if rc:
             err = "exception during execution"
             self.logging.error(err)
@@ -99,37 +105,40 @@ class BATCH(object):
 
     def update(self):
         return {}
-    def getCPUtime(self,job, key = None):
+
+    def getCPUtime(self, job, key=None):
         print job, key
         return 0.
-    def getMemory(self,job, key = None, unit='kB'):
+
+    def getMemory(self, job, key=None, unit='kB'):
         print job, key, unit
         return 0.
-    
-    def getRunningJobs(self,pending=False):
+
+    def getRunningJobs(self, pending=False):
         """ should be implemented by subclass """
-        if pending: print 'including pending jobs'
+        if pending:
+            print 'including pending jobs'
         return []
-    
-    def checkJobsFast(self,pending=True):
+
+    def checkJobsFast(self, pending=True):
         return len(self.getRunningJobs(pending=pending))
 
-    def addBatchJob(self,job):
-        if not isinstance(job,BatchJob):
+    def addBatchJob(self, job):
+        if not isinstance(job, BatchJob):
             self.logging.error("must be BatchJob instance")
             raise Exception
-        self.allJobs[job.batchId]=job
+        self.allJobs[job.batchId] = job
         return
-    
+
     def __checkKeys__(self, key):
         if key not in self.keys:
             self.logging.error("could not extract key, allowed keys %s", str(self.keys))
             raise Exception
 
-    def setUser(self,user):
+    def setUser(self, user):
         self.user = user
 
-    def getUser(self): 
+    def getUser(self):
         return self.user
 
     def getJob(self, jobID, key="STAT"):
@@ -149,6 +158,6 @@ class BATCH(object):
                 self.logging.error("could not find key %s in job %s", key, jobID)
             else:
                 val = self.allJobs[jobID][key]
-            #print val
+            # print val
             ret[jobID] = val
         return ret

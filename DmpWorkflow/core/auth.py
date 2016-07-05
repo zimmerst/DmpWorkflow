@@ -7,14 +7,15 @@ from DmpWorkflow.config.defaults import cfg
 from functools import wraps
 from flask import request, Response
 
-USERNAME = cfg.get("server","admin_user")
-PASSWORD = cfg.get("server","admin_password")
+USERNAME = cfg.get("server", "admin_user")
+PASSWORD = cfg.get("server", "admin_password")
+
 
 def check_auth(username, password):
     """This function is called to check if a username /
     password combination is valid.
     """
- 
+
     return username == USERNAME and password == PASSWORD
 
 

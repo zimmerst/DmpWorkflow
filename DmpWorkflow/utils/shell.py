@@ -12,16 +12,17 @@ from os.path import expandvars
 
 logger = logging.getLogger("core")
 
+
 def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppressLevel=False):
     # inspired from http://tinyurl.com/hslhjfe (StackOverflow)
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
-    logger.info("attempting to run: %s",str(cmd_args))
-    args = [[],[]] # first is output, second is errors
-    tsk = Popen(cmd_args,stdout=PIPE,stderr=PIPE)
+    logger.info("attempting to run: %s", str(cmd_args))
+    args = [[], []]  # first is output, second is errors
+    tsk = Popen(cmd_args, stdout=PIPE, stderr=PIPE)
     poll = spoll()
-    poll.register(tsk.stdout,POLLIN | POLLHUP)
-    poll.register(tsk.stderr,POLLIN | POLLHUP)
+    poll.register(tsk.stdout, POLLIN | POLLHUP)
+    poll.register(tsk.stderr, POLLIN | POLLHUP)
     pollc = 2
     events = poll.poll()
     while pollc > 0 and len(events) > 0:
@@ -31,21 +32,25 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppr
                     line = tsk.stdout.readline()
                     if len(line) > 0:
                         val = str(line[:-1])
-                        if useLogging: logger.info(val)
-                        args[0].append(val if suppressLevel else "INFO: %s"%val)
+                        if useLogging:
+                            logger.info(val)
+                        args[0].append(val if suppressLevel else "INFO: %s" % val)
                 if rfd == tsk.stderr.fileno():
                     line = tsk.stderr.readline()
                     if len(line) > 0:
-                        if suppressErrors: continue
+                        if suppressErrors:
+                            continue
                         args[1].append(line[:-1])
                         val = args[1][-1]
-                        if useLogging: logger.error(val)
-                        if interleaved: 
-                            args[0].append(val if suppressLevel else "*ERROR*: %s"%val)
+                        if useLogging:
+                            logger.error(val)
+                        if interleaved:
+                            args[0].append(val if suppressLevel else "*ERROR*: %s" % val)
             if event & POLLHUP:
                 poll.unregister(rfd)
-                pollc = pollc - 1
-            if pollc > 0: events = poll.poll()
+                pollc -= 1
+            if pollc > 0:
+                events = poll.poll()
     return "\n".join(args[0]), "\n".join(args[1]), tsk.wait()
 
 
@@ -54,12 +59,12 @@ def run_cached(cmd_args, interleaved=True, chunksize=36):
     """ returns file objects to output & error caching the output of a running process """
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
-    logger.info("attempting to run: %s",str(cmd_args))
-    args = [[],[]] # first is output, second is errors
-    tsk = Popen(cmd_args,stdout=PIPE,stderr=PIPE)
+    logger.info("attempting to run: %s", str(cmd_args))
+    args = [[], []]  # first is output, second is errors
+    tsk = Popen(cmd_args, stdout=PIPE, stderr=PIPE)
     poll = spoll()
-    poll.register(tsk.stdout,POLLIN | POLLHUP)
-    poll.register(tsk.stderr,POLLIN | POLLHUP)
+    poll.register(tsk.stdout, POLLIN | POLLHUP)
+    poll.register(tsk.stderr, POLLIN | POLLHUP)
     pollc = 2
     events = poll.poll()
     tmp_out = NamedTemporaryFile(dir="/tmp", delete=False)
@@ -67,7 +72,7 @@ def run_cached(cmd_args, interleaved=True, chunksize=36):
     chunk = []
     chunk_err = []
     while pollc > 0 and len(events) > 0:
-        if len(chunk)>chunksize: 
+        if len(chunk) > chunksize:
             tmp_out.write("\n".join(chunk))
             tmp_err.write("\n".join(chunk_err))
             tmp_err.flush()
@@ -86,18 +91,21 @@ def run_cached(cmd_args, interleaved=True, chunksize=36):
                     if len(line) > 0:
                         chunk_err.append(line[:-1])
                         val = chunk_err[-1] if len(chunk_err) else args[1][-1]
-                        if interleaved: 
+                        if interleaved:
                             chunk.append(val)
             if event & POLLHUP:
                 poll.unregister(rfd)
-                pollc = pollc - 1
-            if pollc > 0: events = poll.poll()
+                pollc -= 1
+            if pollc > 0:
+                events = poll.poll()
     return tmp_out, tmp_err, tsk.wait()
+
 
 def make_executable(path):
     mode = stat(path).st_mode
-    mode |= (mode & 0o444) >> 2    # copy R bits to X
+    mode |= (mode & 0o444) >> 2  # copy R bits to X
     chmod(path, mode)
+
 
 def source_bash(setup_script):
     foop = open("tmp.sh", "w")
