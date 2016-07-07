@@ -47,7 +47,7 @@ class DataFile(db.Document):
     # here are attributes specific to the datafile
     tstart = db.DateTimeField(required=False)
     tstop  = db.DateTimeField(required=False)
-    deltat = db.FloatField(required=False)
+    gti = db.FloatField(required=False)
     
     meta = {
             'allow_inheritance': True,
