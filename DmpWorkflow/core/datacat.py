@@ -47,7 +47,8 @@ class DataFile(db.Document):
     # here are attributes specific to the datafile
     tstart = db.DateTimeField(required=False)
     tstop  = db.DateTimeField(required=False)
-
+    deltat = db.FloatField(required=False)
+    
     meta = {
             'allow_inheritance': True,
             'indexes': ['-created_at', 'filename', 'site', 'filetype'],
@@ -60,7 +61,8 @@ class DataSet(db.Document):
     release = db.StringField(max_length=64, required=False)
     name = db.StringField(max_length=128,required=True)
     filetype = db.StringField(max_length=16, required=False, default="root")
-
+    datatype = db.StringField(max_length=4, required=True, default="USR", choices=("USR","MC","OBS","BT"))
+    dataclass = db.StringField(max_length=4, required=False, default="2A"):
     meta = {
             'allow_inheritance': True,
             'indexes': ['-created_at', 'release', 'name'],
