@@ -32,6 +32,7 @@ class DataReplica(db.Document):
     path     = db.StringField(max_length=1024, required=True)
     CheckSum = db.StringField(max_length=72, required=False)
     DataFile = db.ReferenceField("DataFile", reverse_delete_rule=CASCADE)
+
     meta     = {
                  'allow_inheritance': True,
                  'indexes': ['-created_at', 'status', 'site'],
@@ -45,6 +46,7 @@ class DataReplica(db.Document):
         if path is None: return
         self.path = path
         self.save()
+
         
     def getFileName(self):
         return op_join(self.path,self.DataFile.filename)
@@ -55,30 +57,46 @@ class DataFile(db.Document):
     replicas   = db.ListField(db.ReferenceField("DataReplica")) 
     filename= db.StringField(max_length=1024, required=True)
     filetype = db.StringField(max_length=16, required=False, default="root")
-    origin = db.StringField(max_length=16, required=True, default="PMO")
+    origin = db.ReferenceField("DataReplica")
     # here are attributes specific to the datafile
     TStart = db.DateTimeField(required=False)
     TStop  = db.DateTimeField(required=False)
     GTI = db.FloatField(required=False)
+
+    def verifyReplicas(self):
+        cs_origin = self.origin.CheckSum
+        for rep in DataReplica.objects.filter(DataFile=self,status="New"):
+            if rep != self.origin: 
+                cs_replica = rep.CheckSum
+                if cs_replica!=cs_origin: 
+                    log.warning("CheckSum failed for replica of file %s at %s",self.filename, rep.site)
+                    rep.status("Bad")
+                else: rep.status("Good")
+                rep.save()
+    
+    def declareOrigin(self,replica):
+        if not isinstance(replica,DataReplica): raise Exception("must be a replica instance")
+        self.origin = replica
+        self.save()
     
     def registerReplica(self,**kwargs):
         site = kwargs.get("site",cfg.get("site", "name"))
         status = kwargs.get("status","new")
         path = kwargs.get("path",None)
-        if not path:
+        if path is None:
             log.error("trying to register empty replica, must provide path")
             return
         force = bool(kwargs.get("force","false"))
         try:
             replica = DataReplica.objects.get(site=site, DataFile=self)
             if force: replica.update(site=site,status=status,path=path)
-            log.error("trying to re-register an existing replica")
-            return
+            log.warning("trying to re-register an existing replica")
         except DataReplica.DoesNotExist:
             replica = DataReplica(site=site,status=status,DataFile=self,path=path)
             replica.save()
-
-    def removeReplica(self,**kwargs):
+        return replica 
+    
+    def removeReplica(self,**kwargs)
         site = kwargs.get("site",cfg.get("site", "name")) 
         try:
             replica = DataReplica.objects.get(site=site, DataFile=self)

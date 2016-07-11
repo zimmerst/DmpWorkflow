@@ -37,24 +37,60 @@ def update_status(JobId, InstanceId, major_status, **kwargs):
     return
 
 def register_dataset(**kwargs):
+    """ 
+        all calls are handled through keywords in this method
+        code will try to guess the DataSetName/DataFileName from the full file name, 
+        unless it is specifically provided as additional keyword.
+        KEYWWORDS
+          prefix  : will be stripped from the filename to determine the DataSetName
+          FileName: the full file name
+          TStart  : Format YYYYMMDDHHMMSS
+          TStop   : same as above
+          Gti     : good time interval, if TStop - TStart << Gti or >> Gti, a warning is shown
+          DataType: USR, MC, OBS or BT
+          DataClass: type of data 2A, 1F, Reco / Simu / Digi
+          Release : release tag
+          DataSetName: optional, if provided, will use this one
+          DataFileName: same as above.
+    """
+    
     defaultTime = "19000101000000"
     prefix = kwargs.get("prefix","root://grid05.unige.ch:1094//dpm/unige.ch/home/dampe")
     FileName = kwargs.get("FileName",None)
-    if not FileName: 
+    if FileName is None: 
         log.error("must provide at least a file name!")
         return
     TStart = datetime.strptime(kwargs.get("TStart",defaultTime),"%Y%m%d%H%M%S")
     TStop =  datetime.strptime(kwargs.get("TStop",defaultTime),"%Y%m%d%H%M%S")
     Gti   = float(kwargs.get("Gti",0.))
-    FileType= kwargs.get("FileType","root")
+    delta = 1e3*(TStop - TStart).total_seconds()
+    if (Gti <= 0.9*delta or Gti >= 1.1*delta):
+        log.warning("GTI is siginificantly offset from TStop - TStart calculation for %s",FileName)
     DataType= kwargs.get("DataType","USR")
     DataClass=kwargs.get("DataClass","None")
     Release  =kwargs.get("Release","None")
+    ChkSum   =kwargs.get("CheckSum",None)
     # try to guess dataset name
+    Site = kwargs.get("Site","UNIGE")
+    Status=kwargs.get("Status","New")
     pure_file_name = basename(FileName)
-    DataFileName, FileType = splitext(pure_file_name)
-    DataSetName = dirname(FileName.replace(prefix,""))
-    if DataSetName.startswith("/"): 
-        DataSetName = DataSetName.split("/")[1]
-    else: DataSetName.split("/")[0]
+    DataSetName = kwargs.get("DataSetName",None)
+    DataFileName= kwargs.get("DataFileName",None)
+    if DataFileName is None:
+        DataFileName, FileType = splitext(pure_file_name)
+    if DataSetName is None:
+        DataSetName = dirname(FileName.replace(prefix,""))
+        if DataSetName.startswith("/"): 
+            DataSetName = DataSetName.split("/")[1]
+        else: DataSetName.split("/")[0]
+    
+    # let's try to register some datasets
+    ds = df = rep = None
+    try:
+        ds = DataSet.objects.filter(name=DataSetName,DataType=DataType, release=Release, DataClass = DataClass)
+    except DataSet.DoesNotExist():
+        ds = DataSet(name=DataSetName,DataType=DataType, release=Release, DataClass = DataClass)
+
+    df = ds.registerDataFile(FileName=DataFileName,FileType=FileType,TStart=TStart, TStop=TStop, GTI=Gti)    
+    rep = df.registerReplica(path=FileName,status=Status)
     
