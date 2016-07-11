@@ -76,6 +76,7 @@ def register_dataset(**kwargs):
     pure_file_name = basename(FileName)
     DataSetName = kwargs.get("DataSetName",None)
     DataFileName= kwargs.get("DataFileName",None)
+    FileType = kwargs.get("FileType",None)
     if DataFileName is None:
         DataFileName, FileType = splitext(pure_file_name)
     if DataSetName is None:
@@ -90,7 +91,6 @@ def register_dataset(**kwargs):
         ds = DataSet.objects.filter(name=DataSetName,DataType=DataType, release=Release, DataClass = DataClass)
     except DataSet.DoesNotExist():
         ds = DataSet(name=DataSetName,DataType=DataType, release=Release, DataClass = DataClass)
-
-    df = ds.registerDataFile(FileName=DataFileName,FileType=FileType,TStart=TStart, TStop=TStop, GTI=Gti)    
-    rep = df.registerReplica(path=FileName,status=Status)
+    df = ds.findDataFile(register=True,FileName=DataFileName,FileType=FileType,TStart=TStart, TStop=TStop, GTI=Gti)    
+    df.registerReplica(path=FileName,status=Status)
     
