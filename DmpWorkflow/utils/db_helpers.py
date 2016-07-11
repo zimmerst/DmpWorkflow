@@ -5,8 +5,10 @@ Created on Mar 15, 2016
 """
 import logging
 from time import ctime
+from datetime import datetime
 from DmpWorkflow.core.models import Job, MAJOR_STATII, db
-from argparse import ArgumentParser
+from DmpWorkflow.core.datacat import DataSet, DataFile, DataReplica
+from os.path import basename, splitext, dirname
 
 log = logging.getLogger("core")
 
@@ -34,21 +36,25 @@ def update_status(JobId, InstanceId, major_status, **kwargs):
     log.debug("updated job")
     return
 
-def register_dataset(args):
-    ''' convenience method to be called from Andrii's agent '''
-    parser = ArgumentParser(usage="Usage: %(prog)s [options]", description="register dataset in dc")
-    parser.add_argument("-s","--site",dest='site',type=str, default="UNIGE")
-    parser.add_argument("-n","--dataset-name",dest='dname',type=str, default="", required=True)
-    parser.add_argument("-N","--filename",dest='fname',type=str, default="", required=True)
-    parser.add_argument("-p", "--xrd-prefix", dest="xrd_prefix", type = str, 
-                        default="root://grid05.unige.ch:1094//dpm/unige.ch/home/dampe/", help='xrootd prefix')
-    parser.add_argument("-t", "--filetype", dest="filetype", type = str, default="root", help='type')
-    parser.add_argument("-S", "--setStatus", dest="status", type = str, default="New", help='site where the file is registered')
-    parser.add_argument("-x", "--expandVars", dest="expandVars", action = 'store_true', default=False, help='if true, store absolute paths')
-    parser.add_argument("-q", "--quiet", dest="quiet", action = 'store_true', default=False, help='if true, keep only essential information')
-    parser.add_argument("-F", "--force", dest="force", action = 'store_true', default=False, help='if true, force overwriting existing file')
-    parser.add_argument("-l", "--limit", dest="limit", type= int , default=100, help='limit list of entries returned')
-    opts = parser.parse_args(args)
-    db.connect()
+def register_dataset(**kwargs):
+    defaultTime = "19000101000000"
+    prefix = kwargs.get("prefix","root://grid05.unige.ch:1094//dpm/unige.ch/home/dampe")
+    FileName = kwargs.get("FileName",None)
+    if not FileName: 
+        log.error("must provide at least a file name!")
+        return
+    TStart = datetime.strptime(kwargs.get("TStart",defaultTime),"%Y%m%d%H%M%S")
+    TStop =  datetime.strptime(kwargs.get("TStop",defaultTime),"%Y%m%d%H%M%S")
+    Gti   = float(kwargs.get("Gti",0.))
+    FileType= kwargs.get("FileType","root")
+    DataType= kwargs.get("DataType","USR")
+    DataClass=kwargs.get("DataClass","None")
+    Release  =kwargs.get("Release","None")
+    # try to guess dataset name
+    pure_file_name = basename(FileName)
+    DataFileName, FileType = splitext(pure_file_name)
+    DataSetName = dirname(FileName.replace(prefix,""))
+    if DataSetName.startswith("/"): 
+        DataSetName = DataSetName.split("/")[1]
+    else: DataSetName.split("/")[0]
     
-    pass

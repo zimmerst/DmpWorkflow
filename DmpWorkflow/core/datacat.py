@@ -23,11 +23,14 @@ from DmpWorkflow.core import db
 if not cfg.getboolean("site", "traceback"): sys.excepthook = exceptionHandler
 log = logging.getLogger("core")
 
+fileStatii = ("New","Orphaned","Bad","Good")
+
+
 class DataReplica(db.Document):
     site     = db.StringField(max_length=24, required=True)
-    status   = db.StringField(max_length=16, default="New")
+    status   = db.StringField(max_length=16, default="New",choices=fileStatii)
     path     = db.StringField(max_length=1024, required=True)
-    checksum = db.StringField(max_length=72, required=False)
+    CheckSum = db.StringField(max_length=72, required=False)
     DataFile = db.ReferenceField("DataFile", reverse_delete_rule=CASCADE)
     meta     = {
                  'allow_inheritance': True,
@@ -35,6 +38,14 @@ class DataReplica(db.Document):
                  'ordering': ['-created_at']
                }
 
+    def update(self,**kwargs):
+        self.site = kwargs.get("site",cfg.get("site", "name"))
+        self.status = kwargs.get("status","new")
+        path = kwargs.get("path",None)
+        if path is None: return
+        self.path = path
+        self.save()
+        
     def getFileName(self):
         return op_join(self.path,self.DataFile.filename)
 
@@ -44,11 +55,52 @@ class DataFile(db.Document):
     replicas   = db.ListField(db.ReferenceField("DataReplica")) 
     filename= db.StringField(max_length=1024, required=True)
     filetype = db.StringField(max_length=16, required=False, default="root")
+    origin = db.StringField(max_length=16, required=True, default="PMO")
     # here are attributes specific to the datafile
-    tstart = db.DateTimeField(required=False)
-    tstop  = db.DateTimeField(required=False)
-    gti = db.FloatField(required=False)
+    TStart = db.DateTimeField(required=False)
+    TStop  = db.DateTimeField(required=False)
+    GTI = db.FloatField(required=False)
     
+    def registerReplica(self,**kwargs):
+        site = kwargs.get("site",cfg.get("site", "name"))
+        status = kwargs.get("status","new")
+        path = kwargs.get("path",None)
+        if not path:
+            log.error("trying to register empty replica, must provide path")
+            return
+        force = bool(kwargs.get("force","false"))
+        try:
+            replica = DataReplica.objects.get(site=site, DataFile=self)
+            if force: replica.update(site=site,status=status,path=path)
+            log.error("trying to re-register an existing replica")
+            return
+        except DataReplica.DoesNotExist:
+            replica = DataReplica(site=site,status=status,DataFile=self,path=path)
+            replica.save()
+
+    def removeReplica(self,**kwargs):
+        site = kwargs.get("site",cfg.get("site", "name")) 
+        try:
+            replica = DataReplica.objects.get(site=site, DataFile=self)
+            replica.delete()
+        except DataReplica.DoesNotExist:
+            log.error("requested replica does not exist")
+        return
+    
+    def updateReplicaStatus(self,**kwargs):
+        site = kwargs.get("site",cfg.get("site", "name")) 
+        status = kwargs.get("status",None)
+        if status is None:
+            log.error("must supply a status")
+            return
+        try:
+            replica = DataReplica.objects.get(site=site, DataFile=self)
+            replica.status = status
+            replica.save()
+        except DataReplica.DoesNotExist:
+            log.error("requested replica does not exist")
+            return
+        
     meta = {
             'allow_inheritance': True,
             'indexes': ['-created_at', 'filename', 'site', 'filetype'],
@@ -60,9 +112,9 @@ class DataSet(db.Document):
     files = db.ListField(db.ReferenceField("DataFile"))
     release = db.StringField(max_length=64, required=False)
     name = db.StringField(max_length=128,required=True)
-    filetype = db.StringField(max_length=16, required=False, default="root")
-    datatype = db.StringField(max_length=4, required=True, default="USR", choices=("USR","MC","OBS","BT"))
-    dataclass = db.StringField(max_length=4, required=False, default="2A"):
+    FileType = db.StringField(max_length=16, required=False, default="root")
+    DataType = db.StringField(max_length=4, required=True, default="USR", choices=("USR","MC","OBS","BT"))
+    DataClass = db.StringField(max_length=4, required=False, default="2A"):
     meta = {
             'allow_inheritance': True,
             'indexes': ['-created_at', 'release', 'name'],
