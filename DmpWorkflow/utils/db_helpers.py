@@ -54,7 +54,7 @@ def register_dataset(**kwargs):
           DataSetName: optional, if provided, will use this one
           DataFileName: same as above.
     """
-    
+    db.connect()
     defaultTime = "19000101000000"
     prefix = kwargs.get("prefix","root://grid05.unige.ch:1094//dpm/unige.ch/home/dampe")
     FileName = kwargs.get("FileName",None)
