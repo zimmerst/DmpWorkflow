@@ -10,7 +10,7 @@ from ast import literal_eval
 from re import findall
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance, HeartBeat
-from DmpWorkflow.core.datacat import DataFile
+#from DmpWorkflow.core.datacat import DataFile
 
 jobs = Blueprint('jobs', __name__, template_folder='templates')
 
