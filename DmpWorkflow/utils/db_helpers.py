@@ -88,7 +88,7 @@ def register_dataset(**kwargs):
         else: DataSetName.split("/")[0]
     
     # let's try to register some datasets
-    ds = df = None
+    ds = None
     try:
         ds = DataSet.objects.filter(name=DataSetName,DataType=DataType, release=Release, DataClass = DataClass)
     except DataSet.DoesNotExist():
@@ -96,11 +96,9 @@ def register_dataset(**kwargs):
     df = ds.findDataFile(register=True,FileName=DataFileName,FileType=FileType,TStart=TStart, TStop=TStop, GTI=Gti)    
     if isinstance(Origin,DataReplica):
         df.declareOrigin(Origin)
+    elif isinstance(Origin,dict):
+        df.declareOriginFromDict(Origin)
     else:
         raise NotImplementedError("only supporting Origin as DataReplica instance for now.")
-            
-            
-    
-    
-    df.registerReplica(path=FileName,status=Status)
+    df.registerReplica(path=FileName,status=Status,checksum=ChkSum,site=Site)
     
