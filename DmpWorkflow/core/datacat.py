@@ -77,8 +77,34 @@ class DataFile(db.Document):
     def declareOrigin(self,replica):
         if not isinstance(replica,DataReplica): raise Exception("must be a replica instance")
         self.origin = replica
+        if not self.origin in self.replicas:
+            log.warning("could not find replica marked as origin in list of replicas, registering a new one.")
+            self.origin.DataFile = self
+            self.origin.save()
+            self.replicas.append(self.origin)
         self.save()
-    
+        
+    def declareOriginFromDict(self,_dict):
+        """ create the replica on the fly, from a dictionary alone
+            required items in dictionary:
+            path : full path to source
+            checksum: checksum at source
+            site : site name
+        """
+        path = _dict.get("path",None)
+        checksum = _dict.get("checksum",None)
+        site = _dict.get("site",None)
+        if path is None:        log.error("path missing")
+        elif checksum is None:  log.error("checksum missing")
+        elif site is None:      log.error("site missing")
+        origin = None
+        try:
+            origin = DataReplica.objects.filter(site=site,path=path,status="Good",DataFile=self,CheckSum=checksum)
+        except DataReplica.DoesNotExist:
+            log.warning("registering new replica as origin")
+            origin = DataReplica(site=site,path=path,status="Good",DataFile=self,CheckSum=checksum)
+            origin.save()
+            
     def registerReplica(self,**kwargs):
         site = kwargs.get("site",cfg.get("site", "name"))
         status = kwargs.get("status","new")
@@ -96,7 +122,7 @@ class DataFile(db.Document):
             replica.save()
         return replica 
     
-    def removeReplica(self,**kwargs)
+    def removeReplica(self,**kwargs):
         site = kwargs.get("site",cfg.get("site", "name")) 
         try:
             replica = DataReplica.objects.get(site=site, DataFile=self)

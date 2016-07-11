@@ -46,6 +46,7 @@ def register_dataset(**kwargs):
           FileName: the full file name
           TStart  : Format YYYYMMDDHHMMSS
           TStop   : same as above
+          Origin  : this one should be a dictionary: filename & site name (or a valid DataReplica instance!
           Gti     : good time interval, if TStop - TStart << Gti or >> Gti, a warning is shown
           DataType: USR, MC, OBS or BT
           DataClass: type of data 2A, 1F, Reco / Simu / Digi
@@ -70,6 +71,7 @@ def register_dataset(**kwargs):
     DataClass=kwargs.get("DataClass","None")
     Release  =kwargs.get("Release","None")
     ChkSum   =kwargs.get("CheckSum",None)
+    Origin   =kwargs.get("Origin",{})
     # try to guess dataset name
     Site = kwargs.get("Site","UNIGE")
     Status=kwargs.get("Status","New")
@@ -86,11 +88,19 @@ def register_dataset(**kwargs):
         else: DataSetName.split("/")[0]
     
     # let's try to register some datasets
-    ds = df = rep = None
+    ds = df = None
     try:
         ds = DataSet.objects.filter(name=DataSetName,DataType=DataType, release=Release, DataClass = DataClass)
     except DataSet.DoesNotExist():
         ds = DataSet(name=DataSetName,DataType=DataType, release=Release, DataClass = DataClass)
     df = ds.findDataFile(register=True,FileName=DataFileName,FileType=FileType,TStart=TStart, TStop=TStop, GTI=Gti)    
+    if isinstance(Origin,DataReplica):
+        df.declareOrigin(Origin)
+    else:
+        raise NotImplementedError("only supporting Origin as DataReplica instance for now.")
+            
+            
+    
+    
     df.registerReplica(path=FileName,status=Status)
     
