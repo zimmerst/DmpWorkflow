@@ -158,7 +158,7 @@ class DataSet(db.Document):
     name = db.StringField(max_length=128,required=True)
     FileType = db.StringField(max_length=16, required=False, default="root")
     DataType = db.StringField(max_length=4, required=True, default="USR", choices=("USR","MC","OBS","BT"))
-    DataClass = db.StringField(max_length=4, required=False, default="2A"):
+    DataClass = db.StringField(max_length=4, required=False, default="2A")
     
     def findDataFile(self,register=True,**kwargs):
         FileName = kwargs.get("FileName",None)
@@ -168,7 +168,7 @@ class DataSet(db.Document):
         TStart = datetime.strptime(kwargs.get("TStart",defaultTime),"%Y%m%d%H%M%S")
         TStop =  datetime.strptime(kwargs.get("TStop",defaultTime),"%Y%m%d%H%M%S")
         Gti   = float(kwargs.get("Gti",0.))
-        FileType = kwargs.get("FileType"None)
+        FileType = kwargs.get("FileType",None)
         ds = None
         try:
             ds = DataFile.objects.filter(filename=FileName,TStart=TStart,TStop=TStop,GTI=Gti)

@@ -85,7 +85,7 @@ def register_dataset(**kwargs):
         DataSetName = dirname(FileName.replace(prefix,""))
         if DataSetName.startswith("/"): 
             DataSetName = DataSetName.split("/")[1]
-        else: DataSetName.split("/")[0]
+        else: DataSetName=DataSetName.split("/")[0]
     
     # let's try to register some datasets
     ds = None
