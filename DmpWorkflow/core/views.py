@@ -433,89 +433,89 @@ class TestView(MethodView):
         return dumps({"result": "ok", "beats": [b.hostname for b in beats]})
 
 # data catalog main interface.
-class DataCatalog(MethodView):
-    def __register__(self,args):
-        query    = args[0]
-        filename = args[1]
-        site = args[2]
-        filetype = args[3]
-        force = args[4]
-        if len(query):
-            if force:
-                for f in query: f.delete()
-            else:
-                return dumps({"result": "nok", "error": "called register but file apparently exists already"})
-        else:
-            df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
-            df.save()
-            return None
-
-    def __update_or_remove__(self, df, status=None, action="setStatus"):
-        if status is None:
-            return dumps({"result": "nok", "error": "status is None"})
-        if action == 'setStatus':
-            df.setStatus(status)
-            df.update()
-        else:
-            logger.info("requested removal!")
-            df.delete()
-        return None
-
-    def post(self):
-        logger.debug("DataCatalog: request form %s", str(request.form))
-        filename = str(request.form.get("filename", "None"))
-        site = str(request.form.get("site", "None"))
-        action = str(request.form.get("action", 'register'))
-        status = str(request.form.get("status", "New"))
-        filetype = str(request.form.get("filetype", "root"))
-        force = bool(request.form.get("overwrite", "False"))
-        logger.debug("filename %s status %s", filename, status)
-        if action not in ['register', 'setStatus', 'delete']:
-            logger.error("action not supported")
-            return dumps({"result": "nok", "error": "action not supported"})
-        if site == "None" and filename == "None":
-            logger.error("request empty")
-            return dumps({"result": "nok", "error": "request empty"})
-        try:
-            df = None
-            files = [filename]
-            if "," in filename:
-                files = filename.split(",")
-                logger.info("bulk request, found %i files", len(files))
-            touched_files = []
-            for filename in files:
-                fileQuery = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
-                if action == 'register':
-                    logger.debug("request a new file to be registered")
-                    res = self.__register__([fileQuery, filename, site, filetype, force])
-                    if res is not None: return res
-                else:
-                    if fileQuery.count():
-                        df = fileQuery[0]
-                        res = self.__update_or_remove__(df, status=status, action=action)
-                        if res is not None: return res
-                    else:
-                        logger.debug("cannot find queried input file")
-                        return dumps({"result": "nok", "error": "cannot find file in DB"})
-                if df is not None: touched_files.append(df)
-        except Exception as ex:
-            logger.error("failure during DataCatalog POST. \n%s", ex)
-            return dumps({"result": "nok", "error": str(ex)})
-        return dumps({"result": "ok",
-                      "docId": [d.filename if action == 'delete' else str(d.id) for d in touched_files]})
-
-    def get(self):
-        limit = int(request.form.get("limit", 1000))
-        site = str(request.form.get("site", "None"))
-        status = str(request.form.get("status", "New"))
-        filetype = str(request.form.get("filetype", "root"))
-        try:
-            dfs = DataFile.objects.filter(site=site, status=status, filetype=filetype).limit(limit)
-            logger.debug("found %i files matching query", dfs.count())
-        except Exception as ex:
-            logger.error("failure during DataCatalog GET. \n%s", ex)
-            return dumps({"result": "nok", "error": str(ex)})
-        return dumps({"result": "ok", "files": [f.filename for f in dfs]})
+# class DataCatalog(MethodView):
+#     def __register__(self,args):
+#         query    = args[0]
+#         filename = args[1]
+#         site = args[2]
+#         filetype = args[3]
+#         force = args[4]
+#         if len(query):
+#             if force:
+#                 for f in query: f.delete()
+#             else:
+#                 return dumps({"result": "nok", "error": "called register but file apparently exists already"})
+#         else:
+#             df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
+#             df.save()
+#             return None
+# 
+#     def __update_or_remove__(self, df, status=None, action="setStatus"):
+#         if status is None:
+#             return dumps({"result": "nok", "error": "status is None"})
+#         if action == 'setStatus':
+#             df.setStatus(status)
+#             df.update()
+#         else:
+#             logger.info("requested removal!")
+#             df.delete()
+#         return None
+# 
+#     def post(self):
+#         logger.debug("DataCatalog: request form %s", str(request.form))
+#         filename = str(request.form.get("filename", "None"))
+#         site = str(request.form.get("site", "None"))
+#         action = str(request.form.get("action", 'register'))
+#         status = str(request.form.get("status", "New"))
+#         filetype = str(request.form.get("filetype", "root"))
+#         force = bool(request.form.get("overwrite", "False"))
+#         logger.debug("filename %s status %s", filename, status)
+#         if action not in ['register', 'setStatus', 'delete']:
+#             logger.error("action not supported")
+#             return dumps({"result": "nok", "error": "action not supported"})
+#         if site == "None" and filename == "None":
+#             logger.error("request empty")
+#             return dumps({"result": "nok", "error": "request empty"})
+#         try:
+#             df = None
+#             files = [filename]
+#             if "," in filename:
+#                 files = filename.split(",")
+#                 logger.info("bulk request, found %i files", len(files))
+#             touched_files = []
+#             for filename in files:
+#                 fileQuery = DataFile.objects.filter(filename=filename, site=site, filetype=filetype)
+#                 if action == 'register':
+#                     logger.debug("request a new file to be registered")
+#                     res = self.__register__([fileQuery, filename, site, filetype, force])
+#                     if res is not None: return res
+#                 else:
+#                     if fileQuery.count():
+#                         df = fileQuery[0]
+#                         res = self.__update_or_remove__(df, status=status, action=action)
+#                         if res is not None: return res
+#                     else:
+#                         logger.debug("cannot find queried input file")
+#                         return dumps({"result": "nok", "error": "cannot find file in DB"})
+#                 if df is not None: touched_files.append(df)
+#         except Exception as ex:
+#             logger.error("failure during DataCatalog POST. \n%s", ex)
+#             return dumps({"result": "nok", "error": str(ex)})
+#         return dumps({"result": "ok",
+#                       "docId": [d.filename if action == 'delete' else str(d.id) for d in touched_files]})
+# 
+#     def get(self):
+#         limit = int(request.form.get("limit", 1000))
+#         site = str(request.form.get("site", "None"))
+#         status = str(request.form.get("status", "New"))
+#         filetype = str(request.form.get("filetype", "root"))
+#         try:
+#             dfs = DataFile.objects.filter(site=site, status=status, filetype=filetype).limit(limit)
+#             logger.debug("found %i files matching query", dfs.count())
+#         except Exception as ex:
+#             logger.error("failure during DataCatalog GET. \n%s", ex)
+#             return dumps({"result": "nok", "error": str(ex)})
+#         return dumps({"result": "ok", "files": [f.filename for f in dfs]})
 
 
 # Register the urls
@@ -531,6 +531,6 @@ jobs.add_url_rule("/watchdog/",view_func=JobResources.as_view('watchdog'), metho
 jobs.add_url_rule("/testDB/", view_func=TestView.as_view('testDB'), methods=["GET","POST"])
 
 # datacatalog rules.
-jobs.add_url_rule("/datacat/", view_func=DataCatalog.as_view('datacat'), methods=["GET","POST"])
+#jobs.add_url_rule("/datacat/", view_func=DataCatalog.as_view('datacat'), methods=["GET","POST"])
 
 # jobs.add_url_rule('/InstanceDetail', view_func=InstanceView.as_view('instancedetail'), methods=['GET'])
