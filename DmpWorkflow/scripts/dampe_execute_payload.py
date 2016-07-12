@@ -18,7 +18,11 @@ from time import ctime
 
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 
-
+def exit_app(rc,msg=None):
+    print '*** RECEIVED EXIT TRIGGER ****'
+    if msg is not None: print msg
+    sys_exit(rc)
+    
 def logThis(msg, *args):
     val = msg % args
     print "%s: %s: %s" % (ctime(), gethostname(), val)
@@ -58,10 +62,13 @@ def __runPayload(job, resources=None):
     logThis("CMD: %s", CMD)
     job.updateStatus("Running", "ExecutingApplication", resources=resources)
     output, error, rc = run_cached(CMD.split(), chunksize=36, cachedir=abspath(curdir))  # use caching to file!
+    logThis('reading output from payload %s',output.name)
     print output.read()
     output.close()
     if rc:
         logThis("ERROR: Payload returned exit code %i, see below for more details.", rc)
+        logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
+        logThis('reading error from payload %s',error.name)
         print error.read()
         error.close()
         try:
@@ -69,9 +76,10 @@ def __runPayload(job, resources=None):
         except Exception as err:
             logThis("EXCEPTION: %s", err)
         if not DEBUG_TEST: return 5
-    logThis("successfully completed running application")
-    logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
-    return 0
+    else:   
+        logThis("successfully completed running application")
+        logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
+        return 0
 
 
 def __postRun(job, resources=None):
@@ -129,11 +137,11 @@ if __name__ == '__main__':
     #    job.sourceSetupScript()
     rc = 0
     rc += __prepare(job, resources=RM)
-    if rc: sys_exit(rc)
+    if rc: sys_exit(rc,msg="Exiting after prepare step")
     rc += __runPayload(job, resources=RM)
-    if rc: sys_exit(rc)
+    if rc: sys_exit(rc,msg="Exiting after payload")
     rc += __postRun(job, resources=RM)
-    if rc: sys_exit(rc)
+    if rc: sys_exit(rc,msg="Exiting after post-run")
     # finally, compile output file.
     logThis("job complete, cleaning up working directory")
     chdir(pwd)
