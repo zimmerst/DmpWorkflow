@@ -137,11 +137,11 @@ if __name__ == '__main__':
     #    job.sourceSetupScript()
     rc = 0
     rc += __prepare(job, resources=RM)
-    if rc: sys_exit(rc,msg="Exiting after prepare step")
+    if rc: exit_app(rc,msg="Exiting after prepare step")
     rc += __runPayload(job, resources=RM)
-    if rc: sys_exit(rc,msg="Exiting after payload")
+    if rc: exit_app(rc,msg="Exiting after payload")
     rc += __postRun(job, resources=RM)
-    if rc: sys_exit(rc,msg="Exiting after post-run")
+    if rc: exit_app(rc,msg="Exiting after post-run")
     # finally, compile output file.
     logThis("job complete, cleaning up working directory")
     chdir(pwd)
