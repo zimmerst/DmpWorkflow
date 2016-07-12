@@ -54,7 +54,7 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppr
     return "\n".join(args[0]), "\n".join(args[1]), tsk.wait()
 
 
-def run_cached(cmd_args, interleaved=True, chunksize=36):
+def run_cached(cmd_args, interleaved=True, chunksize=36, cachedir="/tmp"):
     # inspired from http://tinyurl.com/hslhjfe (StackOverflow)
     """ returns file objects to output & error caching the output of a running process """
     if not isinstance(cmd_args, list):
@@ -67,8 +67,8 @@ def run_cached(cmd_args, interleaved=True, chunksize=36):
     poll.register(tsk.stderr, POLLIN | POLLHUP)
     pollc = 2
     events = poll.poll()
-    tmp_out = NamedTemporaryFile(dir="/tmp", delete=False)
-    tmp_err = NamedTemporaryFile(dir="/tmp", delete=False)
+    tmp_out = NamedTemporaryFile(dir=cachedir, delete=True)
+    tmp_err = NamedTemporaryFile(dir=cachedir, delete=True)
     chunk = []
     chunk_err = []
     while pollc > 0 and len(events) > 0:

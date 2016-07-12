@@ -50,16 +50,6 @@ def __prepare(job, resources=None):
 
 
 def __runPayload(job, resources=None):
-    def __file_cleanup(file1, file2):
-        print 'running cleanup.'
-        file1.close()
-        file2.close()
-        print 'deleting output & error files'
-        try:
-            rm(file1.name)
-            rm(file2.name)
-        except Exception as err:
-            logThis("Error during cleanup %s", err)
     with open('payload', 'w') as foop:
         foop.write(job.exec_wrapper)
         foop.close()
@@ -67,20 +57,20 @@ def __runPayload(job, resources=None):
     CMD = "%s payload" % job.executable
     logThis("CMD: %s", CMD)
     job.updateStatus("Running", "ExecutingApplication", resources=resources)
-    output, error, rc = run_cached(CMD.split(), chunksize=36)  # use caching to file!
+    output, error, rc = run_cached(CMD.split(), chunksize=36, cachedir=abspath(curdir))  # use caching to file!
     print output.read()
+    output.close()
     if rc:
         logThis("ERROR: Payload returned exit code %i, see below for more details.", rc)
         print error.read()
+        error.close()
         try:
             job.updateStatus("Running" if DEBUG_TEST else "Failed", "ApplicationExitCode%i" % rc, resources=resources)
         except Exception as err:
             logThis("EXCEPTION: %s", err)
-        __file_cleanup(output, error)
         if not DEBUG_TEST: return 5
     logThis("successfully completed running application")
     logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
-    __file_cleanup(output, error)
     return 0
 
 
