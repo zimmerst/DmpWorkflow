@@ -64,11 +64,10 @@ def __runPayload(job, resources=None):
     logThis("CMD: %s", CMD)
     job.updateStatus("Running", "ExecutingApplication", resources=resources)
     output, error, rc = run_cached(CMD.split(), chunksize=36)  # use caching to file!
-    for o in output: print o
+    print output.read()
     if rc:
         logThis("ERROR: Payload returned exit code %i, see below for more details.", rc)
-        for e in error:
-            if len(e): logThis("ERROR: %s", e)
+        print error.read()
         try:
             job.updateStatus("Running" if DEBUG_TEST else "Failed", "ApplicationExitCode%i" % rc, resources=resources)
         except Exception as err:

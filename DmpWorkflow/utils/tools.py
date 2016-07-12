@@ -5,7 +5,7 @@ Created on Mar 25, 2016
 """
 import logging
 import shutil
-from os import makedirs, environ, utime
+from os import makedirs, environ, utime, system
 from os.path import exists, expandvars
 from sys import stdout
 from random import choice, randint
@@ -110,7 +110,7 @@ def mkdir(Dir):
 
 def rm(pwd):
     try:
-        shutil.rmtree(pwd)
+        system("rm -rf %s"%pwd)#shutil.rmtree(pwd)
     except Exception as err:
         logging.exception(err)
 
