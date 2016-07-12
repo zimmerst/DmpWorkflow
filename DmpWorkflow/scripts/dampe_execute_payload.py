@@ -51,11 +51,15 @@ def __prepare(job, resources=None):
 
 def __runPayload(job, resources=None):
     def __file_cleanup(file1, file2):
+        print 'running cleanup.'
         file1.close()
         file2.close()
-        rm(file1.name)
-        rm(file2.name)
-
+        print 'deleting output & error files'
+        try:
+            rm(file1.name)
+            rm(file2.name)
+        except Exception as err:
+            logThis("Error during cleanup %s", err)
     with open('payload', 'w') as foop:
         foop.write(job.exec_wrapper)
         foop.close()

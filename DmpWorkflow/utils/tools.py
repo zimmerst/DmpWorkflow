@@ -110,7 +110,7 @@ def mkdir(Dir):
 
 def rm(pwd):
     try:
-        system("rm -rf %s"%pwd)#shutil.rmtree(pwd)
+        shutil.rmtree(pwd)
     except Exception as err:
         logging.exception(err)
 
