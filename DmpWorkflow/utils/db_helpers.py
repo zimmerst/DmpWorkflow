@@ -7,7 +7,7 @@ import logging
 from time import ctime
 from datetime import datetime
 from DmpWorkflow.core.models import Job, MAJOR_STATII, db
-from DmpWorkflow.core.datacat import DataSet, DataFile, DataReplica
+from DmpWorkflow.core.models import DataSet, DataReplica # FIXME: change to proper DataCatalog module
 from os.path import basename, splitext, dirname
 
 log = logging.getLogger("core")
