@@ -11,7 +11,7 @@ from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, 
 from DmpWorkflow.core import db
 from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler
 from DmpWorkflow.utils.tools import parseJobXmlToDict, convertHHMMtoSec, sortTimeStampList
-
+from DmpWorkflow.core.datacat import DataFile, DataReplica, DataSet # flask may need this...
 if not cfg.getboolean("site", "traceback"): sys.excepthook = exceptionHandler
 log = logging.getLogger("core")
 
