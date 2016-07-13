@@ -98,6 +98,9 @@ def run_cached(cmd_args, interleaved=True, chunksize=36, cachedir="/tmp"):
                 pollc -= 1
             if pollc > 0:
                 events = poll.poll()
+    # must rewind tmp_out & tmp_err
+    tmp_out.seek(0)
+    tmp_err.seek(0)
     return tmp_out, tmp_err, tsk.wait()
 
 
