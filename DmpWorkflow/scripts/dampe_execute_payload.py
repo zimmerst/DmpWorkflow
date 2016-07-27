@@ -14,7 +14,7 @@ from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm, ProcessResourceMonitor, convertHHMMtoSec
 from DmpWorkflow.utils.shell import run_cached
 from multiprocessing import Process
-import psutil
+from psutil import Process as ps_proc
 from datetime import datetime
 from re import findall
 from time import ctime, sleep
@@ -151,46 +151,30 @@ class PayloadExecutor(object):
 
 
 if __name__ == '__main__':
+    killJob = False
+    reason = None
     executor = PayloadExecutor(argv[1]) # will create an executor object
     defaults = executor.job.getBatchDefaults() # will return the default values
     max_cpu = float(convertHHMMtoSec(defaults['cputime']))
     # max_mem is typically in MB!
-    for unit in ['mb','Mb','MB']:
+    for unit in ['mb','Mb','MB','Mbytes']:
         if unit in defaults['memory']:
-            defaults['memory']=float(defaults['memory'].replace(unit,""))*1024. # since max_mem is in KB!
+            defaults['memory']=float(defaults['memory'].replace(unit,""))
     max_mem = float(defaults['memory'])
+    if max_mem >= 1e6:
+        # must be in kB!
+        max_mem/=1024 
     # get the max ratios
     ratio_cpu_max = float(cfg.get("watchdog", "ratio_cpu"))
     ratio_mem_max = float(cfg.get("watchdog", "ratio_mem"))
-        
-    memory = 0
-    user_cpu=0
-    syst_cpu=0
-    peak_mem=0
-    avg_mem= 0
-    measures = 0
     now = datetime.utcnow()
     proc = Process(target=executor.execute)
     proc.start()
-    ps = psutil.Process(proc.pid)
-    prm = ProcessResourceMonitor(ps)
+    ps = ps_proc(proc.pid)
+    prm = ProcessResourceMonitor(ps) #this monitor uses psutil for its information.
     while proc.is_alive():
-        killJob = False
-        reason = None
-        allmems = 0
-        cpu = ps.cpu_times()
-        user_cpu += cpu[0]
-        syst_cpu += cpu[1]
-        mem = ps.memory_info_ex()
-        if len(mem) > 1:
-            if mem[1]:
-                allmems += mem[1]
-        memory += allmems
-        measures += 1.
-        if allmems > peak_mem:
-            peak_mem = allmems
-        if measures:
-            avg_mem = float(memory) / measures
+        syst_cpu = prm.getCpuTime()
+        memory = prm.getMemory()
         ## check time out conditions
         if (syst_cpu / max_cpu >= ratio_cpu_max):
             killJob = True
