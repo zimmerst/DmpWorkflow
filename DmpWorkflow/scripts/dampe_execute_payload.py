@@ -104,7 +104,6 @@ def __postRun(job, resources=None):
     logThis("successfully completed staging.")
     return 0
 
-
 if __name__ == '__main__':
     RM = ResourceMonitor()
     pwd = curdir
