@@ -2,150 +2,208 @@
 Created on Apr 19, 2016
 
 @author: zimmer
-@brief: payload script
+@brief: payload script with integrated process handling
 """
-from os.path import expandvars, abspath, dirname, isdir, isfile, join as oPjoin
+from os.path import expandvars, abspath, dirname, isdir, join as oPjoin
 from os import curdir, environ, listdir, chdir, getenv
 from importlib import import_module
 from socket import gethostname
 from sys import exit as sys_exit, argv
-from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS
+from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS, cfg
 from DmpWorkflow.core.DmpJob import DmpJob
-from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm, ResourceMonitor
+from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm, ProcessResourceMonitor, convertHHMMtoSec
 from DmpWorkflow.utils.shell import run_cached
+from multiprocessing import Process
+import psutil
+from datetime import datetime
 from re import findall
-from time import ctime
+from time import ctime, sleep
 
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 
-def exit_app(rc,msg=None):
-    print '*** RECEIVED EXIT TRIGGER ****'
-    if msg is not None: print msg
-    sys_exit(rc)
+class PayloadExecutor(object):
+    def __init__(self,inputfile,debug=False):
+        self.pwd = curdir
+        self.logThis("reading json input")
+        self.job = DmpJob.fromJSON(inputfile)
+        self.debug = debug
+        self.batchId = getenv(HPC.BATCH_ID_ENV, "-1")
+        if "." in self.batchId:
+            res = findall("\d+", self.batchId)
+            if len(res):
+                self.batchId = int(res[0])
+        self.logThis('batchId : %s' % str(self.batchId))
+        
+    def logThis(self,msg, *args):
+        val = msg % args
+        print "%s: %s: %s" % (ctime(), gethostname(), val)
     
-def logThis(msg, *args):
-    val = msg % args
-    print "%s: %s: %s" % (ctime(), gethostname(), val)
-
-
-def __prepare(job, resources=None):
-    try:
-        job.updateStatus("Running", "PreparingInputData", hostname=gethostname(), batchId=batchId, resources=resources)
-    except Exception as err:
-        logThis("EXCEPTION: %s", err)
-    # first, set all variables
-    for var in job.MetaData: environ[var['name']] = expandvars(var['value'])
-    logThis("current environment settings")
-    # log.info("\n".join(["%s: %s"%(key,value) for key, value in sorted(environ.iteritems())]))
-    for fi in job.InputFiles:
-        src = expandvars(fi['source'])
-        tg = expandvars(fi['target'])
+    def exit_app(self,rc,msg=None):
+        print '*** RECEIVED EXIT TRIGGER ****'
+        if msg is not None: print msg
+        sys_exit(rc)
+    
+    def __prepare(self):
         try:
-            safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
-        except IOError, e:
-            try:
-                job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e), resources=resources)
-            except Exception as err:
-                logThis("EXCEPTION: %s", err)
-            if not DEBUG_TEST: return 4
-    logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
-    logThis("successfully completed staging.")
-    return 0
-
-
-def __runPayload(job, resources=None):
-    with open('payload', 'w') as foop:
-        foop.write(job.exec_wrapper)
-        foop.close()
-    logThis("about to run payload")
-    CMD = "%s payload" % job.executable
-    logThis("CMD: %s", CMD)
-    job.updateStatus("Running", "ExecutingApplication", resources=resources)
-    output, error, rc = run_cached(CMD.split(), chunksize=36, cachedir=abspath(curdir))  # use caching to file!
-    logThis('reading output from payload %s',output.name)
-    print output.read()
-    output.close()
-    if rc:
-        logThis("ERROR: Payload returned exit code %i, see below for more details.", rc)
-        logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
-        logThis('reading error from payload %s',error.name)
-        print error.read()
-        error.close()
-        try:
-            job.updateStatus("Running" if DEBUG_TEST else "Failed", "ApplicationExitCode%i" % rc, resources=resources)
+            self.job.updateStatus("Running", "PreparingInputData", hostname=gethostname(), batchId=self.batchId)
         except Exception as err:
-            logThis("EXCEPTION: %s", err)
-        if not DEBUG_TEST: return 5
-    else:   
-        logThis("successfully completed running application")
-        logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
-        return 0
-
-
-def __postRun(job, resources=None):
-    job.updateStatus("Running", "PreparingOutputData", resources=resources)
-    for fi in job.OutputFiles:
-        src = expandvars(fi['source'])
-        tg = expandvars(fi['target'])
-        _dir = dirname(tg)
-        if not isdir(_dir):
-            logThis("creating output directory %s", _dir)
-            mkdir(_dir)
-        try:
-            safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
-            job.registerDS(filename=tg, overwrite=True)
-        except Exception, e:
+            self.logThis("EXCEPTION: %s", err)
+        # first, set all variables
+        for var in self.job.MetaData: environ[var['name']] = expandvars(var['value'])
+        self.logThis("current environment settings")
+        # log.info("\n".join(["%s: %s"%(key,value) for key, value in sorted(environ.iteritems())]))
+        for fi in self.job.InputFiles:
+            src = expandvars(fi['source'])
+            tg = expandvars(fi['target'])
             try:
-                job.updateStatus("Running" if DEBUG_TEST else "Failed", camelize(e), resources=resources)
+                safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
+            except IOError, e:
+                try:
+                    self.job.updateStatus("Running" if self.debug else "Failed", camelize(e))
+                except Exception as err:
+                    self.logThis("EXCEPTION: %s", err)
+                if not self.debug: return 4
+        self.logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
+        self.logThis("successfully completed staging.")
+        return 0
+    
+    def __runPayload(self):
+        with open('payload', 'w') as foop:
+            foop.write(self.job.exec_wrapper)
+            foop.close()
+        self.logThis("about to run payload")
+        CMD = "%s payload" % self.job.executable
+        self.logThis("CMD: %s", CMD)
+        self.job.updateStatus("Running", "ExecutingApplication")
+        output, error, rc = run_cached(CMD.split(), chunksize=36, cachedir=abspath(curdir))  # use caching to file!
+        self.logThis('reading output from payload %s',output.name)
+        print output.read()
+        output.close()
+        if rc:
+            self.logThis("ERROR: Payload returned exit code %i, see below for more details.", rc)
+            self.logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
+            self.logThis('reading error from payload %s',error.name)
+            print error.read()
+            error.close()
+            try:
+                self.job.updateStatus("Running" if self.debug else "Failed", "ApplicationExitCode%i" % rc)
             except Exception as err:
-                logThis("EXCEPTION: %s", err)
-            if not DEBUG_TEST: return 6
-            ## add registerDS
-    logThis("successfully completed staging.")
-    return 0
+                self.logThis("EXCEPTION: %s", err)
+            if not self.debug: return 5
+        else:   
+            self.logThis("successfully completed running application")
+            self.logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
+            return 0
+
+    def __postRun(self):
+        self.job.updateStatus("Running", "PreparingOutputData")
+        for fi in self.job.OutputFiles:
+            src = expandvars(fi['source'])
+            tg = expandvars(fi['target'])
+            _dir = dirname(tg)
+            if not isdir(_dir):
+                self.logThis("creating output directory %s", _dir)
+                mkdir(_dir)
+            try:
+                safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
+                self.job.registerDS(filename=tg, overwrite=True)
+            except Exception, e:
+                try:
+                    self.job.updateStatus("Running" if self.debug else "Failed", camelize(e))
+                except Exception as err:
+                    self.logThis("EXCEPTION: %s", err)
+                if not self.debug: return 6
+                ## add registerDS
+        self.logThis("successfully completed staging.")
+        return 0
+    
+    def execute(self):
+        environ["DWF_SIXDIGIT"] = self.job.getSixDigits()
+        print 'EXEC_DIR_ROOT: %s' % EXEC_DIR_ROOT
+        print 'instanceId : %s' % str(self.job.getSixDigits())
+        my_exec_dir = oPjoin(EXEC_DIR_ROOT, self.job.getSixDigits(), "local" if self.batchId == "-1" else str(self.batchId))
+        mkdir(my_exec_dir)
+        chdir(my_exec_dir)
+        self.logThis("execution directory %s", my_exec_dir)
+        # DMPSWSYS = getenv("DMPSWSYS")
+        # DAMPE_SW_DIR = getenv("DAMPE_SW_DIR",None)
+        # if DAMPE_SW_DIR is None:
+        #    raise Exception("must define $DAMPE_SW_DIR")
+        # next, run the executable
+        # if not DAMPE_SW_DIR in DMPSWSYS:
+        #    log.info("trying to re-source setup script.")
+        #    job.sourceSetupScript()
+        rc = 0
+        rc += self.__prepare()
+        if rc: self.exit_app(rc,msg="Exiting after prepare step")
+        rc += self.__runPayload()
+        if rc: self.exit_app(rc,msg="Exiting after payload")
+        rc += self.__postRun()
+        if rc: self.exit_app(rc,msg="Exiting after post-run")
+        # finally, compile output file.
+        self.logThis("job complete, cleaning up working directory")
+        chdir(self.pwd)
+        rm(my_exec_dir)
+        try:
+            self.job.updateStatus("Done", "ApplicationComplete")
+        except Exception as err:
+            self.logThis("EXCEPTION: %s", err)
+
 
 if __name__ == '__main__':
-    RM = ResourceMonitor()
-    pwd = curdir
-    DEBUG_TEST = False
-    fii = argv[1]
-    if isfile(fii):
-        fii = open(fii, 'rb').read()
-    logThis("reading json input")
-    job = DmpJob.fromJSON(fii)
-    environ["DWF_SIXDIGIT"] = job.getSixDigits()
-    batchId = getenv(HPC.BATCH_ID_ENV, "-1")
-    if "." in batchId:
-        res = findall("\d+", batchId)
-        if len(res):
-            batchId = int(res[0])
-    print 'batchId : %s' % str(batchId)
-    print 'EXEC_DIR_ROOT: %s' % EXEC_DIR_ROOT
-    print 'instanceId : %s' % str(job.getSixDigits())
-    my_exec_dir = oPjoin(EXEC_DIR_ROOT, job.getSixDigits(), "local" if batchId == "-1" else str(batchId))
-    mkdir(my_exec_dir)
-    chdir(my_exec_dir)
-    logThis("execution directory %s", my_exec_dir)
-    # DMPSWSYS = getenv("DMPSWSYS")
-    # DAMPE_SW_DIR = getenv("DAMPE_SW_DIR",None)
-    # if DAMPE_SW_DIR is None:
-    #    raise Exception("must define $DAMPE_SW_DIR")
-    # next, run the executable
-    # if not DAMPE_SW_DIR in DMPSWSYS:
-    #    log.info("trying to re-source setup script.")
-    #    job.sourceSetupScript()
-    rc = 0
-    rc += __prepare(job, resources=RM)
-    if rc: exit_app(rc,msg="Exiting after prepare step")
-    rc += __runPayload(job, resources=RM)
-    if rc: exit_app(rc,msg="Exiting after payload")
-    rc += __postRun(job, resources=RM)
-    if rc: exit_app(rc,msg="Exiting after post-run")
-    # finally, compile output file.
-    logThis("job complete, cleaning up working directory")
-    chdir(pwd)
-    rm(my_exec_dir)
-    try:
-        job.updateStatus("Done", "ApplicationComplete", resources=RM)
-    except Exception as err:
-        logThis("EXCEPTION: %s", err)
+    executor = PayloadExecutor(argv[1]) # will create an executor object
+    defaults = executor.job.getBatchDefaults() # will return the default values
+    max_cpu = float(convertHHMMtoSec(defaults['cputime']))
+    # max_mem is typically in MB!
+    for unit in ['mb','Mb','MB']:
+        if unit in defaults['memory']:
+            defaults['memory']=float(defaults['memory'].replace(unit,""))*1024. # since max_mem is in KB!
+    max_mem = float(defaults['memory'])
+    # get the max ratios
+    ratio_cpu_max = float(cfg.get("watchdog", "ratio_cpu"))
+    ratio_mem_max = float(cfg.get("watchdog", "ratio_mem"))
+        
+    memory = 0
+    user_cpu=0
+    syst_cpu=0
+    peak_mem=0
+    avg_mem= 0
+    measures = 0
+    now = datetime.utcnow()
+    proc = Process(target=executor.execute)
+    proc.start()
+    ps = psutil.Process(proc.pid)
+    prm = ProcessResourceMonitor(ps)
+    while proc.is_alive():
+        killJob = False
+        reason = None
+        allmems = 0
+        cpu = ps.cpu_times()
+        user_cpu += cpu[0]
+        syst_cpu += cpu[1]
+        mem = ps.memory_info_ex()
+        if len(mem) > 1:
+            if mem[1]:
+                allmems += mem[1]
+        memory += allmems
+        measures += 1.
+        if allmems > peak_mem:
+            peak_mem = allmems
+        if measures:
+            avg_mem = float(memory) / measures
+        ## check time out conditions
+        if (syst_cpu / max_cpu >= ratio_cpu_max):
+            killJob = True
+            reason = "Job exceeded its CPU time"
+        if (memory/max_mem >= ratio_mem_max):
+            killJob = True
+            reason = "Job exceeded its Memory"
+        if killJob:
+            executor.job.updateStatus("Failed",camelize(reason),resources=prm)
+            proc.terminate()
+        else:
+            ## terminate here for the various reasons.
+            # output of memory is in kilobytes.
+            executor.job.updateStatus("Running","ExecutingApplication",resources=prm)
+            sleep(float(BATCH_DEFAULTS.get("sleeptime","300."))) # sleep for 5m
+    

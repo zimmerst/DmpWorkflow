@@ -19,7 +19,7 @@ from copy import deepcopy
 from StringIO import StringIO
 from xml.dom import minidom as xdom
 from hashlib import md5
-
+from psutil import Process as psutil_proc
 
 def sortTimeStampList(my_list, timestamp='time', reverse=False):
     if not len(my_list):
@@ -255,6 +255,29 @@ class ResourceMonitor(object):
         sys = self.systime
         mem = self.memory
         return "usertime=%s systime=%s mem %s Mb" % (user, sys, mem)
+
+class ProcessResourceMonitor(ResourceMonitor):
+    # here we overload the init method to add a variable to the class
+    def init(self,ps):
+        if not isinstance(ps,psutil_proc):
+            raise Exception("must be called from a psutil instance!")
+        self.user = 0
+        self.system=0
+        self.memory=0
+        self.ps = ps
+        self.query()
+        
+    # here we overload the query method to use psutil instead.
+    def query(self):
+        allmems = 0
+        cpu = self.ps.cpu_times()
+        self.user   += cpu[0]
+        self.system += cpu[1]
+        mem = self.ps.memory_info_ex()
+        if len(mem) > 1:
+            if mem[1]:
+                allmems += mem[1]
+        self.memory += (allmems/1024.) # memory should be in MB!
 
 
 def md5sum(filename, blocksize=65536):
