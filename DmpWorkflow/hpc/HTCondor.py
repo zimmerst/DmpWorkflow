@@ -10,6 +10,7 @@ from DmpWorkflow.config.defaults import BATCH_DEFAULTS as defaults
 from DmpWorkflow.hpc.batch import BATCH, BatchJob as HPCBatchJob
 from DmpWorkflow.utils.shell import run
 from collections import OrderedDict
+from copy import deepcopy
 from os.path import dirname, curdir
 from os import chdir
 #raise ImportError("CondorHT class not supported")
@@ -74,8 +75,8 @@ class BatchEngine(BATCH):
 
     def getRunningJobs(self, pending=False):
         self.update()
-        running = [j for j in self.allJobs if self.allJobs[j]['ST'] == "R"]
-        pending = [j for j in self.allJobs if self.allJobs[j]['ST'] == "Q"]
+        running = [j for j in self.allJobs if self.allJobs[j]['st'] == "R"]
+        pending = [j for j in self.allJobs if self.allJobs[j]['st'] == "Q"]
         return running + pending if pending else running
 
     def aggregateStatii(self, command=None):
@@ -96,7 +97,8 @@ class BatchEngine(BATCH):
             for job in jobs:
                 thisDict = dict(zip(keys,job))
                 if "id" in thisDict:
-                    self.allJobs[int(thisDict['id'])]=thisDict
+                    self.allJobs[int(thisDict['id'])]=deepcopy(thisDict)
+                thisDict = {}
         except Exception as error:
             self.logging.error(error)
         return self.allJobs
