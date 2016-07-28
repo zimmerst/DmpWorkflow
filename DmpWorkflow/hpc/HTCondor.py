@@ -1,0 +1,100 @@
+'''
+Created on Jul 27, 2016
+
+@author: zimmer
+@brief: core HTCondor functionality (job submission & cancellation)
+'''
+
+from re import findall
+from DmpWorkflow.config.defaults import BATCH_DEFAULTS as defaults 
+from DmpWorkflow.hpc.batch import BATCH, BatchJob as HPCBatchJob
+from DmpWorkflow.utils.shell import run
+from collections import OrderedDict
+from os.path import dirname, curdir
+from os import chdir
+#raise ImportError("CondorHT class not supported")
+BATCH_ID_ENV = "CONDOR_ID"
+
+class BatchJob(HPCBatchJob):
+    def submit(self, **kwargs):
+        """ each class MUST implement its own submission command """
+        pwd = curdir
+        wd = dirname(self.logFile)
+        chdir(wd)
+        d = OrderedDict()
+        d['universe']='vanilla'
+        d['executable']=self.command
+        d['output']=self.logFile
+        d['error']=self.logFile.replace("log","err")
+        d['log']=self.logFile.replace("log","clog")
+        d['request_cpus']=1
+        d['request_memory']=self.memory
+        d['rank']='Memory'
+        d['requirements']= "MaxHosts == 1"
+        d['environment'] = "CONDOR_ID=$(Cluster)"#.$(Process)"
+        csi_file = open("job.csi","w")
+        csi_file.write("%s = %s\n"(k,v) for k,v in d.iteritems())
+        csi_file.write("queue\n")
+        csi_file.close()
+        output = self.__run__("condor_submit job.csi -name %s"%defaults['name'])
+        chdir(pwd)
+        return self.__regexId__(output)
+    
+    def __regexId__(self,_str):
+        """
+         this is the sample output:
+         1 job(s) submitted to cluster 172831. 
+        """
+        bk = -1
+        res = findall(r"\d+", _str)
+        if len(res):
+            bk = int(res[-1])
+        return bk
+    
+    def kill(self):
+        cmd = "condor_rm -name %s %s.0"%(self.extra,self.batchId)
+        self.__run__(cmd)
+        self.update("status", "Failed")
+
+class BatchEngine(BATCH):
+    kind = "condor"
+    name = defaults['name']
+    status_map = {"R": "Running", "Q": "Submitted","X": "Terminated", "C": "Completed"}
+
+    def update(self):
+        self.allJobs.update(self.aggregateStatii())
+
+    def getCPUtime(self, jobId, key="CPU_USED"):
+        """ format is: 000:00:00.00 """
+        return 0.
+
+    def getMemory(self, jobId, key="MEM", unit='kB'):
+        """ format is kb, i believe."""
+        return 0.
+
+    def getRunningJobs(self, pending=False):
+        self.update()
+        running = [j for j in self.allJobs if self.allJobs[j]['ST'] == "R"]
+        pending = [j for j in self.allJobs if self.allJobs[j]['ST'] == "Q"]
+        return running + pending if pending else running
+
+    def aggregateStatii(self, command=None):
+        checkUser = self.getUser()
+        if command is None:
+            command = "condor_q -name %s %s -constraint JobStatus!=4"%(self.name,checkUser)
+        uL = iL = False
+        output, error, rc = run(command.split(), useLogging=uL, interleaved=iL, suppressLevel=True)
+        self.logging.debug("rc: %i", int(rc))
+        if rc:
+            raise Exception("error during execution")
+        else:
+            jobs = output.split("\n")[4:-1]
+            keys = [k.lower() for k in output.split("\n")[3].split()]
+            for job in jobs:
+                thisDict = dict(zip(keys,job))
+                if "id" in thisDict:
+                    self.allJobs[int(thisDict['id'])]=thisDict
+        if error is not None:
+            for e in error.split("\n"):
+                self.logging.error(e)
+        return self.allJobs
