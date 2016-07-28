@@ -86,15 +86,17 @@ class BatchEngine(BATCH):
         output, error, rc = run(command.split(), useLogging=uL, interleaved=iL, suppressLevel=True)
         self.logging.debug("rc: %i", int(rc))
         if rc:
-            raise Exception("error during execution")
-        else:
+            raise Exception("error during execution: RC=%i",int(rc))
+        if error is not None:
+            for e in error.split("\n"):
+                self.logging.error(e)
+        try:
             jobs = output.split("\n")[4:-1]
             keys = [k.lower() for k in output.split("\n")[3].split()]
             for job in jobs:
                 thisDict = dict(zip(keys,job))
                 if "id" in thisDict:
                     self.allJobs[int(thisDict['id'])]=thisDict
-        if error is not None:
-            for e in error.split("\n"):
-                self.logging.error(e)
+        except Exception as error:
+            self.logging.error(error)
         return self.allJobs
