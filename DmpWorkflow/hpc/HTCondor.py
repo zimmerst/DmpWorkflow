@@ -97,8 +97,9 @@ class BatchEngine(BATCH):
             for job in jobs:
                 thisDict = dict(zip(keys,job.split()))
                 if "id" in thisDict:
-                    self.allJobs[int(thisDict['id'])]=deepcopy(thisDict)
+                    self.allJobs[int(float(thisDict['id']))]=deepcopy(thisDict)
                 thisDict = {}
         except Exception as error:
-            self.logging.error(error)
+            print "error has occured:"
+            print error
         return self.allJobs
