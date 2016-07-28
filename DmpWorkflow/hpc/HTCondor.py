@@ -93,7 +93,7 @@ class BatchEngine(BATCH):
                 self.logging.error(e)
         try:
             jobs = output.split("\n")[4:-1]
-            keys = [k.lower() for k in output.split("\n")[3].split()]
+            keys = ['id', 'owner', 'submitted','run_date','run_time', 'st', 'pri', 'size', 'cmd']
             for job in jobs:
                 thisDict = dict(zip(keys,job.split()))
                 if "id" in thisDict:
