@@ -81,12 +81,12 @@ class BatchEngine(BATCH):
     def aggregateStatii(self, command=None):
         checkUser = self.getUser()
         if command is None:
-            command = "condor_q -name %s %s -constraint JobStatus!=4"%(self.name,checkUser)
+            command = "condor_q %s -name %s -constraint JobStatus!=4"%(checkUser,self.name)
         uL = iL = False
         output, error, rc = run(command.split(), useLogging=uL, interleaved=iL, suppressLevel=True)
         self.logging.debug("rc: %i", int(rc))
         if rc:
-            raise Exception("error during execution: RC=%i",int(rc))
+            raise Exception("error during execution: RC=%i"%int(rc))
         if error is not None:
             for e in error.split("\n"):
                 self.logging.error(e)
