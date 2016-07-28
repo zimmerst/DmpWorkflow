@@ -32,7 +32,7 @@ __myDefaults = {
     "HPCcputime": "24:00",
     "HPCmemory": "1000.",
     "HPCusername": "dampeprod",
-    "HPCname" : "None",
+    "HPCclustername" : "None",
     "EXEC_DIR_ROOT": "/tmp",
     "ratio_mem": "1.0",
     "ratio_cpu": "1.0",
@@ -66,7 +66,7 @@ environ["BATCH_QUEUE"] = cfg.get("site", "HPCqueue")
 environ["BATCH_NAME"]  = cfg.get("site", "HPCname")
 environ["EXEC_DIR_ROOT"] = EXEC_DIR_ROOT
 
-BATCH_DEFAULTS = {key: getenv("BATCH_%s" % key.upper()) for key in ['system', 'requirements', 'extra', 'queue', 'name']}
+BATCH_DEFAULTS = {key: getenv("BATCH_%s" % key.upper()) for key in ['system', 'requirements', 'extra', 'queue','name']}
 BATCH_DEFAULTS['memory'] = cfg.get("site", "HPCmemory")
 BATCH_DEFAULTS['cputime'] = cfg.get("site", "HPCcputime")
 BATCH_DEFAULTS['name'] = cfg.get("site", "name")

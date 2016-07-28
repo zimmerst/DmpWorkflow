@@ -36,7 +36,7 @@ class BatchJob(HPCBatchJob):
         csi_file.write("%s = %s\n"(k,v) for k,v in d.iteritems())
         csi_file.write("queue\n")
         csi_file.close()
-        output = self.__run__("condor_submit job.csi -name %s"%defaults['name'])
+        output = self.__run__("condor_submit job.csi -name %s"%defaults['extra'])
         chdir(pwd)
         return self.__regexId__(output)
     
@@ -58,7 +58,7 @@ class BatchJob(HPCBatchJob):
 
 class BatchEngine(BATCH):
     kind = "condor"
-    name = defaults['name']
+    name = defaults['extra']
     status_map = {"R": "Running", "Q": "Submitted","X": "Terminated", "C": "Completed"}
 
     def update(self):
