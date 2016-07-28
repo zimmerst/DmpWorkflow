@@ -95,7 +95,7 @@ class BatchEngine(BATCH):
             jobs = output.split("\n")[4:-1]
             keys = [k.lower() for k in output.split("\n")[3].split()]
             for job in jobs:
-                thisDict = dict(zip(keys,job))
+                thisDict = dict(zip(keys,job.split()))
                 if "id" in thisDict:
                     self.allJobs[int(thisDict['id'])]=deepcopy(thisDict)
                 thisDict = {}
