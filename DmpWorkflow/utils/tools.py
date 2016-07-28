@@ -3,23 +3,27 @@ Created on Mar 25, 2016
 
 @author: zimmer
 """
-import logging
-import shutil
-from os import makedirs, environ, utime, system
-from os.path import exists, expandvars
-from sys import stdout
-from random import choice, randint
-from shlex import split as shlex_split
-from string import ascii_letters, digits
-import subprocess as sub
-from time import sleep as time_sleep
-from re import split as re_split
-from datetime import timedelta
-from copy import deepcopy
-from StringIO import StringIO
-from xml.dom import minidom as xdom
-from hashlib import md5
-from psutil import Process as psutil_proc
+try:
+    import logging
+    import shutil
+    from os import makedirs, environ, utime
+    from os.path import exists, expandvars
+    from sys import stdout
+    from random import choice, randint
+    from shlex import split as shlex_split
+    from string import ascii_letters, digits
+    import subprocess as sub
+    from time import sleep as time_sleep
+    from re import split as re_split
+    from datetime import timedelta
+    from copy import deepcopy
+    from StringIO import StringIO
+    from xml.dom import minidom as xdom
+    from hashlib import md5
+    from psutil import Process as psutil_proc
+except ImportError as Error:
+    print "could not find one or more packages, check prerequisites."
+    print Error
 
 def sortTimeStampList(my_list, timestamp='time', reverse=False):
     if not len(my_list):
