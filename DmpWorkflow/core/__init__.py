@@ -10,6 +10,7 @@ if kind == 'server':
     app.config['MONGODB_USERNAME'] = cfg.get("database", "user")
     app.config['MONGODB_PASSWORD'] = cfg.get("database", "password")
     app.config['MONGODB_HOST'] = cfg.get("database", "host")
+    app.config['MONGODB_PORT'] = int(cfg.get("database", "port"))
     app.config["SECRET_KEY"] = "KeepThisS3cr3t"
     
     db = MongoEngine(app)
