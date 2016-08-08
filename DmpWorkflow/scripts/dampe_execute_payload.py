@@ -25,7 +25,7 @@ class PayloadExecutor(object):
     def __init__(self,inputfile,debug=False):
         self.pwd = curdir
         self.logThis("reading json input")
-        self.job = DmpJob.fromJSON(inputfile)
+        self.job = DmpJob.fromJSON(open(inputfile,"r").read())
         self.debug = debug
         self.batchId = getenv(HPC.BATCH_ID_ENV, "-1")
         if "." in self.batchId:
@@ -75,7 +75,7 @@ class PayloadExecutor(object):
         CMD = "%s payload" % self.job.executable
         self.logThis("CMD: %s", CMD)
         self.job.updateStatus("Running", "ExecutingApplication")
-        output, error, rc = run_cached(CMD.split(), chunksize=36, cachedir=abspath(curdir))  # use caching to file!
+        output, error, rc = run_cached(CMD.split(), cachedir=abspath(curdir))  # use caching to file!
         self.logThis('reading output from payload %s',output.name)
         print output.read()
         output.close()
@@ -165,6 +165,7 @@ if __name__ == '__main__':
         # must be in kB!
         max_mem/=1024 
     # get the max ratios
+    print 'Watchdog: maximum cpu: %s -- maximum memory: %s'%(str(max_cpu),str(max_mem))
     ratio_cpu_max = float(cfg.get("watchdog", "ratio_cpu"))
     ratio_mem_max = float(cfg.get("watchdog", "ratio_mem"))
     now = datetime.utcnow()
@@ -176,6 +177,7 @@ if __name__ == '__main__':
         syst_cpu = prm.getCpuTime()
         memory = prm.getMemory()
         ## check time out conditions
+        print 'Watchdog: current cpu: %s -- current memory: %s'%(str(syst_cpu),str(memory))
         if (syst_cpu / max_cpu >= ratio_cpu_max):
             killJob = True
             reason = "Job exceeded its CPU time"
@@ -183,7 +185,7 @@ if __name__ == '__main__':
             killJob = True
             reason = "Job exceeded its Memory"
         if killJob:
-            executor.job.updateStatus("Failed",camelize(reason),resources=prm)
+            executor.job.updateStatus("Terminated",camelize(reason),resources=prm)
             proc.terminate()
         else:
             ## terminate here for the various reasons.

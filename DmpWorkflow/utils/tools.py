@@ -262,7 +262,7 @@ class ResourceMonitor(object):
 
 class ProcessResourceMonitor(ResourceMonitor):
     # here we overload the init method to add a variable to the class
-    def init(self,ps):
+    def __init__(self,ps):
         if not isinstance(ps,psutil_proc):
             raise Exception("must be called from a psutil instance!")
         self.user = 0
@@ -270,7 +270,21 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.memory=0
         self.ps = ps
         self.query()
-        
+    
+    def getMemory(self, unit='Mb'):
+        self.query()
+        if unit in ['Mb', 'mb', 'mB', 'MB']:
+            return float(self.memory)
+        elif unit in ['kb', 'KB', 'Kb', 'kB']:
+            return float(self.memory) * 1024.
+        elif unit in ['Gb', 'gb', 'GB', 'gB']:
+            return float(self.memory) / 1024.
+        return 0.
+
+    def getCpuTime(self):
+        self.query()
+        return self.systime
+    
     # here we overload the query method to use psutil instead.
     def query(self):
         allmems = 0
@@ -281,8 +295,8 @@ class ProcessResourceMonitor(ResourceMonitor):
         if len(mem) > 1:
             if mem[1]:
                 allmems += mem[1]
-        self.memory += (allmems/1024.) # memory should be in MB!
-
+        self.memory += allmems 
+        self.memory /= (1024.**2) #base unit for memory is MB!
 
 def md5sum(filename, blocksize=65536):
     _hash = md5()

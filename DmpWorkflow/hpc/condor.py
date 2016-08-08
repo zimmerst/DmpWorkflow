@@ -34,7 +34,8 @@ class BatchJob(HPCBatchJob):
         d['requirements']= "MaxHosts == 1"
         d['environment'] = "CONDOR_ID=$(Cluster)"#.$(Process)"
         csi_file = open("job.csi","w")
-        csi_file.write("%s = %s\n"(k,v) for k,v in d.iteritems())
+        data = ["%s = %s\n"(k,v) for k,v in d.iteritems()]
+        csi_file.write("".join(data))
         csi_file.write("queue\n")
         csi_file.close()
         output = self.__run__("condor_submit job.csi -name %s"%defaults['extra'])
