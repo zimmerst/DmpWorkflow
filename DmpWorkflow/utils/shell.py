@@ -54,7 +54,6 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppr
 
 
 def run_cached(cmd_args, cachedir="/tmp"):
-    # inspired from http://tinyurl.com/hslhjfe (StackOverflow)
     """ returns file objects to output & error caching the output of a running process """
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
@@ -63,9 +62,10 @@ def run_cached(cmd_args, cachedir="/tmp"):
     tmp_err = NamedTemporaryFile(dir=cachedir, delete=True)
     tsk = Popen(cmd_args, stdout=tmp_out, stderr=tmp_err)
     # must rewind tmp_out & tmp_err
+    rc = tsk.wait()
     tmp_out.seek(0)
     tmp_err.seek(0)
-    return tmp_out, tmp_err, tsk.wait()
+    return tmp_out, tmp_err, rc
 
 def make_executable(path):
     mode = stat(path).st_mode
