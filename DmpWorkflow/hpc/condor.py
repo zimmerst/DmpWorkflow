@@ -4,7 +4,8 @@ Created on Jul 27, 2016
 @author: zimmer
 @brief: core HTCondor functionality (job submission & cancellation)
 '''
-
+from warnings import warn, simplefilter
+simplefilter('always', DeprecationWarning)
 from re import findall
 from DmpWorkflow.config.defaults import BATCH_DEFAULTS as defaults 
 from DmpWorkflow.hpc.batch import BATCH, BatchJob as HPCBatchJob
@@ -13,7 +14,6 @@ from collections import OrderedDict
 from copy import deepcopy
 from os.path import dirname, curdir
 from os import chdir
-from warnings import warn
 #raise ImportError("CondorHT class not supported")
 BATCH_ID_ENV = "CONDOR_ID"
 
