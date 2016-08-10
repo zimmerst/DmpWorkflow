@@ -12,7 +12,7 @@ from logging import getLogger
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII, cfg
 from DmpWorkflow.utils.tools import getSixDigits, convertHHMMtoSec
-
+from warnings import warn
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 
 
@@ -77,7 +77,7 @@ def __reportKilledJob(j):
 
 
 def main(args=None):
-    print Warning("the usage of this tool is deprecated and will be removed in a future release.")
+    warn("the usage of this tool is deprecated and will be removed in a future release.", DeprecationWarning)
     usage = "Usage: %(prog)s [options]"
     description = "run watchdog"
     parser = ArgumentParser(usage=usage, description=description)

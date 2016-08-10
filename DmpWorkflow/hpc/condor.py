@@ -13,6 +13,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from os.path import dirname, curdir
 from os import chdir
+from warnings import warn
 #raise ImportError("CondorHT class not supported")
 BATCH_ID_ENV = "CONDOR_ID"
 
@@ -67,14 +68,14 @@ class BatchEngine(BATCH):
         self.allJobs.update(self.aggregateStatii())
 
     def getCPUtime(self, jobId, key="CPU_USED"):
-        print DeprecationWarning("not implemented")
+        warn("not implemented", DeprecationWarning)
         """ format is: 000:00:00.00 """
         jobId = 0.
         return jobId
 
     def getMemory(self, jobId, key="MEM", unit='kB'):
         """ format is kb, i believe."""
-        print DeprecationWarning("not implemented")
+        warn("not implemented", DeprecationWarning)
         jobId = 0.
         return jobId
 
