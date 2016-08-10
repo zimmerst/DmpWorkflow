@@ -283,7 +283,7 @@ class ProcessResourceMonitor(ResourceMonitor):
 
     def getCpuTime(self):
         self.query()
-        return self.systime
+        return self.user+self.system
     
     # here we overload the query method to use psutil instead.
     def query(self):
