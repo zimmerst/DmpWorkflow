@@ -67,12 +67,16 @@ class BatchEngine(BATCH):
         self.allJobs.update(self.aggregateStatii())
 
     def getCPUtime(self, jobId, key="CPU_USED"):
+        print DeprecationWarning("not implemented")
         """ format is: 000:00:00.00 """
-        return 0.
+        jobId = 0.
+        return jobId
 
     def getMemory(self, jobId, key="MEM", unit='kB'):
         """ format is kb, i believe."""
-        return 0.
+        print DeprecationWarning("not implemented")
+        jobId = 0.
+        return jobId
 
     def getRunningJobs(self, pending=False):
         self.update()
