@@ -77,6 +77,7 @@ def __reportKilledJob(j):
 
 
 def main(args=None):
+    return
     usage = "Usage: %(prog)s [options]"
     description = "run watchdog"
     parser = ArgumentParser(usage=usage, description=description)

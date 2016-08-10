@@ -10,6 +10,7 @@ from jsonpickle import encode as Jencode, decode as Jdecode
 from json import dumps
 from requests import post as Rpost
 from importlib import import_module
+from copy import deepcopy
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits, ResourceMonitor
 from DmpWorkflow.utils.shell import run, make_executable  # , source_bash
@@ -37,6 +38,7 @@ class DmpJob(object):
         self.executable = ""
         self.exec_wrapper = ""
         self.script = None
+        self.batchdefaults = deepcopy(BATCH_DEFAULTS)
         self.__dict__.update(kwargs)
         self.extract_xml_metadata(body)
         self.__updateEnv__()
@@ -78,7 +80,11 @@ class DmpJob(object):
         if self.release is not None:
             environ['RELEASE_TAG'] = self.release
         # print 'BatchOverride keys', BATCH_DEFAULTS
+        self.batchdefaults = BATCH_DEFAULTS
         return
+
+    def getBatchDefaults(self):
+        return self.batchdefaults
 
     def getJobName(self):
         return "-".join([str(self.jobId), self.getSixDigits()])

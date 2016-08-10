@@ -3,23 +3,27 @@ Created on Mar 25, 2016
 
 @author: zimmer
 """
-import logging
-import shutil
-from os import makedirs, environ, utime, system
-from os.path import exists, expandvars
-from sys import stdout
-from random import choice, randint
-from shlex import split as shlex_split
-from string import ascii_letters, digits
-import subprocess as sub
-from time import sleep as time_sleep
-from re import split as re_split
-from datetime import timedelta
-from copy import deepcopy
-from StringIO import StringIO
-from xml.dom import minidom as xdom
-from hashlib import md5
-
+try:
+    import logging
+    import shutil
+    from os import makedirs, environ, utime
+    from os.path import exists, expandvars
+    from sys import stdout
+    from random import choice, randint
+    from shlex import split as shlex_split
+    from string import ascii_letters, digits
+    import subprocess as sub
+    from time import sleep as time_sleep
+    from re import split as re_split
+    from datetime import timedelta
+    from copy import deepcopy
+    from StringIO import StringIO
+    from xml.dom import minidom as xdom
+    from hashlib import md5
+    from psutil import Process as psutil_proc
+except ImportError as Error:
+    print "could not find one or more packages, check prerequisites."
+    print Error
 
 def sortTimeStampList(my_list, timestamp='time', reverse=False):
     if not len(my_list):
@@ -256,6 +260,43 @@ class ResourceMonitor(object):
         mem = self.memory
         return "usertime=%s systime=%s mem %s Mb" % (user, sys, mem)
 
+class ProcessResourceMonitor(ResourceMonitor):
+    # here we overload the init method to add a variable to the class
+    def __init__(self,ps):
+        if not isinstance(ps,psutil_proc):
+            raise Exception("must be called from a psutil instance!")
+        self.user = 0
+        self.system=0
+        self.memory=0
+        self.ps = ps
+        self.query()
+    
+    def getMemory(self, unit='Mb'):
+        self.query()
+        if unit in ['Mb', 'mb', 'mB', 'MB']:
+            return float(self.memory)
+        elif unit in ['kb', 'KB', 'Kb', 'kB']:
+            return float(self.memory) * 1024.
+        elif unit in ['Gb', 'gb', 'GB', 'gB']:
+            return float(self.memory) / 1024.
+        return 0.
+
+    def getCpuTime(self):
+        self.query()
+        return self.systime
+    
+    # here we overload the query method to use psutil instead.
+    def query(self):
+        allmems = 0
+        cpu = self.ps.cpu_times()
+        self.user   += cpu[0]
+        self.system += cpu[1]
+        mem = self.ps.memory_info_ex()
+        if len(mem) > 1:
+            if mem[1]:
+                allmems += mem[1]
+        self.memory += allmems 
+        self.memory /= (1024.**2) #base unit for memory is MB!
 
 def md5sum(filename, blocksize=65536):
     _hash = md5()
