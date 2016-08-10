@@ -28,18 +28,15 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppr
         for rfd, event in events:
             if event & POLLIN:
                 if rfd == tsk.stdout.fileno():
-                    line = tsk.stdout.readline()
-                    if len(line) > 0:
-                        val = str(line[:-1])
+                    if len(tsk.stdout.readline())>0:
+                        val = str(tsk.stdout.readline()[:-1])
                         if useLogging:
                             logger.info(val)
                         args[0].append(val if suppressLevel else "INFO: %s" % val)
                 if rfd == tsk.stderr.fileno():
-                    line = tsk.stderr.readline()
-                    if len(line) > 0:
-                        if suppressErrors:
-                            continue
-                        args[1].append(line[:-1])
+                    if len(tsk.stderr.readline()) > 0:
+                        if suppressErrors: continue
+                        args[1].append(tsk.stderr.readline()[:-1])
                         val = args[1][-1]
                         if useLogging:
                             logger.error(val)
