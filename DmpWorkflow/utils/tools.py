@@ -285,14 +285,31 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.query()
         return self.user+self.system
     
+    def _incrementFromDict(self,_dict):
+        for key in _dict:
+            if key in self.__dict__: 
+                self.__dict__[key]+=_dict[key]
     # here we overload the query method to use psutil instead.
-    def query(self):
+    def query(self,includeChildren=True):
         cpu = self.ps.cpu_times()
         # this should report the correct cpu time in seconds!
         self.user = cpu.user
         self.system= cpu.system
         # based on http://fa.bianp.net/blog/2013/different-ways-to-get-memory-consumption-or-lessons-learned-from-memory_profiler/
         self.memory = self.ps.get_memory_info()[0] / float(2 ** 20)
+        # include child processes in calculation!
+        for child in self.ps.children(recursive=True):
+            self._incrementFromDict(self._getChildUsage(child))
+        
+    def _getChildUsage(self,ps):
+        if not isinstance(ps,psutil_proc):
+            raise Exception("must be called from a psutil instance!")
+        cpu = ps.cpu_times()
+        usr = cpu.user
+        sys = cpu.system
+        mem = ps.get_memory_info()[0] / float(2 ** 20)
+        return {'memory':mem,'system':sys,'user':usr}
+
 
 def md5sum(filename, blocksize=65536):
     _hash = md5()
