@@ -172,7 +172,7 @@ if __name__ == '__main__':
         executor.logThis("EXCEPTION: %s", err)
 
     
-    print 'Watchdog: maximum cpu: %s -- maximum memory: %s'%(str(max_cpu),str(max_mem))
+    executor.logThis('Watchdog: maximum cpu: %s -- maximum memory: %s',(str(max_cpu),str(max_mem)))
     ratio_cpu_max = float(cfg.get("watchdog", "ratio_cpu"))
     ratio_mem_max = float(cfg.get("watchdog", "ratio_mem"))
     now = datetime.utcnow()
@@ -184,7 +184,7 @@ if __name__ == '__main__':
         syst_cpu = prm.getCpuTime()
         memory = prm.getMemory()
         ## check time out conditions
-        print 'Watchdog: current cpu: %s -- current memory: %s'%(str(syst_cpu),str(memory))
+        executor.logThis('Watchdog: current cpu: %s -- current memory: %s', str(syst_cpu),str(memory))
         if (syst_cpu / max_cpu >= ratio_cpu_max):
             killJob = True
             reason = "Job exceeded its CPU time"
