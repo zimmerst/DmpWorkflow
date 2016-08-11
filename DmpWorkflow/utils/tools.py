@@ -6,7 +6,7 @@ Created on Mar 25, 2016
 try:
     import logging
     import shutil
-    from os import makedirs, environ, utime, sysconf, sysconf_names
+    from os import makedirs, environ, utime
     from os.path import exists, expandvars
     from sys import stdout
     from random import choice, randint
