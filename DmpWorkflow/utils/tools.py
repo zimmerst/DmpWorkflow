@@ -6,7 +6,7 @@ Created on Mar 25, 2016
 try:
     import logging
     import shutil
-    from os import makedirs, environ, utime
+    from os import makedirs, environ, utime, sysconf, sysconf_names
     from os.path import exists, expandvars
     from sys import stdout
     from random import choice, randint
@@ -287,16 +287,12 @@ class ProcessResourceMonitor(ResourceMonitor):
     
     # here we overload the query method to use psutil instead.
     def query(self):
-        allmems = 0
         cpu = self.ps.cpu_times()
-        self.user   += cpu[0]
-        self.system += cpu[1]
-        mem = self.ps.memory_info_ex()
-        if len(mem) > 1:
-            if mem[1]:
-                allmems += mem[1]
-        self.memory += allmems 
-        self.memory /= (1024.**2) #base unit for memory is MB!
+        # this should report the correct cpu time in seconds!
+        self.user = cpu.user
+        self.system= cpu.system
+        # based on http://fa.bianp.net/blog/2013/different-ways-to-get-memory-consumption-or-lessons-learned-from-memory_profiler/
+        self.memory = self.ps.get_memory_info()[0] / float(2 ** 20)
 
 def md5sum(filename, blocksize=65536):
     _hash = md5()
