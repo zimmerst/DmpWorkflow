@@ -20,7 +20,7 @@ try:
     from StringIO import StringIO
     from xml.dom import minidom as xdom
     from hashlib import md5
-    from psutil import Process as psutil_proc
+    from psutil import AccessDenied, Process as psutil_proc
 except ImportError as Error:
     print "could not find one or more packages, check prerequisites."
     print Error
@@ -296,10 +296,14 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.user = cpu.user
         self.system= cpu.system
         # based on http://fa.bianp.net/blog/2013/different-ways-to-get-memory-consumption-or-lessons-learned-from-memory_profiler/
-        self.memory = self.ps.get_memory_info()[0] / float(2 ** 20)
-        # include child processes in calculation!
-        for child in self.ps.children(recursive=True):
-            self._incrementFromDict(self._getChildUsage(child))
+        self.memory = self.ps.memory_info().rss / float(2 ** 20)
+        if includeChildren:
+            # include child processes in calculation!
+            for child in self.ps.children(recursive=True):
+                try:
+                    self._incrementFromDict(self._getChildUsage(child))
+                except AccessDenied:
+                    print 'could not access %i, skipping.'%int(child.pid)
         
     def _getChildUsage(self,ps):
         if not isinstance(ps,psutil_proc):
@@ -307,7 +311,7 @@ class ProcessResourceMonitor(ResourceMonitor):
         cpu = ps.cpu_times()
         usr = cpu.user
         sys = cpu.system
-        mem = ps.get_memory_info()[0] / float(2 ** 20)
+        mem = ps.memory_info().rss / float(2 ** 20)
         return {'memory':mem,'system':sys,'user':usr}
 
 
