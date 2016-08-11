@@ -29,9 +29,8 @@ class BatchJob(HPCBatchJob):
 
         req_str = " && ".join(self.requirements)
         # print self.requirements, "STRING: ",req_str # to be removed!
-        req = "-R \"%s\"" % req_str
-        cmd = "bsub -J {5} -W {6} -q {0} -oo {1} {2} {3} {4}".format(self.queue, self.logFile, req, extra,
-                                                                     self.command, self.name, self.cputime)
+        self.requirements = "-R \"%s\"" % req_str
+        cmd = "bsub -J {name} -c {cputime} -q {queue} -oo {logFile} {requirements} {extra} {command}".format(**self.__dict__)
         if 'verbose' in kwargs and kwargs['verbose']: print cmd
         # print cmd
         output = self.__run__(cmd)
