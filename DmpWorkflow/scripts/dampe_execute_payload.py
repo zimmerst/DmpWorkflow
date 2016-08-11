@@ -187,10 +187,10 @@ if __name__ == '__main__':
         executor.logThis('Watchdog: current cpu: %s -- current memory: %s', str(syst_cpu),str(memory))
         if (syst_cpu / max_cpu >= ratio_cpu_max):
             killJob = True
-            reason = "Job exceeded its CPU time"
+            reason = "exceeding CPU time"
         if (memory/max_mem >= ratio_mem_max):
             killJob = True
-            reason = "Job exceeded its Memory"
+            reason = "exceeding Memory"
         if killJob:
             executor.job.updateStatus("Terminated",camelize(reason),resources=prm)
             proc.terminate()
