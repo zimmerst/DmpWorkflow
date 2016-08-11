@@ -33,7 +33,7 @@ class PayloadExecutor(object):
             if len(res):
                 self.batchId = int(res[0])
         self.logThis('batchId : %s' % str(self.batchId))
-        
+
     def logThis(self,msg, *args):
         val = msg % args
         print "%s: %s: %s" % (ctime(), gethostname(), val)
@@ -165,6 +165,13 @@ if __name__ == '__main__':
         # must be in kB!
         max_mem/=1024 
     # get the max ratios
+    try:
+        executor.job.updateStatus("Running", "PreparingJob", hostname=gethostname(), 
+                                  batchId=executor.batchId, cpu_max=max_cpu, mem_max=max_mem)
+    except Exception as err:
+        executor.logThis("EXCEPTION: %s", err)
+
+    
     print 'Watchdog: maximum cpu: %s -- maximum memory: %s'%(str(max_cpu),str(max_mem))
     ratio_cpu_max = float(cfg.get("watchdog", "ratio_cpu"))
     ratio_mem_max = float(cfg.get("watchdog", "ratio_mem"))
