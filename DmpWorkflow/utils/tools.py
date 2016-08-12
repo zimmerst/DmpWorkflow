@@ -290,21 +290,30 @@ class ProcessResourceMonitor(ResourceMonitor):
             if key in self.__dict__: 
                 self.__dict__[key]+=_dict[key]
     # here we overload the query method to use psutil instead.
-    def query(self,includeChildren=True):
+    def query(self):
+        # this is the current state of the system
+        usr = self.user
+        sys = self.system
+        mem = self.memory
+        
         cpu = self.ps.cpu_times()
         # this should report the correct cpu time in seconds!
         self.user = cpu.user
         self.system= cpu.system
         # based on http://fa.bianp.net/blog/2013/different-ways-to-get-memory-consumption-or-lessons-learned-from-memory_profiler/
         self.memory = self.ps.memory_info().rss / float(2 ** 20)
-        if includeChildren:
-            # include child processes in calculation!
-            for child in self.ps.children(recursive=True):
-                try:
-                    self._incrementFromDict(self._getChildUsage(child))
-                except AccessDenied:
-                    print 'could not access %i, skipping.'%int(child.pid)
-        
+        # include child processes in calculation!
+        for child in self.ps.children(recursive=True):
+            try:
+                self._incrementFromDict(self._getChildUsage(child))
+            except AccessDenied:
+                print 'could not access %i, skipping.'%int(child.pid)
+        # the following makes sure that we use cumulative numbers, 
+        # since the total footprint will be lower once the processes are finished 
+        if self.user <= usr:   self.user+=usr
+        if self.system <= sys: self.system+=sys
+        if self.memory <= mem: self.memory+=mem
+                
     def _getChildUsage(self,ps):
         if not isinstance(ps,psutil_proc):
             raise Exception("must be called from a psutil instance!")
