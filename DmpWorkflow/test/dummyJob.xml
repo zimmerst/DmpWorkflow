@@ -9,6 +9,9 @@
 			<JobWrapper executable="/bin/bash"><![CDATA[
 #/bin/bash
 echo hostname
+# interestingly, inside a bash script we can call a self-update:
+dampe-cli-update-job-status -t_id ${DWF_JOB_ID} -inst_id ${DWF_INSTANCE_ID} -major_status "Running" -minor_status="Entering Step 2"
+
 ]]>		
 			</JobWrapper>
 		<MetaData>

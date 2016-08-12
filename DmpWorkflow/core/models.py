@@ -215,6 +215,7 @@ class Job(db.Document):
 
 
 class JobInstance(db.Document):
+    #TODO: what is the most efficient way to store max_cpu, avg_cpu, curr_cpu (and mem)?
     instanceId = db.LongField(verbose_name="instanceId", required=False, default=None)
     created_at = db.DateTimeField(default=datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
