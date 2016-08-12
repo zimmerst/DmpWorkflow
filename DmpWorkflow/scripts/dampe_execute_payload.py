@@ -33,7 +33,7 @@ class PayloadExecutor(object):
             if len(res):
                 self.batchId = int(res[0])
         self.logThis('batchId : %s' % str(self.batchId))
-        
+
     def logThis(self,msg, *args):
         val = msg % args
         print "%s: %s: %s" % (ctime(), gethostname(), val)
@@ -165,7 +165,14 @@ if __name__ == '__main__':
         # must be in kB!
         max_mem/=1024 
     # get the max ratios
-    print 'Watchdog: maximum cpu: %s -- maximum memory: %s'%(str(max_cpu),str(max_mem))
+    try:
+        executor.job.updateStatus("Running", "PreparingJob", hostname=gethostname(), 
+                                  batchId=executor.batchId, cpu_max=max_cpu, mem_max=max_mem)
+    except Exception as err:
+        executor.logThis("EXCEPTION: %s", err)
+
+    
+    executor.logThis('Watchdog: maximum cpu: %s -- maximum memory: %s',(str(max_cpu),str(max_mem)))
     ratio_cpu_max = float(cfg.get("watchdog", "ratio_cpu"))
     ratio_mem_max = float(cfg.get("watchdog", "ratio_mem"))
     now = datetime.utcnow()
@@ -177,13 +184,13 @@ if __name__ == '__main__':
         syst_cpu = prm.getCpuTime()
         memory = prm.getMemory()
         ## check time out conditions
-        print 'Watchdog: current cpu: %s -- current memory: %s'%(str(syst_cpu),str(memory))
+        executor.logThis('Watchdog: current cpu: %s -- current memory: %s', str(syst_cpu),str(memory))
         if (syst_cpu / max_cpu >= ratio_cpu_max):
             killJob = True
-            reason = "Job exceeded its CPU time"
+            reason = "exceeding CPU time"
         if (memory/max_mem >= ratio_mem_max):
             killJob = True
-            reason = "Job exceeded its Memory"
+            reason = "exceeding Memory"
         if killJob:
             executor.job.updateStatus("Terminated",camelize(reason),resources=prm)
             proc.terminate()

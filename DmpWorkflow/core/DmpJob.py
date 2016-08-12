@@ -74,11 +74,13 @@ class DmpJob(object):
         for fil in self.InputFiles + self.OutputFiles:
             for key in ['source', 'target']:
                 fil[key] = oPath.expandvars(fil[key])
-
+        
         if self.title is not None:
             environ['DWF_TASKNAME'] = self.title
         if self.release is not None:
             environ['RELEASE_TAG'] = self.release
+        environ['DWF_JOB_ID'] = self.jobId
+        environ['DWF_INSTANCE_ID'] = self.instanceId
         # print 'BatchOverride keys', BATCH_DEFAULTS
         self.batchdefaults = BATCH_DEFAULTS
         return
