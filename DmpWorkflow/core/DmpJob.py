@@ -79,8 +79,8 @@ class DmpJob(object):
             environ['DWF_TASKNAME'] = self.title
         if self.release is not None:
             environ['RELEASE_TAG'] = self.release
-        environ['DWF_JOB_ID'] = self.jobId
-        environ['DWF_INSTANCE_ID'] = self.instanceId
+        environ['DWF_JOB_ID']      = str(self.jobId)
+        environ['DWF_INSTANCE_ID'] = str(self.instanceId)
         # print 'BatchOverride keys', BATCH_DEFAULTS
         self.batchdefaults = BATCH_DEFAULTS
         return
