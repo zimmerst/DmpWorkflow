@@ -20,7 +20,7 @@ try:
     from StringIO import StringIO
     from xml.dom import minidom as xdom
     from hashlib import md5
-    from psutil import Process as psutil_proc
+    from psutil import AccessDenied, Process as psutil_proc
 except ImportError as Error:
     print "could not find one or more packages, check prerequisites."
     print Error
@@ -285,14 +285,44 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.query()
         return self.user+self.system
     
+    def _incrementFromDict(self,_dict):
+        for key in _dict:
+            if key in self.__dict__: 
+                self.__dict__[key]+=_dict[key]
     # here we overload the query method to use psutil instead.
     def query(self):
+        # this is the current state of the system
+        usr = self.user
+        sys = self.system
+        mem = self.memory
+        
         cpu = self.ps.cpu_times()
         # this should report the correct cpu time in seconds!
         self.user = cpu.user
         self.system= cpu.system
         # based on http://fa.bianp.net/blog/2013/different-ways-to-get-memory-consumption-or-lessons-learned-from-memory_profiler/
-        self.memory = self.ps.get_memory_info()[0] / float(2 ** 20)
+        self.memory = self.ps.memory_info().rss / float(2 ** 20)
+        # include child processes in calculation!
+        for child in self.ps.children(recursive=True):
+            try:
+                self._incrementFromDict(self._getChildUsage(child))
+            except AccessDenied:
+                print 'could not access %i, skipping.'%int(child.pid)
+        # the following makes sure that we use cumulative numbers, 
+        # since the total footprint will be lower once the processes are finished 
+        if self.user <= usr:   self.user+=usr
+        if self.system <= sys: self.system+=sys
+        if self.memory <= mem: self.memory+=mem
+                
+    def _getChildUsage(self,ps):
+        if not isinstance(ps,psutil_proc):
+            raise Exception("must be called from a psutil instance!")
+        cpu = ps.cpu_times()
+        usr = cpu.user
+        sys = cpu.system
+        mem = ps.memory_info().rss / float(2 ** 20)
+        return {'memory':mem,'system':sys,'user':usr}
+
 
 def md5sum(filename, blocksize=65536):
     _hash = md5()

@@ -69,12 +69,10 @@ class BatchEngine(BATCH):
 
     def getCPUtime(self, jobId, key="CPU_USED"):
         warn("not implemented", DeprecationWarning)
-        """ format is: 000:00:00.00 """
         jobId = 0.
         return jobId
 
     def getMemory(self, jobId, key="MEM", unit='kB'):
-        """ format is kb, i believe."""
         warn("not implemented", DeprecationWarning)
         jobId = 0.
         return jobId
