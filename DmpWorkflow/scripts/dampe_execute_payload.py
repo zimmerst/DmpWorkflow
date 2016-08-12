@@ -172,7 +172,7 @@ if __name__ == '__main__':
         executor.logThis("EXCEPTION: %s", err)
 
     
-    executor.logThis('Watchdog: maximum cpu: %s -- maximum memory: %s',(str(max_cpu),str(max_mem)))
+    executor.logThis('Watchdog: maximum cpu: %s -- maximum memory: %s',str(max_cpu),str(max_mem))
     ratio_cpu_max = float(cfg.get("watchdog", "ratio_cpu"))
     ratio_mem_max = float(cfg.get("watchdog", "ratio_mem"))
     now = datetime.utcnow()
