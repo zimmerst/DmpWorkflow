@@ -51,9 +51,10 @@ class HeartBeat(db.Document):
     created_at = db.DateTimeField(default=datetime.now, required=True)
     timestamp = db.DateTimeField(verbose_name="timestamp", required=True)
     hostname = db.StringField(max_length=255, required=False)
+    process  = db.StringField(max_length=64, required=False,default="default")
     meta = {
         'allow_inheritance': True,
-        'indexes': ['-created_at', 'hostname'],
+        'indexes': ['-created_at', 'hostname','process'],
         'ordering': ['-created_at']
     }
 
@@ -392,7 +393,10 @@ class JobInstance(db.Document):
         elif key == 'memory':
             self.memory.append({"time": datetime.now(), "value": value})
         elif key in ['cpu_max', 'mem_max']:
-            self._data.__setitem__(key, value)
+            if key == "cpu_max":
+                self.cpu_max = float(value)
+            else:
+                self.mem_max = float(value)
         else:
             self.__setattr__(key, value)
         log.debug("setting %s : %s", key, value)

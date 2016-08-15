@@ -407,13 +407,14 @@ class TestView(MethodView):
     def post(self):
         logger.debug("TestView: request form %s", str(request.form))
         hostname = str(request.form.get("hostname", "None"))
+        proc = str(request.form.get("process","default"))
         timestamp = str(request.form.get("timestamp", "None"))
         logger.debug("TestView: hostname: %s timestamp: %s ", hostname, timestamp)
         if (hostname == "None") or (timestamp == "None"):
             logger.debug("request empty")
             return dumps({"result": "nok", "error": "request empty"})
         try:
-            HB = HeartBeat(hostname=hostname, timestamp=datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f"))
+            HB = HeartBeat(hostname=hostname, timestamp=datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f"), process=proc)
             HB.save()
         except Exception as ex:
             logger.error("failure during HeartBeat POST test. \n%s", ex)

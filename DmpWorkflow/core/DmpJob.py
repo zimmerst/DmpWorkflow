@@ -86,6 +86,7 @@ class DmpJob(object):
         return
 
     def getBatchDefaults(self):
+        self.__updateEnv__()
         return self.batchdefaults
 
     def getJobName(self):
