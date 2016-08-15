@@ -278,7 +278,7 @@ class SetJobStatus(MethodView):
                     jInstance.setBody(bdy)
                     if 'body' in arguments: del arguments['body']
                 for key in ["t_id", "inst_id", "major_status"]:
-                    del arguments[key]
+                    del arguments[key]                        
                 for key, value in arguments.iteritems():
                     # if key == 'batchId' and value is None: value = "None"
                     jInstance.set(key, value)
@@ -374,6 +374,7 @@ class NewJobs(MethodView):
                         logger.debug("resources read out")
                         dInstance = deepcopy(dJob)
                         dInstance.setInstanceParameters(j.instanceId, j.body)
+                        logger.debug('** DEBUG ** instance body : %s',j.body)
                         newJobInstances.append(dInstance.exportToJSON())
                     else:
                         logger.info("dependencies not fulfilled yet")
@@ -407,13 +408,14 @@ class TestView(MethodView):
     def post(self):
         logger.debug("TestView: request form %s", str(request.form))
         hostname = str(request.form.get("hostname", "None"))
+        proc = str(request.form.get("process","default"))
         timestamp = str(request.form.get("timestamp", "None"))
         logger.debug("TestView: hostname: %s timestamp: %s ", hostname, timestamp)
         if (hostname == "None") or (timestamp == "None"):
             logger.debug("request empty")
             return dumps({"result": "nok", "error": "request empty"})
         try:
-            HB = HeartBeat(hostname=hostname, timestamp=datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f"))
+            HB = HeartBeat(hostname=hostname, timestamp=datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f"), process=proc)
             HB.save()
         except Exception as ex:
             logger.error("failure during HeartBeat POST test. \n%s", ex)
