@@ -421,6 +421,11 @@ class JobInstance(db.Document):
         if curr_status in FINAL_STATII:
             if not stat == 'New':
                 raise Exception("job found in final state, can only set to New")
+            # clean the lists!
+            ret = JobInstance.objects.filter(job=self.job,instanceId=self.instanceId).update(status_history=[], memory=[], cpu=[])
+            if ret!=1:
+                log.critical("ERROR: JobInstance::setStatus to NEW returned bad value %i",ret)
+                raise Exception("error resetting instance to NEW")
         self.last_update = self.last_update
         self.set("status", stat)
         sH = {"status": self.status,
