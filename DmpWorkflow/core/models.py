@@ -399,9 +399,9 @@ class JobInstance(db.Document):
                 ret = JobInstance.objects.filter(job=self.job,instanceId=self.instanceId).update(cpu_max=value)
             else:
                 ret = JobInstance.objects.filter(job=self.job,instanceId=self.instanceId).update(mem_max=value)
-            if not ret:
-                log.critical("ERROR: JobInstance::set(%s,%s)",key,value)
-                raise Exception("ERROR: JobInstance::set(%s,%s)"%(key,value))
+            if ret!=1:
+                log.critical("ERROR: JobInstance::set(%s,%s) returned %i",key,value,ret)
+                raise Exception("ERROR: JobInstance::set(%s,%s), returned %i"%(key,value,ret))
             self.update()
         else:
             self.__setattr__(key, value)
