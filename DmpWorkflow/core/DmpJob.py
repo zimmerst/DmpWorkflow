@@ -5,6 +5,7 @@ Created on Mar 15, 2016
 """
 
 import os.path as oPath
+from ast import literal_eval
 from os import environ
 from jsonpickle import encode as Jencode, decode as Jdecode
 from json import dumps
@@ -112,12 +113,16 @@ class DmpJob(object):
         body = JobInstance_body
         self.instanceId = instance_id  # aka stream
         keys = ['InputFiles', 'OutputFiles', 'MetaData']
+        if not isinstance(body, dict):
+            body = literal_eval(body)
         if isinstance(body, dict):
             for key in keys:
                 if key in body and isinstance(body[key], list):
                     if len(body[key]):
                         self.__dict__[key] += body[key]
-
+        else:
+            raise Exception("Must be a string which can be converted into dictionary")
+        
     def write_script(self, pythonbin=None, debug=False):
         """ based on meta-data should create job-executable """
         if pythonbin is None:

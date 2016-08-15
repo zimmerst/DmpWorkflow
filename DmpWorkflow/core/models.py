@@ -393,10 +393,8 @@ class JobInstance(db.Document):
         elif key == 'memory':
             self.memory.append({"time": datetime.now(), "value": value})
         elif key in ['cpu_max', 'mem_max']:
-            if key == "cpu_max":
-                self.cpu_max = float(value)
-            else:
-                self.mem_max = float(value)
+            self._data.__setitem__(key, value)
+            self.update()
         else:
             self.__setattr__(key, value)
         log.debug("setting %s : %s", key, value)

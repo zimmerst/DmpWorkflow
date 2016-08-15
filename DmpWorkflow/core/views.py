@@ -278,7 +278,7 @@ class SetJobStatus(MethodView):
                     jInstance.setBody(bdy)
                     if 'body' in arguments: del arguments['body']
                 for key in ["t_id", "inst_id", "major_status"]:
-                    del arguments[key]
+                    del arguments[key]                        
                 for key, value in arguments.iteritems():
                     # if key == 'batchId' and value is None: value = "None"
                     jInstance.set(key, value)
@@ -374,6 +374,7 @@ class NewJobs(MethodView):
                         logger.debug("resources read out")
                         dInstance = deepcopy(dJob)
                         dInstance.setInstanceParameters(j.instanceId, j.body)
+                        logger.debug('** DEBUG ** instance body : %s',j.body)
                         newJobInstances.append(dInstance.exportToJSON())
                     else:
                         logger.info("dependencies not fulfilled yet")
