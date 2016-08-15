@@ -393,7 +393,15 @@ class JobInstance(db.Document):
         elif key == 'memory':
             self.memory.append({"time": datetime.now(), "value": value})
         elif key in ['cpu_max', 'mem_max']:
-            self._data.__setitem__(key, value)
+            #self._data.__setitem__(key, float(value))                                                                                                                                                               
+            ret = 0
+            if key == 'cpu_max':
+                ret = JobInstance.objects.filter(job=self.job,instanceId=self.instanceId).update(cpu_max=value)
+            else:
+                ret = JobInstance.objects.filter(job=self.job,instanceId=self.instanceId).update(mem_max=value)
+            if not ret:
+                log.critical("ERROR: JobInstance::set(%s,%s)",key,value)
+                raise Exception("ERROR: JobInstance::set(%s,%s)"%(key,value))
             self.update()
         else:
             self.__setattr__(key, value)
