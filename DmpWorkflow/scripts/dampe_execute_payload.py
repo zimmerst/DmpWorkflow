@@ -193,10 +193,13 @@ if __name__ == '__main__':
             reason = "exceeding Memory"
         if killJob:
             executor.job.updateStatus("Terminated",camelize(reason),resources=prm)
+            executor.logThis('Watchdog: current cpu: %s -- current memory: %s', str(syst_cpu),str(memory))
+            executor.logThis('Watchdog: CRITICAL: got termination directive, reason follows: %s',reason)
             proc.terminate()
+            sleep(100.)                                                                                                                                
+            sys_exit(128) # end with exitcode                                   
         else:
             ## terminate here for the various reasons.
             # output of memory is in kilobytes.
             executor.job.updateStatus("Running","ExecutingApplication",resources=prm)
             sleep(float(BATCH_DEFAULTS.get("sleeptime","300."))) # sleep for 5m
-    
