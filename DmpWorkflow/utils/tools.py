@@ -303,11 +303,14 @@ class ProcessResourceMonitor(ResourceMonitor):
         # based on http://fa.bianp.net/blog/2013/different-ways-to-get-memory-consumption-or-lessons-learned-from-memory_profiler/
         self.memory = self.ps.memory_info().rss / float(2 ** 20)
         # include child processes in calculation!
+        child_processes = []
         for child in self.ps.children(recursive=True):
-            try:
-                self._incrementFromDict(self._getChildUsage(child))
-            except AccessDenied:
-                print 'could not access %i, skipping.'%int(child.pid)
+            # count processes only once!
+            if child.pid not in child_processes:
+                try:
+                    self._incrementFromDict(self._getChildUsage(child))
+                except AccessDenied:
+                    print 'could not access %i, skipping.'%int(child.pid)
         # the following makes sure that we use cumulative numbers, 
         # since the total footprint will be lower once the processes are finished 
         if self.user <= usr:   self.user+=usr
