@@ -5,7 +5,7 @@ import sys
 from mongoengine import CASCADE
 from copy import deepcopy
 from flask import url_for
-from ast import literal_eval
+from ast import literal_eval 
 # from StringIO import StringIO
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
@@ -235,6 +235,21 @@ class JobInstance(db.Document):
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)", required=False, default=-1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)", required=False, default=-1.)
 
+    # accounting fields
+    cpu_max_job = db.FloatField(verbose_name="maximum of CPU used by job", required=False, default=-1.)
+    mem_max_job = db.FloatField(verbose_name="maximum of MEM used by job", required=False, default=-1.)
+    cpu_avg_job = db.FloatField(verbose_name="average of CPU used by job", required=False, default=-1.)
+    mem_avg_job = db.FloatField(verbose_name="average of MEM used by job", required=False, default=-1.)
+
+    def __aggregateResources__(self):
+        mem_vals = [item['value'] for item in self.memory]
+        cpu_vals = [item['value'] for item in self.cpu]
+        self.cpu_avg_job = float(sum(cpu_vals))/float(len(cpu_vals))
+        self.mem_avg_job = float(sum(mem_vals))/float(len(mem_vals))
+        self.cpu_max_job = max(cpu_vals)
+        self.mem_max_job = max(mem_vals)
+        self.update()
+        
     def setBody(self, bdy):
         self.body = str(bdy)
         self.update()
