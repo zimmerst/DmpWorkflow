@@ -12,3 +12,5 @@ importlib
 resource
 progressbar
 xmltodict
+multiprocessing
+psutil

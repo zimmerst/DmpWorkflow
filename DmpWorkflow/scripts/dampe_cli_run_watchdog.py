@@ -12,9 +12,9 @@ from logging import getLogger
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS, FINAL_STATII, cfg
 from DmpWorkflow.utils.tools import getSixDigits, convertHHMMtoSec
-
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
-
+from warnings import warn, simplefilter
+simplefilter('always', DeprecationWarning)
 
 def __getRunningJobs(batchsite):
     """ internal method to get running jobs """
@@ -77,11 +77,13 @@ def __reportKilledJob(j):
 
 
 def main(args=None):
+    warn("the usage of this tool is deprecated and will be removed in a future release.", DeprecationWarning)
     usage = "Usage: %(prog)s [options]"
     description = "run watchdog"
     parser = ArgumentParser(usage=usage, description=description)
     parser.add_argument("--site", dest="site", type=str, default=None, help='name of site', required=False)
     parser.add_argument("--dry", dest="dry", action='store_true', default=False, help='test-run')
+    parser.add_argument("--force", dest="force", action='store_true', default=False, help='run regardless of being deprecated')
     opts = parser.parse_args(args)
 
     ratio_cpu_max = float(cfg.get("watchdog", "ratio_cpu"))
@@ -92,9 +94,11 @@ def main(args=None):
     batchEngine.update()
     batchsite = BATCH_DEFAULTS['name'] if opts.site is None else opts.site
     # first, get running jobs.
-    jobs = __getRunningJobs(batchsite)
-    log.info("watchdog settings: max_cpu %1.2f max_mem %1.2f (ratio with respect to max. allocated)", ratio_cpu_max,
-             ratio_mem_max)
+    jobs = []
+    if opts.force:
+        jobs = __getRunningJobs(batchsite)
+        log.info("watchdog settings: max_cpu %1.2f max_mem %1.2f (ratio with respect to max. allocated)", ratio_cpu_max,
+                 ratio_mem_max)
     for j in jobs:
         max_cpu = float(j['max_mem'])
         max_mem = float(j['max_cpu'])

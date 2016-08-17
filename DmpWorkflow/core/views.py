@@ -279,7 +279,7 @@ class SetJobStatus(MethodView):
                     jInstance.setBody(bdy)
                     if 'body' in arguments: del arguments['body']
                 for key in ["t_id", "inst_id", "major_status"]:
-                    del arguments[key]
+                    del arguments[key]                        
                 for key, value in arguments.iteritems():
                     # if key == 'batchId' and value is None: value = "None"
                     jInstance.set(key, value)
@@ -375,6 +375,7 @@ class NewJobs(MethodView):
                         logger.debug("resources read out")
                         dInstance = deepcopy(dJob)
                         dInstance.setInstanceParameters(j.instanceId, j.body)
+                        logger.debug('** DEBUG ** instance body : %s',j.body)
                         newJobInstances.append(dInstance.exportToJSON())
                     else:
                         logger.info("dependencies not fulfilled yet")
@@ -382,39 +383,40 @@ class NewJobs(MethodView):
         return dumps({"result": "ok", "jobs": newJobInstances})
 
 
-class JobResources(MethodView):
-    def get(self):
-        logger.debug("request %s", str(request))
-        batchsite = unicode(request.form.get("site", "local"))
-        runningJobs = JobInstance.objects.filter(site=batchsite, status=u"Running")
-        logger.debug("number of runningJobs = %i", runningJobs.count())
-        try:
-            allJobs = []
-            for j in runningJobs:
-                allJobs = [{"batchId": j.batchId, "cpu": j.get("cpu"),
-                            "memory": j.get("memory"),
-                            "t_id": str(j.job.id),
-                            "inst_id": j.instanceId,
-                            "major_status": j.status,
-                            "max_cpu": j.get("max_cpu"),
-                            "max_mem": j.get("max_mem")} for j in runningJobs]
-            logger.debug("dumping %i jobs", len(allJobs))
-            return dumps({"result": "ok", "jobs": allJobs})
-        except Exception as err:
-            return dumps({"result": "nok", "error": err})
+#class JobResources(MethodView):
+#    def get(self):
+#       logger.debug("request %s", str(request))
+#       batchsite = unicode(request.form.get("site", "local"))
+#       runningJobs = JobInstance.objects.filter(site=batchsite, status=u"Running")
+#       logger.debug("number of runningJobs = %i", runningJobs.count())
+#       try:
+#           allJobs = []
+#           for j in runningJobs:
+#               allJobs = [{"batchId": j.batchId, "cpu": j.get("cpu"),
+#                           "memory": j.get("memory"),
+#                           "t_id": str(j.job.id),
+#                           "inst_id": j.instanceId,
+#                           "major_status": j.status,
+#                           "max_cpu": j.get("max_cpu"),
+#                           "max_mem": j.get("max_mem")} for j in runningJobs]
+#           logger.debug("dumping %i jobs", len(allJobs))
+#           return dumps({"result": "ok", "jobs": allJobs})
+#       except Exception as err:
+#           return dumps({"result": "nok", "error": err})
 
 
 class TestView(MethodView):
     def post(self):
         logger.debug("TestView: request form %s", str(request.form))
         hostname = str(request.form.get("hostname", "None"))
+        proc = str(request.form.get("process","default"))
         timestamp = str(request.form.get("timestamp", "None"))
         logger.debug("TestView: hostname: %s timestamp: %s ", hostname, timestamp)
         if (hostname == "None") or (timestamp == "None"):
             logger.debug("request empty")
             return dumps({"result": "nok", "error": "request empty"})
         try:
-            HB = HeartBeat(hostname=hostname, timestamp=datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f"))
+            HB = HeartBeat(hostname=hostname, timestamp=datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f"), process=proc)
             HB.save()
         except Exception as ex:
             logger.error("failure during HeartBeat POST test. \n%s", ex)
@@ -526,11 +528,17 @@ jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "P
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET", "POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
+<<<<<<< HEAD
 
 jobs.add_url_rule("/watchdog/",view_func=JobResources.as_view('watchdog'), methods=["GET"])
 jobs.add_url_rule("/testDB/", view_func=TestView.as_view('testDB'), methods=["GET","POST"])
 
 # datacatalog rules.
 #jobs.add_url_rule("/datacat/", view_func=DataCatalog.as_view('datacat'), methods=["GET","POST"])
+=======
+#jobs.add_url_rule("/watchdog/", view_func=JobResources.as_view('watchdog'), methods=["GET"])
+jobs.add_url_rule("/testDB/", view_func=TestView.as_view('testDB'), methods=["GET", "POST"])
+jobs.add_url_rule("/datacat/", view_func=DataCatalog.as_view('datacat'), methods=["GET", "POST"])
+>>>>>>> master
 
 # jobs.add_url_rule('/InstanceDetail', view_func=InstanceView.as_view('instancedetail'), methods=['GET'])

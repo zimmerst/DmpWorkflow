@@ -3,23 +3,27 @@ Created on Mar 25, 2016
 
 @author: zimmer
 """
-import logging
-import shutil
-from os import makedirs, environ, utime
-from os.path import exists, expandvars
-from sys import stdout
-from random import choice, randint
-from shlex import split as shlex_split
-from string import ascii_letters, digits
-import subprocess as sub
-from time import sleep as time_sleep
-from re import split as re_split
-from datetime import timedelta
-from copy import deepcopy
-from StringIO import StringIO
-from xml.dom import minidom as xdom
-from hashlib import md5
-
+try:
+    import logging
+    import shutil
+    from os import makedirs, environ, utime
+    from os.path import exists, expandvars
+    from sys import stdout
+    from random import choice, randint
+    from shlex import split as shlex_split
+    from string import ascii_letters, digits
+    import subprocess as sub
+    from time import sleep as time_sleep
+    from re import split as re_split
+    from datetime import timedelta
+    from copy import deepcopy
+    from StringIO import StringIO
+    from xml.dom import minidom as xdom
+    from hashlib import md5
+    from psutil import AccessDenied, Process as psutil_proc
+except ImportError as Error:
+    print "could not find one or more packages, check prerequisites."
+    print Error
 
 def sortTimeStampList(my_list, timestamp='time', reverse=False):
     if not len(my_list):
@@ -255,6 +259,80 @@ class ResourceMonitor(object):
         sys = self.systime
         mem = self.memory
         return "usertime=%s systime=%s mem %s Mb" % (user, sys, mem)
+
+class ProcessResourceMonitor(ResourceMonitor):
+    # here we overload the init method to add a variable to the class
+    def __init__(self,ps):
+        if not isinstance(ps,psutil_proc):
+            raise Exception("must be called from a psutil instance!")
+        self.user = 0
+        self.system=0
+        self.memory=0
+        self.debug = False
+        self.ps = ps
+        self.query()
+        
+    
+    def getMemory(self, unit='Mb'):
+        self.query()
+        if unit in ['Mb', 'mb', 'mB', 'MB']:
+            return float(self.memory)
+        elif unit in ['kb', 'KB', 'Kb', 'kB']:
+            return float(self.memory) * 1024.
+        elif unit in ['Gb', 'gb', 'GB', 'gB']:
+            return float(self.memory) / 1024.
+        return 0.
+
+    def getCpuTime(self):
+        self.query()
+        return self.user+self.system
+    
+    def free(self):
+        self.user = 0
+        self.system=0
+        self.memory=0
+    
+    def query(self):
+        self.counter+=1
+        dbg = self.debug
+        if dbg: print '*** DEBUG ***: entering cycle %i'%self.counter
+        self.free()
+        cpu = self.ps.cpu_times()
+        # collect parent usage                                                                                                                                                                        
+        usr = cpu.user
+        sys = cpu.system
+        mem = self.ps.memory_info().rss / float(2 ** 20)
+        if dbg: print '**DEBUG**: parent: pid %i mem %1.1f sys %1.1f usr %1.1f'%(self.ps.pid, mem, sys, usr)
+        child_pids = []
+        for child in self.ps.children(recursive=True):
+            if int(child.pid) not in child_pids:
+                try:
+                    ch = self._getChildUsage(child)
+                    ch['pid']=int(child.pid)
+                    ch['total']=ch['user']+ch['system']
+                    if dbg:
+                        print '**DEBUG**: CHILD FOOTPRINT: {pid} MEM {memory} USR {user} SYS {system} TOT {total}'.format(**ch)
+                    usr+=ch['user']
+                    sys+=ch['system']
+                    mem+=ch['memory']
+                    child_pids.append(int(child.pid))
+                except AccessDenied:
+                    print 'could not access %i, skipping.'%int(child.pid)
+        self.user   = usr
+        self.system = sys
+        self.memory = mem
+        if dbg: print 'child pids today : ',child_pids
+        if dbg: print '**** DEBUG **** TOTAL this cycle: mem=%1.1f sys=%1.1f usr=%1.1f'%(self.memory,self.system,self.user)
+
+                
+    def _getChildUsage(self,ps):
+        if not isinstance(ps,psutil_proc):
+            raise Exception("must be called from a psutil instance!")
+        cpu = ps.cpu_times()
+        usr = cpu.user
+        sys = cpu.system
+        mem = ps.memory_info().rss / float(2 ** 20)
+        return {'memory':mem,'system':sys,'user':usr}
 
 
 def md5sum(filename, blocksize=65536):

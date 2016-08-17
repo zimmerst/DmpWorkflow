@@ -5,11 +5,13 @@ Created on Mar 15, 2016
 """
 
 import os.path as oPath
+from ast import literal_eval
 from os import environ
 from jsonpickle import encode as Jencode, decode as Jdecode
 from json import dumps
 from requests import post as Rpost
 from importlib import import_module
+from copy import deepcopy
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits, ResourceMonitor
 from DmpWorkflow.utils.shell import run, make_executable  # , source_bash
@@ -37,6 +39,7 @@ class DmpJob(object):
         self.executable = ""
         self.exec_wrapper = ""
         self.script = None
+        self.batchdefaults = deepcopy(BATCH_DEFAULTS)
         self.__dict__.update(kwargs)
         self.extract_xml_metadata(body)
         self.__updateEnv__()
@@ -72,13 +75,20 @@ class DmpJob(object):
         for fil in self.InputFiles + self.OutputFiles:
             for key in ['source', 'target']:
                 fil[key] = oPath.expandvars(fil[key])
-
+        
         if self.title is not None:
             environ['DWF_TASKNAME'] = self.title
         if self.release is not None:
             environ['RELEASE_TAG'] = self.release
+        environ['DWF_JOB_ID']      = str(self.jobId)
+        environ['DWF_INSTANCE_ID'] = str(self.instanceId)
         # print 'BatchOverride keys', BATCH_DEFAULTS
+        self.batchdefaults = BATCH_DEFAULTS
         return
+
+    def getBatchDefaults(self):
+        self.__updateEnv__()
+        return self.batchdefaults
 
     def getJobName(self):
         return "-".join([str(self.jobId), self.getSixDigits()])
@@ -103,12 +113,16 @@ class DmpJob(object):
         body = JobInstance_body
         self.instanceId = instance_id  # aka stream
         keys = ['InputFiles', 'OutputFiles', 'MetaData']
+        if not isinstance(body, dict):
+            body = literal_eval(body)
         if isinstance(body, dict):
             for key in keys:
                 if key in body and isinstance(body[key], list):
                     if len(body[key]):
                         self.__dict__[key] += body[key]
-
+        else:
+            raise Exception("Must be a string which can be converted into dictionary")
+        
     def write_script(self, pythonbin=None, debug=False):
         """ based on meta-data should create job-executable """
         if pythonbin is None:

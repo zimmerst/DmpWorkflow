@@ -32,6 +32,7 @@ __myDefaults = {
     "HPCcputime": "24:00",
     "HPCmemory": "1000.",
     "HPCusername": "dampeprod",
+    "HPCclustername" : "None",
     "EXEC_DIR_ROOT": "/tmp",
     "ratio_mem": "1.0",
     "ratio_cpu": "1.0",
@@ -62,9 +63,10 @@ environ["BATCH_SYSTEM"] = cfg.get("site", "HPCsystem")
 environ["BATCH_REQUIREMENTS"] = cfg.get("site", "HPCrequirements")
 environ["BATCH_EXTRA"] = cfg.get("site", "HPCextra")
 environ["BATCH_QUEUE"] = cfg.get("site", "HPCqueue")
+environ["BATCH_NAME"]  = cfg.get("site", "HPCname")
 environ["EXEC_DIR_ROOT"] = EXEC_DIR_ROOT
 
-BATCH_DEFAULTS = {key: getenv("BATCH_%s" % key.upper()) for key in ['system', 'requirements', 'extra', 'queue']}
+BATCH_DEFAULTS = {key: getenv("BATCH_%s" % key.upper()) for key in ['system', 'requirements', 'extra', 'queue','name']}
 BATCH_DEFAULTS['memory'] = cfg.get("site", "HPCmemory")
 BATCH_DEFAULTS['cputime'] = cfg.get("site", "HPCcputime")
 BATCH_DEFAULTS['name'] = cfg.get("site", "name")
@@ -78,6 +80,6 @@ SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])
 
 # verify that the site configuration is okay.
 assert BATCH_DEFAULTS['name'] in cfg.get("JobDB", "batch_sites"), "Batch site %s not in DB" % BATCH_DEFAULTS['name']
-assert BATCH_DEFAULTS['system'] in ["lsf", "sge", "pbs"], "HPCSystem %s not supported." % BATCH_DEFAULTS["system"]
+assert BATCH_DEFAULTS['system'] in ["lsf", "sge", "pbs", "condor"], "HPCSystem %s not supported." % BATCH_DEFAULTS["system"]
 
 DAMPE_LOGFILE = cfg.get("global", "logfile")

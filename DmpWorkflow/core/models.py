@@ -20,9 +20,10 @@ class HeartBeat(db.Document):
     created_at = db.DateTimeField(default=datetime.now, required=True)
     timestamp = db.DateTimeField(verbose_name="timestamp",required=True)
     hostname = db.StringField(max_length=255, required=False)
+    process  = db.StringField(max_length=64, required=False,default="default")
     meta = {
         'allow_inheritance': True,
-        'indexes': ['-created_at', 'hostname'],
+        'indexes': ['-created_at', 'hostname','process'],
         'ordering': ['-created_at']
     }    
 
@@ -180,6 +181,7 @@ class Job(db.Document):
     }
 
 class JobInstance(db.Document):
+    #TODO: what is the most efficient way to store max_cpu, avg_cpu, curr_cpu (and mem)?
     instanceId = db.LongField(verbose_name="instanceId", required=False, default=None)
     created_at = db.DateTimeField(default=datetime.now, required=True)
     body = db.StringField(verbose_name="JobInstance", required=False, default="")
@@ -347,9 +349,24 @@ class JobInstance(db.Document):
         elif key == 'cpu':
             self.cpu.append({"time":datetime.now(),"value":value})
         elif key == 'memory':
+<<<<<<< HEAD
             self.memory.append({"time":datetime.now(),"value":value})
         elif key in ['cpu_max','mem_max']:
             self._data.__setitem__(key,value)
+=======
+            self.memory.append({"time": datetime.now(), "value": value})
+        elif key in ['cpu_max', 'mem_max']:
+            #self._data.__setitem__(key, float(value))                                                                                                                                                               
+            ret = 0
+            if key == 'cpu_max':
+                ret = JobInstance.objects.filter(job=self.job,instanceId=self.instanceId).update(cpu_max=value)
+            else:
+                ret = JobInstance.objects.filter(job=self.job,instanceId=self.instanceId).update(mem_max=value)
+            if ret!=1:
+                log.critical("ERROR: JobInstance::set(%s,%s) returned %i",key,value,ret)
+                raise Exception("ERROR: JobInstance::set(%s,%s), returned %i"%(key,value,ret))
+            self.update()
+>>>>>>> master
         else:
             self.__setattr__(key, value)
         log.debug("setting %s : %s",key,value)
@@ -368,6 +385,11 @@ class JobInstance(db.Document):
         if curr_status in FINAL_STATII:
             if not stat == 'New':
                 raise Exception("job found in final state, can only set to New")
+            # clean the lists!
+            ret = JobInstance.objects.filter(job=self.job,instanceId=self.instanceId).update(status_history=[], memory=[], cpu=[])
+            if ret!=1:
+                log.critical("ERROR: JobInstance::setStatus to NEW returned bad value %i",ret)
+                raise Exception("error resetting instance to NEW")
         self.last_update = self.last_update
         self.set("status", stat)
         sH = {"status": self.status, 
