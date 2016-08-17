@@ -268,8 +268,10 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.user = 0
         self.system=0
         self.memory=0
+        self.debug = False
         self.ps = ps
         self.query()
+        
     
     def getMemory(self, unit='Mb'):
         self.query()
@@ -285,34 +287,43 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.query()
         return self.user+self.system
     
-    def _incrementFromDict(self,_dict):
-        for key in _dict:
-            if key in self.__dict__: 
-                self.__dict__[key]+=_dict[key]
-    # here we overload the query method to use psutil instead.
+    def free(self):
+        self.user = 0
+        self.system=0
+        self.memory=0
+    
     def query(self):
-        # this is the current state of the system
-        usr = self.user
-        sys = self.system
-        mem = self.memory
-        
+        self.counter+=1
+        dbg = self.debug
+        if dbg: print '*** DEBUG ***: entering cycle %i'%self.counter
+        self.free()
         cpu = self.ps.cpu_times()
-        # this should report the correct cpu time in seconds!
-        self.user = cpu.user
-        self.system= cpu.system
-        # based on http://fa.bianp.net/blog/2013/different-ways-to-get-memory-consumption-or-lessons-learned-from-memory_profiler/
-        self.memory = self.ps.memory_info().rss / float(2 ** 20)
-        # include child processes in calculation!
+        # collect parent usage                                                                                                                                                                        
+        usr = cpu.user
+        sys = cpu.system
+        mem = self.ps.memory_info().rss / float(2 ** 20)
+        if dbg: print '**DEBUG**: parent: pid %i mem %1.1f sys %1.1f usr %1.1f'%(self.ps.pid, mem, sys, usr)
+        child_pids = []
         for child in self.ps.children(recursive=True):
-            try:
-                self._incrementFromDict(self._getChildUsage(child))
-            except AccessDenied:
-                print 'could not access %i, skipping.'%int(child.pid)
-        # the following makes sure that we use cumulative numbers, 
-        # since the total footprint will be lower once the processes are finished 
-        if self.user <= usr:   self.user+=usr
-        if self.system <= sys: self.system+=sys
-        if self.memory <= mem: self.memory+=mem
+            if int(child.pid) not in child_pids:
+                try:
+                    ch = self._getChildUsage(child)
+                    ch['pid']=int(child.pid)
+                    ch['total']=ch['user']+ch['system']
+                    if dbg:
+                        print '**DEBUG**: CHILD FOOTPRINT: {pid} MEM {memory} USR {user} SYS {system} TOT {total}'.format(**ch)
+                    usr+=ch['user']
+                    sys+=ch['system']
+                    mem+=ch['memory']
+                    child_pids.append(int(child.pid))
+                except AccessDenied:
+                    print 'could not access %i, skipping.'%int(child.pid)
+        self.user   = usr
+        self.system = sys
+        self.memory = mem
+        if dbg: print 'child pids today : ',child_pids
+        if dbg: print '**** DEBUG **** TOTAL this cycle: mem=%1.1f sys=%1.1f usr=%1.1f'%(self.memory,self.system,self.user)
+
                 
     def _getChildUsage(self,ps):
         if not isinstance(ps,psutil_proc):
