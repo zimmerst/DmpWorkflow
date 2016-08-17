@@ -248,7 +248,6 @@ class JobInstance(db.Document):
         self.mem_avg_job = float(sum(mem_vals))/float(len(mem_vals))
         self.cpu_max_job = max(cpu_vals)
         self.mem_max_job = max(mem_vals)
-        self.update()
         
     def setBody(self, bdy):
         self.body = str(bdy)
@@ -448,7 +447,9 @@ class JobInstance(db.Document):
               "minor_status": self.minor_status}
         log.debug("statusSet %s", str(sH))
         self.status_history.append(sH)
-        if curr_status in FINAL_STATII: self.__sortTimeStampedLists()
+        if curr_status in FINAL_STATII: 
+            self.__sortTimeStampedLists()
+            self.__aggregateResources__()
         self.update()
         return
 
