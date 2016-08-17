@@ -20,7 +20,7 @@ def main(args=None):
     pb = progressbar.ProgressBar(maxval=query.count())
     pb.start()
     for jInst in query.all():
-        jInst.__aggregateResources__()
+        jInst.__aggregateResourceUsage__()
         jInst.update()
     pb.finish()
     print 'done'

@@ -241,7 +241,7 @@ class JobInstance(db.Document):
     cpu_avg_job = db.FloatField(verbose_name="average of CPU used by job", required=False, default=-1.)
     mem_avg_job = db.FloatField(verbose_name="average of MEM used by job", required=False, default=-1.)
 
-    def __aggregateResources__(self):
+    def __aggregateResourceUsage__(self):
         mem_vals = [item['value'] for item in self.memory]
         cpu_vals = [item['value'] for item in self.cpu]
         self.cpu_avg_job = float(sum(cpu_vals))/float(len(cpu_vals))
@@ -449,7 +449,7 @@ class JobInstance(db.Document):
         self.status_history.append(sH)
         if curr_status in FINAL_STATII: 
             self.__sortTimeStampedLists()
-            self.__aggregateResources__()
+            self.__aggregateResourceUsage__()
         self.update()
         return
 
