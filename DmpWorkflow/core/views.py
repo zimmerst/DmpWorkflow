@@ -154,7 +154,29 @@ class JobView(MethodView):
 
 class JobInstanceView(MethodView):
     def get(self):
-        return 'Nothing yet'
+        logger.debug("request %s", str(request))
+        logger.debug("request form dict %s", request.form)
+        taskName = request.form.get("taskName", None)
+        tasktype = request.form.get("taskType", None)
+        instId = int(request.form.get("instanceId", "0"))
+        S_OK = {"result":"ok"}
+        if (taskName is None) or (tasktype is None): 
+            S_OK['result']='nok'
+            S_OK['error'] ='empty query!' 
+        else:
+            jobs = Job.objects.filter(title=taskName, type=tasktype)
+            if jobs.count():
+                job = jobs.first()
+                query = JobInstance.objects.filter(job=job, instanceId=instId)
+                if query.count():
+                    S_OK['value'] = query.first()
+                else:
+                    S_OK['result']='nok'
+                    S_OK['error'] ='could not find jobInstance with given Id' 
+            else:
+                S_OK['result']='nok'
+                S_OK['error'] ='could not find job of given name / type' 
+        return dumps(S_OK)
 
     def post(self):
         logger.debug("request %s", str(request))
@@ -283,6 +305,9 @@ class SetJobStatus(MethodView):
                     # if key == 'batchId' and value is None: value = "None"
                     jInstance.set(key, value)
                     # update_status(t_id,inst_id,major_status, **arguments)
+                if major_status == "Terminated" and minor_status == "KilledByUser":
+                    return dumps({"result":"ok", "batchId":int(jInstance.batchId)})
+                    # this is a special case!
         except Exception as err:
             logger.exception(err)
             return dumps({"result": "nok", "error": str(err)})

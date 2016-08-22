@@ -44,7 +44,7 @@ class BatchJob(HPCBatchJob):
         """ likewise, it should implement its own batch-specific removal command """
         cmd = "qdel %s" % self.batchId
         self.__run__(cmd)
-        self.update("status", "Failed")
+        self.update("status", "Terminated")
 
 
 class BatchEngine(BATCH):

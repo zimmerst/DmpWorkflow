@@ -140,6 +140,7 @@ def Ndigits(val, size=6):
 
 
 def safe_copy(infile, outfile, **kwargs):
+    
     kwargs.setdefault('sleep', 10)
     kwargs.setdefault('attempts', 10)
     kwargs.setdefault('debug', False)
