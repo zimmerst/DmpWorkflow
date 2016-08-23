@@ -22,7 +22,6 @@ class ListView(MethodView):
         jobs = Job.objects.all()
         return render_template('jobs/list.html', jobs=jobs)
 
-
 class StatsView(MethodView):
     def get(self):
         logger.debug("request %s", str(request))
@@ -409,18 +408,36 @@ class TestView(MethodView):
         logger.debug("TestView: request form %s", str(request.form))
         hostname = str(request.form.get("hostname", "None"))
         proc = str(request.form.get("process","default"))
-        timestamp = str(request.form.get("timestamp", "None"))
+        timestamp = datetime.now()
         logger.debug("TestView: hostname: %s timestamp: %s ", hostname, timestamp)
         if (hostname == "None") or (timestamp == "None"):
             logger.debug("request empty")
             return dumps({"result": "nok", "error": "request empty"})
         try:
-            HB = HeartBeat(hostname=hostname, timestamp=datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f"), process=proc)
-            HB.save()
+            if hostname == "None" and proc != "default":
+                q = HeartBeat.objects.filter(process=proc)
+                if q.count():
+                    q.update(timestamp=timestamp)
+                else:
+                    return({"result":"nok", "error":"could not update timestamp because hostname was not specified"})
+            elif proc == "default" and hostname != "None":
+                q = HeartBeat.objects.filter(hostname=hostname)
+                if q.count():
+                    q.update(timestamp=timestamp)
+                else:
+                    HB = HeartBeat(hostname=hostname, timestamp=timestamp, process=proc)
+                    HB.save()
+            else:
+                q = HeartBeat.objects.filter(hostname=hostname, process=proc)
+                if q.count():
+                    q.update(timestamp=timestamp)
+                else:
+                    HB = HeartBeat(hostname=hostname, timestamp=timestamp, process=proc)
+                    HB.save()
         except Exception as ex:
             logger.error("failure during HeartBeat POST test. \n%s", ex)
             return dumps({"result": "nok", "error": ex})
-        return dumps({"result": "ok", "docId": str(HB.id)})
+        return dumps({"result": "ok"})
 
     def get(self):
         limit = int(request.form.get("limit", 1000))

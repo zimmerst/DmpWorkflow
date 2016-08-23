@@ -6,8 +6,9 @@ Created on Mar 25, 2016
 try:
     import logging
     import shutil
+    from DmpWorkflow.utils.shell import run
     from os import makedirs, environ, utime
-    from os.path import exists, expandvars
+    from os.path import exists, expandvars, dirname
     from sys import stdout
     from random import choice, randint
     from shlex import split as shlex_split
@@ -107,10 +108,22 @@ def pwd():
 
 
 def mkdir(Dir):
-    if not exists(Dir):
-        makedirs(Dir)
-    return Dir
-
+    xrootd = False
+    if Dir.startswith("root://"): xrootd = True
+    if not xrootd:
+        if not exists(Dir):
+            makedirs(Dir)
+    else:
+        lsCmd = xrootdPath2Cmd(Dir,cmd='ls')
+        mdCmd = xrootdPath2Cmd(Dir,cmd='mkdir -p -mrwxr-x---')
+        lsRet = run(lsCmd.split())
+        if lsRet[-1]:
+            print "*DEBUG: %s"%mdCmd
+            mdRet = run(mdCmd.split())
+            if mdRet[-1]:
+                print mdRet[0], mdRet[1]
+                raise IOError(mdRet[1]) 
+        return Dir                
 
 def rm(pwd):
     try:
@@ -138,6 +151,16 @@ def Ndigits(val, size=6):
     _sixDigit = "%i" % val
     return _sixDigit.zfill(size)
 
+def xrootdPath2Cmd(xrdPath,cmd='mkdir',args=""):
+    ''' converts a path like this root://grid05.unige.ch:1094//dpm/unige.ch/home/dampe into xrd grid05.unige.ch:1094 CMD /dpm/... '''
+    fullCmdList = ["xrdfs"]
+    xrdPath = xrdPath.split("//")
+    fullCmdList.append(xrdPath[1])
+    fullCmdList.append(cmd)
+    fullCmdList.append("/%s"%xrdPath[2])
+    if len(args):
+        fullCmdList.append(args)
+    return " ".join(fullCmdList)
 
 def safe_copy(infile, outfile, **kwargs):
     kwargs.setdefault('sleep', 10)
@@ -145,20 +168,24 @@ def safe_copy(infile, outfile, **kwargs):
     kwargs.setdefault('debug', False)
     kwargs.setdefault('checksum', False)
     kwargs.setdefault("checksum_blocksize", 4096)
-    xrootd = False
+    kwargs.setdefault('mkdir',True)
+    sleep = parse_sleep(kwargs['sleep'])
+    xrootd = False    
+    if kwargs['mkdir']: mkdir(dirname(outfile))            
     if kwargs['debug']:
         print 'cp %s -> %s' % (infile, outfile)
-    infile = infile.replace("@", "") if infile.startswith("@") else infile
     # Try not to step on any toes....
-    sleep = parse_sleep(kwargs['sleep'])
+    infile = expandvars(infile)
+    outfile = expandvars(outfile)
+    cmnd = "cp %s %s" % (infile, outfile)
     if infile.startswith("root:"):
-        print 'file is on xrootd - switching to XRD library'
-        cmnd = "xrdcp %s %s" % (infile, outfile)
+        if kwargs['debug']: print 'input file is on xrootd - switching to XRD library'
         xrootd = True
-    else:
-        infile = expandvars(infile)
-        outfile = expandvars(outfile)
-        cmnd = "cp %s %s" % (infile, outfile)
+    if outfile.startswith("root:"):
+        if kwargs['debug']: print 'output file is on xrootd - switching to XRD library'
+        xrootd = True
+    if xrootd:
+        cmnd = "xrdcp -f %s %s" % (infile, outfile)
     md5in = md5out = None
     if kwargs['checksum'] and not xrootd:
         md5in = md5sum(infile, blocksize=kwargs['checksum_blocksize'])
