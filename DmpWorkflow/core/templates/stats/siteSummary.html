@@ -3,7 +3,8 @@
 <h2> Client Summary </h2>
 <table class="table table-bordered table-striped">
 	<thead>
-		{% for key in ('Hostname','Created at','Last sign of life','Diff with Server (sec)')%}
+{#		{% for key in ('Hostname','Created at','Last sign of life','Diff with Server (sec)')%} #}
+		{% for key in ('Hostname','Created at','Last sign of life')%}
 		<th>{{ key }}</th>
 		{% endfor %}
 	</thead>
@@ -11,16 +12,16 @@
 		<tr>
 			<td>{{ beat.hostname }}</td>
 			<td>{{ beat.created_at}}</td>
-			<td>{{ beat.timestamp}}</td>
+{#			<td>{{ beat.timestamp}}</td> #}
 		    {% set dt = beat.deltat $}
-		    {% if dt > 3600 %}
-				<td><p class=text-danger">{{ dt }}</p></td>
-			{% else if dt > 600 %}
-				<td><p class=text-warning">{{ dt }}</p></td>
-			{% else if dt < 120 %}
-				<td><p class=text-success">{{ dt }}</p></td>
+		    {% if dt >= 3600. %}
+				<td><p class="text-danger">{{ beat.timestamp }}</p></td>
+			{% elif dt >= 600. %}
+				<td><p class="text-warning">{{ beat.timestamp }}</p></td>
+			{% elif dt <= 120. %}
+				<td><p class="text-success">{{ beat.timestamp }}</p></td>
 			{% else %}
-				<td><p class=text-info">{{ dt }}</p></td>
+				<td><p class="text-info">{{ beat.timestamp }}</p></td>
 			{% endif %}
 		</tr>	
 		{% endfor %}
