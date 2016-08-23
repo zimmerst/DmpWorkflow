@@ -16,7 +16,7 @@ try:
     import subprocess as sub
     from time import sleep as time_sleep
     from re import split as re_split
-    from datetime import timedelta
+    from datetime import timedelta, datetime
     from copy import deepcopy
     from StringIO import StringIO
     from xml.dom import minidom as xdom
@@ -25,6 +25,20 @@ try:
 except ImportError as Error:
     print "could not find one or more packages, check prerequisites."
     print Error
+
+def send_heartbeat(proc):
+    from requests import post as r_post
+    from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
+    from socket import gethostname
+    host = gethostname()
+    url = "%s/testDB/"%DAMPE_WORKFLOW_URL
+    dt = datetime.now()
+    res = r_post(url, data={"hostname":host, "timestamp":dt,"process":proc})
+    res.raise_for_status()
+    res = res.json()
+    if res.get("result","nok") != "ok":
+        print res.get("error")
+    return
 
 def sortTimeStampList(my_list, timestamp='time', reverse=False):
     if not len(my_list):

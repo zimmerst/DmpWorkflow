@@ -4,15 +4,16 @@ Created on Mar 15, 2016
 @author: zimmer
 """
 import logging
-from requests import get
+from requests import get, post as r_post
+from datetime import datetime
 from sys import exit as sys_exit
 from argparse import ArgumentParser
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
+from DmpWorkflow.utils.tools import send_heartbeat
 from importlib import import_module
-
+from socket import gethostname
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
-
 
 # from DmpWorkflow.scripts.dampe_cli_run_watchdog import __getRunningJobs
 
@@ -30,6 +31,7 @@ def main(args=None):
     parser.add_argument("-u", "--user", dest="user", default=None, type=str, help='name of user that submits jobs')
     parser.add_argument("-s", "--skipDBcheck", dest="skipDBcheck", action='store_true', default=False,
                         help='skip DB check for jobs')
+    send_heartbeat("JobFetcher") # encapsulates the heartbeat update!
     opts = parser.parse_args(args)
     log = logging.getLogger("script")
     batchsite = BATCH_DEFAULTS['name']
