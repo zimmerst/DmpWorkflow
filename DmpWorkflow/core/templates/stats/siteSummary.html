@@ -1,3 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
+<h2> Client Summary </h2>
+<table class="table table-bordered table-striped">
+	<thead>
+		{% for key in ('Hostname','Created at','Last sign of life','Diff with Server (sec)')%}
+		<th>{{ key }}</th>
+		{% endfor %}
+	</thead>
+		{% for beat in heartbeats %}
+		<tr>
+			<td>{{ beat.hostname }}</td>
+			<td>{{ beat.created_at}}</td>
+			<td>{{ beat.timestamp}}</td>
+			<td>{{ beat.deltat}}</td>
+		</tr>	
+		{% endfor %}
+</table>
+
 {% endblock %}

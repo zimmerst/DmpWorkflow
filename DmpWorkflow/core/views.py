@@ -25,9 +25,13 @@ class ListView(MethodView):
 class StatsView(MethodView):
     def get(self):
         logger.debug("request %s", str(request))
-        jobs = Job.objects.all()
-        return render_template('stats/siteSummary.html', jobs=jobs)
-
+        heartbeats = HeartBeat.objects.filter(process="JobFetcher")
+        now = datetime.now()
+        for h in heartbeats:
+            last_life = h.timestamp
+            deltaT = (now - last_life).seconds
+            h.deltat = deltaT
+        return render_template('stats/siteSummary.html', heartbeats=heartbeats)
 
 class DetailView(MethodView):
     form = model_form(JobInstance, exclude=['created_at', 'status_history', 'memory', 'cpu'])

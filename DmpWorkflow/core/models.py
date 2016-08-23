@@ -52,6 +52,7 @@ class HeartBeat(db.Document):
     timestamp = db.DateTimeField(verbose_name="last sign of life", required=True)
     hostname = db.StringField(max_length=255, required=True)
     process  = db.StringField(max_length=64, required=False,default="default")
+    deltat = db.FloatField(verbose_name="deltat",required=False,default=0.)
     meta = {
         'allow_inheritance': True,
         'indexes': ['-created_at', 'hostname','process'],
