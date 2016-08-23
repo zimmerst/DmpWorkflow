@@ -53,7 +53,7 @@ def main(args=None):
     if opts.dry:
         return
     if influxdb:
-        client = InfluxDBClient(opts.host,opts.port,opts.user,opts.password,opts.dbname)
+        client = InfluxDBClient(opts.host,opts.port,opts.user,opts.pw,opts.dbname)
         client.create_database(opts.dbname)
         ret = client.write_points(json_bdy)
         if not ret: 
