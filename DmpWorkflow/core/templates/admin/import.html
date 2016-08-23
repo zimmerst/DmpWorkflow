@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h2> Replace Existing XML </h2>
+<strong> Job Title:</strong> {{ job.title }} 
+<strong> Job Type:</strong> {{ job.type }} 
+
+<form method=POST enctype=multipart/form-data action="{{ url_for('upload') }}">
+<input type=file name=body>
+<input type="submit">
+</form>
+
+{% endblock %}

@@ -51,6 +51,22 @@ class Export(MethodView):
         logger.info("exporting body %s", slug)
         return send_file(outfile, attachment_filename="%s.xml" % job.title, as_attachment=True)
 
+class Import(MethodView):
+    decorators = [requires_auth]
+
+    def get(self,slug=None):
+        if slug is None:
+            raise Exception("must be called with slug")
+        job = Job.objects.get_or_404(slug=slug)
+        context = {"job": job, "slug":slug}
+        return render_template("admin/import.html",**context)
+    
+    def post(self,slug=None):
+        if slug is None:
+            raise Exception("must be called with slug")
+        job = Job.objects.get_or_404(slug=slug)
+        job.resetBody(open(request.files['body'],'rb').read())
+        return redirect(url_for("admin.index"))
 
 class Detail(MethodView):
     decorators = [requires_auth]
@@ -99,4 +115,5 @@ admin.add_url_rule('/admin/', view_func=List.as_view('index'))
 admin.add_url_rule('/admin/create/', defaults={'slug': None}, view_func=Detail.as_view('create'))
 # admin.add_url_rule('/admin/edit/<slug>/', view_func=Detail.as_view('edit'))
 admin.add_url_rule('/admin/export/<slug>/', view_func=Export.as_view('export'))
+admin.add_url_rule('/admin/import/<slug>/', view_func=Import.as_view('export'),methods=["GET","POST"])
 admin.add_url_rule('/admin/remove/<slug>/', view_func=Remove.as_view('remove'))
