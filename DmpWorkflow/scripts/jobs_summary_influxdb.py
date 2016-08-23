@@ -59,7 +59,7 @@ def main(args=None):
         if not ret: 
             try:
                 raise Exception("Could not write points to DB")
-            except:
+            except Exception:
                 print_exc()
                 sys_exit(int(ret))
 
