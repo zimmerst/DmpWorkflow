@@ -37,7 +37,7 @@ def main(args=None):
     parser.add_argument("-p","--password",dest="pw",help="password")
     parser.add_argument("-P","--port",dest="port",type=int,default=8086,help="influxdb ingest port")
     parser.add_argument("-n","--dbname", dest="dbname",help="name of DB to store data in.")
-    parser.add_argument("-d", "--dry", dest="dry", action="store_true", default=False, type=bool, help="do not report results to grafana")
+    parser.add_argument("-d", "--dry", dest="dry", action="store_true", default=False, help="do not report results to grafana")
     parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", default=False, type=bool, help="verbose mode")
     opts = parser.parse_args(args)
     json_bdy = []
