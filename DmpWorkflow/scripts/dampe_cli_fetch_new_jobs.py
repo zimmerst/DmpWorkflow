@@ -12,7 +12,6 @@ from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
 from DmpWorkflow.utils.tools import send_heartbeat
 from importlib import import_module
-from socket import gethostname
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 
 # from DmpWorkflow.scripts.dampe_cli_run_watchdog import __getRunningJobs

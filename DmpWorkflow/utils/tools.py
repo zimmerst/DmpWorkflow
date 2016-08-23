@@ -29,7 +29,7 @@ except ImportError as Error:
 def send_heartbeat(proc):
     from requests import post as r_post
     from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
-    from socket import gethostname
+    from socket import getfqdn as gethostname # use full domain name.
     host = gethostname()
     url = "%s/testDB/"%DAMPE_WORKFLOW_URL
     dt = datetime.now()

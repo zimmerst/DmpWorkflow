@@ -12,7 +12,16 @@
 			<td>{{ beat.hostname }}</td>
 			<td>{{ beat.created_at}}</td>
 			<td>{{ beat.timestamp}}</td>
-			<td>{{ beat.deltat}}</td>
+		    {% set dt = beat.deltat $}
+		    {% if dt > 3600 %}
+				<td><p class=text-danger">{{ dt }}</p></td>
+			{% else if dt > 600 %}
+				<td><p class=text-warning">{{ dt }}</p></td>
+			{% else if dt < 120 %}
+				<td><p class=text-success">{{ dt }}</p></td>
+			{% else %}
+				<td><p class=text-info">{{ dt }}</p></td>
+			{% endif %}
 		</tr>	
 		{% endfor %}
 </table>
