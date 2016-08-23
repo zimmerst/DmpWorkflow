@@ -2,29 +2,33 @@
 {% block content %}
 <h2> Client Summary </h2>
 <table class="table table-bordered table-striped">
-	<thead>
-{#		{% for key in ('Hostname','Created at','Last sign of life','Diff with Server (sec)')%} #}
-		{% for key in ('Hostname','Created at','Last sign of life')%}
-		<th>{{ key }}</th>
-		{% endfor %}
-	</thead>
-		{% for beat in heartbeats %}
-		<tr>
-			<td>{{ beat.hostname }}</td>
-			<td>{{ beat.created_at}}</td>
-{#			<td>{{ beat.timestamp}}</td> #}
-		    {% set dt = beat.deltat $}
-		    {% if dt >= 3600. %}
-				<td><p class="text-danger">{{ beat.timestamp }}</p></td>
-			{% elif dt >= 600. %}
-				<td><p class="text-warning">{{ beat.timestamp }}</p></td>
-			{% elif dt <= 120. %}
-				<td><p class="text-success">{{ beat.timestamp }}</p></td>
-			{% else %}
-				<td><p class="text-info">{{ beat.timestamp }}</p></td>
-			{% endif %}
-		</tr>	
-		{% endfor %}
+  <thead>
+{#    {% for key in ('Hostname','Created at','Last sign of life','Diff with Server (sec)')%} #}
+    {% for key in ('Hostname','Created at','Last sign of life','Status')%}
+    <th>{{ key }}</th>
+    {% endfor %}
+  </thead>
+  {% for beat in heartbeats %}
+  {% set dt = beat.deltat %}
+  {% set ts = beat.timestamp %}
+  <tr>
+    <td>{{ beat.hostname }}</td>
+    <td>{{ beat.created_at}}</td>
+    {% if dt >= 3600 %}
+    <td><p class="bg-danger"><strong>{{ ts }}</strong></p></td>
+    <td><p class="bg-danger"><strong>check client</strong></p></td>
+    {% elif dt >= 600 %}
+    <td><p class="bg-warning"><strong>{{ ts }}</strong></p></td>
+    <td><p class="bg-warning"><strong>no ping for >10 minutes</strong></p></td>
+    {% elif dt <= 100 %}
+    <td><p class="bg-success"><strong>{{ ts }}</strong></p></td>
+    <td><p class="bg-success"><strong>good</strong></p></td>
+    {% else %}
+    <td><p class="bg-info"><strong>{{ ts }}</strong></p></td>
+    <td><p class="bg-info"><strong>ok</strong></p></td>
+    {% endif %}
+  </tr>
+  {% endfor %}
 </table>
 
 {% endblock %}
