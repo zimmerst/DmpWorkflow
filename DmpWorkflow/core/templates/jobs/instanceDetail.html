@@ -58,17 +58,16 @@
       {% endfor %}
     </table>
   </div>
-  <button id="rollback">Roll back</button>
+  <button id="rollback" class="btn btn-primary">Roll back Instance</button>
 </div>
-
-
 {% endblock %}
+{% set json = instance.resetJSON() %}
 {% block js_footer %}
 <script language="JavaScript">
   "use strict";
   $("#rollback").on("click", function(){
     $.post("/jobstatus", 
-      {args: {{ my_dict }} }, 
+      {args: {{ json }} }, 
       function(data, textStatus, headers){
         alert("method call successful");
         // it would be nice to check the actual data (like a status code or something)

@@ -6,6 +6,7 @@ from mongoengine import CASCADE
 from copy import deepcopy
 from flask import url_for
 from ast import literal_eval
+from json import dumps
 # from StringIO import StringIO
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
@@ -235,6 +236,18 @@ class JobInstance(db.Document):
     log = db.StringField(verbose_name="log", required=False, default="")
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)", required=False, default=-1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)", required=False, default=-1.)
+    
+    def resetJSON(self,set_var=None):
+        """ convenience function: returns a JSON object that can be pushed to POST """
+        override_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
+        if set_var is not None:
+            var_dict = dict({tuple(val.split("=")) for val in set_var.split(";")})
+            override_dict['MetaData'] = [{"name": k, "value": v, "type": "str"} for k, v in var_dict.iteritems()]        
+        my_dict = {"t_id": str(self.job.id), "inst_id": self.instanceId,
+                   "major_status": "New", "minor_status": "AwaitingBatchSubmission", "hostname": None,
+                   "batchId": None, "status_history": [], "body": str(override_dict),
+                   "log": "", "cpu": [], "memory": [], "created_at": "Now"}
+        return dumps(my_dict)
 
     def setBody(self, bdy):
         self.body = str(bdy)
