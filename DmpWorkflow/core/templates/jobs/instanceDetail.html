@@ -63,4 +63,17 @@
 
 
 {% endblock %}
-  
+{% block js_footer %}
+<script language="JavaScript">
+  "use strict";
+  $("#rollback").on("click", function(){
+    $.post("/jobstatus", 
+      {args: {{ my_dict }} }, 
+      function(data, textStatus, headers){
+        alert("method call successful");
+        // it would be nice to check the actual data (like a status code or something)
+      }
+    );
+  });
+</script>
+{% endblock %}  
