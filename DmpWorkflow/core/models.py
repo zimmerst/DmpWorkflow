@@ -1,6 +1,7 @@
 # pylint: disable=E1002
 import logging
 from datetime import datetime
+from time import mktime
 import sys
 from mongoengine import CASCADE
 from copy import deepcopy
@@ -237,6 +238,30 @@ class JobInstance(db.Document):
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)", required=False, default=-1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)", required=False, default=-1.)
     
+    def getTimeSeries(self,key,timeAsJS=True):
+        """ convenience function, returns two arrays,     
+            one containing the x-axis, one the y-axis,
+            userful for plotting with flot
+            by default, timeStamps are converted to JavaTimeStampFormat.
+        """
+        def __getSeries__(self,key):
+            """ just a neat little helper """
+            if key == 'cpu': return self.cpu
+            else: return self.memory
+        
+        if not key in ["cpu","memory"]: raise Exception("must be cpu or memory")
+        x_array = []
+        y_array = []
+        for item in self.__getSeries__(key):
+            # ignore empty entries
+            if not isinstance(item['value'],list):
+                ts = item['time']
+                if timeAsJS:
+                    ts = int(mktime(ts.timetuple())) * 1000.
+                x_array.append(ts)
+                y_array.append(item['value'])
+        return [x_array, y_array]
+        
     def resetJSON(self,set_var=None):
         """ convenience function: returns a JSON object that can be pushed to POST """
         override_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
