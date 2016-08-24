@@ -14,7 +14,7 @@ try:
     from shlex import split as shlex_split
     from string import ascii_letters, digits
     import subprocess as sub
-    from time import sleep as time_sleep
+    from time import mktime, sleep as time_sleep
     from re import split as re_split
     from datetime import timedelta, datetime
     from copy import deepcopy
@@ -27,6 +27,12 @@ try:
 except ImportError as Error:
     print "could not find one or more packages, check prerequisites."
     print Error
+
+def datetime_to_js(dt):
+    if not isinstance(dt,datetime):
+        raise Exception("must be datetime object")
+    return int(mktime(dt.timetuple())) * 1000.
+
 
 def dumpr(json_str):
     """ convenience function to return a flask-Response object """

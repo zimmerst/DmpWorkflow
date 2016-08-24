@@ -72,15 +72,56 @@
 {% endblock %}
 {% block js_footer %}
 {% set json = instance.resetJSON() %}
-{% set cpu = instance.getTimeSeries("cpu") %}
-{% set mem = instance.getTimeSeries("memory") %}
 <script language="JavaScript">
   "use strict";
   // here we write proper JS code
   // one example, a flot plot (uncomment and you'll see what happens)
-  var cpu = {{ cpu }}
-  var mem = {{ mem }}
-  //$.plot($("#placeholder"), [cpu, mem]);
+  var cpu =  {{ instance.getTimeSeries("cpu") }};
+  var mem =  {{ instance.getTimeSeries("memory") }};
+  var tmin = {{ instance.getTimeStampCreatedAt() }};
+  var tmax = {{ instance.getTimeStampLastUpdate() }};
+  var data1 = [
+    {label: "CPU time",  data: cpu, points: { symbol: "circle", fillColor: "#058DC7" }, color: '#058DC7'},
+    {label: "Memory Usage",  data: mem, points: { symbol: "diamond", fillColor: "#AA4643" }, color: '#AA4643'},
+  ];
+  $.plot($("#placeholder"), data1, {
+        xaxis: {
+            min: tmin,
+            max: tmax,
+            mode: "time",
+            tickSize: [1, "month"],
+            tickLength: 0,
+            axisLabel: 'Time',
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+            axisLabelPadding: 5
+        },
+        yaxis: {
+            axisLabel: 'Memory (MB)',
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+            axisLabelPadding: 5
+        },
+        series: {
+            lines: { show: true },
+            points: {
+                radius: 3,
+                show: true,
+                fill: true
+            },
+        },
+        grid: {
+            hoverable: true,
+            borderWidth: 1
+        },
+        legend: {
+            labelBoxBorderColor: "none",
+                position: "right"
+        }
+    });
+
   //simplest example ever.
   //$.plot($("#placeholder"), [ [[0, 0], [1, 1]] ], { yaxis: { max: 1 } });
   var myobject = {{ json|safe }};

@@ -1,7 +1,6 @@
 # pylint: disable=E1002
 import logging
 from datetime import datetime
-from time import mktime
 import sys
 from mongoengine import CASCADE
 from copy import deepcopy
@@ -11,7 +10,7 @@ from json import dumps
 # from StringIO import StringIO
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
-from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler
+from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, datetime_to_js
 from DmpWorkflow.utils.tools import parseJobXmlToDict, convertHHMMtoSec, sortTimeStampList
 
 if not cfg.getboolean("site", "traceback"): sys.excepthook = exceptionHandler
@@ -238,6 +237,14 @@ class JobInstance(db.Document):
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)", required=False, default=-1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)", required=False, default=-1.)
     
+    def getTimeStampCreatedAt(self,timeAsJS=True):
+        if timeAsJS: return datetime_to_js(self.created_at)
+        else: return self.created_at
+
+    def getTimeStampLastUpdate(self,timeAsJS=True):
+        if timeAsJS: return datetime_to_js(self.last_update)
+        else: return self.last_update
+            
     def getTimeSeries(self,key,timeAsJS=True):
         """ convenience function, returns two arrays,     
             one containing the x-axis, one the y-axis,
@@ -257,7 +264,7 @@ class JobInstance(db.Document):
             if not isinstance(item['value'],list):
                 ts = item['time']
                 if timeAsJS:
-                    ts = int(mktime(ts.timetuple())) * 1000.
+                    ts = datetime_to_js(ts)
                 x_array.append(ts)
                 y_array.append(item['value'])
         return [x_array, y_array]
