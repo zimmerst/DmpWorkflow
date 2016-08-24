@@ -1,11 +1,66 @@
 {% extends "base.html" %}
 {% block page_header %}
-  <div class="page-header">
-  </div>
+<div class="page-header">
+</div>
 {% endblock %}
 
 {% block content %}
-  <h1>{{ jobInstance.id }}</h1> 
+<div class="container">
+  <h3>Instance Details (Instance# {{ instance.instanceId }})</h3>
+  <div class "jumbotron">
+    <p>Job Title: <a href="{{ url_for('jobs.detail', slug=instance.job.slug) }}">{{ instance.job.title }}</a></p>
+    <p>Job Type : {{ instance.job.type }}</p>
+    <p>Job Site : {{ instance.job.execution_site }}</p>
+  </div>
+  <div class="row">
+    <div class="col-sm-6">
+      <h4>Run Information</h4>
+      <p><strong>Major Status: </strong>{{ instance.status }}</p>
+      <p><strong>Minor Status: </strong>{{ instance.minor_status }}</p>
+      <p><strong>Execution Host: </strong>{{ instance.hostname }}</p>
+      <p><strong>Last Update: </strong>{{ instance.last_update }}</p>
+      <p><strong>Current Memory: </strong>{{ instance.getMemory()|round }} (maximum allowed={{ instance.mem_max }})</p>
+      <p><strong>Current CPU time: </strong>{{ instance.getCpuTime()|round }} (maximum allowed={{ instance.cpu_max }})</p>
+    </div>
+    <div class="col-sm-6">
+      <h4>Meta Data</h4>
+      {% set md = instance.getMetaDataVariables(includeJob=True) %}
+      {% for var in md %}
+      <p>{{ var }} : {{md[var]}}</p>
+      {% endfor %}
+      <h4>Input Files</h4>
+      {% set files = instance.getInputFiles(includeJob=True) %}
+      {% for f in files %}
+      <p>{{f}}</p>
+      {% endfor %}
+      <h4>Output Files</h4>
+      {% set files = instance.getOutputFiles(includeJob=True) %}
+      {% for f in files %}
+      <p>{{f}}</p>
+      {% endfor %}
+    </div>
+  </div>
+  <div>
+    <h3>Status History</h3>
+    {% set history = instance.status_history %}
+    <table class="table">
+      <thead>
+        <th>Date</th>
+        <th>Major Status</th>
+        <th>Minor Status</th>
+      </thead>
+      {% for stat in history %}
+      <tr>
+        <td>{{ stat['update'] }}</td>
+        <td>{{ stat['status'] }}</td>
+        <td>{{ stat['minor_status'] }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {# adding button to roll back #}
+</div>
+
 
 {% endblock %}
-
+  

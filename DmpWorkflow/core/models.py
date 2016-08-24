@@ -320,7 +320,7 @@ class JobInstance(db.Document):
 
     def getCpuTime(self, unit='sec'):
         if self.status not in FINAL_STATII:
-            log.warning("job not find in final status, CPU time may not be accurate")
+            log.debug("job not find in final status, CPU time may not be accurate")
         total_sec = self.cpu[-1]['value']
         if unit == "min":
             return float(total_sec) / 60.
@@ -340,7 +340,7 @@ class JobInstance(db.Document):
     def getMemory(self, method='average'):
         """ get memory of job in Mb """
         if self.status not in FINAL_STATII:
-            log.warning("job not find in final status, result may not be accurate")
+            log.debug("job not find in final status, result may not be accurate")
         assert method in ['average', 'min', 'max'], "method not supported"
         all_memory = [float(v["value"]) for v in self.memory]
         if method == 'min':
