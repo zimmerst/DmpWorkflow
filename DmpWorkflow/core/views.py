@@ -23,20 +23,19 @@ class ListView(MethodView):
         return render_template('jobs/list.html', jobs=jobs)
 
 class InstanceView(MethodView):
-    def get(self, slug=None):
+    def get(self, slug=None, instanceId = -1):
         logger.info("InstanceView: request %s",str(request))
-        instId = 
         if slug is None:
             raise Exception("must be called with slug")
         job = Job.objects.get_or_404(slug=slug)
-        inst= int(request.form.get("instanceId",-1))
-        if inst == -1:
+        if instanceId == -1:
             raise Exception("must be called with instanceId")
-        query = JobInstance.objects.filter(job=job,instanceId=inst)
-        if not query.count():
+        try:
+            instance = JobInstance.objects.get(job=job,instanceId=instanceId)
+        except JobInstance.DoesNotExist:
             jobs = Job.objects.all()
             return render_template('jobs/list.html', jobs=jobs)
-        return render_template('jobs/instanceDetail.html', instance=query.first())
+        return render_template('jobs/instanceDetail.html', instance=instance)
 
 class StatsView(MethodView):
     def get(self):
