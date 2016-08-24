@@ -6,68 +6,71 @@
 
 {% block content %}
 <div class="container">
-  <h3>Instance Details (Instance# {{ instance.instanceId }})</h3>
-  <div class "jumbotron">
-    <p>Job Title: <a href="{{ url_for('jobs.detail', slug=instance.job.slug) }}">{{ instance.job.title }}</a></p>
-    <p>Job Type : {{ instance.job.type }}</p>
-    <p>Job Site : {{ instance.job.execution_site }}</p>
-  </div>
-  <div class="row">
-    <div class="col-sm-6">
-      <h4>Run Information</h4>
-      <p><strong>Major Status: </strong>{{ instance.status }}</p>
-      <p><strong>Minor Status: </strong>{{ instance.minor_status }}</p>
-      <p><strong>Execution Host: </strong>{{ instance.hostname }}</p>
-      <p><strong>Last Update: </strong>{{ instance.last_update }}</p>
-      <p><strong>Current Memory: </strong>{{ instance.getMemory()|round }} (maximum allowed={{ instance.mem_max }})</p>
-      <p><strong>Current CPU time: </strong>{{ instance.getCpuTime()|round }} (maximum allowed={{ instance.cpu_max }})</p>
-    </div>
-    <div class="col-sm-6">
-      <h4>Meta Data</h4>
-      {% set md = instance.getMetaDataVariables(includeJob=True) %}
-      {% for var in md %}
-      <p>{{ var }} : {{md[var]}}</p>
-      {% endfor %}
-      <h4>Input Files</h4>
-      {% set files = instance.getInputFiles(includeJob=True) %}
-      {% for f in files %}
-      <p>{{f}}</p>
-      {% endfor %}
-      <h4>Output Files</h4>
-      {% set files = instance.getOutputFiles(includeJob=True) %}
-      {% for f in files %}
-      <p>{{f}}</p>
-      {% endfor %}
-    </div>
-  </div>
-  <div>
-    <h3>Status History</h3>
-    {% set history = instance.status_history %}
-    <table class="table">
-      <thead>
-        <th>Date</th>
-        <th>Major Status</th>
-        <th>Minor Status</th>
-      </thead>
-      {% for stat in history %}
-      <tr>
-        <td>{{ stat['update'] }}</td>
-        <td>{{ stat['status'] }}</td>
-        <td>{{ stat['minor_status'] }}</td>
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
-  <div>
-    <h3>CPU / Memory Profile</h3>
-    {% if instance.status != "New" %}
-    <div id="placeholder" style="width:600px;height:300px"></div>
-    {% endif %}
-  </div>
-  {% if instance.status in ("Done","Failed","Terminated") %}
-  <button id="rollback" class="btn btn-primary">Roll back Instance</button>
-  {% endif %}
-  
+<h3>Instance Details (Instance# {{ instance.instanceId }})</h3>
+	<div class="row">
+		<div class "col-sm-6">
+			<p>Job Title: <a href="{{ url_for('jobs.detail', slug=instance.job.slug) }}">{{ instance.job.title }}</a></p>
+			<p>Job Type : {{ instance.job.type }}</p>
+			<p>Job Site : {{ instance.job.execution_site }}</p>
+		</div>
+		<div class="col-sm-6">
+			<h3>CPU / Memory Profile</h3>
+			{% if instance.status != "New" %}
+			<div id="placeholder" style="width:600px;height:300px"></div>
+			{% endif %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-6">
+			<h4>Run Information</h4>
+			<p><strong>Major Status: </strong>{{ instance.status }}</p>
+			<p><strong>Minor Status: </strong>{{ instance.minor_status }}</p>
+			<p><strong>Execution Host: </strong>{{ instance.hostname }}</p>
+			<p><strong>Last Update: </strong>{{ instance.last_update }}</p>
+			<p><strong>Current Memory: </strong>{{ instance.getMemory()|round }} (maximum allowed={{ instance.mem_max }})</p>
+			<p><strong>Current CPU time: </strong>{{ instance.getCpuTime()|round }} (maximum allowed={{ instance.cpu_max }})</p>
+		</div>
+	    <div class="col-sm-6">
+			<h4>Meta Data</h4>
+			{% set md = instance.getMetaDataVariables(includeJob=True) %}
+			{% for var in md %}
+			<p>{{ var }} : {{md[var]}}</p>
+			{% endfor %}
+			<h4>Input Files</h4>
+			{% set files = instance.getInputFiles(includeJob=True) %}
+			{% for f in files %}
+			<p>{{f}}</p>
+			{% endfor %}
+			<h4>Output Files</h4>
+			{% set files = instance.getOutputFiles(includeJob=True) %}
+			{% for f in files %}
+			<p>{{f}}</p>
+			{% endfor %}
+	    </div>
+	</div>
+<div>
+	<h3>Status History</h3>
+	{% set history = instance.status_history %}
+	<table class="table">
+		<thead>
+			<th>Date</th>
+			<th>Major Status</th>
+			<th>Minor Status</th>
+      	</thead>
+    	{% for stat in history %}
+		<tr>
+	        <td>{{ stat['update'] }}</td>
+	        <td>{{ stat['status'] }}</td>
+	        <td>{{ stat['minor_status'] }}</td>
+		</tr>
+      	{% endfor %}
+	</table>
+</div>
+<div>
+	{% if instance.status in ("Done","Failed","Terminated") %}
+	<h3>Instance Management</h3>
+	<button id="rollback" class="btn btn-primary">Roll back Instance</button>
+	{% endif %}  
 </div>
 {% endblock %}
 {% block js_footer %}
@@ -81,15 +84,20 @@
   var tmin = {{ instance.getTimeStampCreatedAt() }};
   var tmax = {{ instance.getTimeStampLastUpdate() }};
   var history_time  = {{ instance.getStatusHistoryTimeStamps() }};
-  var history_labels= {{ instance.getStatusHistoryStats|safe }}; // this will be a json object
-  var hist_labels = JSON.stringify(history_labels);
+  var history_labels= {{ instance.getStatusHistoryStats()|safe }}; // this will be a json object
   var data1 = [
     {label: "Memory Usage",  data: mem, points: { symbol: "diamond", fillColor: "#AA4643" }, color: '#AA4643'},
     {label: "CPU time",  data: cpu, points: { symbol: "circle", fillColor: "#058DC7" }, color: '#058DC7', yaxis:2}
   ];
-    
+  var tstamps = []
+  for (var i=0; i<history_time.length; i++)
+   {
+   tstamps.push(
+   	{ color: '#000', lineWidth: 1, xaxis: { from: history_time[i], to: history_time[i] } } );
+   };
+  // adding a padding of 5 minutes each.
   var options ={
-      xaxis:  { min: tmin, max: tmax, mode: "time", //tickSize: [1, "minute"],
+      xaxis:  { min: tmin-3e5, max: tmax+3e5, mode: "time",
                 tickLength: 0, axisLabel: 'Time (UTC)', axisLabelUseCanvas: true,
                 axisLabelFontSizePixels: 12, axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
                 axisLabelPadding: 5 },
@@ -97,7 +105,7 @@
                 axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif', axisLabelPadding: 5 },
                { position: 0, axisLabel: 'CPU time (s)', position: 'right', alignTicksWithAxis: true}],
       series: { lines: { show: true }, points: {radius: 3, show: true, fill: true }, },
-      grid:   { hoverable: true, borderWidth: 1 },
+      grid:   { hoverable: true, borderWidth: 1, markings:tstamps},
       legend: { labelBoxBorderColor: "none", position: "nw" }
   };
     
