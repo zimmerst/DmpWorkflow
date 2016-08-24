@@ -22,6 +22,22 @@ class ListView(MethodView):
         jobs = Job.objects.all()
         return render_template('jobs/list.html', jobs=jobs)
 
+class InstanceView(MethodView):
+    def get(self, slug=None):
+        logger.info("InstanceView: request %s",str(request))
+        instId = 
+        if slug is None:
+            raise Exception("must be called with slug")
+        job = Job.objects.get_or_404(slug=slug)
+        inst= int(request.form.get("instanceId",-1))
+        if inst == -1:
+            raise Exception("must be called with instanceId")
+        query = JobInstance.objects.filter(job=job,instanceId=inst)
+        if not query.count():
+            jobs = Job.objects.all()
+            return render_template('jobs/list.html', jobs=jobs)
+        return render_template('jobs/instanceDetail.html', instance=query.first())
+
 class StatsView(MethodView):
     def get(self):
         logger.debug("request %s", str(request))
@@ -32,6 +48,7 @@ class StatsView(MethodView):
             deltaT = (now - last_life).seconds
             h.deltat = deltaT
         return render_template('stats/siteSummary.html', heartbeats=heartbeats)
+
 
 class DetailView(MethodView):
     form = model_form(JobInstance, exclude=['created_at', 'status_history', 'memory', 'cpu'])
@@ -545,6 +562,7 @@ jobs.add_url_rule('/', view_func=ListView.as_view('list'))
 jobs.add_url_rule('/stats', view_func=StatsView.as_view('stats'), methods=["GET"])
 jobs.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
 jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "POST"])
+jobs.add_url_rule('/jobInstances/detail', view_func=InstanceView.as_view('instanceDetail'))
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET", "POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
