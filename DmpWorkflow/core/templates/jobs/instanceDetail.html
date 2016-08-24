@@ -70,7 +70,7 @@
   $("#rollback").on("click", function(){
     $.post({url:"/jobstatus/",
       data: JSON.stringify({args: myobject }),
-      contentType: "application/json"
+      contentType: "application/json",
       success: function(data, textStatus, headers){
        console.log(data);
        data = jQuery.parseJSON(data)

@@ -36,7 +36,8 @@ __myDefaults = {
     "EXEC_DIR_ROOT": "/tmp",
     "ratio_mem": "1.0",
     "ratio_cpu": "1.0",
-    "logfile": "/tmp/flask.log"
+    "logfile": "/tmp/flask.log",
+    "loglevel": "INFO"
 }
 
 cfg = SafeConfigParser(defaults=__myDefaults)
@@ -83,3 +84,4 @@ assert BATCH_DEFAULTS['name'] in cfg.get("JobDB", "batch_sites"), "Batch site %s
 assert BATCH_DEFAULTS['system'] in ["lsf", "sge", "pbs", "condor"], "HPCSystem %s not supported." % BATCH_DEFAULTS["system"]
 
 DAMPE_LOGFILE = cfg.get("global", "logfile")
+DAMPE_LOGLEVEL= cfg.get("global", "loglevel")
