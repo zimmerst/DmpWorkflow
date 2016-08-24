@@ -269,15 +269,7 @@ class JobInstance(db.Document):
                 ds.append(item['value'])
             data.append(ds)
         return data
-    
-    def getStatusHistoryToFlot(self,key='minor_status'):
-        """ returns a tuple which contains the status history as fcn of time """
-        if not key in ['status','minor_status']: raise Exception("not supported")
-        data = []
-        for item in self.status_history:
-            data.append([datetime_to_js(item['update']), dumps(item[key])])
-        return data
-            
+                
     def resetJSON(self,set_var=None):
         """ convenience function: returns a JSON object that can be pushed to POST """
         override_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}

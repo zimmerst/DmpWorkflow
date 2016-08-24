@@ -80,7 +80,6 @@
   var mem =  {{ instance.getTimeSeries("memory") }};
   var tmin = {{ instance.getTimeStampCreatedAt() }};
   var tmax = {{ instance.getTimeStampLastUpdate() }};
-  var hist = {{ instance.getStatusHistoryToFlot("minor_status") }};
   var data1 = [
     {label: "CPU time",  data: cpu, points: { symbol: "circle", fillColor: "#058DC7" }, color: '#058DC7'},
     {label: "Memory Usage",  data: mem, points: { symbol: "diamond", fillColor: "#AA4643" }, color: '#AA4643'},
