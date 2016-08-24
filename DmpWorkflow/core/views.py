@@ -18,9 +18,16 @@ logger = logging.getLogger("core")
 
 class ListView(MethodView):
     def get(self):
-        logger.debug("request %s", str(request))
+        logger.debug("ListView:GET: request %s", str(request))
         jobs = Job.objects.all()
         return render_template('jobs/list.html', jobs=jobs)
+
+class DebugView(MethodView):
+    def get(self):
+        logger.debug("DebugView:GET: request %s", str(request))
+        form = dict(request.form)
+        logger.info("DebugView:GET: content of form %s",str(form))
+        return dumps({"result":"ok","value":dumps(form)})
 
 class InstanceView(MethodView):
     def get(self):
@@ -81,7 +88,7 @@ class DetailView(MethodView):
     def get(self, slug):
         logger.debug("DetailView:GET: request %s", str(request))
         context = self.get_context(slug)
-        logger.debug("DetailView:GET: redering jobs/detail.html")
+        logger.debug("DetailView:GET: rendering jobs/detail.html")
         return render_template('jobs/detail.html', **context)
 
     def post(self, slug):
@@ -209,7 +216,7 @@ class SetJobStatus(MethodView):
     def post(self):
         dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         arguments = loads(request.form.get("args", "{}"))
-        if not arguments:
+        if not len(arguments.keys()):
             arguments = request.json("args")
         logger.debug("SetJobStatus:POST: request arguments %s", str(arguments))
         if not isinstance(arguments, dict):
@@ -511,5 +518,6 @@ jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["G
 #jobs.add_url_rule("/watchdog/", view_func=JobResources.as_view('watchdog'), methods=["GET"])
 jobs.add_url_rule("/testDB/", view_func=TestView.as_view('testDB'), methods=["GET", "POST"])
 jobs.add_url_rule("/datacat/", view_func=DataCatalog.as_view('datacat'), methods=["GET", "POST"])
+jobs.add_url_rule("/debug/", view_func=DebugView.as_view('debug'), methods=["GET", "POST"])
 
 # jobs.add_url_rule('/InstanceDetail', view_func=InstanceView.as_view('instancedetail'), methods=['GET'])
