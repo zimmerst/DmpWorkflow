@@ -73,7 +73,7 @@
 {% block js_footer %}
 {% set json = instance.resetJSON() %}
 {% set cpu = instance.getTimeSeries("cpu") %}
-{% set mem = instance.getTimeSeries("mem") %}
+{% set mem = instance.getTimeSeries("memory") %}
 <script language="JavaScript">
   "use strict";
   // here we write proper JS code
