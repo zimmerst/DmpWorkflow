@@ -216,8 +216,15 @@ class SetJobStatus(MethodView):
     def post(self):
         dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         arguments = loads(request.form.get("args", "{}"))
+        logger.debug("SetJobStatus:POST: arguments %s,",str(arguments))
         if not len(arguments.keys()):
-            arguments = request.json("args")
+            logger.debug("SetJobStatus:POST: request appears empty, checking args")
+            try:
+                logger.debug("SetJobStatus:POST: request.json %s",request.json)
+                arguments = request.json.get("args",{})
+            except Exception as err:
+                logger.exception(err)
+                return dumps({"result":"nok","error":"CRITICAL error reading arguments"})
         logger.debug("SetJobStatus:POST: request arguments %s", str(arguments))
         if not isinstance(arguments, dict):
             logger.exception("SetJobStatus:POST: arguments MUST be dictionary.")
@@ -225,7 +232,7 @@ class SetJobStatus(MethodView):
             logger.exception("SetJobStatus:POST: couldn't find major_status in arguments")
         t_id = arguments.get("t_id", "None")
         bId = arguments.get("batchId", None)
-        logger.debug("SetJobStatus:POST: batchId passed to DB %s", bId)
+        logger.debug("SetJobStatus:POST: batchId passed to DB %s", bId)        
         try:
             if bId is not None:
                 res = findall(r"\d+", str(bId))
