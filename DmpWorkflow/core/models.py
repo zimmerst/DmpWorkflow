@@ -244,7 +244,7 @@ class JobInstance(db.Document):
             userful for plotting with flot
             by default, timeStamps are converted to JavaTimeStampFormat.
         """
-        def __getSeries__(self,key):
+        def __getSeries__(key):
             """ just a neat little helper """
             if key == 'cpu': return self.cpu
             else: return self.memory
@@ -252,7 +252,7 @@ class JobInstance(db.Document):
         if not key in ["cpu","memory"]: raise Exception("must be cpu or memory")
         x_array = []
         y_array = []
-        for item in self.__getSeries__(key):
+        for item in __getSeries__(key):
             # ignore empty entries
             if not isinstance(item['value'],list):
                 ts = item['time']
