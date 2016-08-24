@@ -49,7 +49,34 @@ class InstanceView(MethodView):
             jobs = Job.objects.all()
             return render_template('jobs/list.html', jobs=jobs)
         return render_template('jobs/instanceDetail.html', instance=instance)
+    
+    def post(self):
+        job = None
+        slug  = request.args.get("slug",None)
+        if slug is None:
+            msg = "must be called with slug"
+            logger.error(msg)
+            raise Exception(msg)
+        try:
+            job = Job.objects.get(slug=slug)
+        except Job.DoesNotExist():
+            msg = "job cannot be found %s"%slug
+            logger.error(msg)
+            raise Exception(msg)
+        instId= int(request.args.get("instanceId",-1))
+        action= request.args.get("action","none")
+        if action != "rollback":
+            return
+        # assume it's rollback from here on.
+        override_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
+        my_dict = {"t_id": job.id, "inst_id": instId,
+                   "major_status": "New", "minor_status": "AwaitingBatchSubmission", "hostname": None,
+                   "batchId": None, "status_history": [], "body": str(override_dict),
+                   "log": "", "cpu": [], "memory": [], "created_at": "Now"}
+        logger.info("submitting my_dict %s",my_dict)
+        return redirect(url_for('jobs.detail', slug=slug))
 
+        
 class StatsView(MethodView):
     def get(self):
         logger.debug("request %s", str(request))
