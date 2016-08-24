@@ -68,14 +68,15 @@
   var myobject = {{ json|safe }};
   console.log(myobject);
   $("#rollback").on("click", function(){
-    $.post("/jobstatus/",
-      {args: myobject },
-      function(data, textStatus, headers){
+    $.post({url:"/jobstatus/",
+      data: JSON.stringify({args: myobject }),
+      contentType: "application/json"
+      success: function(data, textStatus, headers){
        console.log(data);
        data = jQuery.parseJSON(data)
        if (data["result"]=="ok") {alert("rollback successful")} else {alert(data["error"])};
       }
-    );
+    });
   });
 </script>
 {% endblock %}
