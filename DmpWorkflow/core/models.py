@@ -404,7 +404,7 @@ class JobInstance(db.Document):
         if self.status not in FINAL_STATII:
             log.debug("job not find in final status, result may not be accurate")
         assert method in ['average', 'min', 'max'], "method not supported"
-        all_memory = [float(v["value"]) for v in self.memory]
+        all_memory = [float(v["value"]) for v in self.memory if not isinstance(v["value"],list)]
         if method == 'min':
             return min(all_memory)
         elif method == 'max':
