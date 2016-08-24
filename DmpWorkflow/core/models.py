@@ -317,6 +317,7 @@ class JobInstance(db.Document):
         return
 
     def getWallTime(self, unit='s'):
+        if self.status == "New": return 0.
         if self.status not in FINAL_STATII:
             log.warning("job not find in final status, CPU time may not be accurate")
         dt1 = self.status_history[0]['update']
@@ -332,6 +333,7 @@ class JobInstance(db.Document):
             return total_sec
 
     def getCpuTime(self, unit='s'):
+        if self.status == "New": return 0.
         if self.status not in FINAL_STATII:
             log.debug("job not find in final status, CPU time may not be accurate")
         total_sec = self.cpu[-1]['value']
@@ -352,6 +354,7 @@ class JobInstance(db.Document):
 
     def getMemory(self, method='average'):
         """ get memory of job in Mb """
+        if self.status == "New": return 0.
         if self.status not in FINAL_STATII:
             log.debug("job not find in final status, result may not be accurate")
         assert method in ['average', 'min', 'max'], "method not supported"
