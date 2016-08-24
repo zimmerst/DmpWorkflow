@@ -228,7 +228,7 @@ class SetJobStatus(MethodView):
         inst_id = arguments.get("inst_id", "None")
         bdy = literal_eval(arguments.get("body", str(dummy_dict)))
         major_status = arguments.get("major_status", None)
-        if major_status == None:
+        if major_status is None:
             logger.exception("SetJobStatus:POST: cannot find major status")
             return dumps({"result": "nok", "error": "CRITICAL: major_status is missing"})
         minor_status = arguments.get("minor_status", None)

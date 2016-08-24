@@ -68,7 +68,7 @@
   var myobject = {{ json|safe }};
   console.log(myobject);
   $("#rollback").on("click", function(){
-    $.post("/jobstatus",
+    $.post("/jobstatus/",
       {args: myobject },
       function(data, textStatus, headers){
        console.log(data);
