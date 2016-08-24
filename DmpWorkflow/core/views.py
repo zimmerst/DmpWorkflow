@@ -2,7 +2,6 @@ import logging
 from copy import deepcopy
 from os.path import basename
 from json import loads, dumps
-from DmpWorkflow.utils.tools import dumpr
 from flask import Blueprint, request, redirect, render_template, url_for
 from flask.ext.mongoengine.wtf import model_form
 from datetime import datetime
@@ -104,7 +103,7 @@ class DetailView(MethodView):
 
 class JobView(MethodView):
     def get(self):
-        dumpr({"result":"ok","error":"Nothing to display"})
+        dumps({"result":"ok","error":"Nothing to display"})
 
     def post(self):
         try:
@@ -150,16 +149,16 @@ class JobView(MethodView):
                     else:
                         logger.warning("JobView:GET: could not find job dependency %s for job %s", d, job.slug)
             job.save()
-            return dumpr({"result": "ok", "jobID": str(job.id)})
+            return dumps({"result": "ok", "jobID": str(job.id)})
         except Exception as err:
             logger.error("request dict: %s", str(request.form))
             logger.exception("JobView:GET: %s",err)
-            return dumpr({"result": "nok", "jobID": "None", "error": str(err)})
+            return dumps({"result": "nok", "jobID": "None", "error": str(err)})
 
 
 class JobInstanceView(MethodView):
     def get(self):
-        dumpr({"result":"ok","error":"Nothing yet"})
+        dumps({"result":"ok","error":"Nothing yet"})
 
     def post(self):
         logger.debug("JobInstanceView:POST: request %s", str(request))
@@ -170,7 +169,7 @@ class JobInstanceView(MethodView):
         ninst = int(request.form.get("n_instances", "0"))
         override_dict = literal_eval(request.form.get("override_dict", str(dummy_dict)))
         if taskName is None and tasktype is None:
-            return dumpr({"result": "nok", "error": "query got empty taskname & type"})
+            return dumps({"result": "nok", "error": "query got empty taskname & type"})
         jobs = Job.objects.filter(title=taskName, type=tasktype)
         if jobs.count():
             logger.debug("Found job")
@@ -180,7 +179,7 @@ class JobInstanceView(MethodView):
                 dout = job.getBody()
             except Exception as err:
                 logger.error("JobInstanceView:POST: %s",err)
-                return dumpr({"result": "nok", "error": err})
+                return dumps({"result": "nok", "error": err})
             if 'type' in dout['atts']:
                 job.type = unicode(dout['atts']['type'])
             if 'release' in dout['atts']:
@@ -197,14 +196,14 @@ class JobInstanceView(MethodView):
                         job.addInstance(jI)
                     except Exception as err:
                         logger.error("JobInstanceView:POST: %s",err)
-                        return dumpr({"result": "nok", "error": str(err)})
+                        return dumps({"result": "nok", "error": str(err)})
                     logger.debug("JobInstanceView:POST: added instance %i to job %s", (j + 1), job.id)
             # print len(job.jobInstances)
             job.save()
-            return dumpr({"result": "ok"})
+            return dumps({"result": "ok"})
         else:
             logger.error("JobInstanceView:POST: Cannot find job")
-            return dumpr({"result": "nok", "error": 'Could not find job %s' % taskName})
+            return dumps({"result": "nok", "error": 'Could not find job %s' % taskName})
 
 class SetJobStatus(MethodView):
     def post(self):
@@ -224,7 +223,7 @@ class SetJobStatus(MethodView):
                 if len(res):
                     bId = int(res[0])
         except Exception as err:
-            return dumpr({"result": "nok", "error": "Error parsing batchId, message below \n%s" % str(err)})
+            return dumps({"result": "nok", "error": "Error parsing batchId, message below \n%s" % str(err)})
         site = str(arguments.get("site", "None"))
         inst_id = arguments.get("inst_id", "None")
         bdy = literal_eval(arguments.get("body", str(dummy_dict)))
@@ -267,8 +266,8 @@ class SetJobStatus(MethodView):
                     # update_status(t_id,inst_id,major_status, **arguments)
         except Exception as err:
             logger.exception("SetJobStatus:POST: %s",err)
-            return dumpr({"result": "nok", "error": str(err)})
-        return dumpr({"result": "ok"})
+            return dumps({"result": "nok", "error": str(err)})
+        return dumps({"result": "ok"})
 
     def get(self):
         logger.debug("SetJobStatus:GET: request %s", str(request))
@@ -314,13 +313,13 @@ class SetJobStatus(MethodView):
                 queried_instances = [{"instanceId": q.instanceId, "jobId": str(q.job.id)} for q in queried_instances]
             except Exception as err:
                 logger.error("SetJobStatus:GET: ",err)
-                return dumpr({"result": "nok", "error": "error occurred when forming final output"})
+                return dumps({"result": "nok", "error": "error occurred when forming final output"})
             if len(queried_instances):
                 logger.debug("SetJobStatus:GET: example query instance %s", queried_instances[-1])
         else:
             logger.exception("SetJobStatus:GET: could not find job")
-            return dumpr({"result": "nok", "error": "could not find job"})
-        return dumpr({"result": "ok", "jobs": queried_instances})
+            return dumps({"result": "nok", "error": "could not find job"})
+        return dumps({"result": "ok", "jobs": queried_instances})
 
 
 class NewJobs(MethodView):
@@ -361,7 +360,7 @@ class NewJobs(MethodView):
                     else:
                         logger.info("NewJobs:GET: dependencies not fulfilled yet")
                 logger.debug("NewJobs:GET: found %i new jobs after dependencies", len(newJobInstances))
-        return dumpr({"result": "ok", "jobs": newJobInstances})
+        return dumps({"result": "ok", "jobs": newJobInstances})
 
 class TestView(MethodView):
     def post(self):
@@ -372,7 +371,7 @@ class TestView(MethodView):
         logger.debug("TestView:POST: hostname: %s timestamp: %s ", hostname, timestamp)
         if (hostname == "None") or (timestamp == "None"):
             logger.debug("TestView:POST: request empty")
-            return dumpr({"result": "nok", "error": "request empty"})
+            return dumps({"result": "nok", "error": "request empty"})
         try:
             if hostname == "None" and proc != "default":
                 q = HeartBeat.objects.filter(process=proc)
@@ -396,8 +395,8 @@ class TestView(MethodView):
                     HB.save()
         except Exception as ex:
             logger.error("TestView:POST: failure during HeartBeat POST test. \n%s", ex)
-            return dumpr({"result": "nok", "error": ex})
-        return dumpr({"result": "ok"})
+            return dumps({"result": "nok", "error": ex})
+        return dumps({"result": "ok"})
 
     def get(self):
         limit = int(request.form.get("limit", 1000))
@@ -407,8 +406,8 @@ class TestView(MethodView):
             logger.debug("TestView:POST: found %i heartbeats", beats.count())
         except Exception as ex:
             logger.error("TestView:GET: failure during HeartBeat GET test. \n%s", ex)
-            return dumpr({"result": "nok", "error": ex})
-        return dumpr({"result": "ok", "beats": [b.hostname for b in beats]})
+            return dumps({"result": "nok", "error": ex})
+        return dumps({"result": "ok", "beats": [b.hostname for b in beats]})
 
 
 class DataCatalog(MethodView):
@@ -422,7 +421,7 @@ class DataCatalog(MethodView):
             if force:
                 for f in query: f.delete()
             else:
-                return dumpr({"result": "nok", "error": "called register but file apparently exists already"})
+                return dumps({"result": "nok", "error": "called register but file apparently exists already"})
         else:
             df = DataFile(filename=filename, site=site, status="New", filetype=filetype)
             df.save()
@@ -430,7 +429,7 @@ class DataCatalog(MethodView):
 
     def __update_or_remove__(self, df, status=None, action="setStatus"):
         if status is None:
-            return dumpr({"result": "nok", "error": "status is None"})
+            return dumps({"result": "nok", "error": "status is None"})
         if action == 'setStatus':
             df.setStatus(status)
             df.update()
@@ -450,10 +449,10 @@ class DataCatalog(MethodView):
         logger.debug("DataCatalog:POST: filename %s status %s", filename, status)
         if action not in ['register', 'setStatus', 'delete']:
             logger.error("DataCatalog:POST: action not supported")
-            return dumpr({"result": "nok", "error": "action not supported"})
+            return dumps({"result": "nok", "error": "action not supported"})
         if site == "None" and filename == "None":
             logger.error("DataCatalog:POST: request empty")
-            return dumpr({"result": "nok", "error": "request empty"})
+            return dumps({"result": "nok", "error": "request empty"})
         try:
             df = None
             files = [filename]
@@ -474,12 +473,12 @@ class DataCatalog(MethodView):
                         if res is not None: return res
                     else:
                         logger.debug("DataCatalog:POST: cannot find queried input file")
-                        return dumpr({"result": "nok", "error": "cannot find file in DB"})
+                        return dumps({"result": "nok", "error": "cannot find file in DB"})
                 if df is not None: touched_files.append(df)
         except Exception as ex:
             logger.error("DataCatalog:POST: %s", ex)
-            return dumpr({"result": "nok", "error": str(ex)})
-        return dumpr({"result": "ok",
+            return dumps({"result": "nok", "error": str(ex)})
+        return dumps({"result": "ok",
                       "docId": [d.filename if action == 'delete' else str(d.id) for d in touched_files]})
 
     def get(self):
@@ -492,8 +491,8 @@ class DataCatalog(MethodView):
             logger.debug("DataCatalog:GET: found %i files matching query", dfs.count())
         except Exception as ex:
             logger.error("DataCatalog:GET: %s", ex)
-            return dumpr({"result": "nok", "error": str(ex)})
-        return dumpr({"result": "ok", "files": [f.filename for f in dfs]})
+            return dumps({"result": "nok", "error": str(ex)})
+        return dumps({"result": "ok", "files": [f.filename for f in dfs]})
 
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
