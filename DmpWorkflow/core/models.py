@@ -272,15 +272,16 @@ class JobInstance(db.Document):
     
     def getStatusHistoryTimeStamps(self,key='minor_status', timeAsJS=True):
         """ returns the list of status history items with js time stamps, and another array with strings """
-        if not key in ['minor_status','status']: raise NotImplementedError("must be status or minor_status")
         ts = []
-        dat= []
         for item in self.status_history:
             tstamp = item['update']
             if timeAsJS: tstamp = datetime_to_js(tstamp)
             ts.append(tstamp)
-            dat.append(str(item[key]))
-        return dumps(ts, dat)
+        return ts
+    
+    def getStatusHistoryStats(self,key='minor_status'):
+        if not key in ['minor_status','status']: raise NotImplementedError("must be status or minor_status")
+        return dumps([item[key] for item in self.status_history])
     
     def resetJSON(self,set_var=None):
         """ convenience function: returns a JSON object that can be pushed to POST """
