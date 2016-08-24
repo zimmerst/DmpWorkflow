@@ -331,7 +331,7 @@ class SetJobStatus(MethodView):
             try:
                 queried_instances = [{"instanceId": q.instanceId, "jobId": str(q.job.id)} for q in queried_instances]
             except Exception as err:
-                logger.error("SetJobStatus:GET: ",err)
+                logger.error("SetJobStatus:GET: %s",err)
                 return dumps({"result": "nok", "error": "error occurred when forming final output"})
             if len(queried_instances):
                 logger.debug("SetJobStatus:GET: example query instance %s", queried_instances[-1])

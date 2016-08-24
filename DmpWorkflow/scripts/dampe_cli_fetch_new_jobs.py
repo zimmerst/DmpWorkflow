@@ -4,8 +4,7 @@ Created on Mar 15, 2016
 @author: zimmer
 """
 import logging
-from requests import get, post as r_post
-from datetime import datetime
+from requests import get
 from sys import exit as sys_exit
 from argparse import ArgumentParser
 from DmpWorkflow.core.DmpJob import DmpJob

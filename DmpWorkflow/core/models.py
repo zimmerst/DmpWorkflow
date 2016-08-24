@@ -256,7 +256,7 @@ class JobInstance(db.Document):
             if key == 'cpu': return self.cpu
             else: return self.memory
         
-        if not key in ["cpu","memory"]: raise Exception("must be cpu or memory")
+        if key not in ["cpu","memory"]: raise Exception("must be cpu or memory")
         data = []
         for item in __getSeries__(key):
             ds = []
@@ -270,7 +270,7 @@ class JobInstance(db.Document):
             data.append(ds)
         return data
     
-    def getStatusHistoryTimeStamps(self,key='minor_status', timeAsJS=True):
+    def getStatusHistoryTimeStamps(self, timeAsJS=True):
         """ returns the list of status history items with js time stamps, and another array with strings """
         ts = []
         for item in self.status_history:
@@ -280,7 +280,7 @@ class JobInstance(db.Document):
         return ts
     
     def getStatusHistoryStats(self,key='minor_status'):
-        if not key in ['minor_status','status']: raise NotImplementedError("must be status or minor_status")
+        if key not in ['minor_status','status']: raise NotImplementedError("must be status or minor_status")
         return dumps([item[key] for item in self.status_history])
     
     def resetJSON(self,set_var=None):
