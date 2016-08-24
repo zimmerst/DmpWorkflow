@@ -61,18 +61,21 @@
   <button id="rollback" class="btn btn-primary">Roll back Instance</button>
 </div>
 {% endblock %}
-{% set json = instance.resetJSON() %}
 {% block js_footer %}
+{% set json = instance.resetJSON() %}
 <script language="JavaScript">
   "use strict";
+  var myobject = {{ json|safe }};
+  console.log(myobject);
   $("#rollback").on("click", function(){
-    $.post("/jobstatus", 
-      {args: {{ json }} }, 
+    $.post("/jobstatus",
+      {args: myobject },
       function(data, textStatus, headers){
-        alert("method call successful");
-        // it would be nice to check the actual data (like a status code or something)
+       console.log(data);
+       data = jQuery.parseJSON(data)
+       if (data["result"]=="ok") {alert("rollback successful")} else {alert(data["error"])};
       }
     );
   });
 </script>
-{% endblock %}  
+{% endblock %}

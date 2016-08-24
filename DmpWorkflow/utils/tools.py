@@ -22,9 +22,15 @@ try:
     from xml.dom import minidom as xdom
     from hashlib import md5
     from psutil import AccessDenied, Process as psutil_proc
+    from flask import Response
+    from json import dumps
 except ImportError as Error:
     print "could not find one or more packages, check prerequisites."
     print Error
+
+def dumpr(json_str):
+    """ convenience function to return a flask-Response object """
+    return Response(dumps(json_str),mimetype = 'application/json')
 
 def send_heartbeat(proc):
     from requests import post as r_post

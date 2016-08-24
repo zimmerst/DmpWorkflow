@@ -316,7 +316,7 @@ class JobInstance(db.Document):
             self.set(v, res[k])
         return
 
-    def getWallTime(self, unit='sec'):
+    def getWallTime(self, unit='s'):
         if self.status not in FINAL_STATII:
             log.warning("job not find in final status, CPU time may not be accurate")
         dt1 = self.status_history[0]['update']
@@ -331,7 +331,7 @@ class JobInstance(db.Document):
                 log.warning("unsupported unit, returning seconds")
             return total_sec
 
-    def getCpuTime(self, unit='sec'):
+    def getCpuTime(self, unit='s'):
         if self.status not in FINAL_STATII:
             log.debug("job not find in final status, CPU time may not be accurate")
         total_sec = self.cpu[-1]['value']
