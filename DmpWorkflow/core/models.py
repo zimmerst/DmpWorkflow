@@ -275,7 +275,7 @@ class JobInstance(db.Document):
         if not key in ['status','minor_status']: raise Exception("not supported")
         data = []
         for item in self.status_history:
-            data.append([datetime_to_js(item['update']), item[key]])
+            data.append([datetime_to_js(item['update']), dumps(item[key])])
         return data
             
     def resetJSON(self,set_var=None):
