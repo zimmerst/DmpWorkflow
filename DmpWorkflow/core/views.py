@@ -209,6 +209,8 @@ class SetJobStatus(MethodView):
     def post(self):
         dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         arguments = loads(request.form.get("args", "{}"))
+        if not arguments:
+            arguments = requests.json("args")
         logger.debug("SetJobStatus:POST: request arguments %s", str(arguments))
         if not isinstance(arguments, dict):
             logger.exception("SetJobStatus:POST: arguments MUST be dictionary.")
