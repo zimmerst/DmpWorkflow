@@ -257,17 +257,18 @@ class JobInstance(db.Document):
             else: return self.memory
         
         if not key in ["cpu","memory"]: raise Exception("must be cpu or memory")
-        x_array = []
-        y_array = []
+        data = []
         for item in __getSeries__(key):
+            ds = []
             # ignore empty entries
             if not isinstance(item['value'],list):
                 ts = item['time']
                 if timeAsJS:
                     ts = datetime_to_js(ts)
-                x_array.append(ts)
-                y_array.append(item['value'])
-        return [x_array, y_array]
+                ds.append(ts)
+                ds.append(item['value'])
+            data.append(ds)
+        return data
         
     def resetJSON(self,set_var=None):
         """ convenience function: returns a JSON object that can be pushed to POST """
