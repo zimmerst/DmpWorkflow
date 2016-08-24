@@ -7,18 +7,10 @@
 {% block content %}
 <div class="container">
 <h3>Instance Details (Instance# {{ instance.instanceId }})</h3>
-	<div class="row">
-		<div class "col-sm-6">
-			<p>Job Title: <a href="{{ url_for('jobs.detail', slug=instance.job.slug) }}">{{ instance.job.title }}</a></p>
-			<p>Job Type : {{ instance.job.type }}</p>
-			<p>Job Site : {{ instance.job.execution_site }}</p>
-		</div>
-		<div class="col-sm-6">
-			<h3>CPU / Memory Profile</h3>
-			{% if instance.status != "New" %}
-			<div id="placeholder" style="width:600px;height:300px"></div>
-			{% endif %}
-		</div>
+	<div class="jumbotron">
+		<p>Job Title: <a href="{{ url_for('jobs.detail', slug=instance.job.slug) }}">{{ instance.job.title }}</a></p>
+		<p>Job Type : {{ instance.job.type }}</p>
+		<p>Job Site : {{ instance.job.execution_site }}</p>
 	</div>
 	<div class="row">
 		<div class="col-sm-6">
@@ -66,6 +58,12 @@
 		</tr>
       	{% endfor %}
 	</table>
+</div>
+<div>
+	<h3>CPU / Memory Profile</h3>
+	{% if instance.status != "New" %}
+	<div id="placeholder" style="width:600px;height:300px"></div>
+	{% endif %}
 </div>
 <div>
 	{% if instance.status in ("Done","Failed","Terminated") %}
