@@ -223,11 +223,14 @@ class SetJobStatus(MethodView):
                 if len(res):
                     bId = int(res[0])
         except Exception as err:
-            return dumps({"result": "nok", "error": "Error parsing batchId, message below \n%s" % str(err)})
+            return dumps({"result": "nok", "error": "Error parsing batchId, %s" % str(err)})
         site = str(arguments.get("site", "None"))
         inst_id = arguments.get("inst_id", "None")
         bdy = literal_eval(arguments.get("body", str(dummy_dict)))
-        major_status = arguments["major_status"]
+        major_status = arguments.get("major_status", None)
+        if major_status == None:
+            logger.exception("SetJobStatus:POST: cannot find major status")
+            return dumps({"result": "nok", "error": "CRITICAL: major_status is missing"})
         minor_status = arguments.get("minor_status", None)
         logger.debug("SetJobStatus:POST: BODY: %s (type %s)", bdy, type(bdy))
         logger.debug("SetJobStatus:POST: batchId: %s", bId)
