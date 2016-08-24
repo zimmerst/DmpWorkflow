@@ -18,6 +18,7 @@
 			<p><strong>Major Status: </strong>{{ instance.status }}</p>
 			<p><strong>Minor Status: </strong>{{ instance.minor_status }}</p>
 			<p><strong>Execution Host: </strong>{{ instance.hostname }}</p>
+			<p><strong>Local Batch ID: </strong>{{ instance.batchId }}</p>
 			<p><strong>Last Update: </strong>{{ instance.last_update }}</p>
 			<p><strong>Current Memory: </strong>{{ instance.getMemory()|round }} (maximum allowed={{ instance.mem_max }})</p>
 			<p><strong>Current CPU time: </strong>{{ instance.getCpuTime()|round }} (maximum allowed={{ instance.cpu_max }})</p>
