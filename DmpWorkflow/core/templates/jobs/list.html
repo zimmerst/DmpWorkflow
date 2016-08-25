@@ -19,7 +19,11 @@
 		{% set statdict = job.aggregateStatiiFast(asdict=True) %}
 		{% for key in MAJOR_STATII %}
 		{% set value = statdict[key] %}
-		<td><a href={{ url_for('jobs.detail', slug=job.slug, status={{ value }} }}">{{ value }}</a></td>
+		{% if key in MAJOR_STATII %}
+		<td><a href={{ url_for('jobs.detail', slug=job.slug, status=key }}">{{ value }}</a></td>
+		{% else %}
+		<td>{{ value }}</td>
+		{% endif %}
 		{% endfor %}
 		<td>{{job.countInstances()}}</td>
 	</tr>	

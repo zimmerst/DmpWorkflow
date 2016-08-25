@@ -70,50 +70,21 @@ class StatsView(MethodView):
         return render_template('stats/siteSummary.html', heartbeats=heartbeats, server_version = DAMPE_VERSION, server_time = now)
 
 class DetailView(MethodView):
-    form = model_form(JobInstance, exclude=['created_at', 'status_history', 'memory', 'cpu'])
-
-    def get_context(self, slug):
+    def get(self, slug):
+        logger.debug("DetailView:GET: request %s", str(request))
         job = Job.objects.get_or_404(slug=slug)
         status  = request.args.get("status",None)
-        form = self.form(request.form)
         instances = []
         if status is None:
             instances = JobInstance.objects.filter(job=job)
         else:
+            logger.info("DetailView:GET: request called with status query")
             instances = JobInstance.objects.filter(job=job,status=status)
-        aux_data = {'timestamp': unicode(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-                    'n_jobs': Job.objects.all().count(),
-                    'n_instance': JobInstance.objects.all().count()}
-        context = {
-            "job": job,
-            "form": form,
-            "aux_data": aux_data,
-            "instances": instances
-        }
-        return context
-
-    def get(self, slug):
-        logger.debug("DetailView:GET: request %s", str(request))
-        context = self.get_context(slug)
-        logger.debug("DetailView:GET: rendering jobs/detail.html")
-        return render_template('jobs/detail.html', **context)
+        logger.info("DetailView:GET: found %i instances"%instances.count())
+        return render_template('jobs/detail.html',job=job, instances=instances)
 
     def post(self, slug):
-        logger.debug("DetailView:POST: request %s", str(request))
-        context = self.get_context(slug)
-        form = context.get('form')
-
-        if form.validate():
-            jobInstance = JobInstance()
-            form.populate_obj(jobInstance)
-
-            job = context.get('job')
-            job.addInstance(jobInstance)
-            job.save()
-
-            return redirect(url_for('jobs.detail', slug=slug))
-
-        return render_template('jobs/detail.html', **context)
+        dumps({"result":"ok","error":"Nothing to display"})
 
 class JobView(MethodView):
     def get(self):
