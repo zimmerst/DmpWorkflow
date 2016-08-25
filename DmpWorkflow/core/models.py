@@ -7,7 +7,7 @@ from copy import deepcopy
 from flask import url_for
 from ast import literal_eval
 from json import dumps
-from numpy import array as np_array, median as np_median, mean as np_mean
+from numpy import array as np_array, median as np_median, mean as np_mean, histogram as np_hist
 # from StringIO import StringIO
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
@@ -76,24 +76,34 @@ class Job(db.Document):
     comment = db.StringField(max_length=1024, required=False, default="N/A")
 
     def aggregateResources(self,nbins=20):
-        """ returns a json object which contains max, min, mean, median, and the histogram itself for all memories/cpu """
+        """ returns a json object which contains max, min, mean, median, 
+            and the histogram itself for all memories/cpu 
+            WARNING: this method is not particularly efficient 
+            and shouldn't be used lightly!
+        """
         allData = {"memory":{"data":[]},"cpu":{"data":[]}}
-        query = JobInstance.objects.filter(job=job).only("cpu").only("memory")
-        if query.counts():
+        query = JobInstance.objects.filter(job=self).only("cpu").only("memory")
+        if query.count():
             for inst in query:
                 agg = inst.aggregateResources()
                 for key in ['cpu','memory']:
-                    allData[key]['data'].append(agg[key])
-        del query
-        # finished aggregation, now we can do calculations
-        for key in allData:
-            d = allData[key]["data"]
-            allData["max"]=max(d)
-            allData["min"]=min(d)
-            arr = np_array(d)
-            allData["mean"]=float(np_mean(arr))
-            allData["median"]=float(np_median(arr))
-        return allData
+                    if len(agg[key]):
+                        allData[key]['data'].append(max(agg[key]))
+            del query
+            # finished aggregation, now we can do calculations                                                                                                                                              
+            for key in allData:
+                d = allData[key]["data"]
+                allData[key]["max"]=max(d)
+                allData[key]["min"]=min(d)
+                arr = np_array(d,dtype=float)
+                allData[key]["mean"]=float(np_mean(arr,axis=0))
+                allData[key]["median"]=float(np_median(arr,axis=0))
+                hist, bins = np_hist(arr,nbins)
+                center = (bins[:-1] + bins[1:]) / 2
+                allData[key]['histogram']={"bins":center.tolist(),"entries":hist.tolist()}
+                del allData[key]['data']
+        return dumps(allData)
+
     
     def addDependency(self, job):
         if not isinstance(job, Job):
