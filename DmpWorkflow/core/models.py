@@ -7,6 +7,7 @@ from copy import deepcopy
 from flask import url_for
 from ast import literal_eval
 from json import dumps
+from numpy import array as np_array, median as np_median, mean as np_mean
 # from StringIO import StringIO
 from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
@@ -74,6 +75,26 @@ class Job(db.Document):
     archived = db.BooleanField(verbose_name="task closed", required=False, default=False)
     comment = db.StringField(max_length=1024, required=False, default="N/A")
 
+    def aggregateResources(self,nbins=20):
+        """ returns a json object which contains max, min, mean, median, and the histogram itself for all memories/cpu """
+        allData = {"memory":{"data":[]},"cpu":{"data":[]}}
+        query = JobInstance.objects.filter(job=job).only("cpu").only("memory")
+        if query.counts():
+            for inst in query:
+                agg = inst.aggregateResources()
+                for key in ['cpu','memory']:
+                    allData[key]['data'].append(agg[key])
+        del query
+        # finished aggregation, now we can do calculations
+        for key in allData:
+            d = allData[key]["data"]
+            allData["max"]=max(d)
+            allData["min"]=min(d)
+            arr = np_array(d)
+            allData["mean"]=float(np_mean(arr))
+            allData["median"]=float(np_median(arr))
+        return allData
+    
     def addDependency(self, job):
         if not isinstance(job, Job):
             raise Exception("Must be job to be added")
@@ -237,6 +258,14 @@ class JobInstance(db.Document):
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)", required=False, default=-1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)", required=False, default=-1.)
     
+    def aggregateResources(self):
+        """ returns dict of two arrays, first is memory, second is cpu """
+        data = {"memory":[],"cpu":[]}
+        my_map = {"memory":self.memory, "cpu":self.cpu}
+        for key in data:
+            data[key] = [item['value'] for item in my_map[key] if not isinstance(item['value'],list)]
+        return data
+
     def getTimeStampCreatedAt(self,timeAsJS=True):
         if timeAsJS: return datetime_to_js(self.created_at)
         else: return self.created_at

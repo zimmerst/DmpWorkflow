@@ -14,3 +14,4 @@ progressbar
 xmltodict
 multiprocessing
 psutil
+numpy
