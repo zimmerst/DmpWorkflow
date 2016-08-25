@@ -8,6 +8,7 @@ from datetime import datetime
 from flask.views import MethodView
 from ast import literal_eval
 from re import findall
+from DmpWorkflow import version as DAMPE_VERSION
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.core.models import Job, JobInstance, HeartBeat, DataFile
 
@@ -66,7 +67,7 @@ class StatsView(MethodView):
             last_life = h.timestamp
             deltaT = (now - last_life).seconds
             h.deltat = deltaT
-        return render_template('stats/siteSummary.html', heartbeats=heartbeats)
+        return render_template('stats/siteSummary.html', heartbeats=heartbeats, server_version = DAMPE_VERSION)
 
 class DetailView(MethodView):
     form = model_form(JobInstance, exclude=['created_at', 'status_history', 'memory', 'cpu'])

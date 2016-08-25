@@ -55,6 +55,7 @@ class HeartBeat(db.Document):
     hostname = db.StringField(max_length=255, required=True)
     process  = db.StringField(max_length=64, required=False,default="default")
     deltat = db.FloatField(verbose_name="deltat",required=False,default=0.)
+    workflowVersion = db.StringField(max_length=32,verbose_name="version of package", required=False, default="None")
     meta = {
         'allow_inheritance': True,
         'indexes': ['-created_at', 'hostname','process'],

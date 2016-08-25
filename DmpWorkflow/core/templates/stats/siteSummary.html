@@ -4,7 +4,7 @@
 <table class="table table-bordered table-striped">
   <thead>
 {#    {% for key in ('Hostname','Created at','Last sign of life','Diff with Server (sec)')%} #}
-    {% for key in ('Hostname','Created at','Last sign of life','Status')%}
+    {% for key in ('Hostname','Client Version','Created at','Last sign of life','Status')%}
     <th>{{ key }}</th>
     {% endfor %}
   </thead>
@@ -13,6 +13,7 @@
   {% set ts = beat.timestamp %}
   <tr>
     <td>{{ beat.hostname }}</td>
+	<td>{{ beat.workflowVersion }}</td>
     <td>{{ beat.created_at}}</td>
     {% if dt >= 3600 %}
     <td><p class="bg-danger"><strong>{{ ts }}</strong></p></td>
@@ -30,5 +31,7 @@
   </tr>
   {% endfor %}
 </table>
-
+<div>
+<p><strong>Server Version: </strong> {{server_version}} </p>
+</div>
 {% endblock %}

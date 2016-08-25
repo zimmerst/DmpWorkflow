@@ -41,11 +41,12 @@ def dumpr(json_str):
 def send_heartbeat(proc):
     from requests import post as r_post
     from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
+    from DmpWorkflow import version as SW_VERSION
     from socket import getfqdn as gethostname # use full domain name.
     host = gethostname()
     url = "%s/testDB/"%DAMPE_WORKFLOW_URL
     dt = datetime.now()
-    res = r_post(url, data={"hostname":host, "timestamp":dt,"process":proc})
+    res = r_post(url, data={"hostname":host, "timestamp":dt,"process":proc, "workflowVersion":SW_VERSION})
     res.raise_for_status()
     res = res.json()
     if res.get("result","nok") != "ok":

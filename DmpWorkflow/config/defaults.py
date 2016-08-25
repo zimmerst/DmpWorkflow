@@ -9,6 +9,7 @@ from ConfigParser import SafeConfigParser
 from os import environ, getenv
 from os.path import dirname, abspath, join as oPjoin
 import sys
+from DmpWorkflow import version as DAMPE_VERSION
 from DmpWorkflow.utils.tools import exceptionHandler
 
 DAMPE_WORKFLOW_ROOT = dirname(dirname(abspath(__file__)))
@@ -59,7 +60,7 @@ if not dbg: sys.excepthook = exceptionHandler
 DAMPE_WORKFLOW_URL = cfg.get("server", "url")
 DAMPE_WORKFLOW_DIR = cfg.get("site", "workdir")
 EXEC_DIR_ROOT = cfg.get("site", "EXEC_DIR_ROOT")
-
+environ["DWF_SW_VERSION"] = DAMPE_VERSION
 environ["BATCH_SYSTEM"] = cfg.get("site", "HPCsystem")
 environ["BATCH_REQUIREMENTS"] = cfg.get("site", "HPCrequirements")
 environ["BATCH_EXTRA"] = cfg.get("site", "HPCextra")
