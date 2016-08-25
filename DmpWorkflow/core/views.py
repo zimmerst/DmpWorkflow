@@ -67,7 +67,7 @@ class StatsView(MethodView):
             last_life = h.timestamp
             deltaT = (now - last_life).seconds
             h.deltat = deltaT
-        return render_template('stats/siteSummary.html', heartbeats=heartbeats, server_version = DAMPE_VERSION)
+        return render_template('stats/siteSummary.html', heartbeats=heartbeats, server_version = DAMPE_VERSION, server_time = now)
 
 class DetailView(MethodView):
     form = model_form(JobInstance, exclude=['created_at', 'status_history', 'memory', 'cpu'])
