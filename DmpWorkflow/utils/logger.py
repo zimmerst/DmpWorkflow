@@ -6,13 +6,11 @@ Created on May 4, 2016
 
 import logging
 import logging.config
-from ast import literal_eval
 from logging import Formatter, StreamHandler
 from logging.handlers import RotatingFileHandler
-from DmpWorkflow.config.defaults import DAMPE_LOGFILE, DAMPE_LOGLEVEL
+from DmpWorkflow.config.defaults import DAMPE_LOGFILE
 
 log_path = DAMPE_LOGFILE
-loglvl = literal_eval("logging.%s"%DAMPE_LOGLEVEL)
 
 logger_core = logging.getLogger("core")
 handler_file = RotatingFileHandler(maxBytes=2000000, filename=log_path, backupCount=5)
@@ -49,7 +47,7 @@ def initLogger(logfile):
                 'class': 'logging.StreamHandler',
             },
             'file': {
-                'level': 'DEBUG',
+                'level': "DEBUG",
                 'formatter': "precise",
                 'class': 'logging.handlers.RotatingFileHandler',
                 'filename': logfile,
