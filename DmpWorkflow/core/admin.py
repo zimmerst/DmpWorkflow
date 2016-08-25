@@ -52,51 +52,52 @@ class Export(MethodView):
         return send_file(outfile, attachment_filename="%s.xml" % job.title, as_attachment=True)
 
 
-class Detail(MethodView):
-    decorators = [requires_auth]
-
-    def get_context(self, slug=None):
-        form_cls = model_form(Job, exclude=('created_at', 'jobInstances'))
-
-        if slug:
-            job = Job.objects.get_or_404(slug=slug)
-            if request.method == 'POST':
-                form = form_cls(request.form, inital=job.getData())
-                logger.info("POST request from form")
-            else:
-                form = form_cls(obj=job)
-                logger.info("other request")
-        else:
-            job = Job()
-            form = form_cls(request.form)
-
-        context = {
-            "job": job,
-            "form": form,
-            "create": slug is None
-        }
-        return context
-
-    def get(self, slug):
-        context = self.get_context(slug)
-        return render_template('admin/detail.html', **context)
-
-    def post(self, slug):
-        context = self.get_context(slug)
-        form = context.get('form')
-        logger.info(form.slug.data)
-        if form.validate():
-            job = context.get('job')
-            form.populate_obj(job)
-            job.save()
-
-            return redirect(url_for('admin.index'))
-        return render_template('admin/detail.html', **context)
+# class Detail(MethodView):
+#     decorators = [requires_auth]
+# 
+#     def get_context(self, slug=None):
+#         form_cls = model_form(Job, exclude=('created_at', 'jobInstances'))
+# 
+#         if slug:
+#             job = Job.objects.get_or_404(slug=slug)
+#             if request.method == 'POST':
+#                 form = form_cls(request.form, inital=job.getData())
+#                 logger.info("POST request from form")
+#             else:
+#                 form = form_cls(obj=job)
+#                 logger.info("other request")
+#         else:
+#             job = Job()
+#             form = form_cls(request.form)
+# 
+#         context = {
+#             "job": job,
+#             "form": form,
+#             "create": slug is None
+#         }
+#         return context
+# 
+#     def get(self, slug):
+#         context = self.get_context(slug)
+#         return render_template('admin/detail.html', **context)
+# 
+#     def post(self, slug):
+#         context = self.get_context(slug)
+#         form = context.get('form')
+#         logger.info(form.slug.data)
+#         if form.validate():
+#             job = context.get('job')
+#             form.populate_obj(job)
+#             job.save()
+# 
+#             return redirect(url_for('admin.index'))
+#         return render_template('admin/detail.html', **context)
 
 
 # Register the urls
 admin.add_url_rule('/admin/', view_func=List.as_view('index'))
-admin.add_url_rule('/admin/create/', defaults={'slug': None}, view_func=Detail.as_view('create'))
+# CANDIDATES FOR REMOVAL FOR NOW.
+#admin.add_url_rule('/admin/create/', defaults={'slug': None}, view_func=Detail.as_view('create'))
 # admin.add_url_rule('/admin/edit/<slug>/', view_func=Detail.as_view('edit'))
 admin.add_url_rule('/admin/export/<slug>/', view_func=Export.as_view('export'))
 admin.add_url_rule('/admin/remove/<slug>/', view_func=Remove.as_view('remove'))
