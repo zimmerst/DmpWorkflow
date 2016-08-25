@@ -68,11 +68,12 @@
   {% endfor %}
   </code>
   <hr>
-  {% if status == "None" %}
+  {% set inst_status = status %}
+  {% if status|safe == "None" %}
   <h2>Job Instances ({{instances.count()}} total)</h2>
   {% else %}
-  <h2>Job Instances ({{instances.count()}} total in status {{status}})</h2>
-  {% elif %}
+  <h2>Job Instances ({{instances.count()}} in status {{status|safe}})</h2>
+  {% endif %}
   {% set columns = ["id","batchId", "created at", "last sign of life", "status", "minor_status","host"]%}
 <table class="table">
   <thead>
