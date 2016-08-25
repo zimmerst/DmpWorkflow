@@ -111,22 +111,26 @@
 {% endblock %}
 
 {% block js_footer %}
-{% set json = instance.resetJSON() %}
+{% set resources = job.aggregateResources() %}
 <script language="JavaScript">
   "use strict";
   // here we write proper JS code
-  var resources = {{ job.aggregateResources()|safe }};
-  var cpu_data = { 
-            data: resources['cpu']['histogram']['transposed'],
+  var cpu = {{resources|safe}}["cpu"]["histogram"];
+  var cpu_hist = cpu["transposed"];
+  var cpu_bw   = cpu["binWidth"];
+
+  var cpu_data = {
+            data: cpu_hist,
             bars: {
                 show: true,
-                barWidth: resources['cpu']['histogram']['binWidth'],
+                barWidth: cpu_bw,
                 fill: true,
                 lineWidth: 1,
                 order: 1,
                 fillColor:  "#AA4643"
             },
             color: "#AA4643"}
+
   
   var options ={
         xaxis: {
