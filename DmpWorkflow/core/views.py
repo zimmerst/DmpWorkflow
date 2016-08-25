@@ -385,6 +385,7 @@ class NewJobs(MethodView):
 class TestView(MethodView):
     def post(self):
         logger.debug("TestView:POST: request form %s", str(request.form))
+        version = str(request.form.get("version","None"))
         hostname = str(request.form.get("hostname", "None"))
         proc = str(request.form.get("process","default"))
         timestamp = datetime.now()
@@ -397,21 +398,24 @@ class TestView(MethodView):
                 q = HeartBeat.objects.filter(process=proc)
                 if q.count():
                     q.update(timestamp=timestamp)
+                    if version != "None": q.update(version=version)
                 else:
                     return({"result":"nok", "error":"could not update timestamp because hostname was not specified"})
             elif proc == "default" and hostname != "None":
                 q = HeartBeat.objects.filter(hostname=hostname)
                 if q.count():
                     q.update(timestamp=timestamp)
+                    if version != "None": q.update(version=version)
                 else:
-                    HB = HeartBeat(hostname=hostname, timestamp=timestamp, process=proc)
+                    HB = HeartBeat(hostname=hostname, timestamp=timestamp, process=proc,version=version)
                     HB.save()
             else:
                 q = HeartBeat.objects.filter(hostname=hostname, process=proc)
                 if q.count():
                     q.update(timestamp=timestamp)
+                    if version != "None": q.update(version=version)
                 else:
-                    HB = HeartBeat(hostname=hostname, timestamp=timestamp, process=proc)
+                    HB = HeartBeat(hostname=hostname, timestamp=timestamp, process=proc,version=version)
                     HB.save()
         except Exception as ex:
             logger.error("TestView:POST: failure during HeartBeat POST test. \n%s", ex)

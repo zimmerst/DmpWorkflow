@@ -46,7 +46,7 @@ def send_heartbeat(proc):
     host = gethostname()
     url = "%s/testDB/"%DAMPE_WORKFLOW_URL
     dt = datetime.now()
-    res = r_post(url, data={"hostname":host, "timestamp":dt,"process":proc, "workflowVersion":SW_VERSION})
+    res = r_post(url, data={"hostname":host, "timestamp":dt,"process":proc, "version":SW_VERSION})
     res.raise_for_status()
     res = res.json()
     if res.get("result","nok") != "ok":

@@ -3,7 +3,6 @@
 <h2> Client Summary </h2>
 <table class="table table-bordered table-striped">
   <thead>
-{#    {% for key in ('Hostname','Created at','Last sign of life','Diff with Server (sec)')%} #}
     {% for key in ('Hostname','Client Version','Created at','Last sign of life','Status')%}
     <th>{{ key }}</th>
     {% endfor %}
@@ -13,11 +12,11 @@
   {% set ts = beat.timestamp %}
   <tr>
     <td>{{ beat.hostname }}</td>
-	<td>{{ beat.workflowVersion }}</td>
+	<td>{{ beat.version }}</td>
     <td>{{ beat.created_at}}</td>
     {% if dt >= 3600 %}
     <td><p class="bg-danger"><strong>{{ ts }}</strong></p></td>
-    <td><p class="bg-danger"><strong>check client</strong></p></td>
+    <td><p class="bg-danger"><strong>check client (is it dead?)x</strong></p></td>
     {% elif dt >= 600 %}
     <td><p class="bg-warning"><strong>{{ ts }}</strong></p></td>
     <td><p class="bg-warning"><strong>no ping for >10 minutes</strong></p></td>
