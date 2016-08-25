@@ -70,7 +70,6 @@
   <hr>
   <h2>Job Instances ({{instances.count()}} total)</h2>
   {% set columns = ["id","batchId", "created at", "last sign of life", "status", "minor_status","host"]%}
-  {#, "CPU", "MEM"]#}
 <table class="table">
   <thead>
 	{% for col in columns %}  	
@@ -80,7 +79,6 @@
     {% for jobInstance in instances %}
 	<tr>
 		{% set instId = jobInstance.sixDigit() %}
-{#		<td> {{ jobInstance.sixDigit() }} </td> #}
 		<td> <a href="{{ url_for("jobs.instanceDetail", slug=job.slug, instanceId=instId) }}">{{ instId }}</a></td> 
 		<td> {{ jobInstance.batchId }} </td>
 		<td> {{ jobInstance.created_at.strftime('%Y-%m-%d %H:%M:%S') }} </td>
@@ -88,8 +86,6 @@
 		<td> {{ jobInstance.status }} </td>
 		<td> {{ jobInstance.minor_status }} </td>
 		<td> {{ jobInstance.hostname }} </td>
-{#		<td> {{ "%1.1f"%jobInstance.get("cpu") }} </td> #}
-{#		<td> {{ "%1.1f"%jobInstance.get("memory") }} </td> #}
 	</tr>
 	{% endfor %}
     {% endif %}
@@ -100,25 +96,23 @@
 
 <strong> created at:</strong> {{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
 <strong> Id:</strong> {{ job.id }}
-{# construction site!!! #}
-{# <h2>Add a jobInstance</h2>													#}
-{#  <form action="." method="post"> 											#}
-{#   {{ forms.render(form) }} 													#}
-{#   <div class="actions"> 														#}
-{#    <input type="submit" class="btn primary" value="add new Job Instance"> 	#}
-{#   </div> 																	#}
-{#  </form> 																	#}
-{% endblock %}
 
 {% block js_footer %}
 {% set resources = job.aggregateResources() %}
 <script language="JavaScript">
   "use strict";
   // here we write proper JS code
-  var cpu = {{resources|safe}}["cpu"]["histogram"];
-  var cpu_hist = cpu["transposed"];
-  var cpu_bw   = cpu["binWidth"];
-
+  $(document).ready(function(e) {
+  var res = {{resources|safe}};
+  var cpu = res["cpu"];
+  var cpu_hist_raw = cpu["histogram"];
+  var cpu_hist = cpu_hist_raw["histoT"];
+  var cpu_bw   = cpu_hist_raw["binWidth"];
+  var cpu_min  = cpu["min"];
+  var cpu_max  = cpu["max"];
+  console.log(cpu);
+  console.log(cpu_hist);
+  console.log(cpu_bw);
   var cpu_data = {
             data: cpu_hist,
             bars: {
@@ -130,10 +124,11 @@
                 fillColor:  "#AA4643"
             },
             color: "#AA4643"}
-
-  
+  console.log(cpu_data)
   var options ={
         xaxis: {
+            //xmin: cpu_min,
+            //xmax: cpu_max,
             tickLength: 0, // hide gridlines
             axisLabel: 'CPU time (s)',
             axisLabelUseCanvas: true,
@@ -157,8 +152,9 @@
             shadowSize: 1
         }
     }
-      
-  $.plot($("#placeholder"), cpu_data, options);
+  console.log(options)
+  $.plot($("#placeholder"), cpu_data, options).draw();
+  });
 
 </script>
 {% endblock %}

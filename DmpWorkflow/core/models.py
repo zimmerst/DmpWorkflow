@@ -100,11 +100,10 @@ class Job(db.Document):
                 allData[key]["median"]=float(np_median(arr,axis=0))
                 hist, bins = np_hist(arr,nbins)
                 center = (bins[:-1] + bins[1:]) / 2
-                c = center.tolist()
-                h = hist.tolist()
-                tt = [[k,v] for k,v in dict(zip(c,h)).iteritems()]
-                allData[key]['histogram']={"bins":c,"entries":h,
-                                           "transposed": tt}
+                w = (bins[1] - bins[0])
+                histo = np_array([center, hist])
+                allData[key]['histogram']={"histo":histo.tolist(),
+                                           "histoT":histo.T.tolist(), "binWidth": float(w)}
                 del allData[key]['data']
         return dumps(allData)
 
