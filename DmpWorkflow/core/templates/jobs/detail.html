@@ -95,6 +95,9 @@
     {% endif %}
 </table>
 <hr>
+<h3>Summary Plots </h3>
+<div id="placeholder" style="width:600px;height:300px"></div>
+
 <strong> created at:</strong> {{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
 <strong> Id:</strong> {{ job.id }}
 {# construction site!!! #}
@@ -105,5 +108,54 @@
 {#    <input type="submit" class="btn primary" value="add new Job Instance"> 	#}
 {#   </div> 																	#}
 {#  </form> 																	#}
+{% endblock %}
+
+{% block js_footer %}
+{% set json = instance.resetJSON() %}
+<script language="JavaScript">
+  "use strict";
+  // here we write proper JS code
+  var resources = {{ job.aggregateResources()|safe }};
+  var cpu_data = { 
+            data: resources['cpu']['histogram']['transposed'],
+            bars: {
+                show: true,
+                barWidth: resources['cpu']['histogram']['binWidth'],
+                fill: true,
+                lineWidth: 1,
+                order: 1,
+                fillColor:  "#AA4643"
+            },
+            color: "#AA4643"}
+  
+  var options ={
+        xaxis: {
+            tickLength: 0, // hide gridlines
+            axisLabel: 'CPU time (s)',
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+            axisLabelPadding: 5
+        },
+        yaxis: {
+            axisLabel: 'Entries/bin',
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+            axisLabelPadding: 5
+        },
+        grid: {
+            hoverable: true,
+            clickable: false,
+            borderWidth: 1
+        },
+        series: {
+            shadowSize: 1
+        }
+    }
+      
+  $.plot($("#placeholder"), cpu_data, options);
+
+</script>
 {% endblock %}
 
