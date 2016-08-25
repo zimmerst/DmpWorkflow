@@ -91,71 +91,91 @@
     {% endif %}
 </table>
 <hr>
-<h3>Summary Plots </h3>
-<div id="placeholder" style="width:600px;height:300px"></div>
-
-<strong> created at:</strong> {{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
-<strong> Id:</strong> {{ job.id }}
-
+<div class="container-fluid">
+  <h3>Summary Plots </h3>
+  <div class="row">
+    <div class="col-sm-6" id="placeholder_cpu" style="width:550px;height:300px"></div>
+    <div class="col-sm-6" id="placeholder_mem" style="width:550px;height:300px"></div>
+  </div>
+</div>
+<div>
+<p><strong> created at:</strong> {{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+<strong> Id:</strong> {{ job.id }} </p>
+</div>
+{% endblock %}
 {% block js_footer %}
 {% set resources = job.aggregateResources() %}
 <script language="JavaScript">
   "use strict";
   // here we write proper JS code
   $(document).ready(function(e) {
-  var res = {{resources|safe}};
+
+  function getOptions(bWidth,xMin,xMax,xLabel){
+    var options ={
+           bars: {
+              show: true,
+              barWidth: bWidth,
+              fill: true,
+              lineWidth: 1,
+              order: 1,
+              fillColor:  "#AA4643"
+           },
+           xaxis: {
+              xmin: xMin,
+              xmax: xMax,
+              tickLength: 0, // hide gridlines
+              axisLabel: xLabel,
+              axisLabelUseCanvas: true,
+              axisLabelFontSizePixels: 12,
+              axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+              axisLabelPadding: 5
+           },
+           yaxis: {
+              axisLabel: 'Entries/bin',
+              axisLabelUseCanvas: true,
+              axisLabelFontSizePixels: 12,
+              axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+              axisLabelPadding: 5
+           },
+           grid: {
+              hoverable: true,
+              clickable: false,
+              borderWidth: 1
+           },
+           series: {
+              shadowSize: 1
+           }
+                  }
+     return options;
+  }
+    var res = {{resources|safe}};
+
   var cpu = res["cpu"];
   var cpu_hist_raw = cpu["histogram"];
+  var cpu_hist_bins = cpu_hist_raw["histo"][0];
   var cpu_hist = cpu_hist_raw["histoT"];
   var cpu_bw   = cpu_hist_raw["binWidth"];
   var cpu_min  = cpu["min"];
   var cpu_max  = cpu["max"];
-  console.log(cpu);
-  console.log(cpu_hist);
-  console.log(cpu_bw);
-  var cpu_data = {
-            data: cpu_hist,
-            bars: {
-                show: true,
-                barWidth: cpu_bw,
-                fill: true,
-                lineWidth: 1,
-                order: 1,
-                fillColor:  "#AA4643"
-            },
-            color: "#AA4643"}
-  console.log(cpu_data)
-  var options ={
-        xaxis: {
-            //xmin: cpu_min,
-            //xmax: cpu_max,
-            tickLength: 0, // hide gridlines
-            axisLabel: 'CPU time (s)',
-            axisLabelUseCanvas: true,
-            axisLabelFontSizePixels: 12,
-            axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
-            axisLabelPadding: 5
-        },
-        yaxis: {
-            axisLabel: 'Entries/bin',
-            axisLabelUseCanvas: true,
-            axisLabelFontSizePixels: 12,
-            axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
-            axisLabelPadding: 5
-        },
-        grid: {
-            hoverable: true,
-            clickable: false,
-            borderWidth: 1
-        },
-        series: {
-            shadowSize: 1
-        }
-    }
-  console.log(options)
-  $.plot($("#placeholder"), cpu_data, options).draw();
-  });
+  var cpu_h_min = cpu_hist_bins[0]-300;
+  var cpu_h_max = cpu_hist_bins[cpu_hist_bins.length - 1]+300;
 
+  var mem = res["memory"];
+  var mem_hist_raw = mem["histogram"];
+  var mem_hist_bins = mem_hist_raw["histo"][0];
+  var mem_hist = mem_hist_raw["histoT"];
+  var mem_bw   = mem_hist_raw["binWidth"];
+  var mem_min  = mem["min"];
+  var mem_max  = mem["max"];
+  var mem_h_min = mem_hist_bins[0]-300;
+  var mem_h_max = mem_hist_bins[mem_hist_bins.length - 1]+300;
+
+  var cpu_opts = getOptions(cpu_bw,cpu_h_min,cpu_h_max,'CPU time (s)', "#AA4643");
+  var mem_opts = getOptions(mem_bw,mem_h_min,mem_h_max,'Memory (MB)', "#AA4643");
+  $.plot($("#placeholder_cpu"), [cpu_hist], cpu_opts).draw();
+  $.plot($("#placeholder_mem"), [mem_hist], mem_opts).draw();
+  });
 </script>
 {% endblock %}
-
+  
+           
