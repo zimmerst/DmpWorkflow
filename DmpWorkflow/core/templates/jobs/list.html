@@ -20,7 +20,7 @@
 		{% for key in MAJOR_STATII %}
 		{% set value = statdict[key] %}
 		{% if key in MAJOR_STATII %}
-		<td><a href={{ url_for('jobs.detail', slug=job.slug, status=key }}">{{ value }}</a></td>
+	    <td><a href="{{job.slug}}/?status={{key}}">{{ value }}</a></td>
 		{% else %}
 		<td>{{ value }}</td>
 		{% endif %}

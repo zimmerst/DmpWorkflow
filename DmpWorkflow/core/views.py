@@ -77,11 +77,12 @@ class DetailView(MethodView):
         instances = []
         if status is None:
             instances = JobInstance.objects.filter(job=job)
+            status = "None"
         else:
             logger.info("DetailView:GET: request called with status query")
             instances = JobInstance.objects.filter(job=job,status=status)
         logger.info("DetailView:GET: found %i instances"%instances.count())
-        return render_template('jobs/detail.html',job=job, instances=instances)
+        return render_template('jobs/detail.html',job=job, instances=instances, status = status)
 
     def post(self, slug):
         dumps({"result":"ok","error":"Nothing to display"})
