@@ -22,13 +22,6 @@ class ListView(MethodView):
         jobs = Job.objects.all()
         return render_template('jobs/list.html', jobs=jobs)
 
-class DebugView(MethodView):
-    def get(self):
-        logger.debug("DebugView:GET: request %s", str(request))
-        form = dict(request.form)
-        logger.info("DebugView:GET: content of form %s",str(form))
-        return dumps({"result":"ok","value":dumps(form)})
-
 class InstanceView(MethodView):
     def get(self):
         logger.debug("InstanceView: request %s",str(request))
@@ -216,6 +209,7 @@ class SetJobStatus(MethodView):
         return bdy
     def __rollBack__(self,job,inst_id,body=None):
         """ only the body is taken from the method, everything else is flushed """
+        logger.debug("SetJobStatus:POST: requesting roll back for job %s and instance %i",job.title,inst_id)
         if not isinstance(job,Job):
             raise Exception("must be a valid Job instance.")
         try:
@@ -522,9 +516,5 @@ jobs.add_url_rule('/jobInstances/detail', view_func=InstanceView.as_view('instan
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET", "POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
-#jobs.add_url_rule("/watchdog/", view_func=JobResources.as_view('watchdog'), methods=["GET"])
 jobs.add_url_rule("/testDB/", view_func=TestView.as_view('testDB'), methods=["GET", "POST"])
 jobs.add_url_rule("/datacat/", view_func=DataCatalog.as_view('datacat'), methods=["GET", "POST"])
-jobs.add_url_rule("/debug/", view_func=DebugView.as_view('debug'), methods=["GET", "POST"])
-
-# jobs.add_url_rule('/InstanceDetail', view_func=InstanceView.as_view('instancedetail'), methods=['GET'])
