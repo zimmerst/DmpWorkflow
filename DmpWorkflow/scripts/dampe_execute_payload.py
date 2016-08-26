@@ -55,8 +55,9 @@ class PayloadExecutor(object):
         for fi in self.job.InputFiles:
             src = expandvars(fi['source'])
             tg = expandvars(fi['target'])
+            self.logThis("Staging %s -> %s",src,tg)
             try:
-                safe_copy(src, tg, attempts=4, sleep='4s', checksum=True, debug=True)
+                safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
             except IOError, e:
                 try:
                     self.job.updateStatus("Running" if self.debug else "Failed", camelize(e))

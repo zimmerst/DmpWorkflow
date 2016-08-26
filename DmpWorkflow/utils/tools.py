@@ -325,7 +325,7 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.debug = False
         self.ps = ps
         self.query()
-        
+        self.counter = 0
     
     def getMemory(self, unit='Mb'):
         self.query()
