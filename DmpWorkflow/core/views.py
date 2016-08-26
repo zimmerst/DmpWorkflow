@@ -215,17 +215,17 @@ class SetJobStatus(MethodView):
         try:
             query = JobInstance.objects.get(job=job,instanceId=inst_id)
             update_dict = {
-                        "created_at"    : datetime.now(),
-                        "last_update"   : datetime.now(),
-                        "batchId"       : None,
-                        "Nevents"       : 0,
-                        "hostname"      : None,
-                        "status"        : "New",
-                        "minor_status"  : "AwaitingBatchSubmission",
-                        "status_history": [],
-                        "memory"        : [],
-                        "cpu"           : [],
-                        "log"           : ""
+                        "set__created_at"    : datetime.now(),
+                        "set__last_update"   : datetime.now(),
+                        "set__batchId"       : None,
+                        "set__Nevents"       : 0,
+                        "set__hostname"      : None,
+                        "set__status"        : "New",
+                        "set__minor_status"  : "AwaitingBatchSubmission",
+                        "set__status_history": [],
+                        "set__memory"        : [],
+                        "set__cpu"           : [],
+                        "set__log"           : ""
                            }
             res = query.update(**update_dict)
             if not res:
