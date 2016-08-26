@@ -291,16 +291,13 @@ class SetJobStatus(MethodView):
             
             oldStatus = jInstance.status
             minorOld = jInstance.minor_status
-            if oldStatus != major_status:
-                jInstance.setStatus(major_status)
-            
             if minor_status is not None and minor_status != minorOld:
                 logger.debug("SetJobStatus:POST: updating minor status")
                 jInstance.set("minor_status", minor_status)
                 del arguments['minor_status']
-            
+            if oldStatus != major_status:
+                jInstance.setStatus(major_status)            
             jInstance.setBody(body) # again, this could throw...
-            
             for key in ["t_id", "inst_id", "major_status"]:
                 if key in arguments: del arguments[key]  
             
