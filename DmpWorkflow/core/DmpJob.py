@@ -13,7 +13,7 @@ from time import ctime
 from requests import post as Rpost
 from importlib import import_module
 from copy import deepcopy
-from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
+from DmpWorkflow.config.defaults import FINAL_STATII, DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits, ResourceMonitor
 from DmpWorkflow.utils.shell import run, make_executable  # , source_bash
 
