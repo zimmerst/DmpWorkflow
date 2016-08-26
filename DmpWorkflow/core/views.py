@@ -288,19 +288,11 @@ class SetJobStatus(MethodView):
             # now here we can update stuff...
             logger.debug("SetJobStatus:POST: found instance %s",str(jInstance))
             logger.debug("SetJobStatus:POST: arguments in request %s",str(arguments))
-            
-            oldStatus = jInstance.status
-            minorOld = jInstance.minor_status
-            if minor_status is not None and minor_status != minorOld:
-                logger.debug("SetJobStatus:POST: updating minor status")
-                jInstance.set("minor_status", minor_status)
-                del arguments['minor_status']
-            if oldStatus != major_status:
-                jInstance.setStatus(major_status)            
+            jInstance.setStatus(major_status,minor_status)
             jInstance.setBody(body) # again, this could throw...
-            for key in ["t_id", "inst_id", "major_status"]:
+            for key in ["t_id", "inst_id", "major_status","minor_status"]:
                 if key in arguments: del arguments[key]  
-            
+            logger.debug("SetJobStatus:POST: arguments after cleanup %s",str(arguments))
             # for the rest, we can just use the setters.
             for key, value in arguments.iteritems():
                 jInstance.set(key, value)

@@ -493,14 +493,7 @@ class JobInstance(db.Document):
 
     def set(self, key, value):
         if key == 'minor_status':
-            old_stat = self.status
-            old_minor= self.minor_status
-            old_time = self.last_update
-            sH = {"status": old_stat,
-                  "update": old_minor,
-                  "minor_status": old_time}
-            self.status_history.append(sH)
-            self.minor_status = value
+            raise NotImplementedError("use JobInstance.setStatus(major_status,minorStatus) instead.")
         elif key == "created_at" and value == "Now":
             value = datetime.now()
         elif key == 'cpu':
@@ -524,14 +517,20 @@ class JobInstance(db.Document):
         self.__setattr__("last_update", datetime.now())
         self.update()
 
-    def setStatus(self, stat):
+    def setStatus(self, stat, minorStatus):
         log.debug("calling JobInstance.setStatus")
         if stat not in MAJOR_STATII:
             raise Exception("status not found in supported list of statii: %s", stat)
         curr_status = self.status
+        if curr_status in FINAL_STATII: 
+            self.__sortTimeStampedLists()
+            self.update()
         curr_minor  = self.minor_status
+        if minorStatus is None:
+            log.warning("no minorStatus provided, assuming last minor status!")
+            minorStatus = curr_minor
         last_upd = self.last_update
-        if curr_status == stat and  self.minor_status == self.status_history[-1]['minor_status']: 
+        if curr_status == stat and curr_minor == minorStatus: 
             # nothing has changed
             return
         if curr_status in FINAL_STATII:
@@ -544,10 +543,13 @@ class JobInstance(db.Document):
                   "update": last_upd,
                   "minor_status": curr_minor}
             log.debug("statusSet %s", str(sH))
-            self.status_history.append(sH)
-            self.set("status", stat) # this sets the actual status
-        if curr_status in FINAL_STATII: self.__sortTimeStampedLists()
-        self.update()
+            hist = self.status_history
+            hist.append(sH)            
+            q = {"job":self.job, "instanceId":self.instanceId}
+            upd_dict = {"status":stat, "minor_status":minorStatus, "last_update":datetime.now(),"status_histor":sH}
+            ret = JobInstance.objects.filter(**q).update(**upd_dict)
+            if ret != 1:
+                raise Exception("error setting status")
         return
 
     def __sortTimeStampedLists(self):
