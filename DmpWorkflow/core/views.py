@@ -66,10 +66,10 @@ class DetailView(MethodView):
         else:
             logger.info("DetailView:GET: request called with status query")
             instances = JobInstance.objects.filter(job=job,status=status)
-        logger.info("DetailView:GET: found %i instances"%instances.count())
+        logger.info("DetailView:GET: found %i instances",instances.count())
         return render_template('jobs/detail.html',job=job, instances=instances, status = status)
 
-    def post(self, slug):
+    def post(self):
         dumps({"result":"ok","error":"Nothing to display"})
 
 class JobView(MethodView):
@@ -239,7 +239,7 @@ class SetJobStatus(MethodView):
             raise Exception(err)        
         return dumps({"result": "ok"})        
     def post(self):
-        dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
+        #dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         # extract arguments
         arguments = {}
         try:
@@ -333,9 +333,9 @@ class SetJobStatus(MethodView):
                 for inst in instances:
                     keep = True
                     this_id = inst.instanceId
-                    if n_min != -1 and instId <= n_min:
+                    if n_min != -1 and this_id <= n_min:
                         keep = False
-                    if n_max != -1 and instId > n_max:
+                    if n_max != -1 and this_id > n_max:
                         keep = False
                     if not keep: continue
                     queried_instances.append(inst)

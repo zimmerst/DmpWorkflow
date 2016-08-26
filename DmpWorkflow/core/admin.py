@@ -4,9 +4,8 @@ Created on Mar 10, 2016
 @author: zimmer
 """
 import logging
-from flask import Blueprint, request, redirect, render_template, url_for, send_file
+from flask import Blueprint, redirect, render_template, url_for, send_file
 from flask.views import MethodView
-from flask.ext.mongoengine.wtf import model_form
 from DmpWorkflow.core.auth import requires_auth
 from DmpWorkflow.core.models import Job
 from StringIO import StringIO
