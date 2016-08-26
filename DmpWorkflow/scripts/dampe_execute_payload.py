@@ -4,7 +4,7 @@ Created on Apr 19, 2016
 @author: zimmer
 @brief: payload script with integrated process handling
 """
-from os.path import expandvars, abspath, dirname, isdir, join as oPjoin
+from os.path import expandvars, abspath, dirname, join as oPjoin
 from os import curdir, environ, listdir, chdir, getenv
 from importlib import import_module
 from socket import gethostname
