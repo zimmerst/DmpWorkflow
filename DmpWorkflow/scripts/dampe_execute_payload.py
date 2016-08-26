@@ -63,6 +63,7 @@ class PayloadExecutor(object):
                     self.job.updateStatus("Running" if self.debug else "Failed", camelize(e))
                 except Exception as err:
                     self.logThis("EXCEPTION: %s", err)
+                    self.job.logError(err)
                 if not self.debug: return 4
         self.logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
         self.logThis("successfully completed staging.")
@@ -85,6 +86,8 @@ class PayloadExecutor(object):
             self.logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
             self.logThis('reading error from payload %s',error.name)
             print error.read()
+            error.seek(0)
+            self.job.logError(error.read())
             error.close()
             try:
                 self.job.updateStatus("Running" if self.debug else "Failed", "ApplicationExitCode%i" % rc)
@@ -112,6 +115,7 @@ class PayloadExecutor(object):
                 try:
                     self.job.updateStatus("Running" if self.debug else "Failed", camelize(e))
                 except Exception as err:
+                    self.job.logError(err)
                     self.logThis("EXCEPTION: %s", err)
                 if not self.debug: return 6
                 ## add registerDS
@@ -202,5 +206,5 @@ if __name__ == '__main__':
         else:
             ## terminate here for the various reasons.
             # output of memory is in kilobytes.
-            executor.job.updateStatus("Running","ExecutingApplication",resources=prm)
+            executor.job.updateStatus("Running",None,resources=prm)
             sleep(float(BATCH_DEFAULTS.get("sleeptime","300."))) # sleep for 5m

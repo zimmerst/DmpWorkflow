@@ -268,7 +268,7 @@ class JobInstance(db.Document):
     status_history = db.ListField(db.DictField())
     memory = db.ListField(db.DictField())
     cpu = db.ListField(db.DictField())
-    log = db.StringField(verbose_name="log", required=False, default="")
+    log = db.StringField(verbose_name="log", required=False, default="",help="last 20 lines of error messages")
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)", required=False, default=-1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)", required=False, default=-1.)
     

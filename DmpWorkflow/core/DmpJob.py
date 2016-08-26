@@ -9,6 +9,7 @@ from ast import literal_eval
 from os import environ
 from jsonpickle import encode as Jencode, decode as Jdecode
 from json import dumps
+from time import ctime
 from requests import post as Rpost
 from importlib import import_module
 from copy import deepcopy
@@ -19,7 +20,7 @@ from DmpWorkflow.utils.shell import run, make_executable  # , source_bash
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 PYTHONBIN = ""
 ExtScript = cfg.get("site", "ExternalsScript")
-
+NUMLINES_LOG = 20
 
 # todo2: add cfg parsing variables.
 class DmpJob(object):
@@ -39,10 +40,15 @@ class DmpJob(object):
         self.executable = ""
         self.exec_wrapper = ""
         self.script = None
+        self.error_log = ""
         self.batchdefaults = deepcopy(BATCH_DEFAULTS)
         self.__dict__.update(kwargs)
         self.extract_xml_metadata(body)
         self.__updateEnv__()
+
+    def logError(self,err):
+        error_line = "%s:ERROR: %s \n"%(ctime(),str(err))
+        self.error_log.append(error_line)
 
     def registerDS(self, filename=None, overwrite=False):
         site = cfg.get("site", "name")
@@ -188,6 +194,12 @@ class DmpJob(object):
                 my_dict['cpu'] = RM.getCpuTime()
                 del kwargs['resources']
         my_dict.update(kwargs)
+        if majorStatus in FINAL_STATII:
+            # keep only NUMLINES of log file.
+            theLog = self.error_log.splitlines()
+            if len(theLog) > NUMLINES_LOG:
+                self.error_log = "\n".join(theLog[-(NUMLINES_LOG-1):-1])
+            my_dict['log']=self.error_log
         # print '*DEBUG* my_dict: %s'%str(my_dict)
         res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
         res.raise_for_status()

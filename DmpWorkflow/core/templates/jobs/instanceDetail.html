@@ -73,6 +73,18 @@
 </div>
 <div>
 	{% if instance.status in ("Done","Failed","Terminated") %}
+	<h3>Error Log (last 20 lines)</h3>
+	<p> For full information, refer to the log at {{instance.execution_site}} </p>
+	{% set error_log = instance.log.splitlines() %}
+	<code>
+	  {% for line in error_log %}
+	   {{line}}<br>
+	  {% endfor %}
+    </code>
+	{% endif %}
+</div>
+<div>
+	{% if instance.status in ("Done","Failed","Terminated") %}
 	<h3>Instance Management</h3>
 	<button id="rollback" class="btn btn-primary">Roll back Instance</button>
 	{% endif %}  
