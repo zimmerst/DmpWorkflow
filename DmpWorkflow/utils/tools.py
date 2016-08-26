@@ -325,7 +325,6 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.debug = False
         self.ps = ps
         self.query()
-        self.counter = 0
     
     def getMemory(self, unit='Mb'):
         self.query()
@@ -347,9 +346,7 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.memory=0
     
     def query(self):
-        self.counter+=1
         dbg = self.debug
-        if dbg: print '*** DEBUG ***: entering cycle %i'%self.counter
         self.free()
         cpu = self.ps.cpu_times()
         # collect parent usage                                                                                                                                                                        
