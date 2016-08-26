@@ -273,7 +273,7 @@ class SetJobStatus(MethodView):
             # this one either throws an exception, which is caught down stream, or returns a valid json.
             if major_status == "New":
                 return self.__rollBack__(job,inst_id,body=body)
-            # check for batchId, not used in query
+            # check for batchId, not used in query.
             bId = arguments.get("batchId",None)
             try: 
                 bId = self.__extractBatchId__(bId)
@@ -284,8 +284,6 @@ class SetJobStatus(MethodView):
             if site != "None": query['site']=site
             # again, this may throw...
             logger.debug("SetJobStatus:POST: query to find instance %s",str(query))
-            logger.exception("SetJobStatus:POST: error in query %s",err)
-            return dumps({"result": "nok", "error": str(err)})
             jInstance = JobInstance.objects.get(**query) 
             # now here we can update stuff...
             logger.debug("SetJobStatus:POST: found instance %s",str(jInstance))
