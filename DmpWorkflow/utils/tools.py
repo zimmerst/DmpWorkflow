@@ -195,7 +195,7 @@ def safe_copy(infile, outfile, **kwargs):
     kwargs.setdefault('debug', False)
     kwargs.setdefault('checksum', False)
     kwargs.setdefault("checksum_blocksize", 4096)
-    kwargs.setdefault('mkdir',True)
+    kwargs.setdefault('mkdir',False)
     sleep = parse_sleep(kwargs['sleep'])
     xrootd = False    
     if kwargs['mkdir']: mkdir(dirname(outfile))            

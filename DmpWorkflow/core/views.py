@@ -287,6 +287,8 @@ class SetJobStatus(MethodView):
             jInstance = JobInstance.objects.get(**query) 
             # now here we can update stuff...
             logger.debug("SetJobStatus:POST: found instance %s",str(jInstance))
+            logger.debug("SetJobStatus:POST: arguments in request %s",str(arguments))
+            
             oldStatus = jInstance.status
             minorOld = jInstance.minor_status
             if oldStatus != major_status:

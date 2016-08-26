@@ -93,7 +93,7 @@
 
   // adding the latest state too.
   history_time.push(tmax);
-  history_labels.push({{ instance.minor_status|safe }});
+  history_labels.push("{{ instance.minor_status|safe }}");
   // rest is plotting.
   var data1 = [
     {label: "Memory Usage",  data: mem, points: { symbol: "diamond", fillColor: "#AA4643" }, color: '#AA4643'},
