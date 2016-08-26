@@ -34,7 +34,7 @@ class InstanceView(MethodView):
             job = Job.objects.get(slug=slug)
             if instId == -1:
                 raise Exception("must be called with instanceId")
-            logger.info("InstanceView:GET: looking for instances with instId %i & job %s",instId,job.title)
+            logger.debug("InstanceView:GET: looking for instances with instId %i & job %s",instId,job.title)
             instance = JobInstance.objects.get(job=job,instanceId=instId)
             logger.debug("InstanceView:GET: found instance, rendering templates")
         except Exception as err:
@@ -66,7 +66,7 @@ class DetailView(MethodView):
         else:
             logger.info("DetailView:GET: request called with status query")
             instances = JobInstance.objects.filter(job=job,status=status)
-        logger.info("DetailView:GET: found %i instances",instances.count())
+        logger.info("DetailView:GET: found %i instances for job %s",instances.count(),job.title)
         return render_template('jobs/detail.html',job=job, instances=instances, status = status)
 
     def post(self):
@@ -254,16 +254,9 @@ class SetJobStatus(MethodView):
             t_id = arguments.get("t_id", None)
             if t_id is None:
                 raise Exception("no task ID provided")
-            # check for batchId
-            bId = arguments.get("batchId",None)
-            try: 
-                bId = self.__extractBatchId__(bId)
-            except Exception as err:
-                raise Exception("error extracting batchId, err")            
             inst_id = arguments.get("inst_id", None)
             if inst_id is None:
-                raise Exception("no instance ID provided")
-    
+                raise Exception("no instance ID provided")    
             # additional information, not critical
             site = str(arguments.get("site", None))
             minor_status = arguments.get("minor_status", None)
@@ -276,6 +269,12 @@ class SetJobStatus(MethodView):
             # this one either throws an exception, which is caught down stream, or returns a valid json.
             if major_status == "New":
                 return self.__rollBack__(job,inst_id,body=body)
+            # check for batchId
+            bId = arguments.get("batchId",None)
+            try: 
+                bId = self.__extractBatchId__(bId)
+            except Exception as err:
+                raise Exception("error extracting batchId,\n%s"%err)                        
             query = {"job":job, "instanceId":inst_id}
             if site is not None: query['site']=site
             if bId is not None:  query["batchId"]=bId
