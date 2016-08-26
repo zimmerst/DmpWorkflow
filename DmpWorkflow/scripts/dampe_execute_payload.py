@@ -55,6 +55,7 @@ class PayloadExecutor(object):
         for fi in self.job.InputFiles:
             src = expandvars(fi['source'])
             tg = expandvars(fi['target'])
+            self.logThis("Staging %s --> %s",src,oPjoin(abspath(self.pwd),tg))
             try:
                 safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
             except IOError, e:
@@ -100,11 +101,11 @@ class PayloadExecutor(object):
         for fi in self.job.OutputFiles:
             src = expandvars(fi['source'])
             tg = expandvars(fi['target'])
+            self.logThis("Staging %s --> %s",oPjoin(abspath(self.pwd),src),tg)
             _dir = dirname(tg)
-            if not isdir(_dir):
+            try:
                 self.logThis("creating output directory %s", _dir)
                 mkdir(_dir)
-            try:
                 safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
                 self.job.registerDS(filename=tg, overwrite=True)
             except Exception, e:

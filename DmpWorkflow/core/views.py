@@ -2,8 +2,7 @@ import logging
 from copy import deepcopy
 from os.path import basename
 from json import loads, dumps
-from flask import Blueprint, request, redirect, render_template, url_for
-from flask.ext.mongoengine.wtf import model_form
+from flask import Blueprint, request, render_template
 from datetime import datetime
 from flask.views import MethodView
 from ast import literal_eval
@@ -23,38 +22,24 @@ class ListView(MethodView):
         jobs = Job.objects.all()
         return render_template('jobs/list.html', jobs=jobs)
 
-class DebugView(MethodView):
-    def get(self):
-        logger.debug("DebugView:GET: request %s", str(request))
-        form = dict(request.form)
-        logger.info("DebugView:GET: content of form %s",str(form))
-        return dumps({"result":"ok","value":dumps(form)})
-
 class InstanceView(MethodView):
     def get(self):
         logger.debug("InstanceView: request %s",str(request))
         slug  = request.args.get("slug",None)
         instId= int(request.args.get("instanceId",-1))
-        if slug is None:
-            msg = "must be called with slug"
-            logger.error(msg)
-            raise Exception(msg)
         try:
+            if slug is None:
+                msg = "must be called with slug"
+                raise Exception(msg)
             job = Job.objects.get(slug=slug)
-        except Job.DoesNotExist():
-            msg = "InstanceView:GET: job cannot be found %s"%slug
-            logger.error(msg)
-            raise Exception(msg)
-        if instId == -1:
-            msg = "InstanceView:GET: must be called with instanceId"
-            logger.error(msg)
-            raise Exception(msg)
-        logger.info("InstanceView:GET: looking for instances with instId %i & job %s",instId,job.title)
-        try:
+            if instId == -1:
+                raise Exception("must be called with instanceId")
+            logger.debug("InstanceView:GET: looking for instances with instId %i & job %s",instId,job.title)
             instance = JobInstance.objects.get(job=job,instanceId=instId)
             logger.debug("InstanceView:GET: found instance, rendering templates")
-        except JobInstance.DoesNotExist:
+        except Exception as err:
             jobs = Job.objects.all()
+            logger.exception("InstanceView:GET: caught exception %s",err)
             return render_template('jobs/list.html', jobs=jobs)
         return render_template('jobs/instanceDetail.html', instance=instance)
         
@@ -81,10 +66,10 @@ class DetailView(MethodView):
         else:
             logger.info("DetailView:GET: request called with status query")
             instances = JobInstance.objects.filter(job=job,status=status)
-        logger.info("DetailView:GET: found %i instances"%instances.count())
+        logger.info("DetailView:GET: found %i instances for job %s",instances.count(),job.title)
         return render_template('jobs/detail.html',job=job, instances=instances, status = status)
 
-    def post(self, slug):
+    def post(self):
         dumps({"result":"ok","error":"Nothing to display"})
 
 class JobView(MethodView):
@@ -141,7 +126,6 @@ class JobView(MethodView):
             logger.exception("JobView:GET: %s",err)
             return dumps({"result": "nok", "jobID": "None", "error": str(err)})
 
-
 class JobInstanceView(MethodView):
     def get(self):
         dumps({"result":"ok","error":"Nothing yet"})
@@ -192,8 +176,20 @@ class JobInstanceView(MethodView):
             return dumps({"result": "nok", "error": 'Could not find job %s' % taskName})
 
 class SetJobStatus(MethodView):
-    def post(self):
-        dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
+    # these are helper methods to reduce complexity of POST    
+    def __extractBatchId__(self,bId):
+        logger.debug("SetJobStatus:POST: batchId passed to DB %s", bId)        
+        if bId is None: return bId
+        elif isinstance(bId,int): 
+            logger.debug("SetJobStatus:POST: batchId already type of int, not doing anything") 
+        else:
+            res = findall(r"\d+", str(bId))
+            if len(res):
+                bId = int(res[0])
+        logger.debug("SetJobStatus:POST: batchId: %s", bId)
+        return bId
+    
+    def __readArgs__(self,request):
         arguments = loads(request.form.get("args", "{}"))
         logger.debug("SetJobStatus:POST: arguments %s,",str(arguments))
         if not len(arguments.keys()):
@@ -202,123 +198,148 @@ class SetJobStatus(MethodView):
                 logger.debug("SetJobStatus:POST: request.json %s",request.json)
                 arguments = request.json.get("args",{})
             except Exception as err:
-                logger.exception(err)
-                return dumps({"result":"nok","error":"CRITICAL error reading arguments"})
+                raise Exception("CRITICAL error reading arguments")
         logger.debug("SetJobStatus:POST: request arguments %s", str(arguments))
         if not isinstance(arguments, dict):
-            logger.exception("SetJobStatus:POST: arguments MUST be dictionary.")
-        if 'major_status' not in arguments:
-            logger.exception("SetJobStatus:POST: couldn't find major_status in arguments")
-        t_id = arguments.get("t_id", "None")
-        bId = arguments.get("batchId", None)
-        logger.debug("SetJobStatus:POST: batchId passed to DB %s", bId)        
-        try:
-            if bId is not None:
-                res = findall(r"\d+", str(bId))
-                if len(res):
-                    bId = int(res[0])
-        except Exception as err:
-            return dumps({"result": "nok", "error": "Error parsing batchId, %s" % str(err)})
-        site = str(arguments.get("site", "None"))
-        inst_id = arguments.get("inst_id", "None")
+            err = "arguments MUST be dictionary."
+            raise Exception(err)
+        return arguments
+    def __readBdy__(self,arguments):
+        dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         bdy = literal_eval(arguments.get("body", str(dummy_dict)))
-        major_status = arguments.get("major_status", None)
-        if major_status is None:
-            logger.exception("SetJobStatus:POST: cannot find major status")
-            return dumps({"result": "nok", "error": "CRITICAL: major_status is missing"})
-        minor_status = arguments.get("minor_status", None)
+        if 'body' in arguments: del arguments['body']
         logger.debug("SetJobStatus:POST: BODY: %s (type %s)", bdy, type(bdy))
-        logger.debug("SetJobStatus:POST: batchId: %s", bId)
-        if 'body' in arguments:
-            del arguments['body']
+        return bdy
+    def __rollBack__(self,job,inst_id,body=None):
+        """ only the body is taken from the method, everything else is flushed """
+        logger.debug("SetJobStatus:POST: requesting roll back for job %s and instance %i",job.title,inst_id)
+        if not isinstance(job,Job):
+            raise Exception("must be a valid Job instance.")
         try:
+            query = JobInstance.objects.filter(job=job,instanceId=inst_id)
+            update_dict = {
+                        "created_at"    : datetime.now(),
+                        "last_update"   : datetime.now(),
+                        "batchId"       : None,
+                        "Nevents"       : 0,
+                        "hostname"      : None,
+                        "status"        : "New",
+                        "minor_status"  : "AwaitingBatchSubmission",
+                        "status_history": [],
+                        "memory"        : [],
+                        "cpu"           : [],
+                        "log"           : ""
+                           }
+            res = query.update(**update_dict)
+            if not res:
+                raise Exception("error while updating instance")
+            # at this stage the instance MUST exist...
+            inst = query.first()
+            inst.reload()
+            if body is not None:
+                inst.setBody(body)
+                inst.getResourcesFromMetadata()
+        except Exception as err:
+            raise Exception(err)        
+        return dumps({"result": "ok"}) 
+           
+    def post(self):
+        #dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
+        # extract arguments
+        arguments = {}
+        try:
+            # this one may throw, but this is caught.
+            arguments = self.__readArgs__(request)
+            # otherwise, move on...
+            major_status = arguments.get("major_status", None)
+            if major_status is None:
+                raise Exception("SetJobStatus:POST: couldn't find major_status in arguments")
+            # keep going...
+            t_id = arguments.get("t_id", None)
+            if t_id is None:
+                raise Exception("no task ID provided")
+            inst_id = arguments.get("inst_id", None)
+            if inst_id is None:
+                raise Exception("no instance ID provided")    
+            # additional information, not critical
+            site = str(arguments.get("site", "None"))
+            minor_status = arguments.get("minor_status", None)
             jInstance = None
-            if t_id != "None" and inst_id != "None":
-                my_job = Job.objects.filter(id=t_id)
-                if not my_job.count():
-                    raise Exception("could not find Job")
-                my_job = my_job.first()
-                jInstance = my_job.getInstance(inst_id)
-            else:
-                if bId is not None and site != "None":
-                    jInstance = JobInstance.objects.filter(batchId=bId, site=site)
-                    if not jInstance.count():
-                        raise Exception("could not find JobInstance")
-                    jInstance = jInstance.first()
-            if jInstance is not None:
-                oldStatus = jInstance.status
-                minorOld = jInstance.minor_status
-                if minor_status is not None and minor_status != minorOld:
-                    logger.debug("SetJobStatus:POST: updating minor status")
-                    jInstance.set("minor_status", minor_status)
-                    del arguments['minor_status']
-                if major_status != oldStatus:
-                    jInstance.setStatus(major_status)
-                    jInstance.setBody(bdy)
-                    if 'body' in arguments: del arguments['body']
-                for key in ["t_id", "inst_id", "major_status"]:
-                    del arguments[key]                        
-                for key, value in arguments.iteritems():
-                    # if key == 'batchId' and value is None: value = "None"
-                    jInstance.set(key, value)
-                    # update_status(t_id,inst_id,major_status, **arguments)
+            body = self.__readBdy__(arguments)
+            if "body" in arguments:
+                del arguments["body"]
+            # this might throw, but that's caught down-stream...
+            job = Job.objects.get(id=t_id) 
+            # this one either throws an exception, which is caught down stream, or returns a valid json.
+            if major_status == "New":
+                return self.__rollBack__(job,inst_id,body=body)
+            # check for batchId, not used in query.
+            bId = arguments.get("batchId",None)
+            try: 
+                bId = self.__extractBatchId__(bId)
+                arguments["batchId"]=bId
+            except Exception as err:
+                raise Exception("error extracting batchId,\n%s"%err)                        
+            query = {"job":job, "instanceId":inst_id}
+            if site != "None": query['site']=site
+            # again, this may throw...
+            logger.debug("SetJobStatus:POST: query to find instance %s",str(query))
+            jInstance = JobInstance.objects.get(**query) 
+            # now here we can update stuff...
+            logger.debug("SetJobStatus:POST: found instance %s",str(jInstance))
+            logger.debug("SetJobStatus:POST: arguments in request %s",str(arguments))
+            jInstance.setStatus(major_status,minor_status)
+            jInstance.setBody(body) # again, this could throw...
+            for key in ["t_id", "inst_id", "major_status","minor_status"]:
+                if key in arguments: del arguments[key]  
+            logger.debug("SetJobStatus:POST: arguments after cleanup %s",str(arguments))
+            # for the rest, we can just use the setters.
+            for key, value in arguments.iteritems():
+                jInstance.set(key, value)
+
         except Exception as err:
             logger.exception("SetJobStatus:POST: %s",err)
             return dumps({"result": "nok", "error": str(err)})
         return dumps({"result": "ok"})
 
     def get(self):
+        queried_instances = output = []
         logger.debug("SetJobStatus:GET: request %s", str(request))
-        title = unicode(request.form.get("title", None))
         jtype = unicode(request.form.get("type", "Generation"))
         stat = unicode(request.form.get("stat", "Any"))
         instId = int(request.form.get("inst", -1))
         n_min = int(request.form.get("n_min", -1))
         n_max = int(request.form.get("n_max", -1))
-        jobs = Job.objects.filter(title=title, type=jtype)
-        logger.debug("SetJobStatus:GET: jobs found %s", str(jobs))
-        queried_instances = []
-        if jobs.count():
-            logger.debug("SetJobStatus:GET: found jobs matching query %s", jobs)
-            if jobs.count() != 1:
-                logger.error("SetJobStatus:GET: found multiple jobs matching query, that shouldn't happen!")
-            job = jobs.first()
-            if instId == -1:
-                logger.debug("SetJobStatus:GET: Q: job=%s status=%s", job, stat)
-                if stat == "Any":
-                    queried_instances = JobInstance.objects.filter(job=job)
-                else:
-                    queried_instances = JobInstance.objects.filter(job=job, status=str(stat))
-                logger.debug("SetJobStatus:GET: query returned %i queried_instances", queried_instances.count())
-                filtered_instances = []
-                logger.debug("SetJobStatus:GET: queried: %i filtered: %i", queried_instances.count(), len(filtered_instances))
-                for inst in queried_instances:
-                    keep = True
-                    instId = inst.instanceId
-                    if n_min != -1 and instId <= n_min:
-                        keep = False
-                    if n_max != -1 and instId > n_max:
-                        keep = False
-                    if not keep:
-                        continue
-                    filtered_instances.append(inst)
-                logger.debug("SetJobStatus:GET: queried: %i filtered: %i", queried_instances.count(), len(filtered_instances))
-                queried_instances = filtered_instances
+        title = unicode(request.form.get("title", None))
+        try:
+            if title is None: 
+                raise Exception("missing title in jobStatusQuery")
+            # this might throw...
+            job = Job.objects.get(title=title, type=jtype)
+            logger.debug("SetJobStatus:GET: job found %s", str(job))
+            query = {"job":job}
+            if stat != "Any": query["status"]=stat
+            if instId != -1 : query["instanceId"]=instId
+            instances = JobInstance.objects.filter(**query)
+            if not instances.count():
+                raise Exception("could not find any job instances matching query")
+            if instances.count() == 1:
+                queried_instances.append(instances.first())
             else:
-                queried_instances = JobInstance.objects.filter(job=job, instanceId=instId)
-            logger.debug("SetJobStatus:GET: query returned %i instances", len(queried_instances))
-            try:
-                queried_instances = [{"instanceId": q.instanceId, "jobId": str(q.job.id)} for q in queried_instances]
-            except Exception as err:
-                logger.error("SetJobStatus:GET: %s",err)
-                return dumps({"result": "nok", "error": "error occurred when forming final output"})
-            if len(queried_instances):
-                logger.debug("SetJobStatus:GET: example query instance %s", queried_instances[-1])
-        else:
-            logger.exception("SetJobStatus:GET: could not find job")
-            return dumps({"result": "nok", "error": "could not find job"})
-        return dumps({"result": "ok", "jobs": queried_instances})
-
+                for inst in instances:
+                    keep = True
+                    this_id = inst.instanceId
+                    if n_min != -1 and this_id <= n_min:
+                        keep = False
+                    if n_max != -1 and this_id > n_max:
+                        keep = False
+                    if not keep: continue
+                    queried_instances.append(inst)
+            output = [{"instanceId": q.instanceId, "jobId": str(q.job.id)} for q in queried_instances]
+        except Exception as err:
+            logger.error("SetJobStatus:GET: %s",err)
+            return dumps({"result":"nok","error":str(err)})
+        return dumps({"result": "ok", "jobs": output})
 
 class NewJobs(MethodView):
     def get(self):
@@ -368,36 +389,23 @@ class TestView(MethodView):
         proc = str(request.form.get("process","default"))
         timestamp = datetime.now()
         logger.debug("TestView:POST: hostname: %s timestamp: %s ", hostname, timestamp)
-        if (hostname == "None") or (timestamp == "None"):
-            logger.debug("TestView:POST: request empty")
-            return dumps({"result": "nok", "error": "request empty"})
         try:
-            if hostname == "None" and proc != "default":
-                q = HeartBeat.objects.filter(process=proc)
-                if q.count():
-                    q.update(timestamp=timestamp)
-                    if version != "None": q.update(version=version)
-                else:
-                    return({"result":"nok", "error":"could not update timestamp because hostname was not specified"})
-            elif proc == "default" and hostname != "None":
-                q = HeartBeat.objects.filter(hostname=hostname)
-                if q.count():
-                    q.update(timestamp=timestamp)
-                    if version != "None": q.update(version=version)
-                else:
-                    HB = HeartBeat(hostname=hostname, timestamp=timestamp, process=proc,version=version)
-                    HB.save()
+            if (hostname == "None") or (timestamp == "None"):
+                raise Exception("request empty")
+            query = {}
+            if proc  != "default": query['process'] = proc
+            if hostname != 'None': query['hostname']=hostname
+            q = HeartBeat.objects.filter(**query)
+            query["timestamp"] = timestamp
+            query["version"]   = version
+            if not q.count():
+                HB = HeartBeat(**query)
+                HB.save()
             else:
-                q = HeartBeat.objects.filter(hostname=hostname, process=proc)
-                if q.count():
-                    q.update(timestamp=timestamp)
-                    if version != "None": q.update(version=version)
-                else:
-                    HB = HeartBeat(hostname=hostname, timestamp=timestamp, process=proc,version=version)
-                    HB.save()
-        except Exception as ex:
-            logger.error("TestView:POST: failure during HeartBeat POST test. \n%s", ex)
-            return dumps({"result": "nok", "error": ex})
+                q.update(**query)
+        except Exception as err:
+            logger.error("TestView:POST: %s",err)
+            return dumps({"result":"nok","error":str(err)})
         return dumps({"result": "ok"})
 
     def get(self):
@@ -410,7 +418,6 @@ class TestView(MethodView):
             logger.error("TestView:GET: failure during HeartBeat GET test. \n%s", ex)
             return dumps({"result": "nok", "error": ex})
         return dumps({"result": "ok", "beats": [b.hostname for b in beats]})
-
 
 class DataCatalog(MethodView):
     def __register__(self, args):
@@ -505,9 +512,5 @@ jobs.add_url_rule('/jobInstances/detail', view_func=InstanceView.as_view('instan
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET", "POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
-#jobs.add_url_rule("/watchdog/", view_func=JobResources.as_view('watchdog'), methods=["GET"])
 jobs.add_url_rule("/testDB/", view_func=TestView.as_view('testDB'), methods=["GET", "POST"])
 jobs.add_url_rule("/datacat/", view_func=DataCatalog.as_view('datacat'), methods=["GET", "POST"])
-jobs.add_url_rule("/debug/", view_func=DebugView.as_view('debug'), methods=["GET", "POST"])
-
-# jobs.add_url_rule('/InstanceDetail', view_func=InstanceView.as_view('instancedetail'), methods=['GET'])

@@ -195,7 +195,7 @@ def safe_copy(infile, outfile, **kwargs):
     kwargs.setdefault('debug', False)
     kwargs.setdefault('checksum', False)
     kwargs.setdefault("checksum_blocksize", 4096)
-    kwargs.setdefault('mkdir',True)
+    kwargs.setdefault('mkdir',False)
     sleep = parse_sleep(kwargs['sleep'])
     xrootd = False    
     if kwargs['mkdir']: mkdir(dirname(outfile))            
@@ -325,7 +325,6 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.debug = False
         self.ps = ps
         self.query()
-        
     
     def getMemory(self, unit='Mb'):
         self.query()
@@ -347,9 +346,7 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.memory=0
     
     def query(self):
-        self.counter+=1
         dbg = self.debug
-        if dbg: print '*** DEBUG ***: entering cycle %i'%self.counter
         self.free()
         cpu = self.ps.cpu_times()
         # collect parent usage                                                                                                                                                                        

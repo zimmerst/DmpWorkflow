@@ -492,7 +492,9 @@ class JobInstance(db.Document):
             return 0.
 
     def set(self, key, value):
-        if key == "created_at" and value == "Now":
+        if key == 'minor_status':
+            raise NotImplementedError("use JobInstance.setStatus(major_status,minorStatus) instead.")
+        elif key == "created_at" and value == "Now":
             value = datetime.now()
         elif key == 'cpu':
             self.cpu.append({"time": datetime.now(), "value": value})
@@ -515,32 +517,39 @@ class JobInstance(db.Document):
         self.__setattr__("last_update", datetime.now())
         self.update()
 
-    def setStatus(self, stat):
+    def setStatus(self, stat, minorStatus):
         log.debug("calling JobInstance.setStatus")
         if stat not in MAJOR_STATII:
             raise Exception("status not found in supported list of statii: %s", stat)
         curr_status = self.status
-        curr_time = datetime.now()
-        self.last_update = curr_time
-        if curr_status == stat and self.minor_status == self.status_history[-1]['minor_status']:
+        if curr_status in FINAL_STATII: 
+            self.__sortTimeStampedLists()
+            self.update()
+        curr_minor  = self.minor_status
+        if minorStatus is None:
+            log.warning("no minorStatus provided, assuming last minor status!")
+            minorStatus = curr_minor
+        last_upd = self.last_update
+        if curr_status == stat and curr_minor == minorStatus: 
+            # nothing has changed
             return
         if curr_status in FINAL_STATII:
             if not stat == 'New':
                 raise Exception("job found in final state, can only set to New")
-            # clean the lists!
-            ret = JobInstance.objects.filter(job=self.job,instanceId=self.instanceId).update(status_history=[], memory=[], cpu=[])
-            if ret!=1:
-                log.critical("ERROR: JobInstance::setStatus to NEW returned bad value %i",ret)
-                raise Exception("error resetting instance to NEW")
-        self.last_update = self.last_update
-        self.set("status", stat)
-        sH = {"status": self.status,
-              "update": self.last_update,
-              "minor_status": self.minor_status}
-        log.debug("statusSet %s", str(sH))
-        self.status_history.append(sH)
-        if curr_status in FINAL_STATII: self.__sortTimeStampedLists()
-        self.update()
+            return
+        else:
+            # now store the old status in the history
+            sH = {"status": curr_status,
+                  "update": last_upd,
+                  "minor_status": curr_minor}
+            log.debug("statusSet %s", str(sH))
+            hist = self.status_history
+            hist.append(sH)            
+            q = {"job":self.job, "instanceId":self.instanceId}
+            upd_dict = {"status":stat, "minor_status":minorStatus, "last_update":datetime.now(),"status_history":sH}
+            ret = JobInstance.objects.filter(**q).update(**upd_dict)
+            if ret != 1:
+                raise Exception("error setting status")
         return
 
     def __sortTimeStampedLists(self):
