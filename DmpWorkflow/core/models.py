@@ -492,7 +492,16 @@ class JobInstance(db.Document):
             return 0.
 
     def set(self, key, value):
-        if key == "created_at" and value == "Now":
+        if key == 'minor_status':
+            old_stat = self.status
+            old_minor= self.minor_status
+            old_time = self.last_update
+            sH = {"status": old_stat,
+                  "update": old_minor,
+                  "minor_status": old_time}
+            self.status_history.append(sH)
+            self.minor_status = value
+        elif key == "created_at" and value == "Now":
             value = datetime.now()
         elif key == 'cpu':
             self.cpu.append({"time": datetime.now(), "value": value})
