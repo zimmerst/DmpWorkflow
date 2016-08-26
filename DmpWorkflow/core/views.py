@@ -176,7 +176,7 @@ class JobInstanceView(MethodView):
             return dumps({"result": "nok", "error": 'Could not find job %s' % taskName})
 
 class SetJobStatus(MethodView):
-# these are helper methods to reduce complexity of POST    
+    # these are helper methods to reduce complexity of POST    
     def __extractBatchId__(self,arguments):
         bId = arguments.get("batchId", None)
         logger.debug("SetJobStatus:POST: batchId passed to DB %s", bId)        
@@ -237,7 +237,8 @@ class SetJobStatus(MethodView):
                 inst.getResourcesFromMetadata()
         except Exception as err:
             raise Exception(err)        
-        return dumps({"result": "ok"})        
+        return dumps({"result": "ok"}) 
+           
     def post(self):
         #dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         # extract arguments
