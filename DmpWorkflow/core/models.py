@@ -544,7 +544,8 @@ class JobInstance(db.Document):
                   "minor_status": curr_minor}
             log.debug("statusSet %s", str(sH))
             hist = self.status_history
-            if not sH['minor_status'] in [item['minor_status'] for item in hist]:
+            min_hist = [str(item['minor_status']) for item in hist if 'minor_status' in item]
+            if not sH['minor_status'] in min_hist:
                 # don't count twice...
                 hist.append(sH)            
             q = {"job":self.job, "instanceId":self.instanceId}
