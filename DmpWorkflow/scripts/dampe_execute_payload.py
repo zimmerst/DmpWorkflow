@@ -56,7 +56,7 @@ class PayloadExecutor(object):
             src = expandvars(fi['source'])
             tg = expandvars(fi['target'])
             try:
-                safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
+                safe_copy(src, tg, attempts=4, sleep='4s', checksum=True, debug=True)
             except IOError, e:
                 try:
                     self.job.updateStatus("Running" if self.debug else "Failed", camelize(e))
