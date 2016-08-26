@@ -15,7 +15,6 @@ if kind == 'server':
     app.config['MONGODB_HOST'] = cfg.get("database", "host")
     app.config['MONGODB_PORT'] = int(cfg.get("database", "port"))
     app.config["SECRET_KEY"] = "KeepThisS3cr3t"
-    app.logger.info("started DmpWorkflow Server Version: %s on %s",version,getfqdn())
     db = MongoEngine(app)
     
     def register_blueprints(app):
@@ -29,6 +28,7 @@ if kind == 'server':
     register_blueprints(app)
     
     def main():
+        app.logger.info("started DmpWorkflow Server Version: %s on %s",version,getfqdn())
         app.run()
 else:
     def main():
