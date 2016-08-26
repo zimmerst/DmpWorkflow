@@ -177,15 +177,18 @@ class JobInstanceView(MethodView):
 
 class SetJobStatus(MethodView):
     # these are helper methods to reduce complexity of POST    
-    def __extractBatchId__(self,arguments):
-        bId = arguments.get("batchId", None)
+    def __extractBatchId__(self,bId):
         logger.debug("SetJobStatus:POST: batchId passed to DB %s", bId)        
-        if bId is not None:
+        if bId is None: return bId
+        elif isinstance(bId,int): 
+            logger.debug("SetJobStatus:POST: batchId already type of int, not doing anything") 
+        else:
             res = findall(r"\d+", str(bId))
             if len(res):
                 bId = int(res[0])
         logger.debug("SetJobStatus:POST: batchId: %s", bId)
         return bId
+    
     def __readArgs__(self,request):
         arguments = loads(request.form.get("args", "{}"))
         logger.debug("SetJobStatus:POST: arguments %s,",str(arguments))
