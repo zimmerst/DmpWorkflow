@@ -546,7 +546,7 @@ class JobInstance(db.Document):
             hist = self.status_history
             hist.append(sH)            
             q = {"job":self.job, "instanceId":self.instanceId}
-            upd_dict = {"status":stat, "minor_status":minorStatus, "last_update":datetime.now(),"status_histor":sH}
+            upd_dict = {"status":stat, "minor_status":minorStatus, "last_update":datetime.now(),"status_history":sH}
             ret = JobInstance.objects.filter(**q).update(**upd_dict)
             if ret != 1:
                 raise Exception("error setting status")
