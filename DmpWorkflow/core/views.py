@@ -262,7 +262,7 @@ class SetJobStatus(MethodView):
             if inst_id is None:
                 raise Exception("no instance ID provided")    
             # additional information, not critical
-            site = str(arguments.get("site", None))
+            site = str(arguments.get("site", "None"))
             minor_status = arguments.get("minor_status", None)
             jInstance = None
             body = self.__readBdy__(arguments)
@@ -281,7 +281,7 @@ class SetJobStatus(MethodView):
                 raise Exception("error extracting batchId,\n%s"%err)                        
             query = {"job":job, "instanceId":inst_id}
             # FIXME: site is superfluous in this query...
-            if site is not None or site != "None": query['site']=site
+            if site != "None": query['site']=site
             if bId is not None:  query["batchId"]=bId
             # again, this may throw...
             logger.debug("SetJobStatus:POST: query to find instance %s",str(query))
