@@ -281,10 +281,14 @@ class SetJobStatus(MethodView):
                 raise Exception("error extracting batchId,\n%s"%err)                        
             query = {"job":job, "instanceId":inst_id}
             # FIXME: site is superfluous in this query...
-            #if site is not None: query['site']=site
+            if site is not None or site != "None": query['site']=site
             if bId is not None:  query["batchId"]=bId
             # again, this may throw...
             logger.debug("SetJobStatus:POST: query to find instance %s",str(query))
+        except:
+            logger.exception("SetJobStatus:POST: error in query %s",err)
+            return dumps({"result": "nok", "error": str(err)})
+        try:
             jInstance = JobInstance.objects.get(**query) 
             # now here we can update stuff...
             logger.debug("SetJobStatus:POST: found instance %s",str(jInstance))
