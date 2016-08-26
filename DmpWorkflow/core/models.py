@@ -544,7 +544,10 @@ class JobInstance(db.Document):
                   "minor_status": curr_minor}
             log.debug("statusSet %s", str(sH))
             hist = self.status_history
-            hist.append(sH)            
+            minor_statii = [item['minor_status'] for item in items]
+            if not sH['minor_status'] in minor_statii:
+                # don't count twice...
+                hist.append(sH)            
             q = {"job":self.job, "instanceId":self.instanceId}
             upd_dict = {"status":stat, "minor_status":minorStatus, "last_update":datetime.now(),"status_history":sH}
             ret = JobInstance.objects.filter(**q).update(**upd_dict)
