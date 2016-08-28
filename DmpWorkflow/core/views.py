@@ -282,6 +282,8 @@ class SetJobStatus(MethodView):
             try: 
                 bId = self.__extractBatchId__(bId)
                 arguments["batchId"]=bId
+                if arguments['batchId'] == "None" or arguments['batchId'] is None:
+                    del arguments['batchId']
             except Exception as err:
                 raise Exception("error extracting batchId,\n%s"%err)                        
             query = {"job":job, "instanceId":inst_id}
