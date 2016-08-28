@@ -517,6 +517,33 @@ class JobInstance(db.Document):
         self.__setattr__("last_update", datetime.now())
         self.update()
 
+    def __logHistory__(self):
+        """ does the accounting in status_history field """
+        stat = self.status
+        minStat  = self.minor_status
+        upd  = self.last_update
+        item = {"status":stat, "minor_status": minStat, "update":upd}
+        history_so_far = self.status_history
+        if self.getHistoryMinorStatusLast() != minStat:
+            history_so_far.append(item)
+        else:
+            return
+        # finally, perform atomic update
+        try:
+            res = JobInstance.objects.filter(instanceId=self.instanceId, job=self.job).update(status_history=history_so_far)
+            if res!= 1: raise Exception("could not perform atomic update on status history.")
+        except Exception as err:
+            log.exception("JobInstance.__logHistory__() trew error, %s",err)
+            raise Exception(err)
+        return
+    
+    def getHistoryMinorStatusLast(self):
+        """ returns the last minor status """
+        for item in self.status_history:
+            if not 'minor_status' in item:
+                log.error("minor_status field missing in status_history, item %s",str(item))
+        return item['minor_status']
+            
     def setStatus(self, stat, minorStatus):
         log.debug("calling JobInstance.setStatus")
         if stat not in MAJOR_STATII:
@@ -529,30 +556,23 @@ class JobInstance(db.Document):
         if minorStatus is None:
             log.warning("no minorStatus provided, assuming last minor status!")
             minorStatus = curr_minor
-        last_upd = self.last_update
         if curr_status == stat and curr_minor == minorStatus: 
             # nothing has changed
             return
         if curr_status in FINAL_STATII:
             if not stat == 'New':
-                raise Exception("job found in final state, can only set to New")
+                exc = "job found in final state, can only set to New"
+                log.error(exc)
+                raise Exception(exc)
             return
         else:
             # now store the old status in the history
-            sH = {"status": curr_status,
-                  "update": last_upd,
-                  "minor_status": curr_minor}
-            log.debug("statusSet %s", str(sH))
-            hist = self.status_history
-            min_hist = [str(item['minor_status']) for item in hist if 'minor_status' in item]
-            if not sH['minor_status'] in min_hist:
-                # don't count twice...
-                hist.append(sH)            
-            q = {"job":self.job, "instanceId":self.instanceId}
-            upd_dict = {"status":stat, "minor_status":minorStatus, "last_update":datetime.now(),"status_history":sH}
-            ret = JobInstance.objects.filter(**q).update(**upd_dict)
-            if ret != 1:
-                raise Exception("error setting status")
+            self.__logHistory__()
+        q = {"job":self.job, "instanceId":self.instanceId}
+        upd_dict = {"status":stat, "minor_status":minorStatus, "last_update":datetime.now()}
+        ret = JobInstance.objects.filter(**q).update(**upd_dict)
+        if ret != 1:
+            raise Exception("error setting status")
         return
 
     def __sortTimeStampedLists(self):
