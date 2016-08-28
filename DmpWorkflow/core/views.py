@@ -41,8 +41,12 @@ class InstanceView(MethodView):
             jobs = Job.objects.all()
             logger.exception("InstanceView:GET: caught exception %s",err)
             return render_template('jobs/list.html', jobs=jobs)
-        return render_template('jobs/instanceDetail.html', instance=instance)
-        
+        try:
+            return render_template('jobs/instanceDetail.html', instance=instance)
+        except Exception as err:
+            logger.critical("could not render instanceDetail, error below may provide more information\n%s",err)
+            render_template("jobs/list.html",jobs = Job.objects.all())
+            
 class StatsView(MethodView):
     def get(self):
         logger.debug("StatsView:GET: request %s", str(request))
