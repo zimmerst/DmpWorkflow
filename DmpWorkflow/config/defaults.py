@@ -55,7 +55,7 @@ environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
 # source_bash(cfg.get("site", "ExternalsScript"))
 
 dbg = cfg.getboolean("global", "traceback")
-if not dbg: sys.excepthook = exceptionHandler
+sys.excepthook = exceptionHandler
 
 DAMPE_WORKFLOW_URL = cfg.get("server", "url")
 DAMPE_WORKFLOW_DIR = cfg.get("site", "workdir")
