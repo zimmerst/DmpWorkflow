@@ -160,7 +160,7 @@ class Job(db.Document):
     def getNeventsFast(self):
         return JobInstance.objects.filter(job=self).aggregate_sum("Nevents")
 
-    def getBody(self):
+    def getBody(self,setVars=False):
         # os.environ["DWF_JOBNAME"] = self.title
         bdy = deepcopy(self.body.get().read())
         self.body.get().seek(0)
@@ -168,7 +168,7 @@ class Job(db.Document):
         # self.body.delete()
         # self.body.put(bdy_file,content_type="application/xml")
         # self.update()
-        return parseJobXmlToDict(bdy)
+        return parseJobXmlToDict(bdy,setVars=setVars)
 
     def resetBody(self, body, content_type="application/xml"):
         self.body.replace(open(body, "rb"), content_type=content_type)

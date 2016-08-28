@@ -481,7 +481,7 @@ class JobXmlParser(object):
         return out
 
 
-def parseJobXmlToDict(domInstance, parent="Job", setVars=True):
+def parseJobXmlToDict(domInstance, parent="Job", setVars=False):
     xp = JobXmlParser(domInstance, parent=parent, setVars=setVars)
     out = xp.getResult()
     return out

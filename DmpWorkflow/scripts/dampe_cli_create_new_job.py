@@ -30,7 +30,7 @@ def main(args=None):
     xmlFile = unicode(opts.xml)
     assert isfile(opts.xml), "must be an accessible file."
     n_instances = int(opts.Ninstances)
-    xdict = parseJobXmlToDict(open(opts.xml, "r").read())
+    xdict = parseJobXmlToDict(open(opts.xml, "r").read(),setVars=False)
     atts = xdict['atts']
     for key, value in vars(opts).iteritems():
         if key == 'set_var':
