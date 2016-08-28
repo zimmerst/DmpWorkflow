@@ -296,7 +296,7 @@ class SetJobStatus(MethodView):
             logger.debug("SetJobStatus:POST: arguments in request %s",str(arguments))
             if minor_status is not None:
                 jInstance.setStatus(major_status,minor_status)
-            jInstance.setBody(body) # again, this could throw...
+            #jInstance.setBody(body) # again, this could throw...
             for key in ["t_id", "inst_id", "major_status","minor_status"]:
                 if key in arguments: del arguments[key]  
             logger.debug("SetJobStatus:POST: arguments after cleanup %s",str(arguments))
