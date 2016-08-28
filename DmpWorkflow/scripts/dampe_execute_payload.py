@@ -171,7 +171,7 @@ if __name__ == '__main__':
         max_mem/=1024 
     # get the max ratios
     try:
-        executor.job.updateStatus("Running", "PreparingJob", hostname=gethostname(), 
+        executor.job.updateStatus("Running", "PreparingJob", hostname=gethostname(), body=executor.job.getJSONbody(),
                                   batchId=executor.batchId, cpu_max=max_cpu, mem_max=max_mem)
     except Exception as err:
         executor.logThis("EXCEPTION: %s", err)

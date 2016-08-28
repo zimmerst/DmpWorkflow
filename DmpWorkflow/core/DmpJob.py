@@ -46,6 +46,11 @@ class DmpJob(object):
         self.extract_xml_metadata(body)
         self.__updateEnv__()
 
+    def getJSONbody(self):
+        """ returns the body of the instance as JSON object, can be returned in status query """
+        dummy_dict = {"InputFiles": self.InputFiles, "OutputFiles": self.OutputFiles, "MetaData": self.MetaData}
+        return dumps(dummy_dict)
+
     def logError(self,err):
         error_line = "%s:ERROR: %s \n"%(ctime(),str(err))
         self.error_log.append(error_line)
