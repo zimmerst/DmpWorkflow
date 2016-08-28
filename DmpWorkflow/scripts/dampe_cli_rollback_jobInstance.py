@@ -41,7 +41,7 @@ def main(args=None):
     override_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
     if opts.set_var is not None:
         var_dict = dict({tuple(val.split("=")) for val in opts.set_var.split(";")})
-        override_dict['MetaData'] = [{"name": k, "value": v, "type": "str"} for k, v in var_dict.iteritems()]
+        override_dict['MetaData'] = [{"name": k, "value": v, "var_type": "string"} for k, v in var_dict.iteritems()]
     my_dict = {}
     for key in opts.__dict__:
         if opts.__dict__[key] is not None:
