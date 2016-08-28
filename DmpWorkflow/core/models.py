@@ -9,7 +9,7 @@ from ast import literal_eval
 from json import dumps
 from numpy import array as np_array, median as np_median, mean as np_mean, histogram as np_hist
 # from StringIO import StringIO
-from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
+from DmpWorkflow.config.defaults import MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
 from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, datetime_to_js
 from DmpWorkflow.utils.tools import parseJobXmlToDict, convertHHMMtoSec, sortTimeStampList
@@ -544,7 +544,7 @@ class JobInstance(db.Document):
         """ returns the last minor status """
         item = None
         for item in self.status_history:
-            if not 'minor_status' in item:
+            if 'minor_status' not in item:
                 log.error("minor_status field missing in status_history, item %s",str(item))
         if item is not None:
             return item['minor_status']

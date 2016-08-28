@@ -214,8 +214,9 @@ class SetJobStatus(MethodView):
         if 'body' in arguments: del arguments['body']
         logger.debug("SetJobStatus:POST: BODY: %s (type %s)", bdy, type(bdy))
         return bdy
-    def __rollBack__(self,job,inst_id,body=None):
+    def __rollBack__(self,job,inst_id,arguments=None):
         """ only the body is taken from the method, everything else is flushed """
+        
         logger.debug("SetJobStatus:POST: requesting roll back for job %s and instance %i",job.title,inst_id)
         if not isinstance(job,Job):
             raise Exception("must be a valid Job instance.")
@@ -240,7 +241,8 @@ class SetJobStatus(MethodView):
             # at this stage the instance MUST exist...
             inst = query.first()
             inst.reload()
-            if body is not None:
+            if arguments is not None:
+                body = self.__readBdy__(arguments)
                 inst.setBody(body)
                 inst.getResourcesFromMetadata()
         except Exception as err:
@@ -269,14 +271,13 @@ class SetJobStatus(MethodView):
             site = str(arguments.get("site", "None"))
             minor_status = arguments.get("minor_status", None)
             jInstance = None
-            body = self.__readBdy__(arguments)
             if "body" in arguments:
                 del arguments["body"]
             # this might throw, but that's caught down-stream...
             job = Job.objects.get(id=t_id) 
             # this one either throws an exception, which is caught down stream, or returns a valid json.
             if major_status == "New":
-                return self.__rollBack__(job,inst_id,body=body)
+                return self.__rollBack__(job,inst_id,arguments=arguments)
             # check for batchId, not used in query.
             bId = arguments.get("batchId",None)
             try: 
@@ -296,7 +297,6 @@ class SetJobStatus(MethodView):
             logger.debug("SetJobStatus:POST: arguments in request %s",str(arguments))
             if minor_status is not None:
                 jInstance.setStatus(major_status,minor_status)
-            #jInstance.setBody(body) # again, this could throw...
             for key in ["t_id", "inst_id", "major_status","minor_status"]:
                 if key in arguments: del arguments[key]  
             logger.debug("SetJobStatus:POST: arguments after cleanup %s",str(arguments))
