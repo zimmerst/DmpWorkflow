@@ -523,9 +523,12 @@ class JobInstance(db.Document):
         minStat  = self.minor_status
         upd  = self.last_update
         item = {"status":stat, "minor_status": minStat, "update":upd}
+
         history_so_far = self.status_history
-        if self.getHistoryMinorStatusLast() != minStat:
-            history_so_far.append(item)
+        appd = False
+        if len(history_so_far): appd = True
+        elif self.getHistoryMinorStatusLast() != minStat: appd = True
+        if appd: history_so_far.append(item)
         else:
             return
         # finally, perform atomic update
@@ -539,11 +542,13 @@ class JobInstance(db.Document):
     
     def getHistoryMinorStatusLast(self):
         """ returns the last minor status """
+        item = None
         for item in self.status_history:
             if not 'minor_status' in item:
                 log.error("minor_status field missing in status_history, item %s",str(item))
-        return item['minor_status']
-            
+        if item is not None:
+            return item['minor_status']
+
     def setStatus(self, stat, minorStatus):
         log.debug("calling JobInstance.setStatus")
         if stat not in MAJOR_STATII:
