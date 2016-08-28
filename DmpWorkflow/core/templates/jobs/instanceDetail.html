@@ -133,7 +133,7 @@
       legend: { labelBoxBorderColor: "none", position: "nw" }
   };
     
-  var plot = $.plot($("#placeholder"), data1, options);
+  $.plot($("#placeholder"), data1, options);
 
   // below is the code for the button to roll-back.
   var myobject = {{ json|safe }};
