@@ -135,16 +135,6 @@
     
   var plot = $.plot($("#placeholder"), data1, options);
 
-  // add some annotations to the stuff
-  /*
-  for (var i=0; i<history_time.length; i++)
-  {
-    o = plot.pointOffset({ x: history_time[i], y: 50.}); 
-    placeholder.append('<div style="position:absolute;left:' + (o.left + 4) + 'px;top:' + o.top + 'px;color:#666;font-size:smaller">(i+1)</div>'); 
-  }
-  */
-
-
   // below is the code for the button to roll-back.
   var myobject = {{ json|safe }};
   console.log(myobject);
