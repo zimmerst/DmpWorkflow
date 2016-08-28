@@ -45,7 +45,7 @@
 <div>
 	<h3>Status History</h3>
 	{% set history = instance.status_history %}
-	{% set step = 1; %}
+	{% set step = 1 %}
 	<table class="table">
 		<thead>
 			<th>Step</th>
@@ -63,7 +63,7 @@
 		{% set step = step + 1 %}
       	{% endfor %}
       	<tr>
-      	    <td>{{ step }}</td>
+            <td>{{ step+history|length }}</td>
       	    <td>{{ instance.last_update }}</td>
       	    <td>{{ instance.status }}</td>
       	    <td>{{ instance.minor_status }}</td>
