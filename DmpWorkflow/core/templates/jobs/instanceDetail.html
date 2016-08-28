@@ -45,18 +45,22 @@
 <div>
 	<h3>Status History</h3>
 	{% set history = instance.status_history %}
+	{% set step = 1; %}
 	<table class="table">
 		<thead>
+			<th>Step</th>
 			<th>Date</th>
 			<th>Major Status</th>
 			<th>Minor Status</th>
       	</thead>
     	{% for stat in history %}
 		<tr>
+	        <td>{{ step }}</td>
 	        <td>{{ stat['update'] }}</td>
 	        <td>{{ stat['status'] }}</td>
 	        <td>{{ stat['minor_status'] }}</td>
 		</tr>
+		{% set step = step + 1 %}
       	{% endfor %}
       	<tr>
       	    <td>{{ instance.last_update }}</td>
@@ -129,7 +133,16 @@
       legend: { labelBoxBorderColor: "none", position: "nw" }
   };
     
-  $.plot($("#placeholder"), data1, options);
+  var plot = $.plot($("#placeholder"), data1, options);
+
+  // add some annotations to the stuff
+  /*
+  for (var i=0; i<history_time.length; i++)
+  {
+    o = plot.pointOffset({ x: history_time[i], y: 50.}); 
+    placeholder.append('<div style="position:absolute;left:' + (o.left + 4) + 'px;top:' + o.top + 'px;color:#666;font-size:smaller">(i+1)</div>'); 
+  }
+  */
 
 
   // below is the code for the button to roll-back.
