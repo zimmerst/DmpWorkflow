@@ -82,7 +82,7 @@ class DmpJob(object):
                 bkey = var['name'].replace("BATCH_OVERRIDE_", "").lower()
                 BATCH_DEFAULTS[bkey] = var['value']
             else:
-                print 'setting %s = %s',var['name'],var['value']
+                print 'setting %s = %s'%(var['name'],var['value'])
                 environ[var['name']] = var['value']
         for fil in self.InputFiles + self.OutputFiles:
             for key in ['source', 'target']:

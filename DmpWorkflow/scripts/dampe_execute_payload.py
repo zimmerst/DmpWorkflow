@@ -48,8 +48,9 @@ class PayloadExecutor(object):
             self.job.updateStatus("Running", "PreparingInputData", hostname=gethostname(), batchId=self.batchId)
         except Exception as err:
             self.logThis("EXCEPTION: %s", err)
-        # first, set all variables
-        for var in self.job.MetaData: environ[var['name']] = expandvars(var['value'])
+        # first, set all variables, already done...
+        #for var in self.job.MetaData: environ[var['name']] = expandvars(var['value'])
+
         self.logThis("current environment settings")
         # log.info("\n".join(["%s: %s"%(key,value) for key, value in sorted(environ.iteritems())]))
         for fi in self.job.InputFiles:
