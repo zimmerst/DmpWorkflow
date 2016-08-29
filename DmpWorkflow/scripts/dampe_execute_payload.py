@@ -4,7 +4,7 @@ Created on Apr 19, 2016
 @author: zimmer
 @brief: payload script with integrated process handling
 """
-from os.path import expandvars, abspath, dirname, isdir, join as oPjoin
+from os.path import expandvars, abspath, dirname, join as oPjoin
 from os import curdir, environ, listdir, chdir, getenv
 from importlib import import_module
 from socket import gethostname
@@ -49,12 +49,15 @@ class PayloadExecutor(object):
         except Exception as err:
             self.logThis("EXCEPTION: %s", err)
         # first, set all variables
-        for var in self.job.MetaData: environ[var['name']] = expandvars(var['value'])
         self.logThis("current environment settings")
+        for key, value in sorted(environ.iteritems()):
+            print "%s = %s"%(key,value)
+        self.logThis("end of environment dump")
         # log.info("\n".join(["%s: %s"%(key,value) for key, value in sorted(environ.iteritems())]))
         for fi in self.job.InputFiles:
             src = expandvars(fi['source'])
             tg = expandvars(fi['target'])
+            self.logThis("Staging %s --> %s",src,oPjoin(abspath(self.pwd),tg))
             try:
                 safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
             except IOError, e:
@@ -62,6 +65,7 @@ class PayloadExecutor(object):
                     self.job.updateStatus("Running" if self.debug else "Failed", camelize(e))
                 except Exception as err:
                     self.logThis("EXCEPTION: %s", err)
+                    self.job.logError(err)
                 if not self.debug: return 4
         self.logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
         self.logThis("successfully completed staging.")
@@ -84,6 +88,8 @@ class PayloadExecutor(object):
             self.logThis("content of current working directory %s: %s", abspath(curdir), str(listdir(curdir)))
             self.logThis('reading error from payload %s',error.name)
             print error.read()
+            error.seek(0)
+            self.job.logError(error.read())
             error.close()
             try:
                 self.job.updateStatus("Running" if self.debug else "Failed", "ApplicationExitCode%i" % rc)
@@ -100,17 +106,18 @@ class PayloadExecutor(object):
         for fi in self.job.OutputFiles:
             src = expandvars(fi['source'])
             tg = expandvars(fi['target'])
+            self.logThis("Staging %s --> %s",oPjoin(abspath(self.pwd),src),tg)
             _dir = dirname(tg)
-            if not isdir(_dir):
+            try:
                 self.logThis("creating output directory %s", _dir)
                 mkdir(_dir)
-            try:
                 safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
                 self.job.registerDS(filename=tg, overwrite=True)
             except Exception, e:
                 try:
                     self.job.updateStatus("Running" if self.debug else "Failed", camelize(e))
                 except Exception as err:
+                    self.job.logError(err)
                     self.logThis("EXCEPTION: %s", err)
                 if not self.debug: return 6
                 ## add registerDS
@@ -166,7 +173,7 @@ if __name__ == '__main__':
         max_mem/=1024 
     # get the max ratios
     try:
-        executor.job.updateStatus("Running", "PreparingJob", hostname=gethostname(), 
+        executor.job.updateStatus("Running", "PreparingJob", hostname=gethostname(), body=executor.job.getJSONbody(),
                                   batchId=executor.batchId, cpu_max=max_cpu, mem_max=max_mem)
     except Exception as err:
         executor.logThis("EXCEPTION: %s", err)
@@ -201,5 +208,5 @@ if __name__ == '__main__':
         else:
             ## terminate here for the various reasons.
             # output of memory is in kilobytes.
-            executor.job.updateStatus("Running","ExecutingApplication",resources=prm)
+            executor.job.updateStatus("Running",None,resources=prm)
             sleep(float(BATCH_DEFAULTS.get("sleeptime","300."))) # sleep for 5m

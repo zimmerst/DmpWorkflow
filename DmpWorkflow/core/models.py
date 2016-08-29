@@ -6,13 +6,15 @@ from mongoengine import CASCADE
 from copy import deepcopy
 from flask import url_for
 from ast import literal_eval
+from json import dumps
+from numpy import array as np_array, median as np_median, mean as np_mean, histogram as np_hist
 # from StringIO import StringIO
-from DmpWorkflow.config.defaults import cfg, MAJOR_STATII, FINAL_STATII, TYPES, SITES
+from DmpWorkflow.config.defaults import MAJOR_STATII, FINAL_STATII, TYPES, SITES
 from DmpWorkflow.core import db
-from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler
+from DmpWorkflow.utils.tools import random_string_generator, exceptionHandler, datetime_to_js
 from DmpWorkflow.utils.tools import parseJobXmlToDict, convertHHMMtoSec, sortTimeStampList
 
-if not cfg.getboolean("site", "traceback"): sys.excepthook = exceptionHandler
+sys.excepthook = exceptionHandler
 log = logging.getLogger("core")
 
 
@@ -49,9 +51,11 @@ class DataFile(db.Document):
 class HeartBeat(db.Document):
     ''' dummy class to test DB connection from remote workers '''
     created_at = db.DateTimeField(default=datetime.now, required=True)
-    timestamp = db.DateTimeField(verbose_name="timestamp", required=True)
-    hostname = db.StringField(max_length=255, required=False)
+    timestamp = db.DateTimeField(verbose_name="last sign of life", required=True)
+    hostname = db.StringField(max_length=255, required=True)
     process  = db.StringField(max_length=64, required=False,default="default")
+    deltat = db.FloatField(verbose_name="deltat",required=False,default=0.)
+    version = db.StringField(max_length=32,verbose_name="version of package", required=False, default="None")
     meta = {
         'allow_inheritance': True,
         'indexes': ['-created_at', 'hostname','process'],
@@ -72,6 +76,39 @@ class Job(db.Document):
     archived = db.BooleanField(verbose_name="task closed", required=False, default=False)
     comment = db.StringField(max_length=1024, required=False, default="N/A")
 
+    def aggregateResources(self,nbins=20):
+        """ returns a json object which contains max, min, mean, median, 
+            and the histogram itself for all memories/cpu 
+            WARNING: this method is not particularly efficient 
+            and shouldn't be used lightly!
+        """
+        allData = {"memory":{"data":[]},"cpu":{"data":[]}}
+        query = JobInstance.objects.filter(job=self).only("cpu").only("memory")
+        if query.count():
+            for inst in query:
+                agg = inst.aggregateResources()
+                for key in ['cpu','memory']:
+                    if len(agg[key]):
+                        allData[key]['data'].append(max(agg[key]))
+            del query
+            # finished aggregation, now we can do calculations                                                                                                                                              
+            for key in allData:
+                d = allData[key]["data"]
+                allData[key]["max"]=max(d)
+                allData[key]["min"]=min(d)
+                arr = np_array(d,dtype=float)
+                allData[key]["mean"]=float(np_mean(arr,axis=0))
+                allData[key]["median"]=float(np_median(arr,axis=0))
+                hist, bins = np_hist(arr,nbins)
+                center = (bins[:-1] + bins[1:]) / 2
+                w = (bins[1] - bins[0])
+                histo = np_array([center, hist])
+                allData[key]['histogram']={"histo":histo.tolist(),
+                                           "histoT":histo.T.tolist(), "binWidth": float(w)}
+                del allData[key]['data']
+        return dumps(allData)
+
+    
     def addDependency(self, job):
         if not isinstance(job, Job):
             raise Exception("Must be job to be added")
@@ -123,7 +160,7 @@ class Job(db.Document):
     def getNeventsFast(self):
         return JobInstance.objects.filter(job=self).aggregate_sum("Nevents")
 
-    def getBody(self):
+    def getBody(self,setVars=False):
         # os.environ["DWF_JOBNAME"] = self.title
         bdy = deepcopy(self.body.get().read())
         self.body.get().seek(0)
@@ -131,7 +168,7 @@ class Job(db.Document):
         # self.body.delete()
         # self.body.put(bdy_file,content_type="application/xml")
         # self.update()
-        return parseJobXmlToDict(bdy)
+        return parseJobXmlToDict(bdy,setVars=setVars)
 
     def resetBody(self, body, content_type="application/xml"):
         self.body.replace(open(body, "rb"), content_type=content_type)
@@ -231,9 +268,75 @@ class JobInstance(db.Document):
     status_history = db.ListField(db.DictField())
     memory = db.ListField(db.DictField())
     cpu = db.ListField(db.DictField())
-    log = db.StringField(verbose_name="log", required=False, default="")
+    log = db.StringField(verbose_name="log", required=False, default="",help="last 20 lines of error messages")
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)", required=False, default=-1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)", required=False, default=-1.)
+    
+    def aggregateResources(self):
+        """ returns dict of two arrays, first is memory, second is cpu """
+        data = {"memory":[],"cpu":[]}
+        my_map = {"memory":self.memory, "cpu":self.cpu}
+        for key in data:
+            data[key] = [item['value'] for item in my_map[key] if not isinstance(item['value'],list)]
+        return data
+
+    def getTimeStampCreatedAt(self,timeAsJS=True):
+        if timeAsJS: return datetime_to_js(self.created_at)
+        else: return self.created_at
+
+    def getTimeStampLastUpdate(self,timeAsJS=True):
+        if timeAsJS: return datetime_to_js(self.last_update)
+        else: return self.last_update
+            
+    def getTimeSeries(self,key,timeAsJS=True):
+        """ convenience function, returns two arrays,     
+            one containing the x-axis, one the y-axis,
+            userful for plotting with flot
+            by default, timeStamps are converted to JavaTimeStampFormat.
+        """
+        def __getSeries__(key):
+            """ just a neat little helper """
+            if key == 'cpu': return self.cpu
+            else: return self.memory
+        
+        if key not in ["cpu","memory"]: raise Exception("must be cpu or memory")
+        data = []
+        for item in __getSeries__(key):
+            ds = []
+            # ignore empty entries
+            if not isinstance(item['value'],list):
+                ts = item['time']
+                if timeAsJS:
+                    ts = datetime_to_js(ts)
+                ds.append(ts)
+                ds.append(item['value'])
+            data.append(ds)
+        return data
+    
+    def getStatusHistoryTimeStamps(self, timeAsJS=True):
+        """ returns the list of status history items with js time stamps, and another array with strings """
+        ts = []
+        for item in self.status_history:
+            tstamp = item['update']
+            if timeAsJS: tstamp = datetime_to_js(tstamp)
+            ts.append(tstamp)
+        return ts
+    
+    def getStatusHistoryStats(self,key='minor_status'):
+        if key not in ['minor_status','status']: raise NotImplementedError("must be status or minor_status")
+        return dumps([item[key] for item in self.status_history])
+    
+    def resetJSON(self,set_var=None):
+        """ convenience function: returns a JSON object that can be pushed to POST """
+        override_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
+        if set_var is not None:
+            var_dict = dict({tuple(val.split("=")) for val in set_var.split(";")})
+            override_dict['MetaData'] = [{"name": k, "value": v, "type": "str"} for k, v in var_dict.iteritems()]        
+        my_dict = {"t_id": str(self.job.id), "inst_id": self.instanceId,
+                   "major_status": "New", "minor_status": "AwaitingBatchSubmission", "hostname": None,
+                   "batchId": None, "status_history": [], "body": str(override_dict),
+                   "log": "", "cpu": [], "memory": [], "created_at": "Now"}
+        return dumps(my_dict)
 
     def setBody(self, bdy):
         self.body = str(bdy)
@@ -302,7 +405,8 @@ class JobInstance(db.Document):
             self.set(v, res[k])
         return
 
-    def getWallTime(self, unit='sec'):
+    def getWallTime(self, unit='s'):
+        if self.status == "New": return 0.
         if self.status not in FINAL_STATII:
             log.warning("job not find in final status, CPU time may not be accurate")
         dt1 = self.status_history[0]['update']
@@ -317,9 +421,10 @@ class JobInstance(db.Document):
                 log.warning("unsupported unit, returning seconds")
             return total_sec
 
-    def getCpuTime(self, unit='sec'):
+    def getCpuTime(self, unit='s'):
+        if self.status == "New": return 0.
         if self.status not in FINAL_STATII:
-            log.warning("job not find in final status, CPU time may not be accurate")
+            log.debug("job not find in final status, CPU time may not be accurate")
         total_sec = self.cpu[-1]['value']
         if unit == "min":
             return float(total_sec) / 60.
@@ -338,10 +443,11 @@ class JobInstance(db.Document):
 
     def getMemory(self, method='average'):
         """ get memory of job in Mb """
+        if self.status == "New": return 0.
         if self.status not in FINAL_STATII:
-            log.warning("job not find in final status, result may not be accurate")
+            log.debug("job not find in final status, result may not be accurate")
         assert method in ['average', 'min', 'max'], "method not supported"
-        all_memory = [float(v["value"]) for v in self.memory]
+        all_memory = [float(v["value"]) for v in self.memory if not isinstance(v["value"],list)]
         if method == 'min':
             return min(all_memory)
         elif method == 'max':
@@ -386,7 +492,9 @@ class JobInstance(db.Document):
             return 0.
 
     def set(self, key, value):
-        if key == "created_at" and value == "Now":
+        if key == 'minor_status':
+            raise NotImplementedError("use JobInstance.setStatus(major_status,minorStatus) instead.")
+        elif key == "created_at" and value == "Now":
             value = datetime.now()
         elif key == 'cpu':
             self.cpu.append({"time": datetime.now(), "value": value})
@@ -409,32 +517,67 @@ class JobInstance(db.Document):
         self.__setattr__("last_update", datetime.now())
         self.update()
 
-    def setStatus(self, stat):
+    def __logHistory__(self):
+        """ does the accounting in status_history field """
+        stat = self.status
+        minStat  = self.minor_status
+        upd  = self.last_update
+        item = {"status":stat, "minor_status": minStat, "update":upd}
+
+        history_so_far = self.status_history
+        appd = False
+        if len(history_so_far): appd = True
+        elif self.getHistoryMinorStatusLast() != minStat: appd = True
+        if appd: history_so_far.append(item)
+        else:
+            return
+        # finally, perform atomic update
+        try:
+            res = JobInstance.objects.filter(instanceId=self.instanceId, job=self.job).update(status_history=history_so_far)
+            if res!= 1: raise Exception("could not perform atomic update on status history.")
+        except Exception as err:
+            log.exception("JobInstance.__logHistory__() trew error, %s",err)
+            raise Exception(err)
+        return
+    
+    def getHistoryMinorStatusLast(self):
+        """ returns the last minor status """
+        item = None
+        for item in self.status_history:
+            if 'minor_status' not in item:
+                log.error("minor_status field missing in status_history, item %s",str(item))
+        if item is not None:
+            return item['minor_status']
+
+    def setStatus(self, stat, minorStatus):
         log.debug("calling JobInstance.setStatus")
         if stat not in MAJOR_STATII:
             raise Exception("status not found in supported list of statii: %s", stat)
         curr_status = self.status
-        curr_time = datetime.now()
-        self.last_update = curr_time
-        if curr_status == stat and self.minor_status == self.status_history[-1]['minor_status']:
+        if curr_status in FINAL_STATII: 
+            self.__sortTimeStampedLists()
+            self.update()
+        curr_minor  = self.minor_status
+        if minorStatus is None:
+            log.warning("no minorStatus provided, assuming last minor status!")
+            minorStatus = curr_minor
+        if curr_status == stat and curr_minor == minorStatus: 
+            # nothing has changed
             return
         if curr_status in FINAL_STATII:
             if not stat == 'New':
-                raise Exception("job found in final state, can only set to New")
-            # clean the lists!
-            ret = JobInstance.objects.filter(job=self.job,instanceId=self.instanceId).update(status_history=[], memory=[], cpu=[])
-            if ret!=1:
-                log.critical("ERROR: JobInstance::setStatus to NEW returned bad value %i",ret)
-                raise Exception("error resetting instance to NEW")
-        self.last_update = self.last_update
-        self.set("status", stat)
-        sH = {"status": self.status,
-              "update": self.last_update,
-              "minor_status": self.minor_status}
-        log.debug("statusSet %s", str(sH))
-        self.status_history.append(sH)
-        if curr_status in FINAL_STATII: self.__sortTimeStampedLists()
-        self.update()
+                exc = "job found in final state, can only set to New"
+                log.error(exc)
+                raise Exception(exc)
+            return
+        else:
+            # now store the old status in the history
+            self.__logHistory__()
+        q = {"job":self.job, "instanceId":self.instanceId}
+        upd_dict = {"status":stat, "minor_status":minorStatus, "last_update":datetime.now()}
+        ret = JobInstance.objects.filter(**q).update(**upd_dict)
+        if ret != 1:
+            raise Exception("error setting status")
         return
 
     def __sortTimeStampedLists(self):

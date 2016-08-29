@@ -9,6 +9,7 @@ from ConfigParser import SafeConfigParser
 from os import environ, getenv
 from os.path import dirname, abspath, join as oPjoin
 import sys
+from DmpWorkflow import version as DAMPE_VERSION
 from DmpWorkflow.utils.tools import exceptionHandler
 
 DAMPE_WORKFLOW_ROOT = dirname(dirname(abspath(__file__)))
@@ -36,7 +37,8 @@ __myDefaults = {
     "EXEC_DIR_ROOT": "/tmp",
     "ratio_mem": "1.0",
     "ratio_cpu": "1.0",
-    "logfile": "/tmp/flask.log"
+    "logfile": "/tmp/flask.log",
+    "loglevel": "INFO"
 }
 
 cfg = SafeConfigParser(defaults=__myDefaults)
@@ -53,12 +55,12 @@ environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
 # source_bash(cfg.get("site", "ExternalsScript"))
 
 dbg = cfg.getboolean("global", "traceback")
-if not dbg: sys.excepthook = exceptionHandler
+sys.excepthook = exceptionHandler
 
 DAMPE_WORKFLOW_URL = cfg.get("server", "url")
 DAMPE_WORKFLOW_DIR = cfg.get("site", "workdir")
 EXEC_DIR_ROOT = cfg.get("site", "EXEC_DIR_ROOT")
-
+environ["DWF_SW_VERSION"] = DAMPE_VERSION
 environ["BATCH_SYSTEM"] = cfg.get("site", "HPCsystem")
 environ["BATCH_REQUIREMENTS"] = cfg.get("site", "HPCrequirements")
 environ["BATCH_EXTRA"] = cfg.get("site", "HPCextra")
@@ -83,3 +85,4 @@ assert BATCH_DEFAULTS['name'] in cfg.get("JobDB", "batch_sites"), "Batch site %s
 assert BATCH_DEFAULTS['system'] in ["lsf", "sge", "pbs", "condor"], "HPCSystem %s not supported." % BATCH_DEFAULTS["system"]
 
 DAMPE_LOGFILE = cfg.get("global", "logfile")
+DAMPE_LOGLEVEL= cfg.get("global", "loglevel")

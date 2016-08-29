@@ -6,24 +6,52 @@ Created on Mar 25, 2016
 try:
     import logging
     import shutil
+    from DmpWorkflow.utils.shell import run
     from os import makedirs, environ, utime
-    from os.path import exists, expandvars
+    from os.path import exists, expandvars, dirname
     from sys import stdout
     from random import choice, randint
     from shlex import split as shlex_split
     from string import ascii_letters, digits
     import subprocess as sub
-    from time import sleep as time_sleep
+    from time import mktime, sleep as time_sleep
     from re import split as re_split
-    from datetime import timedelta
+    from datetime import timedelta, datetime
     from copy import deepcopy
     from StringIO import StringIO
     from xml.dom import minidom as xdom
     from hashlib import md5
     from psutil import AccessDenied, Process as psutil_proc
+    from flask import Response
+    from json import dumps
 except ImportError as Error:
     print "could not find one or more packages, check prerequisites."
     print Error
+
+def datetime_to_js(dt):
+    if not isinstance(dt,datetime):
+        raise Exception("must be datetime object")
+    return int(mktime(dt.timetuple())) * 1000.
+
+
+def dumpr(json_str):
+    """ convenience function to return a flask-Response object """
+    return Response(dumps(json_str),mimetype = 'application/json')
+
+def send_heartbeat(proc):
+    from requests import post as r_post
+    from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
+    from DmpWorkflow import version as SW_VERSION
+    from socket import getfqdn as gethostname # use full domain name.
+    host = gethostname()
+    url = "%s/testDB/"%DAMPE_WORKFLOW_URL
+    dt = datetime.now()
+    res = r_post(url, data={"hostname":host, "timestamp":dt,"process":proc, "version":SW_VERSION})
+    res.raise_for_status()
+    res = res.json()
+    if res.get("result","nok") != "ok":
+        print res.get("error")
+    return
 
 def sortTimeStampList(my_list, timestamp='time', reverse=False):
     if not len(my_list):
@@ -107,10 +135,22 @@ def pwd():
 
 
 def mkdir(Dir):
-    if not exists(Dir):
-        makedirs(Dir)
-    return Dir
-
+    xrootd = False
+    if Dir.startswith("root://"): xrootd = True
+    if not xrootd:
+        if not exists(Dir):
+            makedirs(Dir)
+    else:
+        lsCmd = xrootdPath2Cmd(Dir,cmd='ls')
+        mdCmd = xrootdPath2Cmd(Dir,cmd='mkdir -p -mrwxr-x---')
+        lsRet = run(lsCmd.split())
+        if lsRet[-1]:
+            print "*DEBUG: %s"%mdCmd
+            mdRet = run(mdCmd.split())
+            if mdRet[-1]:
+                print mdRet[0], mdRet[1]
+                raise IOError(mdRet[1]) 
+        return Dir                
 
 def rm(pwd):
     try:
@@ -138,6 +178,16 @@ def Ndigits(val, size=6):
     _sixDigit = "%i" % val
     return _sixDigit.zfill(size)
 
+def xrootdPath2Cmd(xrdPath,cmd='mkdir',args=""):
+    ''' converts a path like this root://grid05.unige.ch:1094//dpm/unige.ch/home/dampe into xrd grid05.unige.ch:1094 CMD /dpm/... '''
+    fullCmdList = ["xrdfs"]
+    xrdPath = xrdPath.split("//")
+    fullCmdList.append(xrdPath[1])
+    fullCmdList.append(cmd)
+    fullCmdList.append("/%s"%xrdPath[2])
+    if len(args):
+        fullCmdList.append(args)
+    return " ".join(fullCmdList)
 
 def safe_copy(infile, outfile, **kwargs):
     kwargs.setdefault('sleep', 10)
@@ -145,20 +195,24 @@ def safe_copy(infile, outfile, **kwargs):
     kwargs.setdefault('debug', False)
     kwargs.setdefault('checksum', False)
     kwargs.setdefault("checksum_blocksize", 4096)
-    xrootd = False
+    kwargs.setdefault('mkdir',False)
+    sleep = parse_sleep(kwargs['sleep'])
+    xrootd = False    
+    if kwargs['mkdir']: mkdir(dirname(outfile))            
     if kwargs['debug']:
         print 'cp %s -> %s' % (infile, outfile)
-    infile = infile.replace("@", "") if infile.startswith("@") else infile
     # Try not to step on any toes....
-    sleep = parse_sleep(kwargs['sleep'])
+    infile = expandvars(infile)
+    outfile = expandvars(outfile)
+    cmnd = "cp %s %s" % (infile, outfile)
     if infile.startswith("root:"):
-        print 'file is on xrootd - switching to XRD library'
-        cmnd = "xrdcp %s %s" % (infile, outfile)
+        if kwargs['debug']: print 'input file is on xrootd - switching to XRD library'
         xrootd = True
-    else:
-        infile = expandvars(infile)
-        outfile = expandvars(outfile)
-        cmnd = "cp %s %s" % (infile, outfile)
+    if outfile.startswith("root:"):
+        if kwargs['debug']: print 'output file is on xrootd - switching to XRD library'
+        xrootd = True
+    if xrootd:
+        cmnd = "xrdcp -f %s %s" % (infile, outfile)
     md5in = md5out = None
     if kwargs['checksum'] and not xrootd:
         md5in = md5sum(infile, blocksize=kwargs['checksum_blocksize'])
@@ -271,7 +325,6 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.debug = False
         self.ps = ps
         self.query()
-        
     
     def getMemory(self, unit='Mb'):
         self.query()
@@ -293,9 +346,7 @@ class ProcessResourceMonitor(ResourceMonitor):
         self.memory=0
     
     def query(self):
-        self.counter+=1
         dbg = self.debug
-        if dbg: print '*** DEBUG ***: entering cycle %i'%self.counter
         self.free()
         cpu = self.ps.cpu_times()
         # collect parent usage                                                                                                                                                                        
@@ -430,7 +481,7 @@ class JobXmlParser(object):
         return out
 
 
-def parseJobXmlToDict(domInstance, parent="Job", setVars=True):
+def parseJobXmlToDict(domInstance, parent="Job", setVars=False):
     xp = JobXmlParser(domInstance, parent=parent, setVars=setVars)
     out = xp.getResult()
     return out

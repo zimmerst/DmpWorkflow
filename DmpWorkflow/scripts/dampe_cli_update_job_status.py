@@ -13,17 +13,14 @@ def main(args=None):
     usage = "Usage: %(prog)s JobID InstanceID status [options]"
     description = "update job in DB"
     parser = ArgumentParser(usage=usage, description=description)
-    parser.add_argument("t_id", help="task ID")
-    parser.add_argument("inst_id", help="Instance ID")
-    parser.add_argument("major_status", help='Major status')
+    parser.add_argument("--t_id", dest='t_id', help="task ID")
+    parser.add_argument("--inst_id", dest='inst_id', help="Instance ID")
+    parser.add_argument("--major_status", dest='major_status', help='Major status')
     parser.add_argument("--minor_status", dest="minor_status", type=str, default=None, help='minor status',
                         required=False)
     parser.add_argument("--hostname", dest="hostname", type=str, default=None, help='hostname', required=False)
     parser.add_argument("--batchId", dest="batchId", type=str, default=None, help='batchId', required=False)
     opts = parser.parse_args(args)
-    # if len(sys.argv)!=3:
-    #    print parser.print_help()
-    #    raise Exception
 
     my_dict = {}
     for key in opts.__dict__:
@@ -36,7 +33,6 @@ def main(args=None):
         print 'error %s' % res.get("error")
     else:
         print 'Status updated'
-        # update_status(JobId, InstanceId, str(major_status), **my_dict)
 
 
 if __name__ == '__main__':

@@ -27,7 +27,7 @@ logger_script.setLevel(logging.DEBUG)
 
 logger_batch = logging.getLogger("batch")
 logger_batch.addHandler(handler_console)
-logger_batch.setLevel(logging.INFO)
+logger_batch.setLevel(logging.DEBUG)
 
 
 def initLogger(logfile):
@@ -43,11 +43,11 @@ def initLogger(logfile):
         },
         'handlers': {
             'console': {
-                'level': 'INFO',
+                'level': 'INFO', 
                 'class': 'logging.StreamHandler',
             },
             'file': {
-                'level': "INFO",
+                'level': "DEBUG",
                 'formatter': "precise",
                 'class': 'logging.handlers.RotatingFileHandler',
                 'filename': logfile,
@@ -58,15 +58,15 @@ def initLogger(logfile):
         'loggers': {
             'root': {
                 'handlers': ["file"],
-                'level': 'INFO'
+                'level': 'DEBUG'
             },
             'core': {
                 'handlers': ["file"],
-                'level': 'INFO'
+                'level': 'DEBUG'
             },
             'script': {
                 'handlers': ['console'],
-                'level': 'DEBUG'
+                'level': 'INFO'
             },
             'batch': {
                 'handlers': ['console'],

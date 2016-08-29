@@ -1,6 +1,5 @@
 """
 Created on Mar 10, 2016
-
 @author: zimmer
 """
 import logging

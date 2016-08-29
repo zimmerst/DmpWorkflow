@@ -1,7 +1,10 @@
 from DmpWorkflow.config.defaults import cfg
+from DmpWorkflow import version
+from socket import getfqdn
 kind = cfg.get("global", "installation")
 
 if kind == 'server':    
+    
     from flask import Flask
     from flask.ext.mongoengine import MongoEngine
     app = Flask(__name__)
@@ -12,7 +15,6 @@ if kind == 'server':
     app.config['MONGODB_HOST'] = cfg.get("database", "host")
     app.config['MONGODB_PORT'] = int(cfg.get("database", "port"))
     app.config["SECRET_KEY"] = "KeepThisS3cr3t"
-    
     db = MongoEngine(app)
     
     def register_blueprints(app):
@@ -26,6 +28,7 @@ if kind == 'server':
     register_blueprints(app)
     
     def main():
+        app.logger.info("started DmpWorkflow Server Version: %s on %s",version,getfqdn())
         app.run()
 else:
     def main():

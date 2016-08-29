@@ -1,13 +1,154 @@
 {% extends "base.html" %}
-{% import "_forms.html" as forms %}
-
 {% block page_header %}
-  <div class="page-header">
-  </div>
+<div class="page-header">
+</div>
 {% endblock %}
 
 {% block content %}
-  <h1>{{ job.title }}</h1> 
-
+<div class="container">
+<h3>Instance Details (Instance# {{ instance.instanceId }})</h3>
+	<div class="jumbotron">
+		<p>Job Title: <a href="{{ url_for('jobs.detail', slug=instance.job.slug) }}">{{ instance.job.title }}</a></p>
+		<p>Job Type : {{ instance.job.type }}</p>
+		<p>Job Site : {{ instance.job.execution_site }}</p>
+	</div>
+	<div class="row">
+		<div class="col-sm-6">
+			<h4>Run Information</h4>
+			<p><strong>Major Status: </strong>{{ instance.status }}</p>
+			<p><strong>Minor Status: </strong>{{ instance.minor_status }}</p>
+			<p><strong>Execution Host: </strong>{{ instance.hostname }}</p>
+			<p><strong>Local Batch ID: </strong>{{ instance.batchId }}</p>
+			<p><strong>Last Update: </strong>{{ instance.last_update }}</p>
+			<p><strong>Current Memory: </strong>{{ instance.getMemory()|round }} (maximum allowed={{ instance.mem_max }})</p>
+			<p><strong>Current CPU time: </strong>{{ instance.getCpuTime()|round }} (maximum allowed={{ instance.cpu_max }})</p>
+		</div>
+	    <div class="col-sm-6">
+			<h4>Meta Data</h4>
+			{% set md = instance.getMetaDataVariables(includeJob=True) %}
+			{% for var in md %}
+			<p>{{ var }} : {{md[var]}}</p>
+			{% endfor %}
+			<h4>Input Files</h4>
+			{% set files = instance.getInputFiles(includeJob=True) %}
+			{% for f in files %}
+			<p>{{f}}</p>
+			{% endfor %}
+			<h4>Output Files</h4>
+			{% set files = instance.getOutputFiles(includeJob=True) %}
+			{% for f in files %}
+			<p>{{f}}</p>
+			{% endfor %}
+	    </div>
+	</div>
+</div>
+<div>
+	<h3>Status History</h3>
+	{% set history = instance.status_history %}
+	{% set step = 1 %}
+	<table class="table">
+		<thead>
+			<th>Step</th>
+			<th>Date</th>
+			<th>Major Status</th>
+			<th>Minor Status</th>
+      	</thead>
+    	{% for stat in history %}
+		<tr>
+	        <td>{{ step }}</td>
+	        <td>{{ stat['update'] }}</td>
+	        <td>{{ stat['status'] }}</td>
+	        <td>{{ stat['minor_status'] }}</td>
+		</tr>
+		{% set step = step + 1 %}
+      	{% endfor %}
+      	<tr>
+            <td>{{ step+history|length }}</td>
+      	    <td>{{ instance.last_update }}</td>
+      	    <td>{{ instance.status }}</td>
+      	    <td>{{ instance.minor_status }}</td>
+      	</tr>
+	</table>
+</div>
+{% if instance.status != "New" %}
+<div>
+	<h3>CPU / Memory Profile</h3>
+	<div id="placeholder" style="width:600px;height:300px"></div>
+</div>
+{% endif %}
+{% if instance.status in ("Done","Failed","Terminated") %}
+<div>
+	<h3>Error Log (last 20 lines)</h3>
+	<p> For full information, refer to the log at {{instance.execution_site}} </p>
+	{% set error_log = instance.log.splitlines() %}
+	<code>
+	  {% for line in error_log %}
+	   {{line}}<br>
+	  {% endfor %}
+    </code>
+</div>
+<div>
+	<h3>Instance Management</h3>
+	<button id="rollback" class="btn btn-primary">Roll back Instance</button>
+</div>
+{% endif %}  
 {% endblock %}
+{% block js_footer %}
+{% set json = instance.resetJSON() %}
+<script language="JavaScript">
+  "use strict";
+  // here we write proper JS code
+  // one example, a flot plot (uncomment and you'll see what happens)
+  var cpu =  {{ instance.getTimeSeries("cpu") }};
+  var mem =  {{ instance.getTimeSeries("memory") }};
+  var tmin = {{ instance.getTimeStampCreatedAt() }};
+  var tmax = {{ instance.getTimeStampLastUpdate() }};
+  var history_time  = {{ instance.getStatusHistoryTimeStamps() }};
+  var history_labels= {{ instance.getStatusHistoryStats()|safe }}; // this will be a json object
 
+  // adding the latest state too.
+  history_time.push(tmax);
+  history_labels.push("{{ instance.minor_status|safe }}");
+  // rest is plotting.
+  var data1 = [
+    {label: "Memory Usage",  data: mem, points: { symbol: "diamond", fillColor: "#AA4643" }, color: '#AA4643'},
+    {label: "CPU time",  data: cpu, points: { symbol: "circle", fillColor: "#058DC7" }, color: '#058DC7', yaxis:2}
+  ];
+  var tstamps = []
+  for (var i=0; i<history_time.length; i++)
+   {
+   tstamps.push(
+   	{ color: '#000', lineWidth: 1, xaxis: { from: history_time[i], to: history_time[i] } } );
+   };
+  // adding a padding of 5 minutes each.
+  var options ={
+      xaxis:  { min: tmin-3e5, max: tmax+3e5, mode: "time",
+                tickLength: 0, axisLabel: 'Time (UTC)', axisLabelUseCanvas: true,
+                axisLabelFontSizePixels: 12, axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+                axisLabelPadding: 5 },
+      yaxes:  [{axisLabel: 'Memory (MB)', axisLabelUseCanvas: true, xisLabelFontSizePixels: 12,
+                axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif', axisLabelPadding: 5 },
+               { position: 0, axisLabel: 'CPU time (s)', position: 'right', alignTicksWithAxis: true}],
+      series: { lines: { show: true }, points: {radius: 3, show: true, fill: true }, },
+      grid:   { hoverable: true, borderWidth: 1, markings:tstamps},
+      legend: { labelBoxBorderColor: "none", position: "nw" }
+  };
+    
+  $.plot($("#placeholder"), data1, options);
+
+  // below is the code for the button to roll-back.
+  var myobject = {{ json|safe }};
+  console.log(myobject);
+  $("#rollback").on("click", function(){
+    $.post({url:"/jobstatus/",
+      data: JSON.stringify({args: myobject }),
+      contentType: "application/json",
+      success: function(data, textStatus, headers){
+       console.log(data);
+       data = jQuery.parseJSON(data)
+       if (data["result"]=="ok") {alert("rollback successful")} else {alert(data["error"])};
+      }
+    });
+  });
+</script>
+{% endblock %}

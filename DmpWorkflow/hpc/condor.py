@@ -55,7 +55,7 @@ class BatchJob(HPCBatchJob):
         return bk
     
     def kill(self):
-        cmd = "condor_rm -name %s %s.0"%(self.extra,self.batchId)
+        cmd = "condor_rm -name %s %s.0"%(defaults.extra,self.batchId)
         self.__run__(cmd)
         self.update("status", "Failed")
 
