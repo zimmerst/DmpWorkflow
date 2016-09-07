@@ -6,6 +6,7 @@ Created on Mar 23, 2016
 from re import findall
 from DmpWorkflow.hpc.batch import BATCH, BatchJob as HPCBatchJob
 from DmpWorkflow.utils.shell import run
+from subprocess import PIPE, Popen
 from importlib import import_module
 
 xml2dict = import_module("xmltodict")
@@ -28,7 +29,14 @@ class BatchJob(HPCBatchJob):
                                                                         mem,
                                                                         extra,
                                                                         self.command)
-        output = self.__run__(cmd)
+        # UGLY, needs to be checked against my "run" method.
+        tsk = Popen(cmd.split(),stdout=PIPE, stderr=PIPE)
+        rc = tsk.wait()
+        output = tsk.stdout.read()
+        error  = tsk.stderr.read()
+        if rc:
+            raise Exception("error during submission, RC=%i, error msg follows \n %s"%(rc,error))
+        #output = self.__run__(cmd)
         return self.__regexId__(output)
 
     def __regexId__(self, _str):
