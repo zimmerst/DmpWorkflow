@@ -110,7 +110,10 @@ class PayloadExecutor(object):
             _dir = dirname(tg)
             try:
                 self.logThis("creating output directory %s", _dir)
-                mkdir(_dir)
+                try:
+                    mkdir(_dir)
+                except IOError as err:
+                    self.logThis("error creating output directory, trying to recover, error follows: ",err)
                 safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
                 self.job.registerDS(filename=tg, overwrite=True)
             except Exception, e:
