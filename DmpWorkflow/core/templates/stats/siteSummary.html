@@ -34,24 +34,20 @@
 
 <h2> Process Summary ({{ processbeats | length }})</h2>
 <table class="table table-bordered table-striped">
-  <thead>
-    {% for key in ('Hostname','Client Version','Process','Created at','Last sign of life','24 hour status','48 hour status')%}
-    <th>{{ key }}</th>
-    {% endfor %}
-  </thead>
-  {% for beat in processbeats %}
-	<tr> {{ beat.hostname }} </td>
-	<tr> {{ beat.version }} </td>
-  {% set dt = beat.deltat %}
-  {% set ts = beat.timestamp %}
-  <tr>
-    <td>{{ beat.hostname }}</td>
-	<td>{{ beat.version }}</td>
-    <td>{{ beat.process | safe}}</td>
-    <td>{{ beat.created_at | safe }} </td>
-    <td>{{ beat.timestamp | safe }} </td>
-	{% set stat24 = beat.checkLastExecution(1) %}
-	{% set stat48 = beat.checkLastExecution(2) %}
+    <thead>
+  	  {% for key in ('Hostname','Client Version','Process','Created at','Last sign of life','24 hour status','48 hour status')%}	
+      <th>{{ key }}</th>
+      {% endfor %}
+  	</thead>
+  	<tr>
+  	{% for beat in processbeats %}
+  	<td> {{ beat.hostname }} </td>
+  	<td> {{ beat.version }} </td>
+  	<td> {{ beat.process | safe }} </td>
+  	<td> {{ beat.created_at | safe }} </td>
+  	<td> {{ beat.timestamp | safe }} </td>
+	{% set stat24 = beat.checkStatus(1) %}
+	{% set stat48 = beat.checkStatus(2) %}
     {% if not stat24 %}
     <td><p class="bg-danger"><strong>{{ stat24 }}</strong></p></td>
 	{% else %}

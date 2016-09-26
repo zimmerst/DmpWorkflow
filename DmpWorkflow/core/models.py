@@ -1,6 +1,6 @@
 # pylint: disable=E1002
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 import sys
 from mongoengine import CASCADE
 from copy import deepcopy
@@ -61,7 +61,12 @@ class HeartBeat(db.Document):
         'indexes': ['-created_at', 'hostname','process'],
         'ordering': ['-created_at']
     }
-
+    
+    def checkStatus(self,deltaDays=1):
+        now = datetime.now()
+        margin = timedelta(days=deltaDays)
+        p = now - margin <= self.timestamp <= now + margin
+        return p
 
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.now, required=True)
