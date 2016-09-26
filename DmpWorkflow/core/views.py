@@ -15,12 +15,29 @@ jobs = Blueprint('jobs', __name__, template_folder='templates')
 
 logger = logging.getLogger("core")
 
-
 class ListView(MethodView):
+    
+    def getJobsSince(self,timestamp):
+        if not isinstance(timestamp,datetime):
+            raise Exception("must be a datetime object!")
+        active_jobs = []
+        query = JobInstance.objects.filter(last_update__gt=timestamp)
+        active_jobs = [inst.job for inst in query if inst.job not in active_jobs]
+        return active_jobs
+    
     def get(self):
         logger.debug("ListView:GET: request %s", str(request))
-        jobs = Job.objects.all()
-        return render_template('jobs/list.html', jobs=jobs)
+        # must be of format '2016-08-29T13:29:49'
+        dformat = "%Y-%m-%dT%H:%M:%S"
+        timestamp = request.args.get("timestamp","None")
+        jobs = []
+        if timestamp != "None":
+            logger.info("ListView:GET: found timestamp in request: %s", timestamp)
+            dtimestamp = datetime.strptime(timestamp,dformat)
+            jobs = self.getJobsSince(dtimestamp)
+        else:
+            jobs = Job.objects.all()
+        return render_template('jobs/list.html', jobs=jobs, timestamp=timestamp.strftime(dformat))
 
 class InstanceView(MethodView):
     def get(self):
@@ -56,7 +73,9 @@ class StatsView(MethodView):
             last_life = h.timestamp
             deltaT = (now - last_life).seconds
             h.deltat = deltaT
-        return render_template('stats/siteSummary.html', heartbeats=heartbeats, server_version = DAMPE_VERSION, server_time = now)
+        return render_template('stats/siteSummary.html', heartbeats=heartbeats, 
+                               processbeats = HeartBeat.objects.all(), 
+                               server_version = DAMPE_VERSION, server_time = now)
 
 class DetailView(MethodView):
     def get(self, slug):
