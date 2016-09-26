@@ -38,15 +38,24 @@ def dumpr(json_str):
     """ convenience function to return a flask-Response object """
     return Response(dumps(json_str),mimetype = 'application/json')
 
-def send_heartbeat(proc):
+def send_heartbeat(proc,version=None):
+    """ 
+        convenience function that sends a heart beat to DB
+        arguments: 
+          - proc: name of process, e.g. JobFetcher
+          - version: None (version of process)
+    """
     from requests import post as r_post
     from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
-    from DmpWorkflow import version as SW_VERSION
+    if version is None:
+        from DmpWorkflow import version as SW_VERSION
+        version = SW_VERSION
+        
     from socket import getfqdn as gethostname # use full domain name.
     host = gethostname()
     url = "%s/testDB/"%DAMPE_WORKFLOW_URL
     dt = datetime.now()
-    res = r_post(url, data={"hostname":host, "timestamp":dt,"process":proc, "version":SW_VERSION})
+    res = r_post(url, data={"hostname":host, "timestamp":dt,"process":proc, "version":version})
     res.raise_for_status()
     res = res.json()
     if res.get("result","nok") != "ok":
