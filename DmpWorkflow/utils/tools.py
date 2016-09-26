@@ -142,7 +142,7 @@ def mkdir(Dir):
             makedirs(Dir)
     else:
         lsCmd = xrootdPath2Cmd(Dir,cmd='ls')
-        mdCmd = xrootdPath2Cmd(Dir,cmd='mkdir -p -mrwxr-x---')
+        mdCmd = xrootdPath2Cmd(Dir,cmd='mkdir -p -mrwxr-xr-x')
         lsRet = run(lsCmd.split())
         if lsRet[-1]:
             print "*DEBUG: %s"%mdCmd
