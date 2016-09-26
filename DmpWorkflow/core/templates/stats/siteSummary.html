@@ -30,6 +30,42 @@
   </tr>
   {% endfor %}
 </table>
+</div>
+
+<h2> Process Summary ({{ process_heartbeats | length }})</h2>
+<table class="table table-bordered table-striped">
+  <thead>
+    {% for key in ('Hostname','Client Version','Process','Created at','Last sign of life','24 hour status','48 hour status')%}
+    <th>{{ key }}</th>
+    {% endfor %}
+  </thead>
+  {% for beat in process_heartbeats %}
+	<tr> {{ beat.hostname }} </td>
+	<tr> {{ beat.version }} </td>
+  {% set dt = beat.deltat %}
+  {% set ts = beat.timestamp %}
+  <tr>
+    <td>{{ beat.hostname }}</td>
+	<td>{{ beat.version }}</td>
+    <td>{{ beat.process | safe}}</td>
+    <td>{{ beat.created_at | safe }} </td>
+    <td>{{ beat.timestamp | safe }} </td>
+	{% set stat24 = beat.checkLastExecution(1) %}
+	{% set stat48 = beat.checkLastExecution(2) %}
+    {% if not stat24 %}
+    <td><p class="bg-danger"><strong>{{ stat24 }}</strong></p></td>
+	{% else %}
+	<td><p class="bg-info"><strong>{{ stat24 }}</strong></p></td>
+	{% endif %}
+	{% if not stat48 %}
+    <td><p class="bg-danger"><strong>{{ stat48 }}</strong></p></td>
+	{% else %}
+	<td><p class="bg-info"><strong>{{ stat48 }}</strong></p></td>
+	{% endif %}
+  </tr>
+  {% endfor %}
+</table>
+
 <div>
 <p><strong>Server Version: </strong> {{server_version}} </p>
 <p><strong>Server Time   : </strong> {{server_time}} </p>
