@@ -73,7 +73,9 @@ class StatsView(MethodView):
             last_life = h.timestamp
             deltaT = (now - last_life).seconds
             h.deltat = deltaT
-        return render_template('stats/siteSummary.html', heartbeats=heartbeats, server_version = DAMPE_VERSION, server_time = now)
+        return render_template('stats/siteSummary.html', heartbeats=heartbeats, 
+                               processbeats = HeartBeat.objects.all(), 
+                               server_version = DAMPE_VERSION, server_time = now)
 
 class DetailView(MethodView):
     def get(self, slug):

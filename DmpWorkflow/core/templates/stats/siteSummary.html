@@ -39,7 +39,7 @@
     <th>{{ key }}</th>
     {% endfor %}
   </thead>
-  {% for beat in process_heartbeats %}
+  {% for beat in processbeats %}
 	<tr> {{ beat.hostname }} </td>
 	<tr> {{ beat.version }} </td>
   {% set dt = beat.deltat %}
