@@ -29,7 +29,7 @@ class ListView(MethodView):
         logger.debug("ListView:GET: request %s", str(request))
         # must be of format '2016-08-29T13:29:49'
         dformat = "%Y-%m-%dT%H:%M:%S"
-        timestamp = request.args.get("timestamp","None")
+        timestamp = "None"#request.args.get("timestamp","None")
         jobs = []
         if timestamp != "None":
             logger.info("ListView:GET: found timestamp in request: %s", timestamp)
