@@ -22,7 +22,7 @@ class ListView(MethodView):
             raise Exception("must be a datetime object!")
         active_jobs = []
         query = JobInstance.objects.filter(last_update__gt=timestamp)
-        active_jobs = [inst.job for inst in query if not inst.job in active_jobs]
+        active_jobs = [inst.job for inst in query if inst.job not in active_jobs]
         return active_jobs
     
     def get(self):
