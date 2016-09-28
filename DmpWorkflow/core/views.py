@@ -28,16 +28,16 @@ class ListView(MethodView):
     def get(self):
         logger.debug("ListView:GET: request %s", str(request))
         # must be of format '2016-08-29T13:29:49'
-        dformat = "%Y-%m-%dT%H:%M:%S"
-        timestamp = "None"#request.args.get("timestamp","None")
-        jobs = []
-        if timestamp != "None":
-            logger.info("ListView:GET: found timestamp in request: %s", timestamp)
-            dtimestamp = datetime.strptime(timestamp,dformat)
-            jobs = self.getJobsSince(dtimestamp)
-        else:
-            jobs = Job.objects.all()
-        return render_template('jobs/list.html', jobs=jobs, timestamp=timestamp.strftime(dformat))
+        #dformat = "%Y-%m-%dT%H:%M:%S"
+        #timestamp = "None"#request.args.get("timestamp","None")
+        #jobs = []
+        #if timestamp != "None":
+        #    logger.info("ListView:GET: found timestamp in request: %s", timestamp)
+        #    dtimestamp = datetime.strptime(timestamp,dformat)
+        #    jobs = self.getJobsSince(dtimestamp)
+        #else:
+        jobs = Job.objects.all()
+        return render_template('jobs/list.html', jobs=jobs)#, timestamp=timestamp.strftime(dformat))
 
 class InstanceView(MethodView):
     def get(self):
