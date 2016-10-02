@@ -219,8 +219,8 @@ class DmpJob(object):
         res = None
         counter = 0
         while attempts >= counter:
-            res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=30.)
             try:
+                res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=30.)
                 res.raise_for_status()
             except HTTPError as err:
                 counter+=1

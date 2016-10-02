@@ -33,8 +33,8 @@ def main(args=None):
     res = None
     counter = 0
     while natts >= counter:
-        res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=30.)
         try:
+            res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=30.)
             res.raise_for_status()
         except HTTPError as err:
             counter+=1
