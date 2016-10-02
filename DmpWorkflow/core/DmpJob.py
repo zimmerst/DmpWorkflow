@@ -14,9 +14,8 @@ from requests import post as Rpost
 from importlib import import_module
 from copy import deepcopy
 from DmpWorkflow.config.defaults import FINAL_STATII, DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
-from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits, ResourceMonitor, sleep
+from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits, ResourceMonitor
 from DmpWorkflow.utils.shell import run, make_executable  # , source_bash
-from requests.exceptions import HTTPError
 
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 PYTHONBIN = ""
@@ -187,12 +186,6 @@ class DmpJob(object):
         if oPath.isfile(self.logfile):
             rm(self.logfile)
         touch(self.logfile)
-    
-    def account(self,majorStatus):
-        if majorStatus in ["Done", "Failed", "Terminated"]:
-            witness = open(oPath.join(self.wd, "%s" % majorStatus.upper()), 'w')
-            witness.write(self.getJobName())
-            witness.close()
 
     def updateStatus(self, majorStatus, minorStatus, **kwargs):
         """ passes status """
@@ -207,8 +200,6 @@ class DmpJob(object):
                 my_dict['cpu'] = RM.getCpuTime()
                 del kwargs['resources']
         my_dict.update(kwargs)
-        attempts = my_dict.get("attempts",3)
-        if 'attempts' in my_dict: my_dict.pop("attempts")
         if majorStatus in FINAL_STATII:
             # keep only NUMLINES of log file.
             theLog = self.error_log.splitlines()
@@ -216,33 +207,14 @@ class DmpJob(object):
                 self.error_log = "\n".join(theLog[-(NUMLINES_LOG-1):-1])
             my_dict['log']=self.error_log
         # print '*DEBUG* my_dict: %s'%str(my_dict)
-        res = None
-        counter = 0
-        while attempts:
-            res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
-            try:
-                res.raise_for_status()
-            except HTTPError as err:
-                counter+=1
-                slt = 60*counter
-                print '%i/%i: could not complete request, sleeping %i seconds and retrying again'%(counter, attempts, slt)
-                print err
-                sleep(slt)
-                attempts-=1
-                res = None
-            finally:
-                if res is None and attempts == 0:
-                    if majorStatus == "Running":
-                        # this is desaster recovery (to keep running jobs running)
-                        print 'keeping job running, ignoring this update'
-                    elif majorStatus in ["Done","Failed","Terminated"]:
-                        print 'status change to final, triggering exit'
-                        bj = HPC.BatchJob(batchId=self.batchId)
-                        self.account(majorStatus)
-                        bj.kill()
+        res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
+        res.raise_for_status()
         if not res.json().get("result", "nok") == "ok":
             raise Exception(res.json().get("error", "ErrorMissing"))
-        self.account(majorStatus)
+        if majorStatus in ["Done", "Failed", "Terminated"]:
+            witness = open(oPath.join(self.wd, "%s" % majorStatus.upper()), 'w')
+            witness.write(self.getJobName())
+            witness.close()
         return
         # update_status(self.jobId, self.instanceId, majorStatus, minor_status=minorStatus, **kwargs)
 
