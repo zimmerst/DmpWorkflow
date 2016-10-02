@@ -218,8 +218,8 @@ class DmpJob(object):
         # print '*DEBUG* my_dict: %s'%str(my_dict)
         res = None
         counter = 0
-        while attempts:
-            res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
+        while attempts >= counter:
+            res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=30.)
             try:
                 res.raise_for_status()
             except HTTPError as err:
@@ -228,7 +228,6 @@ class DmpJob(object):
                 print '%i/%i: could not complete request, sleeping %i seconds and retrying again'%(counter, attempts, slt)
                 print err
                 sleep(slt)
-                attempts-=1
                 res = None
             finally:
                 if res is None and attempts == 0:

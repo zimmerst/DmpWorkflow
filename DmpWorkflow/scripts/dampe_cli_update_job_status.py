@@ -32,8 +32,8 @@ def main(args=None):
     if 'retry' in my_dict: my_dict.pop("retry")
     res = None
     counter = 0
-    while natts:
-        res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)})
+    while natts >= counter:
+        res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=30.)
         try:
             res.raise_for_status()
         except HTTPError as err:
@@ -42,7 +42,6 @@ def main(args=None):
             print err
             print '%i/%i: could not complete request, sleeping %i seconds and retrying again'%(counter, natts, slt)
             sleep(slt)
-            natts-=1
             res = None
         finally:
             if res is None and natts == 0:
