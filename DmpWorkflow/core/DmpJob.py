@@ -208,7 +208,9 @@ class DmpJob(object):
                 del kwargs['resources']
         my_dict.update(kwargs)
         attempts = my_dict.get("attempts",3)
+        tout  = my_dict.get("timeout",30.)
         if 'attempts' in my_dict: my_dict.pop("attempts")
+        if 'timeout' in my_dict: my_dict.pop("timeout")
         if majorStatus in FINAL_STATII:
             # keep only NUMLINES of log file.
             theLog = self.error_log.splitlines()
@@ -220,7 +222,7 @@ class DmpJob(object):
         counter = 0
         while attempts >= counter:
             try:
-                res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=30.)
+                res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=tout)
                 res.raise_for_status()
             except HTTPError as err:
                 counter+=1

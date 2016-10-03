@@ -71,7 +71,7 @@ def main(args=None):
         j.write_script(pythonbin=opts.python, debug=opts.dry)
         try:
             ret = j.submit(dry=opts.dry, local=opts.local)
-            j.updateStatus("Submitted", "WaitingForExecution", batchId=ret, cpu=0., memory=0.)
+            j.updateStatus("Submitted", "WaitingForExecution", batchId=ret, cpu=0., memory=0.,timeout=0.1, attempts=5)
             njobs += 1
         except Exception, e:
             log.exception(e)
