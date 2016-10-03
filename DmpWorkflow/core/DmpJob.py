@@ -222,8 +222,9 @@ class DmpJob(object):
         counter = 0
         while attempts >= counter:
             try:
-                res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=tout)
-                res.raise_for_status()
+                if res is None:
+                    res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=tout)
+                    res.raise_for_status()
             except HTTPError as err:
                 counter+=1
                 slt = 60*counter
@@ -232,7 +233,7 @@ class DmpJob(object):
                 sleep(slt)
                 res = None
             finally:
-                if res is None and attempts == 0:
+                if res is None and counter == attempts:
                     if majorStatus == "Running":
                         # this is desaster recovery (to keep running jobs running)
                         print 'keeping job running, ignoring this update'

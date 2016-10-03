@@ -34,8 +34,9 @@ def main(args=None):
     counter = 0
     while natts >= counter:
         try:
-            res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=30.)
-            res.raise_for_status()
+            if res is None:
+                res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=30.)
+                res.raise_for_status()
         except HTTPError as err:
             counter+=1
             slt = 60*counter
@@ -44,7 +45,7 @@ def main(args=None):
             sleep(slt)
             res = None
         finally:
-            if res is None and natts == 0:
+            if res is None and natts == counter:
                 print 'exiting process'
                 sys_exit(0)
     res = res.json()
