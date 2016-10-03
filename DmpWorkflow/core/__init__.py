@@ -14,6 +14,10 @@ if kind == 'server':
     app.config['MONGODB_PASSWORD'] = cfg.get("database", "password")
     app.config['MONGODB_HOST'] = cfg.get("database", "host")
     app.config['MONGODB_PORT'] = int(cfg.get("database", "port"))
+    # make connection numbers unbound
+    app.config['MONGODB_MAXPOOLSIZE'] = None 
+    # time out after 100ms
+    app.config['MONGODB_WAITQUEUETIMEOUTMS'] = 100
     app.config["SECRET_KEY"] = "KeepThisS3cr3t"
     db = MongoEngine(app)
     
