@@ -220,11 +220,10 @@ class DmpJob(object):
         # print '*DEBUG* my_dict: %s'%str(my_dict)
         res = None
         counter = 0
-        while attempts >= counter:
+        while (attempts >= counter) and (res is None):
             try:
-                if res is None:
-                    res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=tout)
-                    res.raise_for_status()
+                res = Rpost("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=tout)
+                res.raise_for_status()
             except HTTPError as err:
                 counter+=1
                 slt = 60*counter
@@ -232,19 +231,19 @@ class DmpJob(object):
                 print err
                 sleep(slt)
                 res = None
-            finally:
-                if res is None and counter == attempts:
-                    if majorStatus == "Running":
-                        # this is desaster recovery (to keep running jobs running)
-                        print 'keeping job running, ignoring this update'
-                    elif majorStatus in ["Done","Failed","Terminated"]:
-                        print 'status change to final, triggering exit'
-                        bj = HPC.BatchJob(batchId=self.batchId)
-                        self.account(majorStatus)
-                        bj.kill()
-        if not res.json().get("result", "nok") == "ok":
-            raise Exception(res.json().get("error", "ErrorMissing"))
-        self.account(majorStatus)
+        if res is None and counter == attempts:
+            if majorStatus == "Running":
+                # this is desaster recovery (to keep running jobs running)
+                print 'keeping job running, ignoring this update'
+            elif majorStatus in ["Done","Failed","Terminated"]:
+                print 'status change to final, triggering exit'
+                bj = HPC.BatchJob(batchId=self.batchId)
+                self.account(majorStatus)
+                bj.kill()
+        else:
+            if not res.json().get("result", "nok") == "ok":
+                raise Exception(res.json().get("error", "ErrorMissing"))
+            self.account(majorStatus)
         return
         # update_status(self.jobId, self.instanceId, majorStatus, minor_status=minorStatus, **kwargs)
 

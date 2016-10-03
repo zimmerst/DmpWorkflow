@@ -32,11 +32,10 @@ def main(args=None):
     if 'retry' in my_dict: my_dict.pop("retry")
     res = None
     counter = 0
-    while natts >= counter:
+    while (natts >= counter) and (res is None):
         try:
-            if res is None:
-                res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=30.)
-                res.raise_for_status()
+            res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=30.)
+            res.raise_for_status()
         except HTTPError as err:
             counter+=1
             slt = 60*counter
@@ -44,15 +43,15 @@ def main(args=None):
             print '%i/%i: could not complete request, sleeping %i seconds and retrying again'%(counter, natts, slt)
             sleep(slt)
             res = None
-        finally:
-            if res is None and natts == counter:
-                print 'exiting process'
-                sys_exit(0)
-    res = res.json()
-    if res.get("result", "nok") != "ok":
-        print 'error %s' % res.get("error")
+    if res is None and natts == counter:
+        print 'exiting process'
+        sys_exit(0)
     else:
-        print 'Status updated'
+        res = res.json()
+        if res.get("result", "nok") != "ok":
+            print 'error %s' % res.get("error")
+        else:
+            print 'Status updated'
 
 
 if __name__ == '__main__':
