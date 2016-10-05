@@ -375,18 +375,8 @@ class NewJobs(MethodView):
             status = [status]
         q = JobInstance.objects.filter(status__in=status, site=site)
         return q.count()
-
-    def get(self):
-        logger.debug("NewJobs:GET: request %s", str(request))
-        jstatus = unicode(request.form.get("status", u"New"))
-        status_list = request.form.get("status_list",[])
-        if len(status_list):
-            jstatus = status_list
-        fastQuery = bool(request.form.get("fastQuery","False"))
-        batchsite = unicode(request.form.get("site", "local"))
-        if fastQuery:
-            njobs = self.getJobsFast(batchsite,jstatus)
-            return dumps({"result": "ok", "jobs": njobs})
+    
+    def getNewJobs(self,batchsite, jstatus):
         _limit = int(request.form.get("limit", 1000))
         newJobInstances = []
         allJobs = Job.objects.filter(execution_site=batchsite)
@@ -420,7 +410,22 @@ class NewJobs(MethodView):
                     else:
                         logger.info("NewJobs:GET: dependencies not fulfilled yet")
                 logger.debug("NewJobs:GET: found %i new jobs after dependencies", len(newJobInstances))
-        return dumps({"result": "ok", "jobs": newJobInstances})
+        return newJobInstances
+
+    def get(self):
+        logger.debug("NewJobs:GET: request %s", str(request))
+        jstatus = unicode(request.form.get("status", u"New"))
+        status_list = request.form.get("status_list",[])
+        if len(status_list):
+            jstatus = status_list
+        fastQuery = bool(request.form.get("fastQuery","False"))
+        batchsite = unicode(request.form.get("site", "local"))
+        if fastQuery:
+            njobs = self.getJobsFast(batchsite,jstatus)
+            return dumps({"result": "ok", "jobs": njobs})
+        else:
+            newJobInstances = self.getNewJobs(batchsite, jstatus)
+            return dumps({"result": "ok", "jobs": newJobInstances})
 
 class TestView(MethodView):
     def post(self):
