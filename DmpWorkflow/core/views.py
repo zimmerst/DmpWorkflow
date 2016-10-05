@@ -420,12 +420,17 @@ class NewJobs(MethodView):
             jstatus = status_list
         fastQuery = bool(request.form.get("fastQuery","False"))
         batchsite = unicode(request.form.get("site", "local"))
-        if fastQuery:
-            njobs = self.getJobsFast(batchsite,jstatus)
-            return dumps({"result": "ok", "jobs": njobs})
-        else:
-            newJobInstances = self.getNewJobs(batchsite, jstatus)
-            return dumps({"result": "ok", "jobs": newJobInstances})
+        try:
+            if fastQuery:
+                njobs = self.getJobsFast(batchsite,jstatus)
+                return dumps({"result": "ok", "jobs": njobs})
+            else:
+                newJobInstances = self.getNewJobs(batchsite, jstatus)
+                return dumps({"result": "ok", "jobs": newJobInstances})
+        except Exception as err:
+            logger.error("NewJobs:GET: %s",err)
+            return dumps({"result":"nok","error":err})
+
 
 class TestView(MethodView):
     def post(self):

@@ -63,7 +63,7 @@ def main(args=None):
     if not res.get("result", "nok") == "ok":
         log.error(res.get("error"))
     jobs = res.get("jobs")
-    log.info('found %i new job instances to deploy this cycle', len(jobs))
+    log.info('found %i new job instances to deploy this cycle', jobs)
     njobs = 0
     for job in jobs:
         j = DmpJob.fromJSON(job)
