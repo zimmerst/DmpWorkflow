@@ -368,10 +368,25 @@ class SetJobStatus(MethodView):
         return dumps({"result": "ok", "jobs": output})
 
 class NewJobs(MethodView):
+    
+    def getJobsFast(self,site,status):
+        """ a superfast query to see how many jobs are running """
+        if not isinstance(status,list):
+            status = [status]
+        q = JobInstance.objects.filter(status__in=status, site=site)
+        return q.count()
+
     def get(self):
         logger.debug("NewJobs:GET: request %s", str(request))
         jstatus = unicode(request.form.get("status", u"New"))
+        status_list = request.form.get("status_list",[])
+        if len(status_list):
+            jstatus = status_list
+        fastQuery = bool(request.form.get("fastQuery","False"))
         batchsite = unicode(request.form.get("site", "local"))
+        if fastQuery:
+            njobs = self.getJobsFast(batchsite,jstatus)
+            return dumps({"result": "ok", "jobs": njobs})
         _limit = int(request.form.get("limit", 1000))
         newJobInstances = []
         allJobs = Job.objects.filter(execution_site=batchsite)

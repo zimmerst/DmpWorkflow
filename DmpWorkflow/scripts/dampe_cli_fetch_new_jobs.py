@@ -44,14 +44,14 @@ def main(args=None):
             if opts.skipDBcheck:
                 print 'skipping DB check, assume no jobs to be in the system'
             else:
-                for stat in ['Running', 'Submitted', 'Suspended']:
-                    res = get("%s/newjobs/" % DAMPE_WORKFLOW_URL,
-                              data={"site": str(batchsite), "limit": opts.chunk, "status": stat})
-                    res.raise_for_status()
-                    res = res.json()
-                    if not res.get("result", "nok") == "ok":
-                        log.error(res.get("error"))
-                    val += len(res.get("jobs"))
+                stats = ['Running', 'Submitted', 'Suspended']
+                res = get("%s/newjobs/" % DAMPE_WORKFLOW_URL,
+                              data={"site": str(batchsite), "status_list": stats, "fastQuery":"True"})
+                res.raise_for_status()
+                res = res.json()
+                if not res.get("result", "nok") == "ok":
+                    log.error(res.get("error"))
+                val += res.get("jobs")
         log.info('found %i jobs running or pending', val)
         if val >= opts.maxJobs:
             log.warning(
