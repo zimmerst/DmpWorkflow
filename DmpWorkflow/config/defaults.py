@@ -82,7 +82,7 @@ SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])
 
 # verify that the site configuration is okay.
 assert BATCH_DEFAULTS['name'] in cfg.get("JobDB", "batch_sites"), "Batch site %s not in DB" % BATCH_DEFAULTS['name']
-assert BATCH_DEFAULTS['system'] in ["lsf", "sge", "pbs", "condor"], "HPCSystem %s not supported." % BATCH_DEFAULTS["system"]
+assert BATCH_DEFAULTS['system'] in ["lsf", "sge", "pbs", "condor","slurm"], "HPCSystem %s not supported." % BATCH_DEFAULTS["system"]
 
 DAMPE_LOGFILE = cfg.get("global", "logfile")
 DAMPE_LOGLEVEL= cfg.get("global", "loglevel")
