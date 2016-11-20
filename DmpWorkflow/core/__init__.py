@@ -1,5 +1,6 @@
 from DmpWorkflow.config.defaults import cfg
 from DmpWorkflow import version
+import flask_profiler
 from socket import getfqdn
 kind = cfg.get("global", "installation")
 
@@ -19,6 +20,22 @@ if kind == 'server':
     # time out after 100ms
     app.config['MONGODB_WAITQUEUETIMEOUTMS'] = 100
     app.config["SECRET_KEY"] = "KeepThisS3cr3t"
+    app.config["DEBUG"] = True if cfg.get("server","use_debugger") == 'true' else False
+    app.config["flask_profiler"] = {
+        "enabled": app.config["DEBUG"],
+        "storage": {
+            "engine": "mongodb",
+            "MONGO_URL": "mongodb://{user}:{password}@{host}:{port}/{db}".format(user=cfg.get("database","user"), password=cfg.get("database","password"),
+                                                                                 host=cfg.get("database","host"), port=cfg.get("database","port"), db=cfg.get("database","name")),
+            "DATABASE": cfg.get("database","name"),
+            "COLLECTION_NAME": "profiler"
+        },
+        "basicAuth":{
+            "enabled": True,
+            "username": "admin",
+            "password": "secret"
+        }
+    }
     db = MongoEngine(app)
     
     def register_blueprints(app):
@@ -30,6 +47,11 @@ if kind == 'server':
     
 
     register_blueprints(app)
+    
+    if app.config['flask_profiler']['enabled']:
+        app.logger.info("started flask profiler, recording to %s",app.config['flask_profiler']['storage']['MONGO_URL'])
+        flask_profiler.init_app(app)
+
     
     def main():
         app.logger.info("started DmpWorkflow Server Version: %s on %s",version,getfqdn())

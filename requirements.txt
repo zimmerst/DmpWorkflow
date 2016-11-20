@@ -15,3 +15,4 @@ xmltodict
 multiprocessing
 psutil
 numpy
+flask_profiler
