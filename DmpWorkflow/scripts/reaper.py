@@ -14,10 +14,15 @@ def main(args=None):
     parser.add_argument('-d','--dry',action='store_true',dest='dry',help='do not reap but show what you would reap (dry-run)')
     opts = parser.parse_args(args)
     past = datetime.now() - timedelta(minutes=opts.time)
-    instances = JobInstance.objects.filter(status="Running",last_update__lte=past)
-    print 'found %i instances to potentially reap'%instances.count()
+    query = JobInstance.objects.filter(status="Running",last_update__lte=past)
+    clen = query.count()
+    if not clen:
+        print 'no instances found to reap, return'
+        return
+    print 'found %i instances to potentially reap'%clen
     if not opts.dry:
-        instances.update(status="Terminated",minor_status="KilledByReaper")
+        res=query.update(status="Terminated",minor_status="KilledByReaper")
+        print 'reaped %i instances'%res
 
 if __name__ == "__main__":
     main()
