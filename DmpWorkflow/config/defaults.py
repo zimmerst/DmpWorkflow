@@ -10,7 +10,7 @@ from os import environ, getenv
 from os.path import dirname, abspath, join as oPjoin
 import sys
 from DmpWorkflow import version as DAMPE_VERSION
-from DmpWorkflow.utils.tools import exceptionHandler
+#from DmpWorkflow.utils.tools import exceptionHandler
 
 DAMPE_WORKFLOW_ROOT = dirname(dirname(abspath(__file__)))
 
@@ -55,7 +55,7 @@ environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
 # source_bash(cfg.get("site", "ExternalsScript"))
 
 dbg = cfg.getboolean("global", "traceback")
-sys.excepthook = exceptionHandler
+#sys.excepthook = exceptionHandler
 
 DAMPE_WORKFLOW_URL = cfg.get("server", "url")
 DAMPE_WORKFLOW_DIR = cfg.get("site", "workdir")
