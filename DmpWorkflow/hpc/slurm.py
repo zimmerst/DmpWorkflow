@@ -55,8 +55,8 @@ class BatchEngine(BATCH):
         self.allJobs.update(self.aggregateStatii())
 
     def getCPUtime(self, jobId, key="CPU_USED"):
-        warn("not implemented", DeprecationWarning)
         """ format is: 000:00:00.00 """
+        warn("not implemented", DeprecationWarning)
         jobId = 0.
         return jobId
 

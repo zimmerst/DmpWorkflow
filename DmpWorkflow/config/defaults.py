@@ -8,7 +8,7 @@ Created on Apr 20, 2016
 from ConfigParser import SafeConfigParser
 from os import environ, getenv
 from os.path import dirname, abspath, join as oPjoin
-import sys
+#import sys
 from DmpWorkflow import version as DAMPE_VERSION
 #from DmpWorkflow.utils.tools import exceptionHandler
 
