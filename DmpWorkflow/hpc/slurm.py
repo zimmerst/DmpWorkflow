@@ -5,7 +5,6 @@ Created on Aug 10, 2016
 @brief: core SLURM functionality (job submission & cancellation)
 '''
 from warnings import warn, simplefilter
-from __builtin__ import None
 simplefilter('always', DeprecationWarning)
 from re import findall
 from DmpWorkflow.config.defaults import BATCH_DEFAULTS as defaults 
