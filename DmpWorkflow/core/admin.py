@@ -5,6 +5,7 @@ Created on Mar 10, 2016
 import logging
 from flask import Blueprint, request, redirect, render_template, url_for, send_file
 from flask.views import MethodView
+from datetime import datetime, timedelta
 from flask.ext.mongoengine.wtf import model_form
 from DmpWorkflow.core.auth import requires_auth
 from DmpWorkflow.core.models import Job
@@ -19,9 +20,11 @@ class List(MethodView):
     cls = Job
 
     def get(self):
-        jobs = self.cls.objects.all()
+        days_since=int(request.args.get("days_since",30))
+        hours_since=int(request.args.get("horus_since",0))
+        new_date = datetime.now() - timedelta(days = days_since, hours = hours_since)
+        jobs = JobInstance.objects.filter(last_update__gte=new_date).distinct("job")
         return render_template('admin/list.html', jobs=jobs)
-
 
 class Remove(MethodView):
     decorators = [requires_auth]

@@ -3,7 +3,7 @@ from copy import deepcopy
 from os.path import basename
 from json import loads, dumps
 from flask import Blueprint, request, render_template
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask.views import MethodView
 from ast import literal_eval
 from re import findall
@@ -16,28 +16,16 @@ jobs = Blueprint('jobs', __name__, template_folder='templates')
 logger = logging.getLogger("core")
 
 class ListView(MethodView):
-    
-    def getJobsSince(self,timestamp):
-        if not isinstance(timestamp,datetime):
-            raise Exception("must be a datetime object!")
-        active_jobs = []
-        query = JobInstance.objects.filter(last_update__gt=timestamp)
-        active_jobs = [inst.job for inst in query if inst.job not in active_jobs]
-        return active_jobs
-    
+        
     def get(self):
         logger.debug("ListView:GET: request %s", str(request))
-        # must be of format '2016-08-29T13:29:49'
-        #dformat = "%Y-%m-%dT%H:%M:%S"
-        #timestamp = "None"#request.args.get("timestamp","None")
-        #jobs = []
-        #if timestamp != "None":
-        #    logger.info("ListView:GET: found timestamp in request: %s", timestamp)
-        #    dtimestamp = datetime.strptime(timestamp,dformat)
-        #    jobs = self.getJobsSince(dtimestamp)
-        #else:
-        jobs = Job.objects.all()
-        return render_template('jobs/list.html', jobs=jobs)#, timestamp=timestamp.strftime(dformat))
+        days_since=int(request.args.get("days_since",30))
+        hours_since=int(request.args.get("horus_since",0))
+        new_date = datetime.now() - timedelta(days = days_since, hours = hours_since)
+        jobs = JobInstance.objects.filter(last_update__gte=new_date).distinct("job")
+        return render_template('jobs/list.html', jobs=jobs, 
+                               timestamp=new_date.strftime('%A, %d. %B %Y %I:%M%p'), 
+                               server_time=datetime.now())
 
 class InstanceView(MethodView):
     def get(self):
@@ -379,37 +367,18 @@ class NewJobs(MethodView):
     def getNewJobs(self,batchsite, jstatus):
         _limit = int(request.form.get("limit", 1000))
         newJobInstances = []
-        allJobs = Job.objects.filter(execution_site=batchsite)
-        logger.debug("NewJobs:GET: allJobs = %s", str(allJobs))
-        for job in allJobs:
-            logger.debug("NewJobs:GET: processing job %s", job.slug)
-            dependent_tasks = job.getDependency()
-            logger.debug("NewJobs:GET: dependent tasks: %s", dependent_tasks)
-            newJobs = JobInstance.objects.filter(job=job, status=jstatus).limit(int(_limit))
-            logger.debug("#newJobs: %i", newJobs.count())
-            if newJobs.count():
-                logger.debug("NewJobs:GET: found %i new instances for job %s", newJobs.count(), str(job.title))
+        newJobs = JobInstance.objects.filter(status=jstatus, job__in=Job.objects.filter(execution_site=batchsite)).limit(int(_limit))
+        if newJobs.count():
+            for j in newJobs:
+                job = j.job
                 dJob = DmpJob(job.id, body=None, title=job.title)
-                logger.debug("NewJobs:GET: DmpJob instantiation.")
-                for dt in dependent_tasks:
-                    logger.debug("NewJobs:GET: processing dependencies for job %s", dt)
-                    dJob.InputFiles += [{"source": fil, "target": basename(fil)} for fil in dt.getOutputFiles()]
-                    dJob.MetaData += [{"name": k, "value": v, "type": "string"} for k, v in
-                                      dt.getMetaDataVariables().iteritems()]
-                logger.debug("NewJobs:GET: setBodyFromDict")
                 dJob.setBodyFromDict(job.getBody())
-                for j in newJobs:
-                    if j.checkDependencies():
-                        logger.debug("NewJobs:GET: depedency satisfied")
-                        j.getResourcesFromMetadata()
-                        logger.debug("NewJobs:GET: resources read out")
-                        dInstance = deepcopy(dJob)
-                        dInstance.setInstanceParameters(j.instanceId, j.body)
-                        logger.debug('NewJobs:GET: ** DEBUG ** instance body : %s',j.body)
-                        newJobInstances.append(dInstance.exportToJSON())
-                    else:
-                        logger.info("NewJobs:GET: dependencies not fulfilled yet")
-                logger.debug("NewJobs:GET: found %i new jobs after dependencies", len(newJobInstances))
+                if j.checkDependencies():
+                    j.getResourcesFromMetadata()
+                    dJob.setInstanceParameters(j.instanceId, j.body)
+                    newJobInstances.append(dJob.exportToJSON())
+                else:
+                    logger.info("NewJobs:GET: dependencies not fulfilled yet")
         return newJobInstances
 
     def get(self):

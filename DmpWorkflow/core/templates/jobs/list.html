@@ -6,10 +6,11 @@
 {# <h2> Job Summary </h2> #}
 {# {% else %} #}
 {# <h2> Job Summary </h2> #}
-{# (active since {{ timestamp|safe }})</h2> #}
+{# </h2> #}
 {# {% endif %} #}
 
 <h2> Job Summary </h2>
+<p> showing jobs with active instances since: {{ timestamp|safe }} </p>
 {% set MAJOR_STATII = ['New','Submitted','Running','Suspended','Done','Failed','Terminated'] %}
 {% set keys = ['Name','Site','Type','Release Tag','#events']+MAJOR_STATII+["Total"] %}
 <table class="table">
@@ -38,5 +39,6 @@
 	</tr>	
 	{% endfor %}
 </table>
+<p><strong>Server Time   : </strong> {{server_time}} </p>
 
 {% endblock %}
