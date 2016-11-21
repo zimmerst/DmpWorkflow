@@ -186,6 +186,40 @@ class JobInstanceView(MethodView):
             logger.error("JobInstanceView:POST: Cannot find job")
             return dumps({"result": "nok", "error": 'Could not find job %s' % taskName})
 
+class SetJobStatusBulk(MethodView):
+    def get(self):
+        pass
+    
+    def post(self):
+        try:
+            assert 'data' in request.form        
+            status_data = loads(request.form.get("data"))
+            major_status = str(request.form.get("status","Submitted"))
+            if major_status != "Submitted": 
+                logger.warning("SetJobStatusBulk:POST: should not use this end-point for anything but submitted jobs")
+            minor_status = str(request.form.get("minor_status","WaitingForExecution"))
+            update_dict = {"status":major_status,"minor_status":minor_status,"last_update":datetime.now()}
+            logger.debug("found %i entries to update",len(status_data))
+            # data is of this form:
+            #[{jobId=XXX, instanceId=i}]
+            jobIds = list(set([j['t_id'] for j in status_data]))
+            # make as few queries as possible 
+            query_dict = {k:[] for k,v in jobIds.iteritems()}
+            for j in status_data:
+                query_dict[j['t_id']].append(j['instanceId'])
+            # assembled, now let's do the query
+            for jobId, instances in query_dict.iteritems():
+                try: 
+                    q = JobInstance.objects.filter(job=Job.objects.get(id=jobId), instanceId__in=instances)
+                    if q.count():
+                        q.update(**update_dict)
+                except Exception as err:
+                    raise Exception("error while updating query for job Id: %s",jobId)
+            return dumps({"result":"ok"})
+        except Exception as err:
+            return dumps({"result":"nok","error":err})
+                
+
 class SetJobStatus(MethodView):
     # these are helper methods to reduce complexity of POST    
     def __extractBatchId__(self,bId):
@@ -535,6 +569,7 @@ jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "P
 jobs.add_url_rule('/jobInstances/detail', view_func=InstanceView.as_view('instanceDetail'))
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET", "POST"])
+jobs.add_url_rule("/jobstatusBulk/", view_func=SetJobStatusBulk.as_view('jobstatusBulk'), methods=["GET", "POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
 jobs.add_url_rule("/testDB/", view_func=TestView.as_view('testDB'), methods=["GET", "POST"])
 jobs.add_url_rule("/datacat/", view_func=DataCatalog.as_view('datacat'), methods=["GET", "POST"])

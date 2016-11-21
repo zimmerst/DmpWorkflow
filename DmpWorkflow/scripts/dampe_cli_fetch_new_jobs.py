@@ -4,8 +4,9 @@ Created on Mar 15, 2016
 @author: zimmer
 """
 import logging
-from requests import get
+from requests import get, post 
 from sys import exit as sys_exit
+from json import dumps
 from argparse import ArgumentParser
 from DmpWorkflow.core.DmpJob import DmpJob
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL, BATCH_DEFAULTS
@@ -65,17 +66,40 @@ def main(args=None):
     jobs = res.get("jobs")
     log.info('found %i new job instances to deploy this cycle', jobs)
     njobs = 0
+
+    # replace old submission block with a bulk submit
+    #for job in jobs:
+    #    j = DmpJob.fromJSON(job)
+    #    # j.__updateEnv__()
+    #    j.write_script(pythonbin=opts.python, debug=opts.dry)
+    #    try:
+    #        ret = j.submit(dry=opts.dry, local=opts.local)
+    #        j.updateStatus("Submitted", "WaitingForExecution", batchId=ret, cpu=0., memory=0., timeout=None, attempts=1)
+    #        njobs += 1
+    #    except Exception, e:
+    #        log.exception(e)
+
+    data = []
     for job in jobs:
         j = DmpJob.fromJSON(job)
-        # j.__updateEnv__()
         j.write_script(pythonbin=opts.python, debug=opts.dry)
         try:
-            ret = j.submit(dry=opts.dry, local=opts.local)
-            j.updateStatus("Submitted", "WaitingForExecution", batchId=ret, cpu=0., memory=0., timeout=None, attempts=1)
-            njobs += 1
+            j.submit(dry=opts.dry, local=opts.local)
+            if not opts.dry:
+                data.append({"t_id":j.jobId, "instanceId":j.instanceId})
+                njobs += 1 
         except Exception, e:
             log.exception(e)
-
+    
+    # done submitting, now do bulk update
+    res = post("%s/jobstatusBulk/" % DAMPE_WORKFLOW_URL, 
+               major_status = "Submitted",
+               minor_status = "WaitingForExecution",
+               data=dumps(data))
+    res.raise_for_status()
+    res = res.json()
+    if not res.get("result", "nok") == "ok":
+        log.error(res.get("error"))
     log.info("cycle completed, submitted %i new jobs", njobs)
 
 
