@@ -64,7 +64,7 @@ def main(args=None):
     if not res.get("result", "nok") == "ok":
         log.error(res.get("error"))
     jobs = res.get("jobs")
-    log.info('found %i new job instances to deploy this cycle', jobs)
+    log.info('found %i new job instances to deploy this cycle', len(jobs))
     njobs = 0
 
     # replace old submission block with a bulk submit
@@ -93,9 +93,8 @@ def main(args=None):
     
     # done submitting, now do bulk update
     res = post("%s/jobstatusBulk/" % DAMPE_WORKFLOW_URL, 
-               major_status = "Submitted",
-               minor_status = "WaitingForExecution",
-               data=dumps(data))
+               data={"data":dumps(data),"status":"Submitted","minor_status":"WaitingForExecution"})
+
     res.raise_for_status()
     res = res.json()
     if not res.get("result", "nok") == "ok":
