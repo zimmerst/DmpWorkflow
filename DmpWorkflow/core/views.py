@@ -192,6 +192,7 @@ class SetJobStatusBulk(MethodView):
     
     def post(self):
         try:
+            njobs = 0
             assert 'data' in request.form        
             status_data = loads(request.form.get("data"))
             major_status = str(request.form.get("status","Submitted"))
@@ -204,20 +205,20 @@ class SetJobStatusBulk(MethodView):
             #[{jobId=XXX, instanceId=i}]
             jobIds = list(set([j['t_id'] for j in status_data]))
             # make as few queries as possible 
-            query_dict = {k:[] for k,v in jobIds.iteritems()}
+            query_dict = {k:[] for k in jobIds}
             for j in status_data:
                 query_dict[j['t_id']].append(j['instanceId'])
             # assembled, now let's do the query
             for jobId, instances in query_dict.iteritems():
                 try: 
-                    q = JobInstance.objects.filter(job=Job.objects.get(id=jobId), instanceId__in=instances)
+                    q = JobInstance.objects.filter(status="New",job=Job.objects.get(id=jobId), instanceId__in=instances)
                     if q.count():
-                        q.update(**update_dict)
+                        njobs+=q.update(**update_dict)
                 except Exception as err:
                     raise Exception("error while updating query for job Id: %s",jobId)
-            return dumps({"result":"ok"})
+            return dumps({"result":"ok","njobs":njobs})
         except Exception as err:
-            return dumps({"result":"nok","error":err})
+            return dumps({"result":"nok","error":str(err)})
                 
 
 class SetJobStatus(MethodView):

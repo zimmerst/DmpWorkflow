@@ -99,8 +99,9 @@ def main(args=None):
     res = res.json()
     if not res.get("result", "nok") == "ok":
         log.error(res.get("error"))
+        return
     log.info("cycle completed, submitted %i new jobs", njobs)
-
+    log.info("updated %i jobs", int(res.get("njobs",0)))
 
 if __name__ == "__main__":
     main()
