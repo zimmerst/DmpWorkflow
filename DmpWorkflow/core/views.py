@@ -419,15 +419,15 @@ class NewJobs(MethodView):
     def get(self):
         logger.debug("NewJobs:GET: request %s", str(request))
         jstatus = unicode(request.form.get("status", u"New"))
-        status_list = request.form.get("status_list",[])
+        status_list = unicode(request.form.get("status_list",u"None"))
         batchsite = unicode(request.form.get("site", "local"))
         fastQuery = request.form.get("fastQuery","False")
         if fastQuery in ["false","False","FALSE"]: fastQuery = False
         elif fastQuery in ["true","True","TRUE"]: fastQuery = True
         else:
             return dumps({"result":"nok","error":"could not interpret fastQuery key in request %s"%fastQuery})
-        if len(status_list):
-            jstatus = status_list
+        if status_list != "None":
+            jstatus = status_list.split(",")
         try:
             if fastQuery:
                 njobs = self.getJobsFast(batchsite,jstatus)
