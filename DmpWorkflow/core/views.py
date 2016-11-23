@@ -20,7 +20,7 @@ class ListView(MethodView):
     def get(self):
         logger.debug("ListView:GET: request %s", str(request))
         days_since=int(request.args.get("days_since",30))
-        hours_since=int(request.args.get("horus_since",0))
+        hours_since=int(request.args.get("hours_since",0))
         new_date = datetime.now() - timedelta(days = days_since, hours = hours_since)
         jobs = JobInstance.objects.filter(last_update__gte=new_date).distinct("job")
         return render_template('jobs/list.html', jobs=jobs, 
