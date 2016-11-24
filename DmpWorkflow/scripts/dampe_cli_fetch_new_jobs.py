@@ -90,18 +90,18 @@ def main(args=None):
                 njobs += 1 
         except Exception, e:
             log.exception(e)
+    if njobs:
+        # done submitting, now do bulk update
+        res = post("%s/jobstatusBulk/" % DAMPE_WORKFLOW_URL, 
+                   data={"data":dumps(data),"status":"Submitted","minor_status":"WaitingForExecution"})
     
-    # done submitting, now do bulk update
-    res = post("%s/jobstatusBulk/" % DAMPE_WORKFLOW_URL, 
-               data={"data":dumps(data),"status":"Submitted","minor_status":"WaitingForExecution"})
-
-    res.raise_for_status()
-    res = res.json()
-    if not res.get("result", "nok") == "ok":
-        log.error(res.get("error"))
-        return
+        res.raise_for_status()
+        res = res.json()
+        if not res.get("result", "nok") == "ok":
+            log.error(res.get("error"))
+            return
+        log.info("updated %i jobs", int(res.get("njobs",0)))
     log.info("cycle completed, submitted %i new jobs", njobs)
-    log.info("updated %i jobs", int(res.get("njobs",0)))
 
 if __name__ == "__main__":
     main()
