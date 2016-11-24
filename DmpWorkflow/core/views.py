@@ -21,8 +21,12 @@ class ListView(MethodView):
         logger.debug("ListView:GET: request %s", str(request))
         days_since=int(request.args.get("days_since",30))
         hours_since=int(request.args.get("hours_since",0))
+        site=str(request.args.get("site","None"))
         new_date = datetime.now() - timedelta(days = days_since, hours = hours_since)
-        jobs = JobInstance.objects.filter(last_update__gte=new_date).distinct("job")
+        query = JobInstance.objects.filter(last_update__gte=new_date)
+        if site != None:
+            query = query.filter(site=site)
+        jobs = query.distinct("job")
         return render_template('jobs/list.html', jobs=jobs, 
                                timestamp=new_date.strftime('%A, %d. %B %Y %I:%M%p'), 
                                server_time=datetime.now())
