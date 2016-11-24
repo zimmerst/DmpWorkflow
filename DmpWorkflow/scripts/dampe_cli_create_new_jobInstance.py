@@ -29,7 +29,7 @@ def main(args=None):
     ninst = opts.inst
     res = post("%s/jobInstances/" % DAMPE_WORKFLOW_URL,
                data={"taskname": taskName, "tasktype": opts.tasktype, "n_instances": ninst,
-                     "override_dict": str(override_dict)}, timeout=100.)
+                     "override_dict": str(override_dict)})
     res.raise_for_status()
     res = res.json()
     if res.get("result", "nok") == "ok":
