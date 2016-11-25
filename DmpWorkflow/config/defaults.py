@@ -7,6 +7,7 @@ Created on Apr 20, 2016
 """
 from ConfigParser import SafeConfigParser
 from os import environ, getenv
+from random import choice
 from os.path import dirname, abspath, join as oPjoin
 #import sys
 from DmpWorkflow import version as DAMPE_VERSION
@@ -46,7 +47,8 @@ cfg = SafeConfigParser(defaults=__myDefaults)
 cfg.read(oPjoin(DAMPE_WORKFLOW_ROOT, "config/settings.cfg"))
 
 assert cfg.get("global", "installation") in ['server', 'client'], "installation must be server or client!"
-
+DAMPE_BUILD =  cfg.get("global","installation")
+environ["DAMPE_BUILD"] = DAMPE_BUILD
 environ["DAMPE_SW_DIR"] = cfg.get("site", "DAMPE_SW_DIR")
 environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
 
@@ -58,6 +60,14 @@ dbg = cfg.getboolean("global", "traceback")
 #sys.excepthook = exceptionHandler
 
 DAMPE_WORKFLOW_URL = cfg.get("server", "url")
+
+# for clients: support multiple servers.
+if DAMPE_BUILD == "client" and "," in DAMPE_WORKFLOW_URL:
+    DAMPE_WORKFLOW_URL = choice(DAMPE_WORKFLOW_URL) 
+    # some cleanup in syntax to get rid of extra whitespaces.
+    while " " in DAMPE_WORKFLOW_URL:
+        DAMPE_WORKFLOW_URL = DAMPE_WORKFLOW_URL.replace(" ","")
+
 DAMPE_WORKFLOW_DIR = cfg.get("site", "workdir")
 EXEC_DIR_ROOT = cfg.get("site", "EXEC_DIR_ROOT")
 environ["DWF_SW_VERSION"] = DAMPE_VERSION
