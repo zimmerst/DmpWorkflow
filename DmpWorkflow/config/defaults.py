@@ -63,7 +63,7 @@ DAMPE_WORKFLOW_URL = cfg.get("server", "url")
 
 # for clients: support multiple servers.
 if DAMPE_BUILD == "client" and "," in DAMPE_WORKFLOW_URL:
-    DAMPE_WORKFLOW_URL = choice(DAMPE_WORKFLOW_URL) 
+    DAMPE_WORKFLOW_URL = choice(DAMPE_WORKFLOW_URL.split(",")) 
     # some cleanup in syntax to get rid of extra whitespaces.
     while " " in DAMPE_WORKFLOW_URL:
         DAMPE_WORKFLOW_URL = DAMPE_WORKFLOW_URL.replace(" ","")

@@ -35,6 +35,7 @@ def main(args=None):
     log = logging.getLogger("script")
     batchsite = BATCH_DEFAULTS['name']
     BEngine = HPC.BatchEngine()
+    print 'workflow server url: {url}'.format(url=DAMPE_WORKFLOW_URL)
     if opts.user is not None: BEngine.setUser(opts.user)
     if opts.maxJobs is not None:
         try:
