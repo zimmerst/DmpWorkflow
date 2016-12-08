@@ -18,6 +18,7 @@ from psutil import Process as ps_proc
 from datetime import datetime
 from re import findall
 from time import ctime, sleep
+import atexit
 
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 
@@ -42,6 +43,11 @@ class PayloadExecutor(object):
         print '*** RECEIVED EXIT TRIGGER ****'
         if msg is not None: print msg
         sys_exit(rc)
+
+    @atexit.register
+    def terminate(self):
+        self.job.updateStatus("Terminated", "Receive SIGTERM")
+        self.exit_app(128)
     
     def __prepare(self):
         try:
@@ -211,5 +217,6 @@ if __name__ == '__main__':
         else:
             ## terminate here for the various reasons.
             # output of memory is in kilobytes.
-            executor.job.updateStatus("Running",None,resources=prm)
+            if executor.job.monitoring_enabled:
+                executor.job.updateStatus("Running",None,resources=prm)
             sleep(float(BATCH_DEFAULTS.get("sleeptime","300."))) # sleep for 5m
