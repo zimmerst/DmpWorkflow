@@ -81,7 +81,7 @@ class Job(db.Document):
     jobInstances = db.ListField(db.ReferenceField("JobInstance"))
     archived = db.BooleanField(verbose_name="task closed", required=False, default=False)
     comment = db.StringField(max_length=1024, required=False, default="N/A")
-    enable_monitoring = db.BooleanField(verbose_name="enable_monitoring", required=False, default=True)
+    enable_monitoring = db.BooleanField(verbose_name="enable_monitoring", required=False, default=False)
     
     def aggregateResources(self,nbins=20):
         """ returns a json object which contains max, min, mean, median, 
@@ -279,8 +279,12 @@ class JobInstance(db.Document):
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)", required=False, default=-1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)", required=False, default=-1.)
     doMonitoring = db.BooleanField(verbose_name="do_monitoring", required=True, default=self.job.enable_monitoring)
-    isPilot      = db.BooleanField(verbose_name="is_pilot",required=True, default=True if self.job.Type == "Pilot" else False)
-    
+
+    # if the jobInstance is a normal "job" it has a pilot to refer to.
+    # if the jobInstance is a pilot, "job" has a list of instances.
+    isPilot      = db.BooleanField(verbose_name="is_pilot",required=False, default=True if self.job.Type == "Pilot" else False)
+    pilotReference = db.ReferenceField("JobInstance") 
+
     
     def aggregateResources(self):
         """ returns dict of two arrays, first is memory, second is cpu """

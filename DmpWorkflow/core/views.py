@@ -25,13 +25,13 @@ class PilotView(MethodView):
         site=str(request.args.get("site","None"))
         status=str(request.args.get("status","None"))
         new_date = datetime.now() - timedelta(days = days_since, hours = hours_since)
-        query = JobInstance.objects.filter(last_update__gte=new_date)
+        query = JobInstance.objects.filter(last_update__gte=new_date, isPilot=True)
         if site != "None":
             query = query.filter(site=site)
         if status != "None":
             query = query.filter(status=status)
         jobs = query.distinct("job")
-        return render_template('jobs/list.html', jobs=jobs, 
+        return render_template('jobs/plist.html', jobs=jobs, 
                                timestamp=new_date.strftime('%A, %d. %B %Y %I:%M%p'), 
                                server_time=datetime.now())
 
@@ -302,6 +302,7 @@ class SetJobStatus(MethodView):
                         "status_history": [],
                         "memory"        : [],
                         "cpu"           : [],
+                        "pilotReference": None,
                         "log"           : ""
                            }
             res = query.update(**update_dict)
@@ -339,13 +340,27 @@ class SetJobStatus(MethodView):
             # additional information, not critical
             site = str(arguments.get("site", "None"))
             minor_status = arguments.get("minor_status", None)
+            preference = arguments.get("pilotReference",None)
+            pilot = None
+            if preference is not None:
+                try:
+                    pilot = JobInstance.objects.get(instanceId=preference)
+                except JobInstance.DoesNotExist:
+                    raise Exception("SetJobStatus:POST: Could not find associated pilot instance")
             jInstance = None
             if "body" in arguments:
                 del arguments["body"]
             # this might throw, but that's caught down-stream...
             job = Job.objects.get(id=t_id) 
             # this one either throws an exception, which is caught down stream, or returns a valid json.
+            if major_status in ["Terminated","Failed"] and job.type == "Pilot":
+                # take care of assigned pilot instances...
+                jI = JobInstance.objects.get(job=job,instanceId=inst_id)
+                query = JobInstance.objects.filter(pilotReference=jI)
+                query.update(status="Terminated",minor_status="PilotTerminated")
             if major_status == "New":
+                if job.type == "Pilot":
+                    raise Exception("SetJobStatus:POST: Try to roll-back pilot, this is not supported.")
                 return self.__rollBack__(job,inst_id,arguments=arguments)
             # check for batchId, not used in query.
             bId = arguments.get("batchId",None)
@@ -355,8 +370,12 @@ class SetJobStatus(MethodView):
                 if arguments['batchId'] == "None" or arguments['batchId'] is None:
                     del arguments['batchId']
             except Exception as err:
-                raise Exception("error extracting batchId,\n%s"%err)                        
+                raise Exception("SetJobStatus:POST: error extracting batchId,\n%s"%err)                        
             query = {"job":job, "instanceId":inst_id}
+            if pilot is not None:
+                q = JobInstance.objects.filter(**query).update(pilotReference=pilot)
+                if q != 1: 
+                    raise Exception("SetJobStatus:POST: could not assign pilot reference to jobInstance")
             if site != "None": query['site']=site
             # again, this may throw...
             logger.debug("SetJobStatus:POST: query to find instance %s",str(query))
@@ -366,12 +385,13 @@ class SetJobStatus(MethodView):
             logger.debug("SetJobStatus:POST: arguments in request %s",str(arguments))
             if minor_status is not None:
                 jInstance.setStatus(major_status,minor_status)
-            for key in ["t_id", "inst_id", "major_status","minor_status"]:
+            for key in ["t_id", "inst_id", "major_status","minor_status","pilotReference"]:
                 if key in arguments: del arguments[key]  
             logger.debug("SetJobStatus:POST: arguments after cleanup %s",str(arguments))
             # for the rest, we can just use the setters.
             for key, value in arguments.iteritems():
                 jInstance.set(key, value)
+            
 
         except Exception as err:
             logger.exception("SetJobStatus:POST: %s",err)

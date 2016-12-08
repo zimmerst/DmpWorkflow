@@ -47,13 +47,15 @@ class DmpJob(object):
         self.__dict__.update(kwargs)
         self.extract_xml_metadata(body)
         self.isPilot = True if self.type == "Pilot" else False
+        self.pilotReference = None
         self.monitoring_enabled = True if self.monitoring_enabled in ["True","true","TRUE","YES","Yes","yes"] else False 
         #self.__updateEnv__()
-
     def getJSONbody(self):
         """ returns the body of the instance as JSON object, can be returned in status query """
         dummy_dict = {"InputFiles": self.InputFiles, "OutputFiles": self.OutputFiles, "MetaData": self.MetaData}
         return dumps(dummy_dict)
+    def setPilotReference(self,pilotRef):
+        self.pilotReference = pilotRef
 
     def logError(self,err):
         error_line = "%s:ERROR: %s \n"%(ctime(),str(err))
@@ -100,6 +102,8 @@ class DmpJob(object):
         environ['DWF_INSTANCE_ID'] = str(self.instanceId)
         # print 'BatchOverride keys', BATCH_DEFAULTS
         self.batchdefaults = BATCH_DEFAULTS
+        if self.isPilot:
+            environ["DWF_PILOT_REFERENCE"] = str(self.instanceId)
         return
 
     def getBatchDefaults(self):
@@ -201,6 +205,8 @@ class DmpJob(object):
         """ passes status """
         my_dict = {"t_id": self.jobId, "inst_id": self.instanceId, "major_status": majorStatus,
                    "minor_status": minorStatus}
+        if not self.isPilot and not self.pilotReference in ["None","NONE",None]:            
+            my_dict['pilotReference'] = self.pilotReference
         if 'resources' in kwargs:
             if kwargs['resources']:
                 RM = kwargs['resources']

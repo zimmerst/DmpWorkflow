@@ -23,6 +23,8 @@ def main(args=None):
     parser.add_argument("-l", "--local", dest="local", action='store_true', default=False, help='run locally')
     parser.add_argument("-p", "--pythonbin", dest="python", default=None, type=str,
                         help='the python executable if non standard is chosen')
+    parser.add_argument("--pilotReference", dest="pref", default=None, type=str,
+                        help='pilot reference (instanceId) of pilot')
     parser.add_argument("--pilot",dest='pilot', action='store_true', default=False, help="run in pilot mode")
     parser.add_argument("-c", "--chunk", dest="chunk", default=100, type=int,
                         help='number of jobs to process per cycle')
@@ -64,7 +66,8 @@ def main(args=None):
                 "reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
             sys_exit();
     d_dict = {"site": str(batchsite), "limit": opts.chunk}
-    if pilot: d_dict['type']='pilot'
+    if pilot: 
+        d_dict['type']='pilot'
     res = get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data=d_dict)
     res.raise_for_status()
     res = res.json()
@@ -75,9 +78,13 @@ def main(args=None):
     njobs = 0
     # replace old submission block with a bulk submit
     data = []
+    if opts.pref is not None: 
+        pilotReference = opts.pref
     if opts.local:
         for job in jobs:
             j = DmpJob.fromJSON(job)
+            if pilotReference != "None":
+                j.setPilotReference(pilotReference)
             # j.__updateEnv__()
             j.write_script(pythonbin=opts.python, debug=opts.dry)
             try:

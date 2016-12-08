@@ -1,0 +1,26 @@
+# global options
+global:
+ type: "pilot"
+ pidfile: "/tmp/pilot.pid"
+ logfile: "/tmp/pilot.log"
+ sleeptime: 30.
+
+# site-specific values
+pilots:
+
+ - site : "CNAF"
+   version: "1.0"
+   pilotsPerSite: 400
+
+ - site : "BARI"
+   version: "1.0"
+   pilotsPerSite: 400
+
+ - site : "UNIGE"
+   version: "1.0"
+   pilotsPerSite: 200
+
+default-pilot:
+   site : "default"
+   version: None
+   pilotsPerSite: 10   
