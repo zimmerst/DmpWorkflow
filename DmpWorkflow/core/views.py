@@ -15,6 +15,26 @@ jobs = Blueprint('jobs', __name__, template_folder='templates')
 
 logger = logging.getLogger("core")
 
+
+class PilotView(MethodView):
+        
+    def get(self):
+        logger.debug("PilotView:GET: request %s", str(request))
+        days_since=int(request.args.get("days_since",30))
+        hours_since=int(request.args.get("hours_since",0))
+        site=str(request.args.get("site","None"))
+        status=str(request.args.get("status","None"))
+        new_date = datetime.now() - timedelta(days = days_since, hours = hours_since)
+        query = JobInstance.objects.filter(last_update__gte=new_date)
+        if site != "None":
+            query = query.filter(site=site)
+        if status != "None":
+            query = query.filter(status=status)
+        jobs = query.distinct("job")
+        return render_template('jobs/list.html', jobs=jobs, 
+                               timestamp=new_date.strftime('%A, %d. %B %Y %I:%M%p'), 
+                               server_time=datetime.now())
+
 class ListView(MethodView):
         
     def get(self):
@@ -30,7 +50,7 @@ class ListView(MethodView):
         if status != "None":
             query = query.filter(status=status)
         jobs = query.distinct("job")
-        return render_template('jobs/list.html', jobs=jobs, 
+        return render_template('jobs/list.html', jobs=jobs.filter(type__not="Pilot"), 
                                timestamp=new_date.strftime('%A, %d. %B %Y %I:%M%p'), 
                                server_time=datetime.now())
 
@@ -401,15 +421,22 @@ class NewJobs(MethodView):
     
     def getJobsFast(self,site,status):
         """ a superfast query to see how many jobs are running """
+        pilot = literal_eval(request.form.get("pilot","False"))
         if not isinstance(status,list):
             status = [status]
         q = JobInstance.objects.filter(status__in=status, site=site)
+        if pilot:
+            q = q.filter(job__in=Job.objects.filter(type="Pilot"))            
         return q.count()
     
     def getNewJobs(self,batchsite, jstatus):
         _limit = int(request.form.get("limit", 1000))
+        _type=str(request.form.get("type","None"))
+        job_query = Job.objects.filter(execution_site=batchsite)
+        if _type == "pilot": 
+            job_query = job_query.filter(type="Pilot")
         newJobInstances = []
-        newJobs = JobInstance.objects.filter(status=jstatus, job__in=Job.objects.filter(execution_site=batchsite)).limit(int(_limit))
+        newJobs = JobInstance.objects.filter(status=jstatus, job__in=job_query).limit(int(_limit))
         if newJobs.count():
             for j in newJobs:
                 job = j.job
@@ -571,6 +598,7 @@ class DataCatalog(MethodView):
 
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
+jobs.add_url_rule('/pilots/', view_func=PilotView.as_view('list'))
 jobs.add_url_rule('/stats', view_func=StatsView.as_view('stats'), methods=["GET"])
 jobs.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
 jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "POST"])

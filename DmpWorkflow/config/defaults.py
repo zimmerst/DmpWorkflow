@@ -87,7 +87,7 @@ BATCH_DEFAULTS['name'] = cfg.get("site", "name")
 MAJOR_STATII = tuple(
     [unicode(t) for t in cfg.get("JobDB", "task_major_statii").split(",")] + ["Unknown"])  # adding unknown
 FINAL_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_final_statii").split(",")])
-TYPES = tuple([unicode(t) for t in cfg.get("JobDB", "task_types").split(",")])
+TYPES = tuple([unicode(t) for t in cfg.get("JobDB", "task_types").split(",")]+['Pilot'])
 SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])
 
 # verify that the site configuration is okay.

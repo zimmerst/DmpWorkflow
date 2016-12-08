@@ -71,6 +71,7 @@ class HeartBeat(db.Document):
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.now, required=True)
     slug = db.StringField(verbose_name="slug", required=True, default=random_string_generator)
+    version = db.StringField(verbose_name="job version", required=False, default = "1.0")
     title = db.StringField(max_length=255, required=True)
     body = db.FileField()
     type = db.StringField(verbose_name="type", required=False, default="Other", choices=TYPES)
@@ -80,7 +81,8 @@ class Job(db.Document):
     jobInstances = db.ListField(db.ReferenceField("JobInstance"))
     archived = db.BooleanField(verbose_name="task closed", required=False, default=False)
     comment = db.StringField(max_length=1024, required=False, default="N/A")
-
+    enable_monitoring = db.BooleanField(verbose_name="enable_monitoring", required=False, default=True)
+    
     def aggregateResources(self,nbins=20):
         """ returns a json object which contains max, min, mean, median, 
             and the histogram itself for all memories/cpu 
@@ -276,6 +278,9 @@ class JobInstance(db.Document):
     log = db.StringField(verbose_name="log", required=False, default="",help="last 20 lines of error messages")
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)", required=False, default=-1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)", required=False, default=-1.)
+    doMonitoring = db.BooleanField(verbose_name="do_monitoring", required=True, default=self.job.enable_monitoring)
+    isPilot      = db.BooleanField(verbose_name="is_pilot",required=True, default=True if self.job.Type == "Pilot" else False)
+    
     
     def aggregateResources(self):
         """ returns dict of two arrays, first is memory, second is cpu """

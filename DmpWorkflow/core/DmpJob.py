@@ -26,6 +26,7 @@ NUMLINES_LOG = 20
 # todo2: add cfg parsing variables.
 class DmpJob(object):
     def __init__(self, job_id, body=None, **kwargs):
+        self.monitoring_enabled = "True" # enable monitoring
         self.wd = oPath.abspath(".")
         self.title = None
         self.jobId = str(job_id)
@@ -45,6 +46,8 @@ class DmpJob(object):
         self.batchdefaults = deepcopy(BATCH_DEFAULTS)
         self.__dict__.update(kwargs)
         self.extract_xml_metadata(body)
+        self.isPilot = True if self.type == "Pilot" else False
+        self.monitoring_enabled = True if self.monitoring_enabled in ["True","true","TRUE","YES","Yes","yes"] else False 
         #self.__updateEnv__()
 
     def getJSONbody(self):
