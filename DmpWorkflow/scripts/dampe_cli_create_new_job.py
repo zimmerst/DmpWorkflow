@@ -32,6 +32,7 @@ def main(args=None):
     n_instances = int(opts.Ninstances)
     xdict = parseJobXmlToDict(open(opts.xml, "r").read(),setVars=False)
     atts = xdict['atts']
+    comment = xdict.get("comment",None)
     for key, value in vars(opts).iteritems():
         if key == 'set_var':
             continue
@@ -44,11 +45,11 @@ def main(args=None):
     site = unicode(atts['site'])
     print atts
     dependent_tasks = opts.depends.split(",")
-    res = post("%s/job/" % DAMPE_WORKFLOW_URL,
-               data={"taskname": taskName, "t_type": t_type, "override_dict": str(override_dict),
-                     "n_instances": n_instances, "site": site,
-                     "depends": dependent_tasks},
-               files={"file": open(xmlFile, "rb")})
+    data={"taskname": taskName, "t_type": t_type, "override_dict": str(override_dict),
+          "n_instances": n_instances, "site": site,"depends": dependent_tasks}
+    if comment is not None:
+        data['comment']=comment
+    res = post("%s/job/" % DAMPE_WORKFLOW_URL,data,files={"file": open(xmlFile, "rb")})
     res.raise_for_status()
     if res.json().get("result", "nok") == "ok":
         print 'Added job %s with %i instances' % (taskName, n_instances)

@@ -500,6 +500,8 @@ class JobXmlParser(object):
             if name == "JobWrapper":
                 self.out['executable'] = node.getAttribute("executable")
                 self.out['script'] = node.firstChild.data
+            if name == "Comment":
+                self.out['comment'] = node.firstChild.data
             else:
                 if name in ["InputFiles", "OutputFiles"]:
                     my_key = "File"

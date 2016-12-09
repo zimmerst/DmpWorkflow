@@ -130,6 +130,7 @@ class JobView(MethodView):
             taskname = request.form.get("taskname", None)
             jobdesc = request.files.get("file", None)
             t_type = request.form.get("t_type", None)
+            comment= request.form.get("comment",None)
             site = request.form.get("site", "local")
             depends = request.form.get("depends", "None")
             override_dict = literal_eval(request.form.get("override_dict", str(dummy_dict)))
@@ -144,6 +145,7 @@ class JobView(MethodView):
                 job = Job(title=taskname, type=t_type, execution_site=site)
             # job = Job.objects(title=taskname, type=t_type).modify(upsert=True, new=True, title=taskname, type=t_type)
             job.body.put(jobdesc, content_type="application/xml")
+            if comment is not None: job.setDescription(comment)
             job.save()
             dout = job.getBody()
             if 'type' in dout['atts']:

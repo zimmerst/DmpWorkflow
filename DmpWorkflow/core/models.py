@@ -132,6 +132,9 @@ class Job(db.Document):
             assert k in jobBody.keys(), "error, missing key %s in job body" % k
             meta[k] = jobBody[k]
         return meta
+    
+    def setDescription(self,desc):
+        self.comment = desc
 
     def getOutputFiles(self):
         m = self.evalBody()
@@ -247,7 +250,7 @@ class Job(db.Document):
     #        if req:
     #            raise Exception("a task with the specified name & type exists already.")
     #        super(Job, self).save()
-
+    
     def update(self):
         log.warning("deprecated method, use save")
         super(Job, self).save()
