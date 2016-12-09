@@ -30,7 +30,6 @@ def main(args=None):
                         help='number of jobs to process per cycle')
     parser.add_argument("-m", "--maxJobs", dest="maxJobs", default=None, type=int,
                         help='number of jobs that can be in the system')
-    parser.add_argument("-u", "--user", dest="user", default=None, type=str, help='name of user that submits jobs')
     parser.add_argument("-s", "--skipDBcheck", dest="skipDBcheck", action='store_true', default=False,
                         help='skip DB check for jobs')
     send_heartbeat("JobFetcher") # encapsulates the heartbeat update!
@@ -40,26 +39,20 @@ def main(args=None):
         print "running in pilot mode - deploying pilots if there are jobs to run"
     log = logging.getLogger("script")
     batchsite = BATCH_DEFAULTS['name']
-    BEngine = HPC.BatchEngine()
     print 'workflow server url: {url}'.format(url=DAMPE_WORKFLOW_URL)
-    if opts.user is not None: BEngine.setUser(opts.user)
     if opts.maxJobs is not None:
-        try:
-            val = BEngine.checkJobsFast(pending=True)
-        except Exception as err:
-            print 'EXCEPTION during getRunningJobs, falling back to DB check, reason follows: %s' % str(err)
-            val = 0
-            if opts.skipDBcheck:
-                print 'skipping DB check, assume no jobs to be in the system'
-            else:
-                stats = 'Running,Submitted,Suspended'
-                res = get("%s/newjobs/" % DAMPE_WORKFLOW_URL,
-                              data={"site": str(batchsite), "status_list": stats, "fastQuery":"True", "pilot":"True" if pilot else "False"})
-                res.raise_for_status()
-                res = res.json()
-                if not res.get("result", "nok") == "ok":
-                    log.error(res.get("error"))
-                val += res.get("jobs")
+        val = 0
+        if opts.skipDBcheck:
+            print 'skipping DB check, assume no jobs to be in the system'
+        else:
+            stats = 'Running,Submitted,Suspended'
+            res = get("%s/newjobs/" % DAMPE_WORKFLOW_URL,
+                          data={"site": str(batchsite), "status_list": stats, "fastQuery":"True", "pilot":"True" if pilot else "False"})
+            res.raise_for_status()
+            res = res.json()
+            if not res.get("result", "nok") == "ok":
+                log.error(res.get("error"))
+            val += res.get("jobs")
         log.info('found %i jobs running or pending', val)
         if val >= opts.maxJobs:
             log.warning(
