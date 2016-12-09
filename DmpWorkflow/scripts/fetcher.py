@@ -14,7 +14,7 @@ from DmpWorkflow.utils.tools import send_heartbeat
 from importlib import import_module
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 
-# from DmpWorkflow.scripts.dampe_cli_run_watchdog import __getRunningJobs
+# from DmpWorkflow.scripts.watchdog import __getRunningJobs
 
 def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s taskName xmlFile [options]", description="create new job in DB")
