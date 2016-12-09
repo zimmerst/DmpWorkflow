@@ -97,13 +97,22 @@ class DetailView(MethodView):
         logger.debug("DetailView:GET: request %s", str(request))
         job = Job.objects.get_or_404(slug=slug)
         status  = request.args.get("status",None)
-        instances = []
+        limit   = int(request.args.get("limit",None))
+        inst_min= int(request.args.get("MinInstanceId"),-1)
+        inst_max= int(request.args.get("MaxInstanceId"),-1)
         if status is None:
-            instances = JobInstance.objects.filter(job=job)
+            query = JobInstance.objects.filter(job=job)
             status = "None"
         else:
             logger.info("DetailView:GET: request called with status query")
-            instances = JobInstance.objects.filter(job=job,status=status)
+            query = JobInstance.objects.filter(job=job,status=status)
+        if inst_min != -1:
+            query = query.filter(instanceId__gte=inst_min)
+        if inst_max != -1:
+            query = query.filter(instanceId__lte=inst_max)
+        if limit is not None:
+            query = query.limit(limit)
+        instances = query
         logger.info("DetailView:GET: found %i instances for job %s",instances.count(),job.title)
         return render_template('jobs/detail.html',job=job, instances=instances, status = status)
 

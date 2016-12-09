@@ -14,8 +14,10 @@
   <strong> slug: </strong> {{ job.slug }} </br>
   <strong> Dependencies on other Jobs: </strong> {{ job.getDependency(pretty=True) }}
   </br>
-  <strong> Comment: </strong> {{ job.comment }}
-  </br>
+  <strong> Comment: </strong> </br>
+  <div class="well">
+  {{ job.comment }}
+  </div>
   {% set job_body = job.getBody() %}
 
   {% set cat="MetaData" %}
