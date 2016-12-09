@@ -81,7 +81,7 @@ def main(args=None):
                     query = Job.objects.filter(type='Pilot',site=my_pilot['site'])
                     if query.count(): pilot = query.first()
                 else:
-                    pilot = Job.objects.get(type="Pilot",site=my_pilot['site'],version=my_pilot['version'])
+                    pilot = Job.objects.get(type="Pilot",site=my_pilot['site'],release=my_pilot['version'])
             except Job.DoesNotExist:
                 raise Exception("could not find pilot corresponding to site & version provided in configuration")
             if pilot is None:

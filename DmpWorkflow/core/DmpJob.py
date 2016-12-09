@@ -167,7 +167,7 @@ class DmpJob(object):
                 "source %s" % oPath.expandvars(ExtScript),
                 "unset DMPSWSYS",
                 "cd %s" % rel_path,
-                "source %s" % setup_script,
+                "source %s" % setup_script if not self.isPilot else "# pilot, do nothing.", 
                 "cd %s" % self.wd,
                 "%s script.py %s" % (pythonbin, jsonLOC),
                 "echo \"batch wrapper completed at $(date)\""]

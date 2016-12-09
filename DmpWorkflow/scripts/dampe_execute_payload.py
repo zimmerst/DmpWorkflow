@@ -27,6 +27,8 @@ class PayloadExecutor(object):
         self.pwd = curdir
         self.logThis("reading json input")
         self.job = DmpJob.fromJSON(open(inputfile,"r").read())
+        if self.job.isPilot:
+            self.logThis("PILOT MODE: waiting for new jobs to be run inside queue")
         self.debug = debug
         self.batchId = getenv(HPC.BATCH_ID_ENV, "-1")
         if "." in self.batchId:

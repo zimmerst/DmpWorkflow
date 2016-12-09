@@ -14,7 +14,7 @@
 		{% for job in jobs %}
 	<tr>
 		<td><a href="{{ url_for('jobs.detail', slug=job.slug) }}">{{ job.title }}</a></td>
-		<td>{{ job.version|safe }}</td>
+		<td>{{ job.release|safe }}</td>
 		<td>{{ job.execution_site }}</td>
 		{% set statdict = job.aggregateStatiiFast(asdict=True) %}
 		{% for key in MAJOR_STATII %}

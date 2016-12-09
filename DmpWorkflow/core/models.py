@@ -71,7 +71,7 @@ class HeartBeat(db.Document):
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.now, required=True)
     slug = db.StringField(verbose_name="slug", required=True, default=random_string_generator)
-    version = db.StringField(verbose_name="job version", required=False, default = "1.0")
+    #version = db.StringField(verbose_name="job version", required=False, default = "1.0")
     title = db.StringField(max_length=255, required=True)
     body = db.FileField()
     type = db.StringField(verbose_name="type", required=False, default="Other", choices=TYPES)
