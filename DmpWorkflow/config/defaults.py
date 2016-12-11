@@ -22,6 +22,7 @@ __myDefaults = {
     "ExternalsScript": "${DAMPE_SW_DIR}/setup/setup.sh",
     "use_debugger": "true",
     "use_reloader": "true",
+    "use_profiler": "false",
     "workdir": ".",
     "url": "",
     "traceback": "true",
