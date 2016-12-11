@@ -13,12 +13,13 @@ from time import ctime
 from requests import post as Rpost
 from importlib import import_module
 from copy import deepcopy
-from DmpWorkflow.config.defaults import FINAL_STATII, DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, cfg
+from DmpWorkflow.config.defaults import FINAL_STATII, DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, DAMPE_BUILD, cfg
 from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits, ResourceMonitor, sleep
 from DmpWorkflow.utils.shell import run, make_executable  # , source_bash
 from requests.exceptions import HTTPError
 
-HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
+if DAMPE_BUILD == 'client':
+    HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 PYTHONBIN = ""
 ExtScript = cfg.get("site", "ExternalsScript")
 NUMLINES_LOG = 20
