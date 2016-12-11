@@ -281,7 +281,7 @@ class JobInstance(db.Document):
     log = db.StringField(verbose_name="log", required=False, default="",help="last 20 lines of error messages")
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)", required=False, default=-1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)", required=False, default=-1.)
-    doMonitoring = db.BooleanField(verbose_name="do_monitoring", required=True, default=self.job.enable_monitoring)
+    doMonitoring = db.BooleanField(verbose_name="do_monitoring", required=True, default=job.enable_monitoring)
 
     # if the jobInstance is a normal "job" it has a pilot to refer to.
     # if the jobInstance is a pilot, "job" has a list of instances.
