@@ -31,6 +31,7 @@ __myDefaults = {
     "HPCrequirements": "",
     "HPCextra": "",
     "HPCqueue": "",
+    "HPCname": "default",
     "HPCcputime": "24:00",
     "HPCmemory": "1000.",
     "HPCusername": "dampeprod",
@@ -71,11 +72,12 @@ if DAMPE_BUILD == "client" and "," in DAMPE_WORKFLOW_URL:
 DAMPE_WORKFLOW_DIR = cfg.get("site", "workdir")
 EXEC_DIR_ROOT = cfg.get("site", "EXEC_DIR_ROOT")
 environ["DWF_SW_VERSION"] = DAMPE_VERSION
-environ["BATCH_SYSTEM"] = cfg.get("site", "HPCsystem")
-environ["BATCH_REQUIREMENTS"] = cfg.get("site", "HPCrequirements")
-environ["BATCH_EXTRA"] = cfg.get("site", "HPCextra")
-environ["BATCH_QUEUE"] = cfg.get("site", "HPCqueue")
-environ["BATCH_NAME"]  = cfg.get("site", "HPCname")
+if DAMPE_BUILD == "client":
+    environ["BATCH_SYSTEM"] = cfg.get("site", "HPCsystem")
+    environ["BATCH_REQUIREMENTS"] = cfg.get("site", "HPCrequirements")
+    environ["BATCH_EXTRA"] = cfg.get("site", "HPCextra")
+    environ["BATCH_QUEUE"] = cfg.get("site", "HPCqueue")
+    environ["BATCH_NAME"]  = cfg.get("site", "HPCname")
 environ["EXEC_DIR_ROOT"] = EXEC_DIR_ROOT
 
 BATCH_DEFAULTS = {key: getenv("BATCH_%s" % key.upper()) for key in ['system', 'requirements', 'extra', 'queue','name']}
