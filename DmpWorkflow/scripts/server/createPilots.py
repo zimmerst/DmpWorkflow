@@ -97,6 +97,7 @@ def main(args=None):
                 blueprint_js = blueprint_js.update(update_dict)
                 pilotInstances = [JobInstance(**blueprint_js)] * pilots_to_fill
                 for p in pilotInstances:
+                    p.setAsPilot(True)
                     pilot.addInstance(p)
                 pilot.save()
         ## done loop

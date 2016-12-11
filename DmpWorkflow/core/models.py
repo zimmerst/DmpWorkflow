@@ -281,13 +281,15 @@ class JobInstance(db.Document):
     log = db.StringField(verbose_name="log", required=False, default="",help="last 20 lines of error messages")
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)", required=False, default=-1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)", required=False, default=-1.)
-    doMonitoring = db.BooleanField(verbose_name="do_monitoring", required=True, default=job.enable_monitoring)
+    #doMonitoring = db.BooleanField(verbose_name="do_monitoring", required=True, default=job.enable_monitoring)
 
     # if the jobInstance is a normal "job" it has a pilot to refer to.
     # if the jobInstance is a pilot, "job" has a list of instances.
-    isPilot      = db.BooleanField(verbose_name="is_pilot",required=False, default=True if job.Type == "Pilot" else False)
+    isPilot      = db.BooleanField(verbose_name="is_pilot",required=False, default=False)
     pilotReference = db.ReferenceField("JobInstance") 
 
+    def setAsPilot(self,val):
+        self.isPilot = val
     
     def aggregateResources(self):
         """ returns dict of two arrays, first is memory, second is cpu """
