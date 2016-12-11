@@ -22,7 +22,7 @@ if kind == 'server':
     app.config["SECRET_KEY"] = "KeepThisS3cr3t"
     app.config["DEBUG"] = True if cfg.get("server","use_debugger") == 'true' else False
     app.config["flask_profiler"] = {
-        "enabled": app.config["DEBUG"],
+        "enabled": True if cfg.get("server","use_profiler") == 'true' else False,
         "storage": {
             "engine": "mongodb",
             "MONGO_URL": "mongodb://{user}:{password}@{host}:{port}/{db}".format(user=cfg.get("database","user"), 

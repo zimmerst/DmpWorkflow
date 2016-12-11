@@ -49,7 +49,7 @@ class ListView(MethodView):
             query = query.filter(site=site)
         if status != "None":
             query = query.filter(status=status)
-        jobs = query.filter(isPilot=False).distinct("job")
+        jobs = query.filter(isPilot__in=[False,None]).distinct("job")
         return render_template('jobs/list.html', jobs=jobs, 
                                timestamp=new_date.strftime('%A, %d. %B %Y %I:%M%p'), 
                                server_time=datetime.now())
@@ -97,7 +97,7 @@ class DetailView(MethodView):
         logger.debug("DetailView:GET: request %s", str(request))
         job = Job.objects.get_or_404(slug=slug)
         status  = request.args.get("status",None)
-        limit   = int(request.args.get("limit",None))
+        limit   = request.args.get("limit",None)
         inst_min= int(request.args.get("MinInstanceId"),-1)
         inst_max= int(request.args.get("MaxInstanceId"),-1)
         if status is None:
@@ -111,7 +111,7 @@ class DetailView(MethodView):
         if inst_max != -1:
             query = query.filter(instanceId__lte=inst_max)
         if limit is not None:
-            query = query.limit(limit)
+            query = query.limit(int(limit))
         instances = query
         logger.info("DetailView:GET: found %i instances for job %s",instances.count(),job.title)
         return render_template('jobs/detail.html',job=job, instances=instances, status = status)
