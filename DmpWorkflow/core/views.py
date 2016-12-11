@@ -98,8 +98,8 @@ class DetailView(MethodView):
         job = Job.objects.get_or_404(slug=slug)
         status  = request.args.get("status",None)
         limit   = request.args.get("limit",None)
-        inst_min= int(request.args.get("MinInstanceId"),0)
-        inst_max= int(request.args.get("MaxInstanceId"),0)
+        inst_min= int(request.args.get("MinInstanceId",0))
+        inst_max= int(request.args.get("MaxInstanceId",0))
         if status is None:
             query = JobInstance.objects.filter(job=job)
             status = "None"
