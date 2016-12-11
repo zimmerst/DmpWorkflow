@@ -25,8 +25,11 @@ if kind == 'server':
         "enabled": app.config["DEBUG"],
         "storage": {
             "engine": "mongodb",
-            "MONGO_URL": "mongodb://{user}:{password}@{host}:{port}/{db}".format(user=cfg.get("database","user"), password=cfg.get("database","password"),
-                                                                                 host=cfg.get("database","host"), port=cfg.get("database","port"), db=cfg.get("database","name")),
+            "MONGO_URL": "mongodb://{user}:{password}@{host}:{port}/{db}".format(user=cfg.get("database","user"), 
+                                                                                 password=cfg.get("database","password"),
+                                                                                 host=cfg.get("database","host"), 
+                                                                                 port=cfg.get("database","port"), 
+                                                                                 db=cfg.get("database","name")),
             "DATABASE": cfg.get("database","name"),
             "COLLECTION_NAME": "profiler"
         },

@@ -18,7 +18,7 @@ from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDi
 from DmpWorkflow.utils.shell import run, make_executable  # , source_bash
 from requests.exceptions import HTTPError
 
-if DAMPE_BUILD == 'client':
+if DAMPE_BUILD == "client": 
     HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 PYTHONBIN = ""
 ExtScript = cfg.get("site", "ExternalsScript")
@@ -206,7 +206,7 @@ class DmpJob(object):
         """ passes status """
         my_dict = {"t_id": self.jobId, "inst_id": self.instanceId, "major_status": majorStatus,
                    "minor_status": minorStatus}
-        if not self.isPilot and not self.pilotReference in ["None","NONE",None]:            
+        if not self.isPilot and self.pilotReference not in ["None","NONE",None]:            
             my_dict['pilotReference'] = self.pilotReference
         if 'resources' in kwargs:
             if kwargs['resources']:
