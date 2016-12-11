@@ -30,7 +30,7 @@ class PilotView(MethodView):
             query = query.filter(site=site)
         if status != "None":
             query = query.filter(status=status)
-        jobs = query.distinct("job")
+        jobs = query.filter(type="Pilot").distinct("job")
         return render_template('jobs/plist.html', jobs=jobs, 
                                timestamp=new_date.strftime('%A, %d. %B %Y %I:%M%p'), 
                                server_time=datetime.now())
@@ -49,8 +49,8 @@ class ListView(MethodView):
             query = query.filter(site=site)
         if status != "None":
             query = query.filter(status=status)
-        jobs = query.distinct("job")
-        return render_template('jobs/list.html', jobs=jobs.filter(type__not="Pilot"), 
+        jobs = query.filter(type__not="Pilot").distinct("job")
+        return render_template('jobs/list.html', jobs=jobs, 
                                timestamp=new_date.strftime('%A, %d. %B %Y %I:%M%p'), 
                                server_time=datetime.now())
 
