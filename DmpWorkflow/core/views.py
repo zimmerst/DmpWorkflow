@@ -629,7 +629,7 @@ class DataCatalog(MethodView):
 
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
-jobs.add_url_rule('/pilots/', view_func=PilotView.as_view('list'))
+jobs.add_url_rule('/pilots/', view_func=PilotView.as_view('plist'))
 jobs.add_url_rule('/stats', view_func=StatsView.as_view('stats'), methods=["GET"])
 jobs.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
 jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "POST"])
