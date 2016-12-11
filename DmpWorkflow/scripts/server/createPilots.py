@@ -87,7 +87,7 @@ def main(args=None):
             if pilot is None:
                 raise Exception("could not find pilot")
             print 'query running pilots'
-            query = JobInstances.objects.filter(isPilot=True, job=pilot)
+            query = JobInstance.objects.filter(isPilot=True, job=pilot)
             running_pilots = query.filter(status__in=["New","Submitted","Running"]).count()
             pilots_to_fill = int(my_pilot['pilotsPerSite']) - running_pilots
             if pilots_to_fill:

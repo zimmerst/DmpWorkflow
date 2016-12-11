@@ -285,7 +285,7 @@ class JobInstance(db.Document):
 
     # if the jobInstance is a normal "job" it has a pilot to refer to.
     # if the jobInstance is a pilot, "job" has a list of instances.
-    isPilot      = db.BooleanField(verbose_name="is_pilot",required=False, default=True if self.job.Type == "Pilot" else False)
+    isPilot      = db.BooleanField(verbose_name="is_pilot",required=False, default=True if job.Type == "Pilot" else False)
     pilotReference = db.ReferenceField("JobInstance") 
 
     
