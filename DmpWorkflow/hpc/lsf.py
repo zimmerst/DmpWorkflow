@@ -69,7 +69,6 @@ class BatchJob(HPCBatchJob):
         self.__run__(cmd)
         self.update("status", "Failed")
 
-
 class BatchEngine(BATCH):
     kind = "lsf"
     keys = ["USER", "STAT", "QUEUE", "FROM_HOST", "EXEC_HOST", "JOB_NAME", "SUBMIT_TIME", "PROJ_NAME", "CPU_USED", \

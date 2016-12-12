@@ -87,6 +87,11 @@ class BatchJob(object):
             self.logging.error(err)
             raise Exception(err)
         return output
+    def __regexId__(self,s):
+        pass
+
+    def getBatchIdFromString(self,s):
+        return self.__regexId__(s)
 
 
 class BATCH(object):

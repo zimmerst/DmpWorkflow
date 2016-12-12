@@ -8,7 +8,7 @@ import os.path as oPath
 from subprocess import PIPE, Popen
 from select import poll as spoll, POLLIN, POLLHUP
 from ast import literal_eval
-from os import environ
+from os import environ, getenv
 from jsonpickle import encode as Jencode, decode as Jdecode
 from json import dumps
 from time import ctime
@@ -16,12 +16,19 @@ from requests import post as Rpost
 from importlib import import_module
 from copy import deepcopy
 from DmpWorkflow.config.defaults import FINAL_STATII, DAMPE_WORKFLOW_URL, DAMPE_WORKFLOW_ROOT, BATCH_DEFAULTS, DAMPE_BUILD, cfg
-from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits, ResourceMonitor, sleep
-from DmpWorkflow.utils.shell import run, make_executable  # , source_bash
+from DmpWorkflow.utils.tools import mkdir, touch, rm, safe_copy, parseJobXmlToDict, getSixDigits 
+from DmpWorkflow.utils.tools import ResourceMonitor, sleep, random_string_generator
+from DmpWorkflow.utils.shell import make_executable  # , source_bash
 from requests.exceptions import HTTPError
 
+RunningInBatchMode = False
 if DAMPE_BUILD == "client": 
-    HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
+    HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])    
+    b_id = getenv(HPC.BATCH_ID_ENV)
+    if b_id is not None or b_id != "NOT_DEFINED":
+        RunningInBatchMode = True
+    
+    
 PYTHONBIN = ""
 ExtScript = cfg.get("site", "ExternalsScript")
 NUMLINES_LOG = 20
@@ -82,7 +89,7 @@ class DmpJob(object):
                 raise Exception(res.json().get("error", "No error provided."))
 
     def getWorkDir(self):
-        wdROOT = cfg.get("site", "workdir")
+        wdROOT = cfg.get("site", "workdir") if RunningInBatchMode else oPath.join("/tmp/",random_string_generator(size=12))
         wd = oPath.join(wdROOT, str(self.title), str(self.type), self.getSixDigits(asPath=True))
         return wd
 
@@ -171,7 +178,7 @@ class DmpJob(object):
         cmds = ["#!/bin/bash", "echo \"batch wrapper executing on $(date)\"",
                 "source %s" % oPath.expandvars(ExtScript),
                 "unset DMPSWSYS",
-                "cd %s" % rel_path,
+                "cd %s" % rel_path if not self.isPilot else "# pilot do nothing",
                 "source %s" % setup_script if not self.isPilot else "# pilot, do nothing.", 
                 "cd %s" % self.wd,
                 "%s script.py %s" % (pythonbin, jsonLOC),
@@ -282,10 +289,11 @@ class DmpJob(object):
             print "DRY_COMMAND: %s" % self.execCommand
             return -1
         if local:
+            if RunningInBatchMode: 
+                self.batchId = bj.getBatchIdFromString(getenv(HPC.BATCH_ID_ENV))
             rc = self.__run_locally()
             if rc:
                 raise Exception("payload failed with RC %i",rc)
-            self.batchId = -1
         else:
             self.batchId = bj.submit(**kwargs)
         return self.batchId
