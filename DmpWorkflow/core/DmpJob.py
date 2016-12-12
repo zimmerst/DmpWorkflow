@@ -5,6 +5,8 @@ Created on Mar 15, 2016
 """
 
 import os.path as oPath
+from subprocess import PIPE, Popen
+from select import poll as spoll, POLLIN, POLLHUP
 from ast import literal_eval
 from os import environ
 from jsonpickle import encode as Jencode, decode as Jdecode
@@ -57,6 +59,8 @@ class DmpJob(object):
         return dumps(dummy_dict)
     def setPilotReference(self,pilotRef):
         self.pilotReference = pilotRef
+    def setAsPilot(self,val):
+        self.isPilot = val
 
     def logError(self,err):
         error_line = "%s:ERROR: %s \n"%(ctime(),str(err))
@@ -278,12 +282,38 @@ class DmpJob(object):
             print "DRY_COMMAND: %s" % self.execCommand
             return -1
         if local:
-            run(("%s &> %s" % (self.execCommand, self.logfile)).split())
+            rc = self.__run_locally()
+            if rc:
+                raise Exception("payload failed with RC %i",rc)
             self.batchId = -1
         else:
             self.batchId = bj.submit(**kwargs)
         return self.batchId
-
+    
+    def __run_locally(self):    
+        tsk = Popen(self.execCommand.split(),stdout=PIPE,stderr=PIPE)
+        poll = spoll()
+        poll.register(tsk.stdout,POLLIN | POLLHUP)
+        poll.register(tsk.stderr,POLLIN | POLLHUP)
+        pollc = 2
+        events = poll.poll()
+        while pollc > 0 and len(events) > 0:
+            for event in events:
+                (rfd,event) = event
+                if event & POLLIN:
+                    if rfd == tsk.stdout.fileno():
+                        line = tsk.stdout.readline()
+                        if len(line) > 0: print "INFO: {msg}".format(msg=line[:-1])
+                    if rfd == tsk.stderr.fileno():
+                        line = tsk.stderr.readline()
+                        if len(line) > 0: print "ERROR: {msg}".format(msg=line[:-1])
+            if event & POLLHUP:
+                poll.unregister(rfd)
+                pollc = pollc - 1
+            if pollc > 0: events = poll.poll()
+        rc = tsk.wait()
+        return rc
+        
     def kill(self, msg="ReceivedKillCommand", dry=False):
         """ handles the submission part """
         # print BATCH_DEFAULTS

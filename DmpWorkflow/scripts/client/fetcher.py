@@ -2,8 +2,9 @@
 Created on Mar 15, 2016
 
 @author: zimmer
+@todo: fix logging.
 """
-import logging
+#import logging
 from requests import get, post 
 from sys import exit as sys_exit
 from json import dumps
@@ -37,7 +38,8 @@ def main(args=None):
     pilot = opts.pilot
     if pilot: 
         print "running in pilot mode - deploying pilots if there are jobs to run"
-    log = logging.getLogger("script")
+    # FIXME: fix logging
+    #log = logging.getLogger("script")
     batchsite = BATCH_DEFAULTS['name']
     print 'workflow server url: {url}'.format(url=DAMPE_WORKFLOW_URL)
     if opts.maxJobs is not None:
@@ -51,12 +53,15 @@ def main(args=None):
             res.raise_for_status()
             res = res.json()
             if not res.get("result", "nok") == "ok":
-                log.error(res.get("error"))
+                #log.error(res.get("error"))
+                print 'ERROR: {error}'.format(error=res.get("error","n/a"))
             val += res.get("jobs")
-        log.info('found %i jobs running or pending', val)
+        #log.info('found %i jobs running or pending', val)
+        print 'INFO: {msg}'.format(msg='found %i jobs running or pending'%val)
         if val >= opts.maxJobs:
-            log.warning(
-                "reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
+            #log.warning(
+            #    "reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
+            print 'WARNING: {msg}'.format(msg="reached maximum number of jobs per site, not submitting anything, change this value by setting it to higher value")
             sys_exit();
     d_dict = {"site": str(batchsite), "limit": opts.chunk}
     if pilot: 
@@ -65,9 +70,11 @@ def main(args=None):
     res.raise_for_status()
     res = res.json()
     if not res.get("result", "nok") == "ok":
-        log.error(res.get("error"))
+        print 'ERROR: {error}'.format(error=res.get("error","n/a"))
+        #log.error(res.get("error"))
     jobs = res.get("jobs")
-    log.info('found %i new job instances to deploy this cycle', len(jobs))
+    #log.info('found %i new job instances to deploy this cycle', len(jobs))
+    print 'INFO: {msg}'.format(msg='found %i new job instances to deploy this cycle'%len(jobs))
     njobs = 0
     # replace old submission block with a bulk submit
     data = []
@@ -77,28 +84,29 @@ def main(args=None):
     if opts.local:
         for job in jobs:
             j = DmpJob.fromJSON(job)
-            if pilotReference != "None":
-                j.setPilotReference(pilotReference)
-            # j.__updateEnv__()
+            if pilot: j.setAsPilot(True)
+            if pilotReference != "None": j.setPilotReference(pilotReference)
             j.write_script(pythonbin=opts.python, debug=opts.dry)
             try:
                 ret = j.submit(dry=opts.dry, local=True)
                 j.updateStatus("Submitted", "WaitingForExecution", batchId=ret, cpu=0., memory=0., timeout=None, attempts=1)
                 njobs += 1
             except Exception, e:
-                log.exception(e)
-    
+                #log.exception(e)
+                print 'EXCEPTION: {exc}'.format(exc=e)
     else:
         for job in jobs:
             j = DmpJob.fromJSON(job)
+            if pilot: j.setAsPilot(True)
             j.write_script(pythonbin=opts.python, debug=opts.dry)
             try:
-                j.submit(dry=opts.dry, local=opts.local)
+                j.submit(dry=opts.dry)
                 if not opts.dry:
                     data.append({"t_id":j.jobId, "instanceId":j.instanceId})
                     njobs += 1 
             except Exception, e:
-                log.exception(e)
+                #log.exception(e)
+                print 'EXCEPTION: {exc}'.format(exc=e)
         if njobs:
             # done submitting, now do bulk update
             res = post("%s/jobstatusBulk/" % DAMPE_WORKFLOW_URL, 
@@ -106,10 +114,13 @@ def main(args=None):
             res.raise_for_status()
             res = res.json()
             if not res.get("result", "nok") == "ok":
-                log.error(res.get("error"))
+                #log.error(res.get("error"))
+                print 'ERROR: {error}'.format(error=res.get("error","n/a"))
                 return
-            log.info("updated %i jobs", int(res.get("njobs",0)))
-    log.info("cycle completed, submitted %i new jobs", njobs)
+            #log.info("updated %i jobs", int(res.get("njobs",0)))
+            print 'INFO: {msg}'.format(msg="updated %i jobs"%int(res.get("njobs",0)))
+    #log.info("cycle completed, submitted %i new jobs", njobs)
+    print "INFO: {msg}".format(msg = "cycle completed, submitted %i new jobs" % njobs)
 
 if __name__ == "__main__":
     main()
