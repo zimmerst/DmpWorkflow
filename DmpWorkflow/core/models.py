@@ -90,7 +90,7 @@ class Job(db.Document):
             and shouldn't be used lightly!
         """
         allData = {"memory":{"data":[]},"cpu":{"data":[]}}
-        query = JobInstance.objects.filter(job=self,status__not="New").only("cpu").only("memory")
+        query = JobInstance.objects.filter(job=self,status__not__exact="New").only("cpu").only("memory")
         if query.count():
             for inst in query:
                 agg = inst.aggregateResources()

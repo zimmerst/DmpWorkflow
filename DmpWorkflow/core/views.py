@@ -132,6 +132,7 @@ class JobView(MethodView):
             t_type = request.form.get("t_type", None)
             comment= request.form.get("comment",None)
             site = request.form.get("site", "local")
+            isPilot = False
             depends = request.form.get("depends", "None")
             override_dict = literal_eval(request.form.get("override_dict", str(dummy_dict)))
             n_instances = int(request.form.get("n_instances", "0"))
@@ -154,9 +155,10 @@ class JobView(MethodView):
                 job.release = dout['atts']['release']
             if t_type is not None:
                 job.type = t_type
+            if job.type == "Pilot": isPilot = True
             if n_instances:
                 for j in range(n_instances):
-                    jI = JobInstance(body=str(override_dict), site=site)
+                    jI = JobInstance(body=str(override_dict), site=site, isPilot=isPilot)
                     job.addInstance(jI)
                     logger.debug("JobView:GET: added instance %i to job %s", (j + 1), job.id)
             # print len(job.jobInstances)
