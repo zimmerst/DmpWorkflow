@@ -460,7 +460,9 @@ class NewJobs(MethodView):
             status = [status]
         q = JobInstance.objects.filter(status__in=status, site=site)
         if pilot:
-            q = q.filter(job__in=Job.objects.filter(type="Pilot"))            
+            q = q.filter(job__in=Job.objects.filter(type="Pilot"))
+        else:
+            q = q.filter(job__in=Job.objects.filter(type__not__exact="Pilot"))
         return q.count()
     
     def getNewJobs(self,batchsite, jstatus):
@@ -469,6 +471,8 @@ class NewJobs(MethodView):
         job_query = Job.objects.filter(execution_site=batchsite)
         if pilot: 
             job_query = job_query.filter(type="Pilot")
+        else:
+            job_query = job_query.filter(type__not__exact="Pilot")
         newJobInstances = []
         newJobs = JobInstance.objects.filter(status=jstatus, job__in=job_query).limit(int(_limit))
         if newJobs.count():
