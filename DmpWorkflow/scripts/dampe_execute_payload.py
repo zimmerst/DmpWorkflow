@@ -10,7 +10,7 @@ from importlib import import_module
 from socket import gethostname
 from sys import exit as sys_exit, argv
 from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS, cfg
-from DmpWorkflow.core.DmpJob import DmpJob
+from DmpWorkflow.core.DmpJob import DmpJob, RunningInBatchMode
 from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm, ProcessResourceMonitor, convertHHMMtoSec
 from DmpWorkflow.utils.shell import run_cached
 from multiprocessing import Process
@@ -139,7 +139,7 @@ class PayloadExecutor(object):
         environ["DWF_SIXDIGIT"] = self.job.getSixDigits()
         print 'EXEC_DIR_ROOT: %s' % EXEC_DIR_ROOT
         print 'instanceId : %s' % str(self.job.getSixDigits())
-        my_exec_dir = oPjoin(EXEC_DIR_ROOT, self.job.getSixDigits(), "local" if self.batchId == "-1" else str(self.batchId))
+        my_exec_dir = oPjoin(EXEC_DIR_ROOT, self.job.getSixDigits(), "local" if not RunningInBatchMode else str(self.batchId))
         mkdir(my_exec_dir)
         chdir(my_exec_dir)
         self.logThis("execution directory %s", my_exec_dir)

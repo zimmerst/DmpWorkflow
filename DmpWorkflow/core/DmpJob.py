@@ -68,7 +68,6 @@ class DmpJob(object):
         self.pilotReference = pilotRef
     def setAsPilot(self,val):
         self.isPilot = val
-
     def logError(self,err):
         error_line = "%s:ERROR: %s \n"%(ctime(),str(err))
         self.error_log.append(error_line)
@@ -290,7 +289,7 @@ class DmpJob(object):
             return -1
         if local:
             if RunningInBatchMode: 
-                self.batchId = bj.getBatchIdFromString(getenv(HPC.BATCH_ID_ENV))
+                self.batchId = bj.getBatchIdFromString(getenv(HPC.BATCH_ID_ENV,""))
             rc = self.__run_locally()
             if rc:
                 raise Exception("payload failed with RC %i",rc)
