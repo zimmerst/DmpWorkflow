@@ -83,8 +83,8 @@ def main(args=None):
                     print 'no version specified, use latest Job of Type "Pilot"'
                     query = Job.objects.filter(type='Pilot',execution_site=my_pilot['site'])
                     if query.count(): pilot = query.first()
-                    else:
-                        pilot = Job.objects.get(type="Pilot",execution_site=my_pilot['site'],release=my_pilot['version'])
+                else:
+                    pilot = Job.objects.get(type="Pilot",execution_site=my_pilot['site'],release=my_pilot['version'])
             except Job.DoesNotExist:
                 pilot = None
             if pilot is None:
@@ -95,15 +95,16 @@ def main(args=None):
                 running_pilots = query.filter(status__in=["New","Submitted","Running"]).count()
                 pilots_to_fill = int(my_pilot['pilotsPerSite']) - running_pilots
                 if pilots_to_fill:
-                    blueprint_js = loads(query.first().to_json())
-                    for key in [u'instanceId', u'created_at', u'_cls', u'_id']:
-                        if key in blueprint_js: blueprint_js.pop(key)
-                    blueprint_js = blueprint_js.update(update_dict)
-                    pilotInstances = [JobInstance(**blueprint_js)] * pilots_to_fill
-                    for p in pilotInstances:
-                        p.setAsPilot(True)
-                        pilot.addInstance(p)
-                    pilot.save()
+                    if query.count():
+                        blueprint_js = loads(query.first().to_json())
+                        for key in [u'instanceId', u'created_at', u'_cls', u'_id']:
+                            if key in blueprint_js: blueprint_js.pop(key)
+                        blueprint_js.update(update_dict)
+                        pilotInstances = [JobInstance(**blueprint_js)] * pilots_to_fill
+                        for p in pilotInstances:
+                            p.setAsPilot(True)
+                            pilot.addInstance(p)
+                        pilot.save()
         ## done loop
         print 'sleeping for pre-determined time {sleep}...'.format(sleep=cfg['global']['sleeptime'])
         sleep(cfg['global']['sleeptime'])
