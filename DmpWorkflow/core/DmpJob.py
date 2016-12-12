@@ -87,7 +87,7 @@ class DmpJob(object):
                 raise Exception(res.json().get("error", "No error provided."))
 
     def getWorkDir(self):
-        wdROOT = cfg.get("site", "workdir") if RunningInBatchMode else oPath.join("/tmp/",random_string_generator(size=12))
+        wdROOT = cfg.get("site", "workdir") 
         wd = oPath.join(wdROOT, str(self.title), str(self.type), self.getSixDigits(asPath=True))
         return wd
 

@@ -19,7 +19,7 @@ from datetime import datetime
 from re import findall
 from time import ctime, sleep
 import atexit
-
+if not RunningInBatchMode: EXEC_DIR_ROOT = "/tmp"
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 
 class PayloadExecutor(object):
