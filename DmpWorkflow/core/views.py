@@ -465,9 +465,9 @@ class NewJobs(MethodView):
     
     def getNewJobs(self,batchsite, jstatus):
         _limit = int(request.form.get("limit", 1000))
-        _type=str(request.form.get("type","None"))
+        pilot = literal_eval(request.form.get("pilot","False"))
         job_query = Job.objects.filter(execution_site=batchsite)
-        if _type == "pilot": 
+        if pilot: 
             job_query = job_query.filter(type="Pilot")
         newJobInstances = []
         newJobs = JobInstance.objects.filter(status=jstatus, job__in=job_query).limit(int(_limit))

@@ -18,7 +18,7 @@ from psutil import Process as ps_proc
 from datetime import datetime
 from re import findall
 from time import ctime, sleep
-import atexit
+#import atexit
 if not RunningInBatchMode: EXEC_DIR_ROOT = "/tmp"
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 
@@ -46,10 +46,10 @@ class PayloadExecutor(object):
         if msg is not None: print msg
         sys_exit(rc)
 
-    @atexit.register
-    def terminate(self):
-        self.job.updateStatus("Terminated", "Receive SIGTERM")
-        self.exit_app(128)
+    #@atexit.register
+    #def terminate(self):
+    #    self.job.updateStatus("Terminated", "Receive SIGTERM")
+    #    self.exit_app(128)
     
     def __prepare(self):
         try:

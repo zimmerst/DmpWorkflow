@@ -65,7 +65,7 @@ def main(args=None):
             sys_exit();
     d_dict = {"site": str(batchsite), "limit": opts.chunk}
     if pilot: 
-        d_dict['type']='pilot'
+        d_dict['pilot']='True'
     res = get("%s/newjobs/" % DAMPE_WORKFLOW_URL, data=d_dict)
     res.raise_for_status()
     res = res.json()
