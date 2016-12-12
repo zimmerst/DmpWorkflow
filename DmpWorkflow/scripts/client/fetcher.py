@@ -71,6 +71,7 @@ def main(args=None):
     njobs = 0
     # replace old submission block with a bulk submit
     data = []
+    pilotReference = "None"
     if opts.pref is not None: 
         pilotReference = opts.pref
     if opts.local:
