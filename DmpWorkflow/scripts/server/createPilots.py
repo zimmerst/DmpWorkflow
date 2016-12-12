@@ -70,36 +70,40 @@ def main(args=None):
     while isfile(cfg['global']['pidfile']) and read_pidfile(cfg['global']['pidfile']) == str(getpid()):
         ## run loop
         for pilot in tqdm(cfg['pilots']):
-            my_pilot = deepcopy(default_pilot)
-            my_pilot.update(pilot)
-            if not JobInstance.objects.filter(status="New", site=my_pilot['site'], isPilot=False): continue
-            # find mother pilot
-            pilot = None
             try:
-                if my_pilot['version'] == 'None':   
-                    print 'no version specified, use latest of type pilot'
-                    query = Job.objects.filter(type='Pilot',execution_site=my_pilot['site'])
-                    if query.count(): pilot = query.first()
-                else:
-                    pilot = Job.objects.get(type="Pilot",execution_site=my_pilot['site'],release=my_pilot['version'])
-            except Job.DoesNotExist:
-                raise Exception("could not find pilot corresponding to site & version provided in configuration")
-            if pilot is None:
-                raise Exception("could not find pilot")
-            print 'query running pilots'
-            query = JobInstance.objects.filter(isPilot=True, job=pilot)
-            running_pilots = query.filter(status__in=["New","Submitted","Running"]).count()
-            pilots_to_fill = int(my_pilot['pilotsPerSite']) - running_pilots
-            if pilots_to_fill:
-                blueprint_js = loads(query.first().to_json())
-                for key in [u'instanceId', u'created_at', u'_cls', u'_id']:
-                    if key in blueprint_js: blueprint_js.pop(key)
-                blueprint_js = blueprint_js.update(update_dict)
-                pilotInstances = [JobInstance(**blueprint_js)] * pilots_to_fill
-                for p in pilotInstances:
-                    p.setAsPilot(True)
-                    pilot.addInstance(p)
-                pilot.save()
+                my_pilot = deepcopy(default_pilot)
+                my_pilot.update(pilot)
+                if not JobInstance.objects.filter(status="New", site=my_pilot['site'], isPilot=False): continue
+                # find mother pilot
+                pilot = None
+                try:
+                    if my_pilot['version'] == 'None':   
+                        print 'no version specified, use latest of type pilot'
+                        query = Job.objects.filter(type='Pilot',execution_site=my_pilot['site'])
+                        if query.count(): pilot = query.first()
+                    else:
+                        pilot = Job.objects.get(type="Pilot",execution_site=my_pilot['site'],release=my_pilot['version'])
+                except Job.DoesNotExist:
+                    raise Exception("could not find pilot corresponding to site & version provided in configuration")
+                if pilot is None:
+                    raise Exception("could not find pilot")
+                print 'query running pilots'
+                query = JobInstance.objects.filter(isPilot=True, job=pilot)
+                running_pilots = query.filter(status__in=["New","Submitted","Running"]).count()
+                pilots_to_fill = int(my_pilot['pilotsPerSite']) - running_pilots
+                if pilots_to_fill:
+                    blueprint_js = loads(query.first().to_json())
+                    for key in [u'instanceId', u'created_at', u'_cls', u'_id']:
+                        if key in blueprint_js: blueprint_js.pop(key)
+                    blueprint_js = blueprint_js.update(update_dict)
+                    pilotInstances = [JobInstance(**blueprint_js)] * pilots_to_fill
+                    for p in pilotInstances:
+                        p.setAsPilot(True)
+                        pilot.addInstance(p)
+                    pilot.save()
+            except Exception as err:
+                print 'exception during creation of pilots for %s'%pilot['site']
+                print err
         ## done loop
         print 'sleeping for pre-determined time {sleep}...'.format(sleep=cfg['global']['sleeptime'])
         sleep(cfg['global']['sleeptime'])
