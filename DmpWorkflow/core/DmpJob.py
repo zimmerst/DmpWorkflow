@@ -25,8 +25,7 @@ RunningInBatchMode = False
 if DAMPE_BUILD == "client": 
     HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])    
     b_id = getenv(HPC.BATCH_ID_ENV)
-    if b_id is not None or b_id != "NOT_DEFINED":
-        RunningInBatchMode = True
+    if b_id is not None: RunningInBatchMode = True
     
     
 PYTHONBIN = ""
@@ -114,7 +113,7 @@ class DmpJob(object):
         # print 'BatchOverride keys', BATCH_DEFAULTS
         self.batchdefaults = BATCH_DEFAULTS
         if self.isPilot:
-            environ["DWF_PILOT_REFERENCE"] = str(self.instanceId)
+            environ["DWF_PILOT_REFERENCE"] = "%s.%s"%(str(self.jobId),str(self.instanceId))
         return
 
     def getBatchDefaults(self):

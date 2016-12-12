@@ -357,7 +357,9 @@ class SetJobStatus(MethodView):
             pilot = None
             if preference is not None:
                 try:
-                    pilot = JobInstance.objects.get(instanceId=preference)
+                    pref = preference.split(".")
+                    job = Job.objects.get(_id=pref[0])
+                    pilot = JobInstance.objects.get(instanceId=pref[1],job=job)
                 except JobInstance.DoesNotExist:
                     raise Exception("SetJobStatus:POST: Could not find associated pilot instance")
             jInstance = None
