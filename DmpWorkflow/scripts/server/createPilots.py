@@ -16,14 +16,13 @@ from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_ROOT
 from DmpWorkflow.core.models import JobInstance, Job
 
-cfg_default_path=pjoin(DAMPE_WORKFLOW_ROOT,"/config/pilot.yaml")
 
 def yaml_load(fi):
     return yload(open(fi,'rb').read())
 
 def write_pidfile(fi):
     fo = open(fi,"w")
-    fo.write(getpid())
+    fo.write(str(getpid()))
     fo.close()
 
 def read_pidfile(fi):
@@ -34,7 +33,7 @@ def read_pidfile(fi):
 
 def main(args=None):
     parser = ArgumentParser(usage="Usage: %(prog)s [options]", description="create pilot instances based on pilot jobs")
-    parser.add_argument("-c","--config",dest="cfg",default=cfg_default_path, type=str, help="location of configuration file for pilots (in yaml)")
+    parser.add_argument("-c","--config",dest="cfg",default=None, type=str, help="location of configuration file for pilots (in yaml)")
     parser.add_argument('-d','--dry',action='store_true',dest='dry',help='do not reap but show what you would reap (dry-run)')
     opts = parser.parse_args(args)
     
@@ -52,8 +51,9 @@ def main(args=None):
                         "pilotReference": None,
                         "log"           : ""
                     }
-    
-    
+    cfg_default_path=pjoin(DAMPE_WORKFLOW_ROOT,"config/pilot.yaml")
+    if opts.cfg is None:
+        opts.cfg = cfg_default_path
     if not isfile(opts.cfg):
         raise IOError("could not find configuration file: %s",opts.cfg)
     
@@ -78,10 +78,10 @@ def main(args=None):
             try:
                 if my_pilot['version'] == 'None':   
                     print 'no version specified, use latest of type pilot'
-                    query = Job.objects.filter(type='Pilot',site=my_pilot['site'])
+                    query = Job.objects.filter(type='Pilot',execution_site=my_pilot['site'])
                     if query.count(): pilot = query.first()
                 else:
-                    pilot = Job.objects.get(type="Pilot",site=my_pilot['site'],release=my_pilot['version'])
+                    pilot = Job.objects.get(type="Pilot",execution_site=my_pilot['site'],release=my_pilot['version'])
             except Job.DoesNotExist:
                 raise Exception("could not find pilot corresponding to site & version provided in configuration")
             if pilot is None:
