@@ -14,6 +14,7 @@ from time import sleep
 from copy import deepcopy
 from argparse import ArgumentParser
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_ROOT
+from DmpWorkflow.utils.tools import send_heartbeat
 from DmpWorkflow.core.models import JobInstance, Job
 
 
@@ -66,27 +67,29 @@ def main(args=None):
         raise Exception("found running pilot agent, check process %s",read_pidfile(cfg['global']['pidfile']))
     
     write_pidfile(cfg['global']['pidfile'])
+    send_heartbeat("PilotAgent", None)
     default_pilot = cfg['default-pilot']
     while isfile(cfg['global']['pidfile']) and read_pidfile(cfg['global']['pidfile']) == str(getpid()):
         ## run loop
         for pilot in tqdm(cfg['pilots']):
+            my_pilot = deepcopy(default_pilot)
+            my_pilot.update(pilot)
+            # skip pilot creation if there are no new jobs to be processed.
+            if not JobInstance.objects.filter(status="New", site=my_pilot['site'], isPilot=False): continue
+            # find mother pilot
+            pilot = None
             try:
-                my_pilot = deepcopy(default_pilot)
-                my_pilot.update(pilot)
-                if not JobInstance.objects.filter(status="New", site=my_pilot['site'], isPilot=False): continue
-                # find mother pilot
-                pilot = None
-                try:
-                    if my_pilot['version'] == 'None':   
-                        print 'no version specified, use latest of type pilot'
-                        query = Job.objects.filter(type='Pilot',execution_site=my_pilot['site'])
-                        if query.count(): pilot = query.first()
+                if my_pilot['version'] == 'None':   
+                    print 'no version specified, use latest Job of Type "Pilot"'
+                    query = Job.objects.filter(type='Pilot',execution_site=my_pilot['site'])
+                    if query.count(): pilot = query.first()
                     else:
                         pilot = Job.objects.get(type="Pilot",execution_site=my_pilot['site'],release=my_pilot['version'])
-                except Job.DoesNotExist:
-                    raise Exception("could not find pilot corresponding to site & version provided in configuration")
-                if pilot is None:
-                    raise Exception("could not find pilot")
+            except Job.DoesNotExist:
+                pilot = None
+            if pilot is None:
+                print "could not find pilot for site %s and version %s"%(my_pilot['site'],my_pilot['version'])
+            else:
                 print 'query running pilots'
                 query = JobInstance.objects.filter(isPilot=True, job=pilot)
                 running_pilots = query.filter(status__in=["New","Submitted","Running"]).count()
@@ -101,9 +104,6 @@ def main(args=None):
                         p.setAsPilot(True)
                         pilot.addInstance(p)
                     pilot.save()
-            except Exception as err:
-                print 'exception during creation of pilots for %s'%pilot['site']
-                print err
         ## done loop
         print 'sleeping for pre-determined time {sleep}...'.format(sleep=cfg['global']['sleeptime'])
         sleep(cfg['global']['sleeptime'])
