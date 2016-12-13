@@ -50,7 +50,9 @@ class DmpJob(object):
         self.execCommand = None
         self.executable = ""
         self.exec_wrapper = ""
+        self.short_job = False
         self.script = None
+        self.status = None
         self.error_log = ""
         self.batchdefaults = deepcopy(BATCH_DEFAULTS)
         self.__dict__.update(kwargs)
@@ -110,6 +112,7 @@ class DmpJob(object):
             environ['RELEASE_TAG'] = self.release
         environ['DWF_JOB_ID']      = str(self.jobId)
         environ['DWF_INSTANCE_ID'] = str(self.instanceId)
+        self.short_job = literal_eval(getenv("DWF_SHORT_JOB","False"))
         # print 'BatchOverride keys', BATCH_DEFAULTS
         self.batchdefaults = BATCH_DEFAULTS
         if self.isPilot:
@@ -213,6 +216,10 @@ class DmpJob(object):
 
     def updateStatus(self, majorStatus, minorStatus, **kwargs):
         """ passes status """
+        self.status = majorStatus
+        if self.short_job:
+            if self.status == majorStatus: return
+            if 'resources' in kwargs: del kwargs['resources']
         my_dict = {"t_id": self.jobId, "inst_id": self.instanceId, "major_status": majorStatus,
                    "minor_status": minorStatus}
         if not self.isPilot and self.pilotReference not in ["None","NONE",None]:            

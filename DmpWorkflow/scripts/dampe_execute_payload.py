@@ -18,6 +18,7 @@ from psutil import Process as ps_proc
 from datetime import datetime
 from re import findall
 from time import ctime, sleep
+from ast import literal_eval
 #import atexit
 if not RunningInBatchMode: EXEC_DIR_ROOT = "/tmp"
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
