@@ -187,7 +187,7 @@ class Job(db.Document):
     def getInstance(self, _id):
         try:
             jI = JobInstance.objects.get(job=self, instanceId=_id)
-            jI.first()
+            return jI
         except JobInstance.DoesNotExist:
             log.exception("could not find matching id")
         return None
