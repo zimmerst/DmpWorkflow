@@ -187,6 +187,7 @@ class JobInstanceView(MethodView):
         dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         taskName = request.form.get("taskname", None)
         tasktype = request.form.get("tasktype", None)
+        instId = int(request.form.get("instanceId",0))
         ninst = int(request.form.get("n_instances", "0"))
         override_dict = literal_eval(request.form.get("override_dict", str(dummy_dict)))
         if taskName is None and tasktype is None:
@@ -206,7 +207,16 @@ class JobInstanceView(MethodView):
             if 'release' in dout['atts']:
                 job.release = dout['atts']['release']
             # logger.info('extracted body %s',dout)
-            if ninst:
+            if instId > 0:
+                logger.debug("JobInstanceView:POST: creating instance with offset")
+                try:
+                    jI = JobInstance(body=dumps(override_dict), site=site)
+                    job.addInstance(jI,inst=instId)
+                except Exception as err:
+                    logger.error("JobInstanceView:POST: %s",err)
+                    return dumps({"result": "nok", "error": str(err)})
+                logger.debug("JobInstanceView:POST: added instance %i to job %s", instId, job.id)
+            elif ninst > 0:
                 logger.debug("adding %i instances", ninst)
                 for j in range(ninst):
                     try:
@@ -214,7 +224,7 @@ class JobInstanceView(MethodView):
                         # if opts.inst and j == 0:
                         #    job.addInstance(jI,inst=opts.inst)
                         # else:
-                        job.addInstance(jI)
+                        job.addInstance(jI)                        
                     except Exception as err:
                         logger.error("JobInstanceView:POST: %s",err)
                         return dumps({"result": "nok", "error": str(err)})

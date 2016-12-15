@@ -64,6 +64,7 @@ def createJobInstance(args=None):
     parser.add_argument("-n", "--name", help="task name", dest="name")
     parser.add_argument("-t", "--type", help="task type", dest="tasktype")
     parser.add_argument("-i", "--instances", help="number of instances", dest="inst", type=int)
+    parser.add_argument("--instanceId",help="use this to offset the starting stream", dest="instanceId", type=int, default=0)
     parser.add_argument("--set-var", dest="set_var", type=str, default=None,
                         help="set variables for streams, format is key1=value1;key2=value2, separate by ;")
     opts = parser.parse_args(args)
@@ -75,7 +76,7 @@ def createJobInstance(args=None):
     environ['DWF_JOBNAME'] = taskName
     ninst = opts.inst
     res = post("%s/jobInstances/" % DAMPE_WORKFLOW_URL,
-               data={"taskname": taskName, "tasktype": opts.tasktype, "n_instances": ninst,
+               data={"taskname": taskName, "tasktype": opts.tasktype, "n_instances": ninst, "instanceId": opts.instanceId,
                      "override_dict": str(override_dict)})
     res.raise_for_status()
     res = res.json()

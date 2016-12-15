@@ -185,12 +185,13 @@ class Job(db.Document):
         self.save()
 
     def getInstance(self, _id):
-        jI = JobInstance.objects.filter(job=self, instanceId=_id)
-        log.debug("jobInstances from query: %s", str(jI))
-        if jI.count(): return jI.first()
-        log.exception("could not find matching id")
+        try:
+            jI = JobInstance.objects.get(job=self, instanceId=_id)
+            if jI.count(): return jI.first()
+        except JobInstance.DoesNotExist:
+            log.exception("could not find matching id")
         return None
-
+        
     def addInstance(self, jInst, inst=None):
         if self.archived:
             raise Exception("cannot append new instances to job that is archived, must unlock first.")
@@ -199,7 +200,10 @@ class Job(db.Document):
         if not isinstance(jInst, JobInstance):
             log.exception("must be job instance to be added")
             raise Exception("Must be job instance to be added")
-        last_stream = len(self.jobInstances)
+        q = JobInstance.objects.filter(job=self).order_by("-instanceId")
+        last_stream = 0
+        if q.count():
+            last_stream = int(q.first().instanceId)
         if inst is not None:
             # FIXME: offsets one, but then goes back to the length counter.
             last_stream = inst - 1
