@@ -238,8 +238,8 @@ class Job(db.Document):
             jI.instanceId = inst_id
             instances.append(jI)
         query = JobInstance.objects.insert(instances)
-        print "added {added} instances to job {job}".format(job=self.title, added=len(instances))
-        return
+        #print "added {added} instances to job {job}".format(job=self.title, added=len(instances))
+        return len(instances)
         
     def aggregateStatii(self, asdict=False):
         # just an alias
