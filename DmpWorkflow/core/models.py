@@ -221,10 +221,26 @@ class Job(db.Document):
 
     def addInstanceBulk(self,nreplica):
         """ using jInst as input instance, and creating a deepcopy of it, replicate it nreplica times and attach to job """
-        jinst = deepcopy(self.jobInstances[0])
+        isPilot = True if self.type == "Pilot" else False
+        site = self.execution_site
+        dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
+        query = JobInstance.objects.filter(job=self).order_by("-intanceId")
+        inst_id = 1
+        if query.count(): inst_id = query.first().instanceId 
+        jInst = JobInstance(body=str(dummy_dict), site = site, isPilot=isPilot)
+        sH = {"status": jInst.status, "update": jInst.last_update, "minor_status": jInst.minor_status}
+        jInst.status_history.append(sH)
+        jInst.job = self
+        instances = []
         for i in xrange(nreplica):
-            self.addInstance(jinst)
-
+            inst_id += i
+            jI = deepcopy(jInst)
+            jI.instanceId = inst_id
+            instances.append(jI)
+        query = JobInstance.objects.insert(instances)
+        print "added {added} instances to job {job}".format(job=self.title, added=len(instances))
+        return
+        
     def aggregateStatii(self, asdict=False):
         # just an alias
         """ will return an aggregated summary of all instances in all statuses """
