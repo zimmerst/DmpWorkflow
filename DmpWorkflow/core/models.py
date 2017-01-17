@@ -219,6 +219,12 @@ class Job(db.Document):
         jInst.save()
         self.jobInstances.append(jInst)
 
+    def addInstanceBulk(self,nreplica):
+        """ using jInst as input instance, and creating a deepcopy of it, replicate it nreplica times and attach to job """
+        jinst = deepcopy(self.jobInstances[0])
+        for i in xrange(nreplica):
+            self.addInstance(jinst)
+
     def aggregateStatii(self, asdict=False):
         # just an alias
         """ will return an aggregated summary of all instances in all statuses """
