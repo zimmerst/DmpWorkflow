@@ -221,10 +221,11 @@ class Job(db.Document):
 
     def addInstanceBulk(self,nreplica):
         """ using jInst as input instance, and creating a deepcopy of it, replicate it nreplica times and attach to job """
+        if nreplica == 0: raise Exception("must be called with integer > 0.")
         isPilot = True if self.type == "Pilot" else False
         site = self.execution_site
         dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
-        query = JobInstance.objects.filter(job=self).order_by("-intanceId")
+        query = JobInstance.objects.filter(job=self).order_by("-instanceId")
         inst_id = 1
         if query.count(): inst_id = query.first().instanceId 
         jInst = JobInstance(body=str(dummy_dict), site = site, isPilot=isPilot)
@@ -232,10 +233,12 @@ class Job(db.Document):
         jInst.status_history.append(sH)
         jInst.job = self
         instances = []
-        for i in xrange(nreplica):
-            inst_id += i
+        first = inst_id + 1
+        last =  inst_id + nreplica + 1
+        if last <= first: raise Exception("Must never happen")
+        for i in xrange(first,last):
             jI = deepcopy(jInst)
-            jI.instanceId = inst_id
+            jI.instanceId = i
             instances.append(jI)
         query = JobInstance.objects.insert(instances)
         #print "added {added} instances to job {job}".format(job=self.title, added=len(instances))

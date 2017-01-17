@@ -521,7 +521,7 @@ class NewJobs(MethodView):
                 return dumps({"result": "ok", "jobs": newJobInstances, "query_type":"standard"})
         except Exception as err:
             logger.error("NewJobs:GET: %s",err)
-            return dumps({"result":"nok","error":err})
+            return dumps({"result":"nok","error":str(err)})
 
 
 class TestView(MethodView):
