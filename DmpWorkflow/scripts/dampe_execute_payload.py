@@ -124,7 +124,7 @@ class PayloadExecutor(object):
                 except IOError as err:
                     self.logThis("error creating output directory, trying to recover, error follows: ",err)
                 safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
-                self.job.registerDS(filename=tg, overwrite=True)
+                #self.job.registerDS(filename=tg, overwrite=True)
             except Exception, e:
                 try:
                     self.job.updateStatus("Running" if self.debug else "Failed", camelize(e))
