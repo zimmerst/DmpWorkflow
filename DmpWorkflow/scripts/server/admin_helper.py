@@ -53,7 +53,7 @@ def exportJobXml(job):
     assertJob(job)
     body = job.body.read()
     job.body.seek(0)
-    fo = open("{title}.xml".format(job.title),"w")
+    fo = open("{title}.xml".format(title=job.title),"w")
     fo.write(body)
     fo.close()
     print 'exported {title}.xml'.format(title=job.title)
