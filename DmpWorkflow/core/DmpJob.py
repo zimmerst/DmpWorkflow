@@ -71,7 +71,7 @@ class DmpJob(object):
         self.isPilot = val
     def logError(self,err):
         error_line = "%s:ERROR: %s \n"%(ctime(),str(err))
-        self.error_log.append(error_line)
+        self.error_log += str(error_line)
 
     def registerDS(self, filename=None, overwrite=False):
         site = cfg.get("site", "name")
