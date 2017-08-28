@@ -71,6 +71,7 @@ class HeartBeat(db.Document):
 class Job(db.Document):
     created_at = db.DateTimeField(default=datetime.now, required=True)
     slug = db.StringField(verbose_name="slug", required=True, default=random_string_generator)
+    #version = db.StringField(verbose_name="job version", required=False, default = "1.0")
     title = db.StringField(max_length=255, required=True)
     body = db.FileField()
     type = db.StringField(verbose_name="type", required=False, default="Other", choices=TYPES)
@@ -80,7 +81,8 @@ class Job(db.Document):
     jobInstances = db.ListField(db.ReferenceField("JobInstance"))
     archived = db.BooleanField(verbose_name="task closed", required=False, default=False)
     comment = db.StringField(max_length=1024, required=False, default="N/A")
-
+    enable_monitoring = db.BooleanField(verbose_name="enable_monitoring", required=False, default=False)
+    
     def aggregateResources(self,nbins=20):
         """ returns a json object which contains max, min, mean, median, 
             and the histogram itself for all memories/cpu 
@@ -88,7 +90,7 @@ class Job(db.Document):
             and shouldn't be used lightly!
         """
         allData = {"memory":{"data":[]},"cpu":{"data":[]}}
-        query = JobInstance.objects.filter(job=self).only("cpu").only("memory")
+        query = JobInstance.objects.filter(job=self,status__not__exact="New").only("cpu").only("memory")
         if query.count():
             for inst in query:
                 agg = inst.aggregateResources()
@@ -130,6 +132,9 @@ class Job(db.Document):
             assert k in jobBody.keys(), "error, missing key %s in job body" % k
             meta[k] = jobBody[k]
         return meta
+    
+    def setDescription(self,desc):
+        self.comment = desc
 
     def getOutputFiles(self):
         m = self.evalBody()
@@ -180,12 +185,13 @@ class Job(db.Document):
         self.save()
 
     def getInstance(self, _id):
-        jI = JobInstance.objects.filter(job=self, instanceId=_id)
-        log.debug("jobInstances from query: %s", str(jI))
-        if jI.count(): return jI.first()
-        log.exception("could not find matching id")
+        try:
+            jI = JobInstance.objects.get(job=self, instanceId=_id)
+            return jI
+        except JobInstance.DoesNotExist:
+            log.exception("could not find matching id")
         return None
-
+        
     def addInstance(self, jInst, inst=None):
         if self.archived:
             raise Exception("cannot append new instances to job that is archived, must unlock first.")
@@ -194,7 +200,10 @@ class Job(db.Document):
         if not isinstance(jInst, JobInstance):
             log.exception("must be job instance to be added")
             raise Exception("Must be job instance to be added")
-        last_stream = len(self.jobInstances)
+        q = JobInstance.objects.filter(job=self).order_by("-instanceId")
+        last_stream = 0
+        if q.count():
+            last_stream = int(q.first().instanceId)
         if inst is not None:
             # FIXME: offsets one, but then goes back to the length counter.
             last_stream = inst - 1
@@ -210,6 +219,31 @@ class Job(db.Document):
         jInst.save()
         self.jobInstances.append(jInst)
 
+    def addInstanceBulk(self,nreplica):
+        """ using jInst as input instance, and creating a deepcopy of it, replicate it nreplica times and attach to job """
+        if nreplica == 0: raise Exception("must be called with integer > 0.")
+        isPilot = True if self.type == "Pilot" else False
+        site = self.execution_site
+        dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
+        query = JobInstance.objects.filter(job=self).order_by("-instanceId")
+        inst_id = 1
+        if query.count(): inst_id = query.first().instanceId 
+        jInst = JobInstance(body=str(dummy_dict), site = site, isPilot=isPilot)
+        sH = {"status": jInst.status, "update": jInst.last_update, "minor_status": jInst.minor_status}
+        jInst.status_history.append(sH)
+        jInst.job = self
+        instances = []
+        first = inst_id + 1
+        last =  inst_id + nreplica + 1
+        if last <= first: raise Exception("Must never happen")
+        for i in xrange(first,last):
+            jI = deepcopy(jInst)
+            jI.instanceId = i
+            instances.append(jI)
+        query = JobInstance.objects.insert(instances)
+        #print "added {added} instances to job {job}".format(job=self.title, added=len(instances))
+        return len(instances)
+        
     def aggregateStatii(self, asdict=False):
         # just an alias
         """ will return an aggregated summary of all instances in all statuses """
@@ -245,7 +279,7 @@ class Job(db.Document):
     #        if req:
     #            raise Exception("a task with the specified name & type exists already.")
     #        super(Job, self).save()
-
+    
     def update(self):
         log.warning("deprecated method, use save")
         super(Job, self).save()
@@ -276,6 +310,15 @@ class JobInstance(db.Document):
     log = db.StringField(verbose_name="log", required=False, default="",help="last 20 lines of error messages")
     cpu_max = db.FloatField(verbose_name="maximal CPU time (seconds)", required=False, default=-1.)
     mem_max = db.FloatField(verbose_name="maximal memory (mb)", required=False, default=-1.)
+    #doMonitoring = db.BooleanField(verbose_name="do_monitoring", required=True, default=job.enable_monitoring)
+
+    # if the jobInstance is a normal "job" it has a pilot to refer to.
+    # if the jobInstance is a pilot, "job" has a list of instances.
+    isPilot      = db.BooleanField(verbose_name="is_pilot",required=False, default=False)
+    pilotReference = db.ReferenceField("JobInstance") 
+
+    def setAsPilot(self,val):
+        self.isPilot = val
     
     def aggregateResources(self):
         """ returns dict of two arrays, first is memory, second is cpu """

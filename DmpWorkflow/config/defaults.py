@@ -7,10 +7,11 @@ Created on Apr 20, 2016
 """
 from ConfigParser import SafeConfigParser
 from os import environ, getenv
+from random import choice
 from os.path import dirname, abspath, join as oPjoin
-import sys
+#import sys
 from DmpWorkflow import version as DAMPE_VERSION
-from DmpWorkflow.utils.tools import exceptionHandler
+#from DmpWorkflow.utils.tools import exceptionHandler
 
 DAMPE_WORKFLOW_ROOT = dirname(dirname(abspath(__file__)))
 
@@ -21,6 +22,7 @@ __myDefaults = {
     "ExternalsScript": "${DAMPE_SW_DIR}/setup/setup.sh",
     "use_debugger": "true",
     "use_reloader": "true",
+    "use_profiler": "false",
     "workdir": ".",
     "url": "",
     "traceback": "true",
@@ -30,6 +32,7 @@ __myDefaults = {
     "HPCrequirements": "",
     "HPCextra": "",
     "HPCqueue": "",
+    "HPCname": "default",
     "HPCcputime": "24:00",
     "HPCmemory": "1000.",
     "HPCusername": "dampeprod",
@@ -46,7 +49,8 @@ cfg = SafeConfigParser(defaults=__myDefaults)
 cfg.read(oPjoin(DAMPE_WORKFLOW_ROOT, "config/settings.cfg"))
 
 assert cfg.get("global", "installation") in ['server', 'client'], "installation must be server or client!"
-
+DAMPE_BUILD =  cfg.get("global","installation")
+environ["DAMPE_BUILD"] = DAMPE_BUILD
 environ["DAMPE_SW_DIR"] = cfg.get("site", "DAMPE_SW_DIR")
 environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
 
@@ -55,17 +59,26 @@ environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
 # source_bash(cfg.get("site", "ExternalsScript"))
 
 dbg = cfg.getboolean("global", "traceback")
-sys.excepthook = exceptionHandler
+#sys.excepthook = exceptionHandler
 
-DAMPE_WORKFLOW_URL = cfg.get("server", "url")
+DAMPE_WORKFLOW_URL = getenv("DAMPE_WORKFLOW_SERVER_URL",cfg.get("server", "url"))
+
+# for clients: support multiple servers.
+if DAMPE_BUILD == "client" and "," in DAMPE_WORKFLOW_URL:
+    DAMPE_WORKFLOW_URL = choice(DAMPE_WORKFLOW_URL.split(",")) 
+    # some cleanup in syntax to get rid of extra whitespaces.
+    while " " in DAMPE_WORKFLOW_URL:
+        DAMPE_WORKFLOW_URL = DAMPE_WORKFLOW_URL.replace(" ","")
+
 DAMPE_WORKFLOW_DIR = cfg.get("site", "workdir")
 EXEC_DIR_ROOT = cfg.get("site", "EXEC_DIR_ROOT")
 environ["DWF_SW_VERSION"] = DAMPE_VERSION
-environ["BATCH_SYSTEM"] = cfg.get("site", "HPCsystem")
-environ["BATCH_REQUIREMENTS"] = cfg.get("site", "HPCrequirements")
-environ["BATCH_EXTRA"] = cfg.get("site", "HPCextra")
-environ["BATCH_QUEUE"] = cfg.get("site", "HPCqueue")
-environ["BATCH_NAME"]  = cfg.get("site", "HPCname")
+if DAMPE_BUILD == "client":
+    environ["BATCH_SYSTEM"] = cfg.get("site", "HPCsystem")
+    environ["BATCH_REQUIREMENTS"] = cfg.get("site", "HPCrequirements")
+    environ["BATCH_EXTRA"] = cfg.get("site", "HPCextra")
+    environ["BATCH_QUEUE"] = cfg.get("site", "HPCqueue")
+    environ["BATCH_NAME"]  = cfg.get("site", "HPCname")
 environ["EXEC_DIR_ROOT"] = EXEC_DIR_ROOT
 
 BATCH_DEFAULTS = {key: getenv("BATCH_%s" % key.upper()) for key in ['system', 'requirements', 'extra', 'queue','name']}
@@ -77,12 +90,13 @@ BATCH_DEFAULTS['name'] = cfg.get("site", "name")
 MAJOR_STATII = tuple(
     [unicode(t) for t in cfg.get("JobDB", "task_major_statii").split(",")] + ["Unknown"])  # adding unknown
 FINAL_STATII = tuple([unicode(t) for t in cfg.get("JobDB", "task_final_statii").split(",")])
-TYPES = tuple([unicode(t) for t in cfg.get("JobDB", "task_types").split(",")])
+TYPES = tuple([unicode(t) for t in cfg.get("JobDB", "task_types").split(",")]+['Pilot'])
 SITES = tuple([unicode(t) for t in cfg.get("JobDB", "batch_sites").split(",")])
 
 # verify that the site configuration is okay.
-assert BATCH_DEFAULTS['name'] in cfg.get("JobDB", "batch_sites"), "Batch site %s not in DB" % BATCH_DEFAULTS['name']
-assert BATCH_DEFAULTS['system'] in ["lsf", "sge", "pbs", "condor"], "HPCSystem %s not supported." % BATCH_DEFAULTS["system"]
+if DAMPE_BUILD == "client":
+    assert BATCH_DEFAULTS['name'] in cfg.get("JobDB", "batch_sites"), "Batch site %s not in DB" % BATCH_DEFAULTS['name']
+    assert BATCH_DEFAULTS['system'] in ["lsf", "sge", "pbs", "condor","slurm"], "HPCSystem %s not supported." % BATCH_DEFAULTS["system"]
 
 DAMPE_LOGFILE = cfg.get("global", "logfile")
 DAMPE_LOGLEVEL= cfg.get("global", "loglevel")

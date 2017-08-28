@@ -3,6 +3,7 @@ Created on Mar 25, 2016
 
 @author: zimmer
 """
+from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 try:
     import logging
     import shutil
@@ -28,10 +29,61 @@ except ImportError as Error:
     print "could not find one or more packages, check prerequisites."
     print Error
 
+def S_OK(result,error=None):
+    return {"result":result,"error":error}
+
 def datetime_to_js(dt):
     if not isinstance(dt,datetime):
         raise Exception("must be datetime object")
     return int(mktime(dt.timetuple())) * 1000.
+
+def updateJobStatus(**kwargs):
+    """ 
+        convenience method, wraps update status via request, thus can be used by 3rd party python applications
+        interaction happens via kwargs:
+        =========
+        t_id T_ID                   task ID
+        inst_id INST_ID             Instance ID
+        retry RETRY                 number of attempts being made to contact server
+        major_status MAJOR_STATUS   Major status
+        minor_status MINOR_STATUS   minor status
+        hostname HOSTNAME           hostname
+        batchId BATCHID             batchId
+        timeout                     timeout in seconds for server query
+
+        returns an S_OK dictionary with "result" (ok/nok) and "error" which defaults to None
+    """
+    from requests import post
+    my_dict = {}
+    for key in ['t_id','inst_id','retry','major_status','minor_status','hostname','batchId']:
+        val = kwargs.get(key,None)
+        if val is not None:
+            my_dict[key]=val
+    natts = my_dict.get("retry",3)
+    tout  = my_dict.get("timeout",30.)
+    if 'retry' in my_dict: my_dict.pop("retry")
+    if 'timeout' in my_dict: my_dict.pop("timeout")
+    res = None
+    counter = 0
+    while (natts >= counter) and (res is None):
+        try:
+            res = post("%s/jobstatus/" % DAMPE_WORKFLOW_URL, data={"args": dumps(my_dict)}, timeout=tout)
+            res.raise_for_status()
+        except Exception as err:
+            counter+=1
+            slt = 60*counter
+            print err
+            print '%i/%i: could not complete request, sleeping %i seconds and retrying again'%(counter, natts, slt)
+            sleep(slt)
+            res = None
+    if res is None and natts == counter:
+        return S_OK("nok",error="failed to connect to server %s"%DAMPE_WORKFLOW_URL)
+    else:
+        res = res.json()
+        if res.get("result", "nok") != "ok":
+            return S_OK("nok",error=res.get("error",""))
+        else:
+            return S_OK("ok")
 
 
 def dumpr(json_str):
@@ -46,7 +98,6 @@ def send_heartbeat(proc,version=None):
           - version: None (version of process)
     """
     from requests import post as r_post
-    from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
     if version is None:
         from DmpWorkflow import version as SW_VERSION
         version = SW_VERSION
@@ -213,7 +264,7 @@ def safe_copy(infile, outfile, **kwargs):
     # Try not to step on any toes....
     infile = expandvars(infile)
     outfile = expandvars(outfile)
-    cmnd = "cp %s %s" % (infile, outfile)
+    cmnd = "cp -v -n %s %s" % (infile, outfile)
     if infile.startswith("root:"):
         if kwargs['debug']: print 'input file is on xrootd - switching to XRD library'
         xrootd = True
@@ -221,7 +272,7 @@ def safe_copy(infile, outfile, **kwargs):
         if kwargs['debug']: print 'output file is on xrootd - switching to XRD library'
         xrootd = True
     if xrootd:
-        cmnd = "xrdcp -f %s %s" % (infile, outfile)
+        cmnd = "xrdcp %s %s" % (infile, outfile)
     md5in = md5out = None
     if kwargs['checksum'] and not xrootd:
         md5in = md5sum(infile, blocksize=kwargs['checksum_blocksize'])
@@ -449,6 +500,8 @@ class JobXmlParser(object):
             if name == "JobWrapper":
                 self.out['executable'] = node.getAttribute("executable")
                 self.out['script'] = node.firstChild.data
+            if name == "Comment":
+                self.out['comment'] = node.firstChild.data
             else:
                 if name in ["InputFiles", "OutputFiles"]:
                     my_key = "File"

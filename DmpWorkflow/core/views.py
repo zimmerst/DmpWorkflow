@@ -1,9 +1,9 @@
 import logging
-from copy import deepcopy
-from os.path import basename
+#from copy import deepcopy
+#from os.path import basename
 from json import loads, dumps
 from flask import Blueprint, request, render_template
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask.views import MethodView
 from ast import literal_eval
 from re import findall
@@ -15,29 +15,44 @@ jobs = Blueprint('jobs', __name__, template_folder='templates')
 
 logger = logging.getLogger("core")
 
+
+class PilotView(MethodView):
+        
+    def get(self):
+        logger.debug("PilotView:GET: request %s", str(request))
+        days_since=int(request.args.get("days_since",30))
+        hours_since=int(request.args.get("hours_since",0))
+        site=str(request.args.get("site","None"))
+        status=str(request.args.get("status","None"))
+        new_date = datetime.now() - timedelta(days = days_since, hours = hours_since)
+        query = JobInstance.objects.filter(last_update__gte=new_date, isPilot=True)
+        if site != "None":
+            query = query.filter(site=site)
+        if status != "None":
+            query = query.filter(status=status)
+        jobs = query.distinct("job")
+        return render_template('jobs/plist.html', jobs=jobs, 
+                               timestamp=new_date.strftime('%A, %d. %B %Y %I:%M%p'), 
+                               server_time=datetime.now())
+
 class ListView(MethodView):
-    
-    def getJobsSince(self,timestamp):
-        if not isinstance(timestamp,datetime):
-            raise Exception("must be a datetime object!")
-        active_jobs = []
-        query = JobInstance.objects.filter(last_update__gt=timestamp)
-        active_jobs = [inst.job for inst in query if inst.job not in active_jobs]
-        return active_jobs
-    
+        
     def get(self):
         logger.debug("ListView:GET: request %s", str(request))
-        # must be of format '2016-08-29T13:29:49'
-        #dformat = "%Y-%m-%dT%H:%M:%S"
-        #timestamp = "None"#request.args.get("timestamp","None")
-        #jobs = []
-        #if timestamp != "None":
-        #    logger.info("ListView:GET: found timestamp in request: %s", timestamp)
-        #    dtimestamp = datetime.strptime(timestamp,dformat)
-        #    jobs = self.getJobsSince(dtimestamp)
-        #else:
-        jobs = Job.objects.all()
-        return render_template('jobs/list.html', jobs=jobs)#, timestamp=timestamp.strftime(dformat))
+        days_since=int(request.args.get("days_since",30))
+        hours_since=int(request.args.get("hours_since",0))
+        site=str(request.args.get("site","None"))
+        status=str(request.args.get("status","None"))
+        new_date = datetime.now() - timedelta(days = days_since, hours = hours_since)
+        query = JobInstance.objects.filter(last_update__gte=new_date)
+        if site != "None":
+            query = query.filter(site=site)
+        if status != "None":
+            query = query.filter(status=status)
+        jobs = query.filter(isPilot__in=[False,None]).distinct("job")
+        return render_template('jobs/list.html', jobs=jobs, 
+                               timestamp=new_date.strftime('%A, %d. %B %Y %I:%M%p'), 
+                               server_time=datetime.now())
 
 class InstanceView(MethodView):
     def get(self):
@@ -82,13 +97,22 @@ class DetailView(MethodView):
         logger.debug("DetailView:GET: request %s", str(request))
         job = Job.objects.get_or_404(slug=slug)
         status  = request.args.get("status",None)
-        instances = []
+        limit   = request.args.get("limit",None)
+        inst_min= int(request.args.get("MinInstanceId",0))
+        inst_max= int(request.args.get("MaxInstanceId",0))
         if status is None:
-            instances = JobInstance.objects.filter(job=job)
+            query = JobInstance.objects.filter(job=job)
             status = "None"
         else:
             logger.info("DetailView:GET: request called with status query")
-            instances = JobInstance.objects.filter(job=job,status=status)
+            query = JobInstance.objects.filter(job=job,status=status)
+        if inst_min > 0:
+            query = query.filter(instanceId__gte=inst_min)
+        if inst_max > 0:
+            query = query.filter(instanceId__lte=inst_max)
+        if limit is not None:
+            query = query.limit(int(limit))
+        instances = query
         logger.info("DetailView:GET: found %i instances for job %s",instances.count(),job.title)
         return render_template('jobs/detail.html',job=job, instances=instances, status = status)
 
@@ -106,9 +130,11 @@ class JobView(MethodView):
             taskname = request.form.get("taskname", None)
             jobdesc = request.files.get("file", None)
             t_type = request.form.get("t_type", None)
+            comment= request.form.get("comment",None)
             site = request.form.get("site", "local")
+            #isPilot = False
             depends = request.form.get("depends", "None")
-            override_dict = literal_eval(request.form.get("override_dict", str(dummy_dict)))
+            #override_dict = literal_eval(request.form.get("override_dict", str(dummy_dict)))
             n_instances = int(request.form.get("n_instances", "0"))
             if taskname is None:
                 logger.exception("JobView:GET: task name must be defined.")
@@ -120,6 +146,7 @@ class JobView(MethodView):
                 job = Job(title=taskname, type=t_type, execution_site=site)
             # job = Job.objects(title=taskname, type=t_type).modify(upsert=True, new=True, title=taskname, type=t_type)
             job.body.put(jobdesc, content_type="application/xml")
+            if comment is not None: job.setDescription(comment)
             job.save()
             dout = job.getBody()
             if 'type' in dout['atts']:
@@ -128,11 +155,14 @@ class JobView(MethodView):
                 job.release = dout['atts']['release']
             if t_type is not None:
                 job.type = t_type
+            #if job.type == "Pilot": isPilot = True
             if n_instances:
-                for j in range(n_instances):
-                    jI = JobInstance(body=str(override_dict), site=site)
-                    job.addInstance(jI)
-                    logger.debug("JobView:GET: added instance %i to job %s", (j + 1), job.id)
+                added = job.addInstanceBulk(n_instances)
+                logger.debug("JobView:GET: added %i instances to job %s", added, job.title)
+                #for j in range(n_instances):
+                #    jI = JobInstance(body=str(override_dict), site=site, isPilot=isPilot)
+                #    job.addInstance(jI)
+                #    logger.debug("JobView:GET: added instance %i to job %s", (j + 1), job.id)
             # print len(job.jobInstances)
             if depends != "None":
                 depends = depends.split(",")
@@ -159,6 +189,7 @@ class JobInstanceView(MethodView):
         dummy_dict = {"InputFiles": [], "OutputFiles": [], "MetaData": []}
         taskName = request.form.get("taskname", None)
         tasktype = request.form.get("tasktype", None)
+        instId = int(request.form.get("instanceId",0))
         ninst = int(request.form.get("n_instances", "0"))
         override_dict = literal_eval(request.form.get("override_dict", str(dummy_dict)))
         if taskName is None and tasktype is None:
@@ -178,7 +209,16 @@ class JobInstanceView(MethodView):
             if 'release' in dout['atts']:
                 job.release = dout['atts']['release']
             # logger.info('extracted body %s',dout)
-            if ninst:
+            if instId > 0:
+                logger.debug("JobInstanceView:POST: creating instance with offset")
+                try:
+                    jI = JobInstance(body=dumps(override_dict), site=site)
+                    job.addInstance(jI,inst=instId)
+                except Exception as err:
+                    logger.error("JobInstanceView:POST: %s",err)
+                    return dumps({"result": "nok", "error": str(err)})
+                logger.debug("JobInstanceView:POST: added instance %i to job %s", instId, job.id)
+            elif ninst > 0:
                 logger.debug("adding %i instances", ninst)
                 for j in range(ninst):
                     try:
@@ -186,7 +226,7 @@ class JobInstanceView(MethodView):
                         # if opts.inst and j == 0:
                         #    job.addInstance(jI,inst=opts.inst)
                         # else:
-                        job.addInstance(jI)
+                        job.addInstance(jI)                        
                     except Exception as err:
                         logger.error("JobInstanceView:POST: %s",err)
                         return dumps({"result": "nok", "error": str(err)})
@@ -197,6 +237,41 @@ class JobInstanceView(MethodView):
         else:
             logger.error("JobInstanceView:POST: Cannot find job")
             return dumps({"result": "nok", "error": 'Could not find job %s' % taskName})
+
+class SetJobStatusBulk(MethodView):
+    def get(self):
+        pass
+    
+    def post(self):
+        try:
+            njobs = 0
+            assert 'data' in request.form        
+            status_data = loads(request.form.get("data"))
+            major_status = str(request.form.get("status","Submitted"))
+            if major_status != "Submitted": 
+                logger.warning("SetJobStatusBulk:POST: should not use this end-point for anything but submitted jobs")
+            minor_status = str(request.form.get("minor_status","WaitingForExecution"))
+            update_dict = {"status":major_status,"minor_status":minor_status,"last_update":datetime.now()}
+            logger.debug("found %i entries to update",len(status_data))
+            # data is of this form:
+            #[{jobId=XXX, instanceId=i}]
+            jobIds = list(set([j['t_id'] for j in status_data]))
+            # make as few queries as possible 
+            query_dict = {k:[] for k in jobIds}
+            for j in status_data:
+                query_dict[j['t_id']].append(j['instanceId'])
+            # assembled, now let's do the query
+            for jobId, instances in query_dict.iteritems():
+                try: 
+                    q = JobInstance.objects.filter(status="New",job=Job.objects.get(id=jobId), instanceId__in=instances)
+                    if q.count():
+                        njobs+=q.update(**update_dict)
+                except Exception as err:
+                    raise Exception("error while updating query for job Id: %s",jobId)
+            return dumps({"result":"ok","njobs":njobs})
+        except Exception as err:
+            return dumps({"result":"nok","error":str(err)})
+                
 
 class SetJobStatus(MethodView):
     # these are helper methods to reduce complexity of POST    
@@ -252,6 +327,7 @@ class SetJobStatus(MethodView):
                         "status_history": [],
                         "memory"        : [],
                         "cpu"           : [],
+                        "pilotReference": None,
                         "log"           : ""
                            }
             res = query.update(**update_dict)
@@ -289,13 +365,28 @@ class SetJobStatus(MethodView):
             # additional information, not critical
             site = str(arguments.get("site", "None"))
             minor_status = arguments.get("minor_status", None)
+            preference = arguments.get("pilotReference",None)
+            pilot = None
+            if preference is not None:
+                try:
+                    pref = preference.split(".")
+                    pilot = JobInstance.objects.get(instanceId=int(pref[1]),job=Job.objects.get(id=str(pref[0])))
+                except JobInstance.DoesNotExist:
+                    raise Exception("SetJobStatus:POST: Could not find associated pilot instance")
             jInstance = None
             if "body" in arguments:
                 del arguments["body"]
             # this might throw, but that's caught down-stream...
             job = Job.objects.get(id=t_id) 
             # this one either throws an exception, which is caught down stream, or returns a valid json.
+            if major_status in ["Terminated","Failed"] and job.type == "Pilot":
+                # take care of assigned pilot instances...
+                jI = JobInstance.objects.get(job=job,instanceId=inst_id)
+                query = JobInstance.objects.filter(pilotReference=jI)
+                query.update(status="Terminated",minor_status="PilotTerminated")
             if major_status == "New":
+                if job.type == "Pilot":
+                    raise Exception("SetJobStatus:POST: Try to roll-back pilot, this is not supported.")
                 return self.__rollBack__(job,inst_id,arguments=arguments)
             # check for batchId, not used in query.
             bId = arguments.get("batchId",None)
@@ -305,8 +396,12 @@ class SetJobStatus(MethodView):
                 if arguments['batchId'] == "None" or arguments['batchId'] is None:
                     del arguments['batchId']
             except Exception as err:
-                raise Exception("error extracting batchId,\n%s"%err)                        
+                raise Exception("SetJobStatus:POST: error extracting batchId,\n%s"%err)                        
             query = {"job":job, "instanceId":inst_id}
+            if pilot is not None:
+                q = JobInstance.objects.filter(**query).update(pilotReference=pilot)
+                if q != 1: 
+                    raise Exception("SetJobStatus:POST: could not assign pilot reference to jobInstance")
             if site != "None": query['site']=site
             # again, this may throw...
             logger.debug("SetJobStatus:POST: query to find instance %s",str(query))
@@ -316,12 +411,13 @@ class SetJobStatus(MethodView):
             logger.debug("SetJobStatus:POST: arguments in request %s",str(arguments))
             if minor_status is not None:
                 jInstance.setStatus(major_status,minor_status)
-            for key in ["t_id", "inst_id", "major_status","minor_status"]:
+            for key in ["t_id", "inst_id", "major_status","minor_status","pilotReference"]:
                 if key in arguments: del arguments[key]  
             logger.debug("SetJobStatus:POST: arguments after cleanup %s",str(arguments))
             # for the rest, we can just use the setters.
             for key, value in arguments.iteritems():
                 jInstance.set(key, value)
+            
 
         except Exception as err:
             logger.exception("SetJobStatus:POST: %s",err)
@@ -368,44 +464,65 @@ class SetJobStatus(MethodView):
         return dumps({"result": "ok", "jobs": output})
 
 class NewJobs(MethodView):
+    
+    def getJobsFast(self,site,status):
+        """ a superfast query to see how many jobs are running """
+        pilot = literal_eval(request.form.get("pilot","False"))
+        if not isinstance(status,list):
+            status = [status]
+        q = JobInstance.objects.filter(status__in=status, site=site)
+        if pilot:
+            q = q.filter(job__in=Job.objects.filter(type="Pilot"))
+        else:
+            q = q.filter(job__in=Job.objects.filter(type__not__exact="Pilot"))
+        return q.count()
+    
+    def getNewJobs(self,batchsite, jstatus):
+        _limit = int(request.form.get("limit", 1000))
+        pilot = literal_eval(request.form.get("pilot","False"))
+        job_query = Job.objects.filter(execution_site=batchsite)
+        if pilot: 
+            job_query = job_query.filter(type="Pilot")
+        else:
+            job_query = job_query.filter(type__not__exact="Pilot")
+        newJobInstances = []
+        newJobs = JobInstance.objects.filter(status=jstatus, job__in=job_query).limit(int(_limit))
+        if newJobs.count():
+            for j in newJobs:
+                job = j.job
+                dJob = DmpJob(job.id, body=None, title=job.title)
+                dJob.setBodyFromDict(job.getBody())
+                if j.checkDependencies():
+                    j.getResourcesFromMetadata()
+                    dJob.setInstanceParameters(j.instanceId, j.body)
+                    newJobInstances.append(dJob.exportToJSON())
+                else:
+                    logger.info("NewJobs:GET: dependencies not fulfilled yet")
+        return newJobInstances
+
     def get(self):
         logger.debug("NewJobs:GET: request %s", str(request))
         jstatus = unicode(request.form.get("status", u"New"))
+        status_list = unicode(request.form.get("status_list",u"None"))
         batchsite = unicode(request.form.get("site", "local"))
-        _limit = int(request.form.get("limit", 1000))
-        newJobInstances = []
-        allJobs = Job.objects.filter(execution_site=batchsite)
-        logger.debug("NewJobs:GET: allJobs = %s", str(allJobs))
-        for job in allJobs:
-            logger.debug("NewJobs:GET: processing job %s", job.slug)
-            dependent_tasks = job.getDependency()
-            logger.debug("NewJobs:GET: dependent tasks: %s", dependent_tasks)
-            newJobs = JobInstance.objects.filter(job=job, status=jstatus).limit(int(_limit))
-            logger.debug("#newJobs: %i", newJobs.count())
-            if newJobs.count():
-                logger.debug("NewJobs:GET: found %i new instances for job %s", newJobs.count(), str(job.title))
-                dJob = DmpJob(job.id, body=None, title=job.title)
-                logger.debug("NewJobs:GET: DmpJob instantiation.")
-                for dt in dependent_tasks:
-                    logger.debug("NewJobs:GET: processing dependencies for job %s", dt)
-                    dJob.InputFiles += [{"source": fil, "target": basename(fil)} for fil in dt.getOutputFiles()]
-                    dJob.MetaData += [{"name": k, "value": v, "type": "string"} for k, v in
-                                      dt.getMetaDataVariables().iteritems()]
-                logger.debug("NewJobs:GET: setBodyFromDict")
-                dJob.setBodyFromDict(job.getBody())
-                for j in newJobs:
-                    if j.checkDependencies():
-                        logger.debug("NewJobs:GET: depedency satisfied")
-                        j.getResourcesFromMetadata()
-                        logger.debug("NewJobs:GET: resources read out")
-                        dInstance = deepcopy(dJob)
-                        dInstance.setInstanceParameters(j.instanceId, j.body)
-                        logger.debug('NewJobs:GET: ** DEBUG ** instance body : %s',j.body)
-                        newJobInstances.append(dInstance.exportToJSON())
-                    else:
-                        logger.info("NewJobs:GET: dependencies not fulfilled yet")
-                logger.debug("NewJobs:GET: found %i new jobs after dependencies", len(newJobInstances))
-        return dumps({"result": "ok", "jobs": newJobInstances})
+        fastQuery = request.form.get("fastQuery","False")
+        if fastQuery in ["false","False","FALSE"]: fastQuery = False
+        elif fastQuery in ["true","True","TRUE"]: fastQuery = True
+        else:
+            return dumps({"result":"nok","error":"could not interpret fastQuery key in request %s"%fastQuery})
+        if status_list != "None":
+            jstatus = status_list.split(",")
+        try:
+            if fastQuery:
+                njobs = self.getJobsFast(batchsite,jstatus)
+                return dumps({"result": "ok", "jobs": njobs, "query_type":"fast"})
+            else:
+                newJobInstances = self.getNewJobs(batchsite, jstatus)
+                return dumps({"result": "ok", "jobs": newJobInstances, "query_type":"standard"})
+        except Exception as err:
+            logger.error("NewJobs:GET: %s",err)
+            return dumps({"result":"nok","error":str(err)})
+
 
 class TestView(MethodView):
     def post(self):
@@ -531,12 +648,14 @@ class DataCatalog(MethodView):
 
 # Register the urls
 jobs.add_url_rule('/', view_func=ListView.as_view('list'))
+jobs.add_url_rule('/pilots/', view_func=PilotView.as_view('pilots'))
 jobs.add_url_rule('/stats', view_func=StatsView.as_view('stats'), methods=["GET"])
 jobs.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
 jobs.add_url_rule("/job/", view_func=JobView.as_view('jobs'), methods=["GET", "POST"])
 jobs.add_url_rule('/jobInstances/detail', view_func=InstanceView.as_view('instanceDetail'))
 jobs.add_url_rule("/jobInstances/", view_func=JobInstanceView.as_view('jobinstances'), methods=["GET", "POST"])
 jobs.add_url_rule("/jobstatus/", view_func=SetJobStatus.as_view('jobstatus'), methods=["GET", "POST"])
+jobs.add_url_rule("/jobstatusBulk/", view_func=SetJobStatusBulk.as_view('jobstatusBulk'), methods=["GET", "POST"])
 jobs.add_url_rule("/newjobs/", view_func=NewJobs.as_view('newjobs'), methods=["GET"])
 jobs.add_url_rule("/testDB/", view_func=TestView.as_view('testDB'), methods=["GET", "POST"])
 jobs.add_url_rule("/datacat/", view_func=DataCatalog.as_view('datacat'), methods=["GET", "POST"])

@@ -16,7 +16,7 @@ def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True, suppr
     # inspired from http://tinyurl.com/hslhjfe (StackOverflow)
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
-    logger.info("attempting to run: %s", str(cmd_args))
+    if useLogging: logger.info("attempting to run: %s", str(cmd_args))
     args = [[], []]  # first is output, second is errors
     tsk = Popen(cmd_args, stdout=PIPE, stderr=PIPE)
     poll = spoll()
@@ -54,7 +54,7 @@ def run_cached(cmd_args, cachedir="/tmp"):
     """ returns file objects to output & error caching the output of a running process """
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
-    logger.info("attempting to run: %s", str(cmd_args))
+    #logger.info("attempting to run: %s", str(cmd_args))
     tmp_out = NamedTemporaryFile(dir=cachedir, delete=True)
     tmp_err = NamedTemporaryFile(dir=cachedir, delete=True)
     tsk = Popen(cmd_args, stdout=tmp_out, stderr=tmp_err)

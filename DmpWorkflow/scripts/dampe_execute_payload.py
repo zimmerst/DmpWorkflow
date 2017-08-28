@@ -10,7 +10,7 @@ from importlib import import_module
 from socket import gethostname
 from sys import exit as sys_exit, argv
 from DmpWorkflow.config.defaults import EXEC_DIR_ROOT, BATCH_DEFAULTS, cfg
-from DmpWorkflow.core.DmpJob import DmpJob
+from DmpWorkflow.core.DmpJob import DmpJob, RunningInBatchMode
 from DmpWorkflow.utils.tools import safe_copy, camelize, mkdir, rm, ProcessResourceMonitor, convertHHMMtoSec
 from DmpWorkflow.utils.shell import run_cached
 from multiprocessing import Process
@@ -18,7 +18,9 @@ from psutil import Process as ps_proc
 from datetime import datetime
 from re import findall
 from time import ctime, sleep
-
+from ast import literal_eval
+#import atexit
+if not RunningInBatchMode: EXEC_DIR_ROOT = "/tmp"
 HPC = import_module("DmpWorkflow.hpc.%s" % BATCH_DEFAULTS['system'])
 
 class PayloadExecutor(object):
@@ -26,6 +28,8 @@ class PayloadExecutor(object):
         self.pwd = curdir
         self.logThis("reading json input")
         self.job = DmpJob.fromJSON(open(inputfile,"r").read())
+        if self.job.isPilot:
+            self.logThis("PILOT MODE: waiting for new jobs to be run inside queue")
         self.debug = debug
         self.batchId = getenv(HPC.BATCH_ID_ENV, "-1")
         if "." in self.batchId:
@@ -42,6 +46,11 @@ class PayloadExecutor(object):
         print '*** RECEIVED EXIT TRIGGER ****'
         if msg is not None: print msg
         sys_exit(rc)
+
+    #@atexit.register
+    #def terminate(self):
+    #    self.job.updateStatus("Terminated", "Receive SIGTERM")
+    #    self.exit_app(128)
     
     def __prepare(self):
         try:
@@ -115,7 +124,7 @@ class PayloadExecutor(object):
                 except IOError as err:
                     self.logThis("error creating output directory, trying to recover, error follows: ",err)
                 safe_copy(src, tg, attempts=4, sleep='4s', checksum=True)
-                self.job.registerDS(filename=tg, overwrite=True)
+                #self.job.registerDS(filename=tg, overwrite=True)
             except Exception, e:
                 try:
                     self.job.updateStatus("Running" if self.debug else "Failed", camelize(e))
@@ -131,7 +140,7 @@ class PayloadExecutor(object):
         environ["DWF_SIXDIGIT"] = self.job.getSixDigits()
         print 'EXEC_DIR_ROOT: %s' % EXEC_DIR_ROOT
         print 'instanceId : %s' % str(self.job.getSixDigits())
-        my_exec_dir = oPjoin(EXEC_DIR_ROOT, self.job.getSixDigits(), "local" if self.batchId == "-1" else str(self.batchId))
+        my_exec_dir = oPjoin(EXEC_DIR_ROOT, self.job.getSixDigits(), "local" if not RunningInBatchMode else str(self.batchId))
         mkdir(my_exec_dir)
         chdir(my_exec_dir)
         self.logThis("execution directory %s", my_exec_dir)
@@ -202,6 +211,7 @@ if __name__ == '__main__':
             killJob = True
             reason = "exceeding Memory"
         if killJob:
+            executor.logThis("ProcessResources: %s"%str(prm))
             executor.job.updateStatus("Terminated",camelize(reason),resources=prm)
             executor.logThis('Watchdog: current cpu: %s -- current memory: %s', str(syst_cpu),str(memory))
             executor.logThis('Watchdog: CRITICAL: got termination directive, reason follows: %s',reason)
@@ -211,5 +221,7 @@ if __name__ == '__main__':
         else:
             ## terminate here for the various reasons.
             # output of memory is in kilobytes.
-            executor.job.updateStatus("Running",None,resources=prm)
+            if executor.job.monitoring_enabled:
+                executor.logThis("ProcessResources: %s"%str(prm))
+                executor.job.updateStatus("Running",None,resources=prm)
             sleep(float(BATCH_DEFAULTS.get("sleeptime","300."))) # sleep for 5m

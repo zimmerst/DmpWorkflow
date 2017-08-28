@@ -15,3 +15,6 @@ xmltodict
 multiprocessing
 psutil
 numpy
+pyyaml
+flask_profiler
+tqdm
