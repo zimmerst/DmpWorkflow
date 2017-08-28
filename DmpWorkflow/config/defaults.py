@@ -61,7 +61,7 @@ environ["DAMPE_WORKFLOW_ROOT"] = DAMPE_WORKFLOW_ROOT
 dbg = cfg.getboolean("global", "traceback")
 #sys.excepthook = exceptionHandler
 
-DAMPE_WORKFLOW_URL = cfg.get("server", "url")
+DAMPE_WORKFLOW_URL = getenv("DAMPE_WORKFLOW_SERVER_URL",cfg.get("server", "url"))
 
 # for clients: support multiple servers.
 if DAMPE_BUILD == "client" and "," in DAMPE_WORKFLOW_URL:
