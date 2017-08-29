@@ -5,6 +5,7 @@ Created on Mar 25, 2016
 """
 from DmpWorkflow.config.defaults import DAMPE_WORKFLOW_URL
 try:
+    from requests import get as r_get
     import logging
     import shutil
     from DmpWorkflow.utils.shell import run
@@ -249,6 +250,24 @@ def xrootdPath2Cmd(xrdPath,cmd='mkdir',args=""):
         fullCmdList.append(args)
     return " ".join(fullCmdList)
 
+def download_file(infile,outfile,attempts=3, debug=False, sleep = 10):
+    if not infile.startswith("url:"): raise Exception("must be URL type!")
+    infile = infile.replace("url:","")
+    req = r_get(infile,verify=False,stream=True)
+    attempt = 0
+    while attempt <= attempts:
+        if req.status_code != 200:
+            if debug: print 'cannot download file, try again after sleep'
+            time_sleep(sleep)
+            attempt+=1
+            continue
+        with open(outfile, 'wb') as f:
+            for chunk in req: f.write(chunk)
+        if debug: 
+            print 'downloaded file to %s'%outfile
+        return
+    raise IOError("could not download file after sleep operation")
+
 def safe_copy(infile, outfile, **kwargs):
     kwargs.setdefault('sleep', 10)
     kwargs.setdefault('attempts', 10)
@@ -256,6 +275,8 @@ def safe_copy(infile, outfile, **kwargs):
     kwargs.setdefault('checksum', False)
     kwargs.setdefault("checksum_blocksize", 4096)
     kwargs.setdefault('mkdir',False)
+    if infile.startswith("url:"):
+        download_file(infile,outfile,attempts=kwargs['attempts'],debug=kwargs['debug'], sleep = kwargs['sleep'])
     sleep = parse_sleep(kwargs['sleep'])
     xrootd = False    
     if kwargs['mkdir']: mkdir(dirname(outfile))            

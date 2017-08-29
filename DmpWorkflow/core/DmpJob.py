@@ -165,24 +165,25 @@ class DmpJob(object):
         if oPath.isdir(self.wd):
             rm(self.wd)
         mkdir(self.wd)
+        
         safe_copy(oPath.join(DAMPE_WORKFLOW_ROOT, "scripts/dampe_execute_payload.py"),
                   oPath.join(self.wd, "script.py"), debug=debug)
         with open(oPath.join(self.wd, "job.json"), "wb") as json_file:
             json_file.write(self.exportToJSON())
-        jsonLOC = oPath.abspath(oPath.join(self.wd, "job.json"))
         script_file = open(oPath.join(self.wd, "script"), "w")
         rel_path = self.getReleasePath()
         setup_script = self.getSetupScript()
         setup_script = setup_script.replace(rel_path, "")
         if setup_script.startswith("/"):
-            setup_script = setup_script.replace("/", "")
+            setup_script = setup_script.replace("/", "")        
         cmds = ["#!/bin/bash", "echo \"batch wrapper executing on $(date)\"",
+                "DAMPE_WD=${DAMPE_WORKFLOW_WORKDIR:-%s}"%self.wd,
                 "source %s" % oPath.expandvars(ExtScript),
                 "unset DMPSWSYS",
                 "cd %s" % rel_path if not self.isPilot else "# pilot do nothing",
                 "source %s" % setup_script if not self.isPilot else "# pilot, do nothing.", 
-                "cd %s" % self.wd,
-                "%s script.py %s" % (pythonbin, jsonLOC),
+                "cd ${DAMPE_WD}",
+                "%s script.py ${DAMPE_WD}/job.json" % pythonbin,
                 "echo \"batch wrapper completed at $(date)\""]
         script_file.write("\n".join(cmds))
         script_file.close()
