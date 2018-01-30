@@ -101,6 +101,8 @@ class Job(db.Document):
             # finished aggregation, now we can do calculations                                                                                                                                              
             for key in allData:
                 d = allData[key]["data"]
+                if not len(d): 
+                    continue
                 allData[key]["max"]=max(d)
                 allData[key]["min"]=min(d)
                 arr = np_array(d,dtype=float)
