@@ -3,7 +3,7 @@
 # call: python script.py -t JobName -i instanceId -o OutputDir
 #
 from copy import deepcopy
-from os import curdir, mkdir, system
+from os import curdir, mkdir, system, getcwd
 from os.path import abspath,isdir
 from sys import argv
 from argparse import ArgumentParser
@@ -44,8 +44,13 @@ def main(args=None):
   #if not opts.output is None:
   #  outdir=opts.output
   #if not isdir(outdir): mkdir(outdir) 
-  xrd_files="xrdfs xrootd-dampe.cloud.ba.infn.it ls -u /UserSpace/dampe_prod/mc/workdir/{site}/{task}/{task_type}/{sixDigit} 2> /dev/null".format(site=opts.site, task=opts.task, sixDigit=getSixDigits(opts.inst_id,asPath=True),task_type=opts.task_type)
-  xrd_cmd="{list} | xargs -I @ xrdcp @ {task}/{inst}/.".format(list=xrd_files,inst=opts.inst_id,task=opts.task)
+  if site == 'CSCS':
+	xrd_cmd = "globus-url-copy -r -sync -q -rst sshftp://stzimmer@gridftp.cscs.ch/scratch/snx3000/stzimmer/mc/workdir/{site}/{task}/{task_type}/{sixDigit} file://{cwd}/{task}/{inst}/. 2> /dev/null".format(site=opts.site, task=opts.task, sixDigit=getSixDigits(opts.inst_id,asPath=True),task_type=opts.task_type,cwd=getcwd())
+	# r: recursive ; sync: no copy if file already exists; q: quiet mode; rst: restart if failed, up to 5 times
+  else:
+    xrd_files="xrdfs xrootd-dampe.cloud.ba.infn.it ls -u /UserSpace/dampe_prod/mc/workdir/{site}/{task}/{task_type}/{sixDigit} 2> /dev/null".format(site=opts.site, task=opts.task, sixDigit=getSixDigits(opts.inst_id,asPath=True),task_type=opts.task_type)
+    xrd_cmd="{list} | xargs -I @ xrdcp @ {task}/{inst}/.".format(list=xrd_files,inst=opts.inst_id,task=opts.task)
+  
   mkcmd="mkdir -pv {task}/{inst}".format(task=opts.task,inst=opts.inst_id)
   print mkcmd
   print xrd_cmd
