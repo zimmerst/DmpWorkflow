@@ -7,6 +7,7 @@ from os import curdir, mkdir, system, getcwd
 from os.path import abspath,isdir
 from sys import argv
 from argparse import ArgumentParser
+from yaml import load as yload
 
 def getSixDigits(number, asPath=False):
   """ since we can have many many streams, break things up into chunks, 
@@ -39,7 +40,7 @@ def main(args=None):
   parser.add_argument("--site","-s", dest='site', default="BARI", help="Name of site the job was running at")
   parser.add_argument("--inst_id","-i", dest='inst_id', help="Instance ID", type=int,required=True)
   parser.add_argument("--workdir_path", dest='wdpth', default="mc/workdir",help="Path of working directory in remote location")
-  parser.add_argument("--gridftp_path", dest='rmtpth', default='stzimmer@gridftp.cscs.ch/scratch/snx3000/stzimmer',help="Full path for gridFTP transfer")
+  parser.add_argument("--config", dest="config", default="config.cfg",help="Config file for gridFTP transfer")
   #parser.add_argument("--output","-o",dest='output',help='output directory, if not set, will create directory here',default=None)
   opts = parser.parse_args(args)
   #outdir=abspath(curdir)
@@ -47,10 +48,17 @@ def main(args=None):
   #  outdir=opts.output
   #if not isdir(outdir): mkdir(outdir) 
   if site == 'CSCS':
-	xrd_cmd = "globus-url-copy -r -sync -q -rst sshftp://{remotepath}/{wdpath}/{site}/{task}/{task_type}/{sixDigit} file://{cwd}/{task}/{inst}/. 2> /dev/null".format(site=opts.site, task=opts.task, 
+	parameters = yload(open(opts.config,'r'))
+	gridftp_protocol = parameters['protocol'] if 'protocol' in parameters.keys() else 'sshftp'
+	gridftp_user = parameters['user']
+	gridftp_URL = parameters['url']
+	gridftp_path = parameters['path']
+	xrd_cmd = "globus-url-copy -r -sync -q -rst {prtcl}://{usr}@{url}{remotepath}/{wdpath}/{site}/{task}/{task_type}/{sixDigit} file://{cwd}/{task}/{inst}/. 2> /dev/null".format(prtcl=gridftp_protocol, usr=gridftp_user,
+																																									url=gridftp_URL, remotepath=gridftp_path,
+																																									wdpath=opts.wdpth, site=opts.site,
+																																									task=opts.task, task_type=opts.task_type,
 																																									sixDigit=getSixDigits(opts.inst_id,asPath=True),
-																																									task_type=opts.task_type, cwd=getcwd(),
-																																									wdpath=opts.wdpth, remotepath=opt.rmtpth)
+																																									cwd=getcwd(),inst=opts.inst_id)
 	# r: recursive ; sync: no copy if file already exists; q: quiet mode; rst: restart if failed, up to 5 times
   
   else:
