@@ -43,7 +43,7 @@ class BatchJob(HPCBatchJob):
         job_file.write("module load daint-mc\n")
         job_file.write("module load shifter\n")
         job_file.write("export DAMPE_WORKFLOW_SERVER_URL=%s\n"%DAMPE_WORKFLOW_URL)
-        shifter_call = "\nsrun -n 4 -C mc shifter --image {image} --volume={wd}:/workdir /workdir/script\n".format(image=d['image'],wd=wd)
+        shifter_call = '\nsrun -n 4 -C mc shifter --image {image} --volume={wd}:/workdir bash -c "bash /workdir/script"\n'.format(image=d['image'],wd=wd)
         job_file.close()
         output = self.__run__("sbatch submit.sh")
         chdir(pwd)
