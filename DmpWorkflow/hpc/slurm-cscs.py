@@ -26,29 +26,31 @@ class BatchJob(HPCBatchJob):
         wd = dirname(self.logFile)
         chdir(wd)
         d = OrderedDict()
+        self.logging.warn("!FIXME! ugly hard coded values for memory & cpu time")
         nCPU = int(defaults.get("numcores","8"))
         d['job-name'] = self.name
         d['nodes'] = 1
-        d['time']  = defaults.get("cputime","24:00:00")
+        d['time']  = "24:00:00"  #defaults.get("cputime","24:00:00")
         d['partition'] = defaults.get('queue',"normal")
         d['constraint'] = 'gpu' # no use of gpu
-        #d['mem'] = defaults.get("memory","4G")
+        d['mem'] = "40GB"        #defaults.get("memory","4G")
         d['output'] = op_join(wd,"output.log")
         d['error'] = op_join(wd,"output.err")
+        #d['ntasks-per-node']=nCPU
         d['image'] = defaults.get("image","zimmerst85/dampesw-cscs:latest")
         job_file = open("submit.sh", "w")
         job_file.write("#!/bin/bash\n")
         data = ["#SBATCH --%s=%s\n" % (k, v) for k, v in d.iteritems()]
         job_file.write("".join(data))
         # now add CSCS specific stuff
-        job_file.write("module load daint-gpus\n")
+        job_file.write("module load daint-gpu\n")
         job_file.write("module load shifter\n")
         job_file.write("export DAMPE_WORKFLOW_SERVER_URL=%s\n"%DAMPE_WORKFLOW_URL)
         job_file.write("export NTHREADS=%i\n"%nCPU)
-        shifter_call = '\nsrun -N1 -c{nCPU} -C gpu shifter --image={image} --volume={wd}:/workdir bash -c "bash /workdir/script"\n'.format(nCPU=nCPU,image=d['image'],wd=wd)
+        shifter_call = '\nsrun -C gpu shifter --image={image} --volume={wd}:/workdir bash -c "bash /workdir/script"\n'.format(image=d['image'],wd=wd)
         job_file.write(shifter_call)
         job_file.close()
-        output = self.__run__("sbatch -N1 -c{nCPU} submit.sh".format(nCPU=nCPU))
+        output = self.__run__("sbatch submit.sh")
         chdir(pwd)
         return self.__regexId__(output)
 
