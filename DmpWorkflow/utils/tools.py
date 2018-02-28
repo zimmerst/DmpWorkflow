@@ -215,7 +215,7 @@ def mkdir(Dir):
 
 def rm(pwd):
     try:
-        shutil.rmtree(pwd)
+        shutil.rmtree(pwd,ignore_errors=True)
     except Exception as err:
         logging.exception(err)
 
