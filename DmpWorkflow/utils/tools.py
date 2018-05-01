@@ -308,7 +308,7 @@ def safe_copy(infile, outfile, **kwargs):
             if md5in == md5out:
                 return status
             else:
-                print '%i - copy successful but checksum does not match, try again in 5s'
+                print '%i - copy successful but checksum does not match, try again in 5s'%i
                 time_sleep(5)
         else:
             print "%i - Copy failed; sleep %ss" % (i, sleep)
