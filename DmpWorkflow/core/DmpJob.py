@@ -177,8 +177,8 @@ class DmpJob(object):
         if setup_script.startswith("/"):
             setup_script = setup_script.replace("/", "")        
         cmds = ["#!/bin/bash", "echo \"batch wrapper executing on $(date)\"",
-                "HOSTNAME: $(hostname)",
-                "# CORES: $(grep -c processor /proc/cpuinfo)",
+                "echo \"HOSTNAME: $(hostname)\"",
+                "echo \"# CORES: $(grep -c processor /proc/cpuinfo)\"",
                 "DAMPE_WD=${DAMPE_WORKFLOW_WORKDIR:-%s}"%self.wd,
                 "source %s" % oPath.expandvars(ExtScript),
                 "unset DMPSWSYS",
