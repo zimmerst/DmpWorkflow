@@ -8,28 +8,8 @@ from os.path import abspath,isdir
 from sys import argv
 from argparse import ArgumentParser
 from yaml import load as yload
+from DmpWorkflow.utils.tools import getSixDigits
 
-def getSixDigits(number, asPath=False):
-  """ since we can have many many streams, break things up into chunks, 
-      this should make sure that 'ls' is not too slow. """
-  if not asPath:
-     return str(number).zfill(6)
-  else:
-     if number < 100:
-        return str(number).zfill(2)
-     else:
-          my_path = []
-          rest = deepcopy(number)
-          blocks = [100000, 10000, 1000, 100]
-          for b in blocks:
-              value, rest = divmod(rest, b)
-              # print b, value, rest
-              if value:
-                padding = "".ljust(len(str(b)) - 1, "x")
-                my_path.append("%i%s" % (value, padding))
-                rest = rest
-          my_path.append(str(rest).zfill(2))
-          return "/".join([str(s) for s in my_path])
 
 def main(args=None):
   usage = "Usage: %(prog)s [options]"
@@ -55,10 +35,7 @@ def main(args=None):
 	gridftp_path = parameters['path']
 	xrd_cmd = "globus-url-copy -r -sync -q -rst {prtcl}://{usr}@{url}{remotepath}/{wdpath}/{site}/{task}/{task_type}/{sixDigit} file://{cwd}/{task}/{inst}/. 2> /dev/null".format(prtcl=gridftp_protocol, usr=gridftp_user,
 																																									url=gridftp_URL, remotepath=gridftp_path,
-																																									wdpath=opts.wdpth, site=opts.site,
-																																									task=opts.task, task_type=opts.task_type,
-																																									sixDigit=getSixDigits(opts.inst_id,asPath=True),
-																																									cwd=getcwd(),inst=opts.inst_id)
+																																									wdpath=opts.wdpth, site=opts.site,																																					cwd=getcwd(),inst=opts.inst_id)
 	# r: recursive ; sync: no copy if file already exists; q: quiet mode; rst: restart if failed, up to 5 times
   
   else:
@@ -70,10 +47,6 @@ def main(args=None):
   print xrd_cmd
 
 
-
-
-
-  pass
 
 if __name__ == '__main__':
   main()
