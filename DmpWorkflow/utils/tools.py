@@ -91,6 +91,15 @@ def dumpr(json_str):
     """ convenience function to return a flask-Response object """
     return Response(dumps(json_str),mimetype = 'application/json')
 
+def getOS():
+    """ convenience method, reads out /etc/issue to return OS flavor """
+    if not isfile("/etc/issue"): return "N/A"
+    f = open("/etc/issue","r")
+    try:
+     return f.read().split("\\n")[0]
+    except Exception as err:
+     return "N/A"
+
 def send_heartbeat(proc,version=None):
     """ 
         convenience function that sends a heart beat to DB
@@ -105,6 +114,7 @@ def send_heartbeat(proc,version=None):
         
     from socket import getfqdn as gethostname # use full domain name.
     host = gethostname()
+    os_flavor = getOS()
     url = "%s/testDB/"%DAMPE_WORKFLOW_URL
     dt = datetime.now()
     res = r_post(url, data={"hostname":host, "timestamp":dt,"process":proc, "version":version})
